@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Настройки на базата знания
+  0: >
+
+knowledge_base_status:
+  title: Състояние на базата знания
+  content: >
+    Включете тази настройка, за да позволите на потребителите да се самообслужват от базата знания. <br><br> Категориите на базата знания и често задаваните въпроси (ЧЗВ) могат да бъдат направени вътрешни (т.е. да се виждат само от сътрудници).
+  links:
+    - 
+      title: Управление на базата знания
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Разрешете тази опция за да предотвратите достъпа на нерегистрирани потребители до статиите в базата от знания на потребителския интерфейс.
+  links:
+    - 
+      title: Настройки за управление на достъпа
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Готови отговори
+  content: >
+    Включете тази настройка, за да разрешите на сътрудниците да ползват <span class="doc-desc-title">готови отговори</span>, когато отговарят на заявки.
+  links:
+    - 
+      title: Управление на готовите отговори
+      href: /scp/canned.php

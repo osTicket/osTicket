@@ -1,0 +1,35 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Zasláno pracovníkům, když nějakému požadavku vyprší termín.
+  Zpoždělené požadavky vznikají na základě jejich termínu splnění stejně jako
+  na základě nastaveného plánu SLA.
+subject: |
+  Upozornění na zastaralý požadavek
+body: |
+  <h3><strong>Vážený/á %{recipient.name}</strong>,</h3>
+  požadavek č. <a href="%{ticket.staff_link}">%{ticket.number}</a> vážně
+  zastaral
+  <br>
+  <br>
+  Všichni bychom měli tvrdě pracovat, abychom mohli zajistit, že všechny
+  požadavky jsou vyřízeny včas.
+  <br>
+  <br>
+  S pozdravem,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Pro zobrazení či odpověď na tento požadavek, prosím, <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >přihlašte se</span></a> do systému zákaznické podpory. Tento e-mail
+  dostáváte, protože daný požadavek je přiřazen přímo vám nebo vašemu oddělení,
+  jehož jste členem.</div>
+  <em style="font-size: small">Přátelská, <span style="font-size: smaller"
+  >ale trochu netrpělivá</span> Zákaznická
+  podpora</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Provozováno na osTicket" width="126" style="width: 126px;">

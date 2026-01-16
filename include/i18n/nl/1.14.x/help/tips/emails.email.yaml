@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Nieuw Ticket Help-onderwerp
+  content: >
+    Kies een <span class="doc-desc-title"> Help-onderwerp</span> om automatisch geassocieerd te worden met tickets gemaakt via dit e-mailadres. <br/> <br/> Formulieren die gekoppeld zijn aan het Help-onderwerp zullen worden toegevoegd aan het ticket, maar zullen niets van gegevens bevatten.
+  links:
+    - 
+      title: Help-onderwerpen beheren
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Nieuwe Ticket prioriteit
+  content: >
+    Kies de <span class="doc-desc-title">Prioriteit</span> voor nieuwe tickets gemaakt via dit e-mailadres.
+new_ticket_department:
+  title: Nieuwe Ticket afdeling
+  content: >
+    Kies het <span class="doc-desc-title">Departement</span> waarnaar nieuwe tickets gemaakt via dit e-mailadres worden doorgestuurd.
+  links:
+    - 
+      title: Afdelingen beheren
+      href: /scp/departments.php
+auto_response:
+  title: Automatisch antwoord op nieuw ticket
+  content: >
+    U kan het Automatisch antwoord uitschakelen dat verzonden wordt naar de gebruiker wanneer een nieuw ticket wordt gemaakt via dit e-mailadres.
+username:
+  title: Gebruikersnaam
+  0: >
+
+password:
+  title: Wachtwoord
+  0: >
+
+login_information:
+  title: E-mail Login informatie
+  content: >
+    <span class="doc-desc-title">Gebruikersnaam</span> en <span class="doc-desc-title">Wachtwoord</span> zijn vereist voor het ontvangen van e-mails via IMAP / POP postvakken en voor het verzenden van e-mails via SMTP.
+mail_account:
+  title: Ophalen van E-mail
+  content: >
+    E-mails ophalen van een externe e-mailadres via IMAP of POP en omzetten in tickets in uw helpdesk.
+  links:
+    - 
+      title: Beheer<span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> instellingen.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Externe Host
+  content: >
+    Voer de <span class="doc-desc-title">Hostnaam</span> en <span class="doc-desc-title">Poort</span> voor uw e-mailserver. Dit is beschikbaar in de documentatie voor uw hosting account of vanuit uw e-mailbeheerder.
+protocol:
+  title: Mail Box Protocol
+  content: >
+    Selecteer het vak e-mailprotocol ondersteund door externe e-mailserver. IMAP wordt aanbevolen en SSL indien mogelijk ook indien mogelijk.
+fetch_frequency:
+  title: Ophaal frequentie
+  content: >
+    Geef op hoe vaak, in minuten, het systeem het postvak zal controleren. <br/> <br/> Dit verklaart de vertraging van een Auto-antwoord nadat een gebruiker een e-mail naar deze mailbox stuurt.
+emails_per_fetch:
+  title: E-mails per ophaling
+  content: >
+    Voer het aantal te verwerken e-mails per ophaling.
+fetched_emails:
+  title: Opgehaalde E-mails
+  content: >
+    Beslissen wat te doen met de verwerkte e-mails: <br/> <br/> <span class="doc-desc-opt"> <b>verplaatsen naar map</b></span>: dit zal de e-mails van het postvak IN naar een map die u opgeeft verplaatsen. Als de map nog niet bestaat op de server, zal het systeem proberen om deze automatisch te maken. (<b>Aanbevolen</b>) <hr><span class="doc-desc-opt"> <b>Verwijderen </b></span>: dit zal uw e-mails verwijderen uit het postvak IN nadat ze zijn verwerkt. <hr><span class="doc-desc-opt"> <b>Niets doen</b></span>: Dit laat e-mails in uw INBOX. Het systeem registreert de bericht-id's van uw e-mails en probeert niet nogmaals te verwerken. Deze optie kan echter dubbele tickets verooraken. (<em>Niet aanbevolen</em>)
+smtp_settings:
+  title: SMTP-instellingen
+  content: >
+    E-mail verzonden vanuit de helpdesk kan worden verzonden via een SMTP-server. Dit wordt aanbevolen, indien mogelijk, omdat het de waarschijnlijkheid van een e-maillevering toeneemt en zal het minder waarschijnlijk worden gemarkeerd als spam.
+header_spoofing:
+  title: Koptekst of spoofing
+  content: >
+    Laat toe een mail te verzenden vanaf een ander email adres dan datgene dat is opgegeven bij <span class="doc-desc-title">Email Address</span> hierboven <br/><br/>  Deze geavanceerde instelling wordt meestal gebruikt bij het gebruik van alliases.
+

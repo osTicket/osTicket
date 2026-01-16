@@ -1,0 +1,70 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: 客服中心名稱
+  content: |
+    <p>支援系統名稱  例如支援 [公司名稱] </p>
+system_email:
+  title: 系統的預設電子郵件
+  content: |
+    <p>預設電子郵件 如 support@yourcompany.com - 之後您可繼續增加!</p>
+default_lang:
+  title: 系統預設語言
+  content: |
+    <p>初始資料的語言將被安裝到資料庫中。例如電子郵件範本和預設系統頁面將先為此語言安裝。</p>
+  links:
+    - 
+      title: osTicket 語言包
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: 名
+  content: |
+    <p>管裡員姓名</p>
+last_name:
+  title: 姓
+  content: |
+    <p>管理員 姓氏</p>
+email:
+  title: 電子信箱
+  content: |
+    <p>管裡員的個人電子郵件地址。必須與系統的預設電子郵件不同。</p>
+username:
+  title: 帳號
+  content: |
+    <p>管理員的登入帳號。必須至少 3 個字元。</p>
+password:
+  title: 密碼
+  content: |
+    <p>管理員密碼。密碼至少要有 5 個字元。</p>
+password2:
+  title: 確認密碼
+  content: |
+    <p>兩者重新輸入管理員密碼。必須相符。</p>
+db_prefix:
+  title: MySql資料表前綴
+  content: |
+    <p> osTicket 需要資料表前綴以避免使用分享資料庫時產生衝突 。</p>
+
+db_host:
+  title: MySQL 主機名稱
+  content: |
+    <p>大多數主機使用 localhost 作為資料庫主機名稱。如果無法連線，請洽詢您的主機商詢問。</p>
+    <p>連接埠已於 php.ini 中預設。如果需使用非預設連接埠，可以另外指定，如：<code>hostname:port</code></p>
+db_schema:
+  title: MySQL 資料庫
+  content: |
+    <p> osTicket 的資料庫名稱。</p>
+db_user:
+  title: MySQL 使用者名稱
+  content: |
+    <p> MySQL 使用者必須擁有資料庫的完整權限。</p>
+db_password:
+  title: MySQL 密碼
+  content: |
+    <p>上述用戶的 MySQL 密碼</p>

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Medewerker handtekening regel
+  content: |
+    Maak handtekening voor medewerkers voor reacties op tickets. Deze handtekening verschijnt optioneel onderaan bij een reactie op een ticket
+type:
+  title: Account type
+  content: |
+    Beheerders hebben het voorrecht van de toegang tot het Admin Paneel. Medewerkers hebben alleen toegang tot het beheren van tickets en de kennisbank
+group:
+  title: Toegewezen groep
+  content: |
+    Groepslidmaatschap definieert de rol van medewerkers in het systeem. Bezoek de pagina groepsbeheer om aan te geven welke toegang deze medewerkers hebben bij de helpdesk
+notes:
+  title: Interne notities
+  content: |
+    Plaats interne notities betreffende medewerkers; notities zijn alleen zichtbaar voor medewerkers met het account type Admin

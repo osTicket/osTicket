@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Sivuston sivut
+  content: >
+    Sivuston sivut voivat toimia pienenä sisällönhallintajärjestelmänä (CMS). Voit määrittää useita tervetuloa-, offline -ja kiitos sivuja ja määrittää ne Yrityksen asetukset-sivulta ja ohjeotsikoista.
+  links:
+    - 
+      title: Yrityksen asetukset
+      href: /scp/settings.php?t=pages
+type:
+  title: Tyyppi
+  content: >
+    <span class="doc-desc-opt">Offline</span> sivut ovat käytössä asiakasportaalissa jos tukipalvelu on pois päältä. <span class="doc-desc-opt">Tervetuloa</span> sivut ovat asiakkaan etusivuja asiakasportaalissa. <span class="doc-desc-opt">Kiitos</span> sivut on käytössä kun käyttäjä on lähettänyt uuden tiketin. <span class="doc-desc-opt">Muut</span> sivuja voidaan käyttää yksinkertaisina sisällönhallintasivuina (CMS).

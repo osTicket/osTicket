@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  This template defines the email sent to Clients when their account has been created in the Client Portal or by an Agent on their behalf. This email serves as an email address verification. Please use %{link} somewhere in the body.
+name: "Laipni lūgti %{company.name}"
+body: >
+  <h3><strong>Sveicināti %{recipient.name.first}!</strong></h3><div> Mēs esam izveidojuši Jums piekļuvi mūsu palīdzības dienesta vietnē %{url}.<br /><br /> Lūdzu sekojiet zemāk minētajai norādei lai apstiprinātu Jūsu rekvizītus un nodrošinātu piekļuvi Jūsu pieprasījumiem.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small"> Jūsu draudzīgā Klientu atbalsta sistēma <br />%{company.name}</em></div>

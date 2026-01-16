@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ordine de executare
+  content: >
+    Introdu un număr ce controlează prioritatea filtrului. Cu cât numărul e mai mic, cu atât va fi mai mare prioritatea la execuție a acestui filtru, comparativ cu un alt filtru cu un număr mai mare (prioritate mai mică).<br><br>Dacă vrei ca acest filtru să fie ultimul care se aplică la obținerea unui rezultat, bifează <span class="doc-desc-title">Oprește restul procesărilor la rezultat</span>.
+target_channel:
+  title: Canal
+  content: >
+    Alege <span class="doc-desc-title">canalul</span>-țintă pentru <span class="doc-desc-title">filtrul de tichet</span>. <span class="doc-desc-title">Canalul</span> este sursa prin care tichetul a ajuns în sistem.<br><br> De exemplu, dacă alegi <span class="doc-desc-opt">Formular web</span>, înseamnă că vrei să aplici <span class="doc-desc-title">filtrul de tichet</span> acelor tichete care își sau originea în formularul din portalul clienților.
+rules_matching_criteria:
+  title: Reguli de interpretare a criteriilor
+  content: >
+    Alege cât de elastic dorești să fie <span class="doc-desc-title">filtrul de tichete</span>. Dacă dorești ca filtrul de tichete să întoarcă rezultate care îndeplinesc oricare dintre criterii după care să se oprească, alege <span class="doc-desc-opt">oricare</span>. Dacă vrei ca toate criteriile să fie îndeplinite, alege <span class="doc-desc-opt">toate</span>.
+reject_ticket:
+  title: Respinge tichet
+  content: >
+    Dacă această opțiune e bifată, procesarea e oprită și toate acțiunile de mai jos vor fi ignorate.
+reply_to_email:
+  title: Adresa de e-mail pentru răspuns
+  content: >
+    Bifează dacă dorești ca aplicația să se supună câmpului <span class="doc-desc-title">Răspunde la</span> din header-ul e-mail-ului prin care utilizatorul a introdus tichetul. Acest câmp e relevant doar dacă câmpul <span class="doc-desc-title">Canal</span> de mai sus conține <span class="doc-desc-opt">e-mail</span>.
+ticket_auto_response:
+  title: Invalidează răspunsul automat la tichet
+  content: >
+    <em>Notă: Are prioritate față de orice setare pentru <span class="doc-desc-title">Departament</span> sau <span class="doc-desc-title">Răspuns automat</span>.</em>
+canned_response:
+  title: Autoraspuns predefinit
+  content: >
+    Alege un <span class="doc-desc-title">răspuns predefinit</span> pe care vrei să-l trimiți utilizatorului când <span class="doc-desc-title">filtrul de tichet</span> are rezultate. Șablonul folosit pentru <span class="doc-desc-title">răspuns automat la tichet nou</span> depinde de <span class="doc-desc-title">setul de șabloane</span> desemnate ca implicite sau unui <span class="doc-desc-title">Departament</span> căruia tichetul îi este adresat.
+  links:
+    - 
+      title: Administreaza raspunsuri predefinite
+      href: /scp/canned.php
+    - 
+      title: Administrează seturile de șabloane
+      href: /scp/templates.php
+    - 
+      title: Sablon de răspuns automat la tichet nou
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Departament
+  content: >
+    Alege cărui <span class="doc-desc-title">Departament</span> vrei să aloci rezultatele aplicării <span class="doc-desc-title">filtrului de tichete</span>.
+  links:
+    - 
+      title: Administreaza Departamente
+      href: /scp/departments.php
+priority:
+  title: Prioritate
+  content: >
+    Alege nivelul de <span class="doc-desc-title">prioritate</span> al rezultatelor aplicării <span class="doc-desc-title">filtrului de tichet</span>.<br /><br /><em>Notă: Va avea prioritate față de setările <span class="doc-desc-title">Departament</span>ului sau ale <span class="doc-desc-title">subiectului de ajutor</span>.</em>
+sla_plan:
+  title: Plan SLA
+  content: >
+    Alege <span class="doc-desc-title">planul ANS (SLA)</span> pe care vrei să-l aplici rezltatelor întoarse de <span class="doc-desc-title">filtrul de tichet</span>.
+  links:
+    - 
+      title: Administrare Planuri SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Alocare automata
+  content: >
+    Alege agentul sau echipa cărora vrei să le aloci rezultatele obținute prin aplicarea <span class="doc-desc-title">filtrului de tichet</span>.
+  links:
+    - 
+      title: Administrare Agenti
+      href: /scp/staff.php
+    - 
+      title: Administrare echipe
+      href: /scp/teams.php
+help_topic:
+  title: Subiect
+  content: >
+    Alege <span class="doc-desc-title">subiectul de ajutor</span>pe care-l dorești aplicat rezultatelor <span class="doc-desc-title">filtrului de tichet</span>.
+  links:
+    - 
+      title: Admistrează subiectele de ajutor
+      href: /scp/helptopics.php
+admin_notes:
+  title: Note Admin
+  content: >
+    Aceste note sunt vizibile doar celor al căror cont este de tipul '<span class="doc-desc-title">Admin</span>'.

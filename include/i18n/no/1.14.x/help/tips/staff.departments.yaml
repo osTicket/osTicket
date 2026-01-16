@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Type
+  content: >
+    Hvis avdelingens er privat, vil ikke avdeling signaturen være tilgjengelig på svar eller avdeling tildelingen vises fra klienten Portal.
+dept_manager:
+  title: Avdelingsleder
+  content: >
+    Du kan velge en Agent som en avdelingsleder motta varsler & meldinger for saker i avdelingene.
+  0: Agenter trenger ikke å være medlemmer av avdelingen for å være leder for avdelingen

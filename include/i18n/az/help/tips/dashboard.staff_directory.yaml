@@ -1,0 +1,19 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+staff_members:
+  title: Heyət üzvləri
+  content: >
+    Növbəti cədvəl yuxarıda filterin nəticələrini göstərir. Əgər filter tənzimləmələri seçilməyibsə, onda bütün <span class="doc-desc-title">heyət üzvləri</span> görünür və səhifələr tərəfindən dağıdılır. Daha çox nətəicələr arasında gəzmək üçün aşağıda səhifələr bölməsinə  baxın.
+apply_filtering_criteria:
+  title: Filterləmə meyarına müraciət edin
+  content: >
+    Sizin indiki maraqlarınıza münasib <span class="doc-desc-title">şöbə</span> seçin. Həmçinin siz xüsusi agent axtarışını da həyata keçirdə bilərsiz.

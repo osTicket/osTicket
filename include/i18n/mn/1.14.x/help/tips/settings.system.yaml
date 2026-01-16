@@ -1,0 +1,122 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Тусламжийн албаны төлөв
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: Тусламжийн системийн URL
+  content: >
+    Энэ URL нь таны osTicket системийн үндсэн хаяг бөгөөд танай тусламж үйлчилгээний системд хандах холбоосыг хэрэглэгчдэд имэйлээр илгээхэд ашиглана.
+helpdesk_name_title:
+  title: Тусламжийн албаны нэр
+  content: >
+    Энэ гарчиг нь системийн гарчиг болж bookmark хийхэд мөн ашиглагдана.
+default_department:
+  title: Үндсэн алба
+  content: >
+    Аль нэг албанд автоматаар хуваарилагдаагүй хүсэлтийг хариуцах үндсэн <span class="doc-desc-title">албыг</span> сонгоно уу.<br/><br/>
+    Хүсэлтийн төрөл,  имэйл хаяг болон хүсэлтийн шүүлтүүрээс шалтгаалан хүсэлтийг автоматаар шилжүүлэн хуваарилах боломжтой.
+default_schedule:
+  title: Үндсэн хуваарь
+  content: >
+    Хүсэлтийн хугацаа хэтэрсэн үед SLA-аас ашиглах үндсэн хуваарийг сонгоно уу.
+  links:
+    - 
+      title: Хуваарийг удирдах
+      href: /scp/schedules.php
+default_page_size:
+  title: Хуудас дээрх хүсэлтийн тоо
+  content: >
+    Хүсэлтийн жагсаалт дээрх 1 хуудсанд хэдэн хүсэлт харуулахыг сонгоно уу. <span class="doc-desc-title">Миний бүртгэл</span> хэсэгт ажилтан бүр энэ тоог өөрийн хүссэнээр тохируулж болно.
+default_log_level:
+  title: Лог бичих түвшин
+  content: >
+    <span class="doc-desc-title">Систем лог</span> хэсэгт бүртгэгдэх доод түвшинг тохируулна уу. <span class="doc-desc-opt">Debug</span> хамгийн бага, <span class="doc-desc-opt">Алдаа</span> хамгийн өндөр зэрэглэлтэй. Хэрвээ бүх үйлдлийг <span class="doc-desc-title">Систем логд</span> бүртгэх бол <span class="doc-desc-opt">Debug</span> гэж сонгоно уу.
+purge_logs:
+  title: Лог цэвэрлэх
+  content: >
+    Мэдээллийг <span class="doc-desc-title">Систем лог</span> хэсэгт хадгалах хугацааг тохируулна.
+enable_richtext:
+  title: Текст форматжуулахыг зөвшөөрөх
+  content: >
+    Хэрэв идэвхжүүлбэл Хэрэглэгч ба ажилтнууд имэйлээр харьцахад HTML-г зөвшөөрнө.
+enable_avatars:
+  title: Хүсэлтийн түүх дээр Аватар харуулах
+  content: >
+    Хүсэлтийн түүх дээр <span class="doc-desc-title">Avatar</span> харуулах бол идэвхжүүлнэ үү.<br><br> <span class="doc-desc-title">Аватарын эх сурвалж</span> -г Ажилтан эсвэл Хэрэглэгчийн тохиргоон дээр зааж өгч болно.
+  links:
+    - 
+      title: Ажилтны тохиргоо
+      href: /scp/settings.php?t=agents
+    - 
+      title: Хэрэглэгчийн тохиргоо
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Ажилтнуудын давхардлаас сэргийлэх
+  content: >
+    Ажилтан ямар нэг үйлдэл хийлгүйгээр хүсэлтийг түгжих хугацааг тохируулна. <br><br> Хэрвээ <span class="doc-desc-opt">0</span> гэж тохируулбал түгжих функц ашиглахгүй.
+allow_iframes:
+  title: iFrames-ыг зөвшөөрөх
+  content: >
+    Системийн хүрээнд зохиогдох домайнуудын таслалаар тусгаарлагдсан жагсаалтыг оруулна уу. Хэрвээ хоосон орхисон бол систем өөрийн анхдагч тохиргоогоор оруулна. Энэ нь HTTP/HTTPS URL схем, портын дугаар болон саб домэйнуудыг зөвшөөрнө. <br><br> <b>Жишээ нь:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Синтаксийн мэдээлэл (хост-эх сурвалж)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Системд нэвтрэхийг зөвшөөрөх IP хаягуудыг жагсаалтыг таслалаар тусгаарлан оруулна уу. ACL-ыг хэрэгжүүлэх дөрвөн төрлийн сонголт байна. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Сонголт</th> <th>Тайлбар</th></tr> <tr><td>Идэвхгүй болсон</td> <td>ACL-ыг бүхэлд нь идэвхгүй болгоно.</td></tr> <tr><td>Бүгд</td> <td>ACL-ыг бүх самбарт ашиглана. (ж.нь. Үйлчлүүлэгчийн портал, Ажилтны самбар, Админы самбар)</td></tr> <tr><td>Үйлчлүүлэгчийн портал</td> <td>ACL-ыг зөвхөн Үйлчлүүлэгчийн порталд ашиглана.</td></tr> <tr><td>Ажилтны самбар</td> <td> ACL-ийг зөвхөн Ажилтны самбар ба Админы самбарт ашиглана.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Огноо &amp; цагийн тохиргоо
+  content: >
+    Доорх тохиргоонууд нь тусламжийн албаны Огноо &amp; Цаг тохируулахад хэрэглэгдэнэ. Та энд сонгогдсон хэл орон нутийн тохиргооны стандарт ашиглах эсвэл өөрийн хэрэгцээнд тааруулан өөрчлөн тохируулах боломжтой. Өөрчилж тохируулах бол ICU форматыг үзнэ үү. Доорх огноо нь харгалзах тохируулга нь хэрхэн харагдахыг зөвхөн жишээ болгон үзүүлэх зориулалттай.
+  links:
+    - 
+      title: ICU Date Formatting Table-г үзнэ үү
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Системийн хэлүүд
+  content: >
+    Тусламжийн албаны ажилтан ба хэрэглэгчдэд тохируулан системийн үндсэн ба (хэрэв шаардлагатай бол) туслах хэлүүдийг сонгоно уу.
+primary_language:
+  title: Системийн үндсэн хэл
+  content: >
+    Тусламжийн албаны ажилтан ба хэрэглэгчдийн сонгосон хэл нь байхгүй бол сайтын агуулгыг энэ хэл дээр харуулна. Үүнд хэрэглэгчийн интерфейс, сайтын нэмэлт хуудсууд болон имэйл мессежүүд мөн хамаарна.<br/><br/> Агуулгын орчуулагдаагүй хувилбарууд нь энэ хэл дээр харагдана гэсэн үг.
+secondary_language:
+  title: Туслах хэлүүд
+  content: >
+    Тусламжийн албаны ажилтнууд бо эцсийн хэрэглэгчдийн ашиглах хэлний тохиргоог сонгоно уу. Хэрэглэгчийн интерфейс, сайтын нэмэлт хуудсууд болон тусламжийн сэдвийн нэрс гэх мэт нь хэрэв орчуулагдсан бол таны сонгосон хэл дээр харагдах болно.
+#Attachments
+attachments:
+  title: Хавсралтын тохиргоо ба хадгалалт
+  content: >
+    Хавсралтуудыг хэрхэн хадгалахыг тохируулна.
+default_storage_bk:
+  title: Файл хадгалах санг сонгоно уу
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Файлын дээд хэмжээ
+  content: >
+    Ажилтны оруулж болох хавсралт файлын дээд хэмжээг сонгоно уу. Үүнд урьдчилан бэлдсэн хавсралтууд, мэдлэгийн сангийн нийтлэлүүд болон хүсэлт, даалгаварт хавсаргах файлууд орно. Лимит нь PHP <code>upload_max_filesize</code> тохируулгаар хязгаарлагдана.
+  links:
+    - 
+      title: PHP ini тохируулгууд
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

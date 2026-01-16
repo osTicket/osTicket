@@ -1,0 +1,12 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Startsidan refererar till innehållet för kundportalens startsida. Mallen ändrar innehållet ovanför de två länkarna <strong>Öppna ett nytt Ticket</strong> och <strong>Kontrollera Ticket status</strong>.
+name: Startsida
+body: >
+  <h1>Välkommen till Support Center</h1> 
+  <p>
+  För att effektivisera supportärenden och ge dig bättre service, använder vi ett supportsystem. Varje begäran om support tilldelas ett unikt ärendenummer som du kan använda för att följa framsteg och svar online. Vi tillhandahåller ett komplett arkiv med historik på alla dina supportärenden. En giltig emailadress krävs för att skicka in ett ärende. </p>

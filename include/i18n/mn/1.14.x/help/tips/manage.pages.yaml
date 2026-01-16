@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Сайтын хуудаснууд
+  content: >
+    Сайтын хуудсууд нь бяцхан CMS (Content Management System)-ын зориулалттай. Та хэд хэдэн нүүр, оффлайн болон талархлын хуудсуудыг тодорхойлж, тэдгээр хуудсуудыг байгууллагын тохируулга болон тусламжийн сэдвүүд дээр тохируулж өгч болно.
+  links:
+    - 
+      title: Байгууллагын тохируулга
+      href: /scp/settings.php?t=pages
+type:
+  title: Төрөл
+  content: >
+    <span class="doc-desc-opt">Офлайн</span> хуудаснууд нь систем ажиллахгүй үед хэрэглэгчид харуулах хуудас. <span class="doc-desc-opt">Нүүр</span> хуудас нь системийн эхний хуудас. <span class="doc-desc-opt">Баярлалаа</span> хуудас нь хэрэглэгч хүсэлт илгээсний дараа харуулах хуудас. <span class="doc-desc-opt">Бусад</span> хуудсыг ашиглан нэмэлт мэдээллүүд хүргэх боломжтой.

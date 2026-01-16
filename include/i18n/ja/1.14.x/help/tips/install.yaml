@@ -1,0 +1,69 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: ヘルプデスク名
+  content: |
+    <p>お客様のサポートシステム名（例：[会社名] サポート）</p>
+system_email:
+  title: デフォルトのシステム・メールアドレス
+  content: |
+    <p>デフォルトのメールアドレス（例：support@yourcompany.com）※あとから追加できます</p>
+default_lang:
+  title: デフォルトのシステム言語
+  content: |
+    <p>この言語の初期データがデータベースにインストールされます。たとえば、メールテンプレートとデフォルトのシステムページがこの言語でインストールされます。</p>
+  links:
+    - 
+      title: osTicket 言語パック
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: 名
+  content: |
+    <p>管理者の名</p>
+last_name:
+  title: 姓
+  content: |
+    <p>管理者の姓</p>
+email:
+  title: メールアドレス
+  content: |
+    <p>管理者の個人メールアドレス。デフォルトのシステム・メールアドレスと異なる必要があります</p>
+username:
+  title: ユーザー名
+  content: |
+    <p>管理者のログイン名（3文字以上)</p>
+password:
+  title: パスワード
+  content: |
+    <p>管理者のパスワード（5文字以上）</p>
+password2:
+  title: パスワードの確認
+  content: |
+    <p>管理者パスワードを再入力してください。一致する必要があります</p>
+db_prefix:
+  title: MySQLテーブルのプレフィックス
+  content: |
+    <p>共有データベースでテーブル名の衝突を避けるためにテーブルのプレフィックスを設定する必要があります</p>
+db_host:
+  title: MySQLホスト名
+  content: |
+    <p>ほとんどのホストではローカルのデータベース名に'localhost'を使います。もし'localhost'で接続できない場合、ホスト名を確認して設定してください</p>
+    <p>php.iniで指定されているデフォルトのポート番号が使用されます。標準でないポート番号を使用する場合は<code>hostname:port</code>で指定することができます</p>
+db_schema:
+  title: MySQLデータベース名
+  content: |
+    <p>osTicketが使用するデータベース名を指定してください</p>
+db_user:
+  title: MySQLユーザー名
+  content: |
+    <p>ユーザーはデータベースへの全ての権限を持っている必要があります</p>
+db_password:
+  title: MySQLパスワード
+  content: |
+    <p>上記ユーザーのMySQLパスワード</p>

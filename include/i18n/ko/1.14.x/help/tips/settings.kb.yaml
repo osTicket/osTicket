@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: 지식베이스(Knowledge base) 설정
+  0: >
+
+knowledge_base_status:
+  title: 지식베이스(Knowledge base) 상태
+  content: >
+    공개 지식베이스(Knowledge base)에 사용자가 직접 접근할 수 있도록 하려면 이 설정을 활성화하세요. <br> <br> 지식베이스(Knowledge base)의 카테고리 및 FAQ는 내부용 (에이전트만 조회 가능)로 설정할 수 있습니다.
+  links:
+    - 
+      title: 지식베이스(Knowledge base) 관리
+      href: /scp/kb.php
+restrict_kb:
+  title: 지식기반에 대한 액세스를 제한합니다.
+  content: >
+    등록되지 않은 사용자가 지식베이스(Knowledge base)에 접근하는 것을 막으려면 이 설정을 활성화하세요.
+  links:
+    - 
+      title: 접근 제어 설정
+      href: /scp/settings.php?t=사용자
+canned_responses:
+  title: Canned Responses
+  content: >
+    에이전트가 티케에 대해 응답할 때 <span class="doc-desc-title">Canned Responses</span>을 사용하도록 허용하려면 이 설정을 활성화하세요.
+  links:
+    - 
+      title: 답변 템플릿 관리
+      href: /scp/canned.php

@@ -35,7 +35,7 @@ $agentmasking = $cfg->hideStaffName();
                 if ($entry->staff_id && $agentmasking)
                     $name = __('Staff');
                 else
-                    $name = $user ? $user->getName() : $entry->poster;
+                $name = $user ? $user->getName() : $entry->poster;
                 $color = $entryTypes[$entry->type]['color'];
                 ?>
                 <tr>

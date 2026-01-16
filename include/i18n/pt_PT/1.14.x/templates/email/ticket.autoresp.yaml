@@ -1,0 +1,28 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Enviado ao utilizador assim que um novo Ticket é criado.
+subject: |
+  Pedido de assistência Aberto [#%{ticket.number}]
+body: |
+  <h3><strong>Caro/a %{recipient.name.first},</strong></h3>
+  <p>
+  Pedido de assistência criado e atribuído o n.º #%{ticket.number}.
+  Um membro da equipa irá responder assim que possível. Você pode
+  <a href="%{recipient.ticket_link}">ver o progresso do pedido
+  online</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  A equipa do/a %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Caso
+  deseje acrescentar comentários e informações adicionais sobre o assunto,
+  responda a esta mensagem ou <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >aceda à sua conta </span></a> para
+  visualizar todos os seus pedidos de assistência.</em></div>

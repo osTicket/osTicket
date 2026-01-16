@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: チケットのアクティビティ
+  content: >
+    以下のグラフとテーブル (cf. <span class="doc-desc-title">統計</span>) の両方がこれらの日付の対応するデータに集中する日付の範囲を選択します。以下のグラフは、常にシステム全体のデータ  (すなわち母集団 ) の広範囲の概要を反映します。ただし、以下の<span class="doc-desc-title">統計</span>テーブルをナビゲートして、関心のある件名 (たとえば、部署、トピック、スタッフ) を絞り込むことができます。さらに、<span class="doc-desc-title">統計</span>テーブルに現在表示されているあらゆるデータをエクスポートすることもできます。
+report_timeframe:
+  title: レポート期間
+  content: >
+    日付ピッカーを使用して希望するデータサンプルの開始日を選択します。次に、その日付の時間の長さを選択して、データサンプルの終了日を定義します。
+statistics:
+  title: 統計
+  content: >
+    特定のデータサンプルを表示するために該当するタブをクリックして関心のある件名にナビゲートします。テーブル内で、円は名目データのサイズを示します。そのため、特定のセルで数字が大きいほど、隣接する円が大きくなります。
+opened:
+  title: オープン済み
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: アサイン済み
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: 期限切れ
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: 終了
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: 再開
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: 削除済み
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: サービス時間
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: 応答時間
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

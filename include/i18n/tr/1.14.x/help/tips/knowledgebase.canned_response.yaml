@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Hazır Yanıtlar
+  content: >
+    Kayıtlara verilecek yanıtlarda kullanılabilecek bir <span class="doc-desc-title">Hazır Yanıt </span> oluşturun. Bir <span class="doc-desc-title">Kayıt Filtresi </span> tanımlayarak bu hazır yanıtı <span class="doc-desc-title">Kayıt Otomatik Yanıtı</span> olarak da kullanabilirsiniz.
+  links:
+    - 
+      title: Bir Kayıt Filtresi Oluştur
+      href: /scp/filters.php
+canned_attachments:
+  title: Hazır Ekler
+  content: >
+    Kayıtlarda verilecek yanıtlarda seçilen <span class="doc-desc-title">Hazır Yanıt</span> için otomatik olarak kullanılabilecek bir dosya ekleyin.

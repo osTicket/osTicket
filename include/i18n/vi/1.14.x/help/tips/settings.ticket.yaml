@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Định dạng số thẻ
+  content: >
+    Cài đặt này nhằm để xác định số lượng yêu cầu. Sử dụng kí hiệu (`#`) khi đặt chữ số. Bất kì loại văn bản khác xuất hiện sẽ được lưu giữ <span class="doc-desc-title"> Các tiêu đề trợ giúp </span> có thể xác định được định dạng số tùy chỉnh.<br/><br/> Ví dụ, cho số có 6 chữ số, sử dụng <code>######</code>.
+sequence_id:
+  title: Dãy số yêu cầu
+  content: >
+    Chọn một trình tự lấy từ số lượng yêu cầu mới. Hệ thống sẽ có một trình tự gia tăng và một trình tự ngẫu nhiên mặc định. Bạn có thể tạo số lượng trình tự tùy ý. Sử dụng những trình tự này trong <span class="doc-desc-title"> Định dạng số lệnh</span> để tạo cấu hình cho các chủ đề trợ giúp.
+queue_bucket_counts:
+  title: Top-Level Ticket Counts
+  content: >
+    This setting is used to hide or show the ticket counts on Main-Level queues. Get back to the way things used to be.
+default_ticket_status:
+  title: Trạng thái mặc định của yêu cầu mới
+  content: >
+    Chọn một trạng thái như là mặc định cho yêu cầu mới. Nó có thể được xác định cho mỗi chủ đề trợ giúp nếu muốn. Nó có thể bị ghi đè bởi một bộ lọc lệnh.
+  links:
+    - 
+      title: Quản lý những trạng thái lệnh
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: Mặc định SLA
+  content: >
+    Chọn chế độ mặc định của SLA để quản lý về thời gian mà một yêu cầu có thể kéo dài trước khi nó bị kết xuất là quá hạn.
+  links:
+    - 
+      title: tạo nhiều kế hoạch SLA
+      href: /scp/slas.php
+default_priority:
+  title: Quyền ưu tiên mặc định
+  content: >
+    Chọn <span class="doc-desc-title">quyền ưu tiên mặc định</span> cho lệnh mà không được chuyển giao quyền ưu tiên tự động.<br/><br/> Quyền ưu tiên có thể được chuyển thông qua chủ đề trợ giúp, chuyển cho Phòng ban hoặc cho cài đặt bộ lọc lệnh.
+maximum_open_tickets:
+  title: Lệnh mở rộng tối đa
+  content: >
+    Nhập  số lệnh tối đa<em></em> mà một người dùng được cho phép để <strong> mở</strong> trong bảng trợ giúp.<br><br> Nhấn<span class="doc-desc-opt">0</span> nếu bạn muốn vô hiệu hóa hạn chế này.
+email_ticket_priority:
+  title: Quyền ưu tiên lệnh Email
+  content: >
+    Sử dụng chuyển giao quyền ưu tiên email bằng dịch vụ mail của người nhận
+show_related_tickets:
+  title: Hiển thị các lệnh liên quan
+  content: >
+    Hiển thị tất cả các lệnh liên quan khi người sử dụng đăng nhập- mặt khác quyền truy nhập sẽ bị hạn chế cho việc hiển thị một lệnh khi đăng nhập
+human_verification:
+  title: Xác minh con người
+  content: >
+    Kích hoạt CAPTCHA trên Cổng thông tin khách hàng để xác định lệnh đến là kết quả thao tác của con người.<br><br> yêu cầu thư viện GDLib
+claim_tickets:
+  title: Yêu cầu lệnh phản hồi
+  content: >
+    Enable this to auto-assign unassigned tickets to the responding Agent. <br><br> Reopened tickets are always assigned to the last respondent unless auto assign on reopen is disabled on the Department level.
+collaborator_ticket_visibility:
+  title: Collaborator Tickets Visibility
+  content: >
+    If Enabled, Users will have visibility to ALL Tickets they participate in when signing into the Web Portal. <br><br> If Disabled, Users will only be able to see their own Tickets when signing into the Web Portal.
+require_topic_to_close:
+  title: Require Help Topic to Close
+  content: >
+    If Enabled, a Ticket must have a Help Topic in order to be Closed by an Agent
+assigned_tickets:
+  title: Lệnh chỉ định
+  content: >
+    kích hoạt tính năng này để loại trừ lệnh đã chỉ định từ <span class="doc-desc-title"> dãy lệnh mở</span>.
+answered_tickets:
+  title: Những lệnh đã trả lời
+  content: >
+    Kích hoạt tính năng này để hiển thị lệnh đã trả lời trong<span class="doc-desc-title"> dãy lệnh đáp án</span>. Nếu không, nó sẽ được đưa vào <span class="doc-desc-title"> dãy lệnh mở</span>.
+ticket_attachment_settings:
+  title: Đính kèm chuỗi lệnh
+  content: >
+    Cấu hình cài đặt cho files đính kèm với <span class="doc-desc-title"> chi tiết vấn đề</span>. Những cài đặt này được sử dụng cho tất cả các lệnh và tin nhắn mới bất chấp các kênh nguồn ( như cổng thông tin web, email, api..).

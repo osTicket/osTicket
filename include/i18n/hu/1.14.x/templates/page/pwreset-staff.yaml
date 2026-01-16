@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Ez a sablon határozza meg a munkatársnak kiküldött emailt, miután kiválasztotta az <strong>Elfelejtett jelszó</strong> hivatkozást a munkatársak bejelentkezési oldalán.
+name: "osTicket munkatárs jelszó visszaállítás"
+body: >
+  <h3><strong>Kedves %{staff.name.first},</strong></h3> <div> jelszó visszaállítási kérelmet küldött az oldalunkon: %{url}.<br /> <br /> Ha úgy érzi, hogy ez hibából történt, akkor hagyja figyelmen kívül és törölje ezt az emailt. A felhasználói fiókja még mindig biztonságos és senki más nem férhet hozzá. A fiók nem került felfüggesztésre és a jelszó nem került visszaállításra. Valószínűleg véletlenül került beírásra az email címe.<br /> <br />Kövesse az alábbi linket, hogy ügyfélszolgálatunkra belépve megváltoztassa jelszavát.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ügyfélszolgálat</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

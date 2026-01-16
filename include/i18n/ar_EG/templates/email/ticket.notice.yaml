@@ -1,0 +1,29 @@
+---
+notes: |
+  ترسل للمستخدم في حال أن أحد أعضاء الفريق أنشأ تذكرة نيابة عن المستخدم.
+  تستخدم هذه عادة عندما يتصل المستخدم عبر الهاتف.
+subject: |
+  %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>عزيزي %{recipient.name.first},</strong></h3>
+  قام فريق الدعم بإنشاء تذكرة, <a<br>
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> بالنيابة عنك، مع الملخص والتفاصيل التالية:
+  <br>
+  <br>
+  الموضوع: <strong>%{ticket.topic.name}</strong>
+  <br>
+  العنوان: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  في حالة الحاجة، سيتابعك مندوب في أقرب وقت ممكن. يمكنك أيضاً <a href="%{recipient.ticket_link}"> إستعراض سير عمل هذه التذكرة.</a>.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">
+  فريق عمل %{company.name}،<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>إذا كنت ترغب بإضافة تعليقات أو معلومات متعلقة بالمشكلة، الرجاء الرد إلى هذا البريد الإلكتروني أو  <a href="%{recipient.ticket_link}"><span<br>
+  style="color: rgb(84, 141, 212);" >تسجيل الدخول إلى حسابك</span></a> لتصفح الأرشيف الكامل لطلبات الدعم خاصتك.</em></div>

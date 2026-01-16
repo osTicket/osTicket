@@ -1,0 +1,175 @@
+---
+- 
+  #Initial set of schedules and entries
+  #Fields:
+  #id:
+  #flags:
+  #0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+  #sort:     Manual sort order
+  #name:     Name of the Schedule
+  #timezone:   Timezone of the Schedule
+  #description:   Description of the Schedule
+  #entries:     Schedule Entries
+  #---
+  id: 1
+  flags: 0x01
+  name: Pondělí - pátek 8:00 - 17:00 s americkými svátky
+  configuration:
+    holidays:
+      - 4
+  entries:
+    - 
+      name: Pondělí
+      repeats: týdně #notrans
+      starts_on: 1. 7. 2019
+      starts_at: 08:00:00
+      ends_on: 1. 7. 2019
+      ends_at: 17:00:00
+      day: 1
+    - 
+      name: Úterý
+      repeats: týdně #notrans
+      starts_on: 8.1.2019
+      starts_at: 08:00:00
+      ends_on: 8.1.2019
+      ends_at: 17:00:00
+      day: 2
+    - 
+      name: Středa
+      repeats: týdně #notrans
+      starts_on: 9.1.2019
+      starts_at: 08:00:00
+      ends_on: 9.1.2019
+      ends_at: 17:00:00
+      day: 3
+    - 
+      name: Čtvrtek
+      repeats: týdně #notrans
+      starts_on: 10.1.2019
+      starts_at: 08:00:00
+      ends_on: 10.1.2019
+      ends_at: 17:00:00
+      day: 4
+    - 
+      name: Pátek
+      repeats: týdně #notrans
+      starts_on: 11.1.2019
+      starts_at: 08:00:00
+      ends_on: 11.1.2019
+      ends_at: 17:00:00
+      day: 5
+- 
+  id: 2
+  flags: 0x01
+  name: 24/7
+  entries:
+    - 
+      name: Denně
+      repeats: denně #notrans
+      starts_on: 1.1.2019
+      starts_at: 00:00:00
+      ends_on: 1.1.2019
+      ends_at: 23:59:59
+- 
+  id: 3
+  flags: 0x01
+  name: 24/7
+  entries:
+    - 
+      name: Pracovní dny
+      repeats: pracovní dny #notrans
+      starts_on: 1.1.2019
+      starts_at: 00:00:00
+      ends_on: 1.1.2019
+      ends_at: 23:59:59
+- 
+  id: 4
+  flags: 0
+  name: Americké svátky
+  entries:
+    - 
+      name: Nový rok
+      repeats: ročně #notrans
+      starts_on: 1.1.2019
+      starts_at: 00:00:00
+      ends_on: 1.1.2019
+      ends_at: 23:59:59
+      day: 1
+      month: 1
+    - 
+      name: Den Martina Luthera Kinga
+      repeats: ročně #notrans
+      starts_on: 21. 1. 2019
+      starts_at: 00:00:00
+      ends_on: 21. 1. 2019
+      ends_at: 23:59:59
+      day: 1
+      week: 3
+      month: 1
+    - 
+      name: Den obětí války
+      repeats: ročně #notrans
+      starts_on: 27.5.2019
+      starts_at: 00:00:00
+      ends_on: 27.5.2019
+      ends_at: 23:59:59
+      day: 1
+      week: -1
+      month: 5
+    - 
+      name: Den nezávislosti (4. července)
+      repeats: ročně #notrans
+      starts_on: 4.7.2019
+      starts_at: 00:00:00
+      ends_on: 4.7.2019
+      ends_at: 23:59:59
+      day: 4
+      month: 7
+    - 
+      name: Svátek práce
+      repeats: ročně #notrans
+      starts_on: 2. 9. 2019
+      starts_at: 00:00:00
+      ends_on: 2. 9. 2019
+      ends_at: 23:59:59
+      day: 1
+      week: 1
+      month: 9
+    - 
+      name: Den domorodých obyvatel (Whodat Columbus)
+      repeats: ročně #notrans
+      starts_on: 14. 10. 2019
+      starts_at: 00:00:00
+      ends_on: 14. 10. 2019
+      ends_at: 23:59:59
+      day: 1
+      week: 2
+      month: 10
+    - 
+      name: Den veteránů
+      repeats: ročně #notrans
+      starts_on: 11. 11. 2019
+      starts_at: 00:00:00
+      ends_on: 11. 11. 2019
+      ends_at: 23:59:59
+      day: 11
+      month: 11
+    - 
+      name: Den díkůvzdání
+      repeats: ročně #notrans
+      starts_on: 28. 11. 2019
+      starts_at: 00:00:00
+      ends_on: 28. 11. 2019
+      ends_at: 23:59:59
+      day: 4
+      week: 4
+      month: 11
+    - 
+      name: Štědrý den
+      repeats: ročně #notrans
+      starts_on: 25. 11. 2019
+      starts_at: 00:00:00
+      ends_on: 25. 11. 2019
+      ends_at: 23:59:59
+      day: 25
+      month: 12

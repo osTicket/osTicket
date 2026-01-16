@@ -1,0 +1,36 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Diagnostics
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+test_outgoing_email:
+  title: 測試發送的電子郵件
+  content: >
+    電子郵件的傳遞取決於您的伺服器設置 (php.ini) 檔案和/或 SMTP 配置。
+  links:
+    - 
+      title: 選擇要配置的 SMTP （傳出） 設置電子郵件
+      href: /scp/emails.php
+from:
+  title: 從
+  0: >
+
+to:
+  title: 到
+  0: >
+
+subject:
+  title: 主題
+  0: >
+
+message:
+  title: 訊息
+  0: >
+

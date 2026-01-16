@@ -1,0 +1,17 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  เทมเพลตนี้สำหรับใช้กำหนด email ที่ส่งไปยังผู้ใช้งานที่สร้างบัญชีผู้ใช้ครั้งแรก เพื่อให้ผู้ใช้งานยืนยันตัวตน ผ่าน Email ที่ได้ลงทะเบียนไว้ กรุณาคลิก %{link} ใน email ต่อไปนี้
+name: "ยินดีต้อนรับสู่%{company.name}"
+body: >
+  <h3><strong>สวัสดี %{recipient.name.first},</strong></h3> 
+  <div> เราได้สร้างข้อมูลผู้ใช้งานสำหรับคุณเพื่อติดต่อผ่านระบบ Ticket Support คุณสามารถติดต่อสอบถาม หรือแจ้งปัญหาสำหรับทุกบริการได้ที่ %{url}.<br /> 
+  <br /> กรุณาคลิก Link ด้านล่างเพื่อยืนยันตัวตนของคุณก่อนเริ่มต้นใช้งานระบบครั้งแรก
+  <br /> 
+  <br /> <a href="%{link}">%{link}</a>
+
+  <br /> <br /> <em style="font-size: small">Support Center <br /> %{company.name}</em> </div>

@@ -126,8 +126,8 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
                         $sel=true;
                     ?>
                    <tr id="<?php echo $row['id']; ?>">
-                    <td align="center">
-                      <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                    <td align="center"><!--osta-->
+                      <p class="checkbox"><p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>><label></label></p>
                     </td>
                     <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
                     <td>&nbsp;&nbsp;<?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
@@ -188,4 +188,6 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
      </p>
     <div class="clear"></div>
 </div>
-
+<script><!--osta-->
+$( "#msg_warning,#msg_error,#msg_notice,#msg_alert" ).insertBefore( $( "table.list" ) );
+</script>

@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Maklumat Perhubungan
+  0: >
+
+username:
+  title: Nama pengguna
+  content: >
+    Hanya ejen dengan status admin boleh menukar nama pengguna. Jika anda seorang ejen dengan keistimewaan Admin, anda boleh mencapai ini dengan memilih ejen untuk mengedit dari jadual <span class="doc-desc-title">Staff Members</span>.
+  links:
+    - 
+      title: Menukar nama pengguna sebagai Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Zon masa
+  0: >
+
+daylight_saving:
+  title: Penjimatan waktu siang
+  0: >
+
+maximum_page_size:
+  title: Saiz halaman maksimum
+  0: >
+
+auto_refresh_rate:
+  title: Auto kadar memuat semula
+  0: >
+
+default_signature:
+  title: Tandatangan lalai
+  0: >
+
+default_paper_size:
+  title: Saiz kertas lalai
+  0: >
+
+show_assigned_tickets:
+  title: Menunjuk tugas tiket
+  content: >
+    <p> Mengaktifkan opsyen ini akan menindih tetapan global untuk menyembunyikan tiket yang diberikan dari entri terbuka. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Tetapan ini hanya tersedia apabila tiket yang diberikan adalah tidak termasuk di peringkat global. </p>
+password:
+  title: Kata laluan
+  0: >
+
+current_password:
+  title: Kata laluan semasa
+  0: >
+
+new_password:
+  title: Kata laluan baru
+  0: >
+
+confirm_new_password:
+  title: Sahkan Kata Laluan Baru
+  0: >
+
+signature:
+  title: Tandatangan
+  content: >
+    Buat pilihan<span class="doc-desc-title"> Tandatangan</span> yang mungkin muncul pada akhir jawapan Tiket anda. Sama ada ini<span class="doc-desc-title"> Tandatangan</span> muncul, atau tidak, bergantung kepada<span class="doc-desc-title"> E-mel Template</span> yang akan digunakan dalam jawapan Tiket.
+  links:
+    - 
+      title: Buat E-mel Templat dalam Panel Admin
+      href: /scp/templates.php

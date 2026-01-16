@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: 罐頭應答
+  content: >
+    創建一種 <span class="doc-desc-title"> 罐裝應答</span>，可以包含在票券回應上。事實上，您可能會包括多 <span class="doc-desc-title"> 罐頭的應答</span> 如您會回應它。它可以也列入 <span class="doc-desc-title"> 票券自動回應</span> 設置由 <span class="doc-desc-title"> Ticket篩選器</span>。
+  links:
+    - 
+      title: 設置Ticket篩選器
+      href: /scp/filters.php
+canned_attachments:
+  title: 罐頭應答的附件
+  content: >
+    附加檔案，您想要自動含在票券回應上，可利用新的 <span class="doc-desc-title"> 罐裝應答</span>。

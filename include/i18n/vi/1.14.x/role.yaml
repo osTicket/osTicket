@@ -1,0 +1,79 @@
+---
+- 
+  #Default roles defined for the system
+  #Fields:
+  #id - Primary id for the role
+  #flags - (bit mask) role flags
+  #name - (string) descriptive name for the role
+  #notes - (string) internal notes
+  #permissions: (list<keys>)
+  #NOTE: ------------------------------------
+  #---
+  id: 1
+  flags: 1
+  name: Toàn quyền
+  notes: |
+    Quyền truy cập không giới hạn
+  permissions:
+    - ticket.create
+    - ticket.edit
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply
+    - ticket.close
+    - ticket.delete
+    - task.create
+    - task.edit
+    - task.assign
+    - task.transfer
+    - task.reply
+    - task.close
+    - task.delete
+    - canned.manage
+    - thread.edit
+- 
+  id: 2
+  flags: 1
+  name: Mở xem hết Các quyền
+  notes: |
+    Quyền truy cập mở rộng
+  permissions:
+    - ticket.create
+    - ticket.edit
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply
+    - ticket.close
+    - task.create
+    - task.edit
+    - task.assign
+    - task.transfer
+    - task.reply
+    - task.close
+    - canned.manage
+- 
+  id: 3
+  flags: 1
+  name: Truy cập hạn chế
+  notes: |
+    Quyền truy cập không giới hạn
+  permissions:
+    - ticket.create
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply task.create
+    - task.assign
+    - task.transfer
+    - task.reply
+- 
+  id: 4
+  flags: 1
+  name: Chỉ xem
+  notes: Quyền cấp phép đơn giản
+  permissions: [ ]

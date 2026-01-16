@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Meeskonnad
+  content: >
+    Meeskonnad on üks või mitu agenti koos, kellele saab pileteid lahendamiseks suunata. Meeskonna liikmelisus võib erineda osakonna liikmelisusest.
+status:
+  title: Staatus
+  content: >
+    Kui <span class="doc-desc-opt">keelatud</span>, siis sellel meeskonnale ei saa pileteid suunata ja nad ei saa ka teateid ja hoiatusi varasemate piletite kohta.
+lead:
+  title: Meeskonna juhtimine
+  content: >
+    <span class="doc-desc-title">Meeskonnal</span> võib olla üks liige, kes saab teistest liikmetest <span class="doc-desc-title">teateid ja hoiatusi</span> eraldi.
+  links:
+    - 
+      title: Seadista hoiatusi ja teateid
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Pileti suunamise teade
+  content: >
+    Sa võid keelata <span class="doc-desc-title">pileti suunamise teate</span> sellele meeskonnale.
+  links:
+    - 
+      title: Seadista hoiatusi ja teateid
+      href: /scp/settings.php?t=alerts
+members:
+  title: Meeskonna liikmed
+  content: >
+    Meeskonna liikmelisust saab määrata agendi profiilis.
+  links:
+    - 
+      title: Halda töötajaid
+      href: /scp/staff.php

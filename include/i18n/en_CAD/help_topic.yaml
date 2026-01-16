@@ -1,0 +1,57 @@
+#
+# Default help topics installed for the system
+#
+# Fields:
+# id - (int:optional) id number in the database
+# topic - (string) descriptive name of the help topic
+# flags - (bitmask: Active | Disabled | Archived)
+# ispublic - (bool:0|1) true or false if end users should be able to see the
+#       help topic. In other words, true or false if the help topic is _not_
+#       for internal use only
+# noautoresp - (bool:1) true to disable the auto-responder for tickets
+#       assigned to this help topic. NOTE that this field must be completely
+#       omitted to ENABLE the auto-response by default
+# dept_id - (int) id number of the department with which this help topic is
+#       associated
+# sla_id - (int:optional) id number of the sla with which this help topic is
+#       associated
+# notes - (string) administrative notes (internally viewable only)
+#
+---
+- topic_id: 1
+  flags: 0x02
+  ispublic: 1
+  priority_id: 2
+  forms: [2]
+  topic: General Inquiry
+  notes: |
+    Questions about products or services
+
+- topic_id: 2
+  flags: 0x02
+  ispublic: 1
+  priority_id: 1
+  forms: [2]
+  topic: Feedback
+  notes: |
+    Tickets that primarily concern the sales and billing departments
+
+- topic_id: 10
+  flags: 0x02
+  ispublic: 1
+  dept_id: 3
+  priority_id: 2
+  forms: [2]
+  topic: Report a Problem
+  notes: |
+    Product, service, or equipment related issues
+
+- topic_pid: 10
+  flags: 0x02
+  ispublic: 1
+  sla_id: 1
+  priority_id: 3
+  forms: [2]
+  topic: Access Issue
+  notes: |
+    Report an inability access a physical or virtual asset

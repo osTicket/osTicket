@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  此範本定義了當專員帳號已建立，電子郵件通知（可選）將傳送並通知專員。
+name: "歡迎來到 osTicket"
+body: >
+  <h3><strong>您好 %{recipient.name.first},</strong></h3> <div>我們已經為您建立了一個帳戶在我們的支援案件系統 %{url}.<br /> <br /> 請遵循以下連結以確認您的帳戶和查詢案件狀態。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">您最可靠的支援案件系統<br /> %{company.name}</em> </div>

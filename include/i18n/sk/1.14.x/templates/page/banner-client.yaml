@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Toto zostavuje záhlavie na stránke Prihlásenia klienta. Môže byť užitočné pre informovanie Vašich klientov o politikách prihlasovania a registrácie.
+name: "Prihláste sa k %{company.name}"
+body: >
+  Pre naše lepšie služby, odporúčame našim klientom zaregistrovať si účet.

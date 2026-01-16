@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Контактна інформація
+  0: >
+
+username:
+  title: Ім'я користувача
+  content: >
+    Тільки юзери зі статусом Адміністратора можуть змінювати ім'я користувача. Якщо Ви - маєте необхідні права Адміністратора - то ви можете зробити це, вибравши Агента для редагування з таблиці <span class="doc-desc-title"> Персонал </span>.
+  links:
+    - 
+      title: Змінити ім'я користувача як Адміністратор
+      href: /scp/staff.php
+time_zone:
+  title: Часовий пояс
+  0: >
+
+daylight_saving:
+  title: Літній час
+  0: >
+
+maximum_page_size:
+  title: Максимальний розмір сторінки
+  0: >
+
+auto_refresh_rate:
+  title: Частота автообновлення
+  0: >
+
+default_signature:
+  title: Підпис за умовчуванням
+  0: >
+
+default_paper_size:
+  title: Розмір паперу за умовчуванням
+  0: >
+
+show_assigned_tickets:
+  title: Показати призначені заявки
+  content: >
+    <p> Увімкнення цієї опції перевизначить глобальні налаштування приховування призначених заявок з відкритих черг. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Ця опція доступна лише коли призначені заявки виключені глобально. </p>
+password:
+  title: Пароль
+  0: >
+
+current_password:
+  title: Поточний пароль
+  0: >
+
+new_password:
+  title: Новий пароль
+  0: >
+
+confirm_new_password:
+  title: Підтвердити новий пароль
+  0: >
+
+signature:
+  title: Підпис
+  content: >
+    Створіть <span class="doc-desc-title"> Підпис </span>, який буде з'являтися в кінці Ваших відповідей на заявки. З'являтиметься цей <span class="doc-desc-title"> Підпис </span> чи ні - залежить від того, який <span class="doc-desc-title"> Шаблон листа </span> використовуватиметься у відповіді на заявку.
+  links:
+    - 
+      title: Створіть шаблони листів в панелі адміністратора
+      href: /scp/templates.php

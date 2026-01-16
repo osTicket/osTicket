@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Trạng thái bảng trợ giúp
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: bảng trợ giúp URL
+  content: >
+    URL này là link chung của việc cài đặt osTicket. Nó được sử dụng trong email trao đổi tới người dùng trực tiếp trên bảng trợ giúp.
+helpdesk_name_title:
+  title: Tên bảng trợ giúp
+  content: >
+    Đây là tiêu đề xuất hiện trong các tab trình duyệt. Nếu trang trợ giúp của bạn đã được đánh dấu thì đây sẽ là tiêu đề của trang.
+default_department:
+  title: Phòng ban mặc định
+  content: >
+    Chọn phòng ban mặc định<span class="doc-desc-title"> phòng ban</span> cho lệnh để  không tự động chuyển sang một phòng ban khác.<br/><br/> lệnh có thể chuyển dựa trên chủ đề trợ giúp, email đến hoặc cài đặt bộ lọc lệnh.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Kích thước trang mặc định
+  content: >
+    Chọn số lượng mục hiển thị trên mỗi trang trong dãy lệnh trong phần quản lý nhân viên. Mỗi nhân viên có thể lựa chọn con số cho tài khoản riêng của họ với lệnh<span class="doc-desc-title">Tùy chọn của tôi</span>.
+default_log_level:
+  title: Mức độ đăng nhập mặc định
+  content: >
+    Xác định mức độ thấp nhất của vấn đề sẽ được ghi nhận trong <span class="doc-desc-title"> đăng nhập hệ thống</span>. <span class="doc-desc-opt"> sửa lỗi</span> thể hiện mức độ nghiêm trọng thấp nhất và <span class="doc-desc-opt"> lỗi</span> cho mức độ nghiêm trọng cao nhất. Ví dụ, nếu bạn muốn nhìn thấy tất cả các vấn đề trong<span class="doc-desc-title"> đăng nhập hệ thống</span>, chọn <span class="doc-desc-opt"> sửa lỗi</span>.
+purge_logs:
+  title: từ chối đăng nhập
+  content: >
+    Xác định thời gian bạn muốn ở trong<span class="doc-desc-title"> đăng nhập hệ thống</span> trước khi hệ thống xóa.
+enable_richtext:
+  title: Bật Văn bản giàu
+  content: >
+    Nếu kích hoạt, tính năng này sẽ cho sử dụng nhiều định dạng văn bản giữa Khách hàng và nhân viên.
+enable_avatars:
+  title: Bật hình đại diện trong Khung trò chuyện
+  content: >
+    Bật hiển thị <span class="doc-desc-title">Hình đại diện</span> trên thread tương ứng <br><br> The <span class="doc-desc-title"> Hình đại diện</span> được tùy chỉnh trong trang cấu hình Người dùng và Nhân viên.
+  links:
+    - 
+      title: Cấu hình Nhân viên
+      href: /scp/settings.php?t=agents
+    - 
+      title: Cấu hình người dùng
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Tránh xung đột nhân viên
+  content: >
+    Nhập thời hạn tối đa cho phép Nhân viên giữ khóa yêu cầu hay tác vụ mà không có hoạt động nào.<br><br>Nhập <span class="doc-desc-opt">0</span> để vô hiệu tính năng khóa.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: ngày&amp;các lựa chọn thời gian
+  content: >
+    Các thiết lập sau đây xác định cài đặt mặc định cho Ngày &amp; Giờ cho phần hỗ trợ. Bạn có thể chọn mặc định vùng địa phương hoặc tùy chỉnh theo yêu cầu ràng buộc. Tham khảo kiểu ICU để tham khảo. Những ngày được hiển thị dưới đây minh họa.
+  links:
+    - 
+      title: Xem bảng định dạng ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Ngôn ngữ hệ thống
+  content: >
+    Chọn ngôn ngữ chính cho hệ thống và lựa chọn ngôn ngữ tiếp theo cho giao diện hỗ trợ viên và người sử dụng.
+primary_language:
+  title: Ngôn ngữ chính hệ thống
+  content: >
+    Nội dung của ngôn ngữ này được hiển thị cho hỗ trợ viên và người sử dụng nếu họ chưa chọn ngôn ngữ. Điều này bao gồm các nội dung của giao diện, cũng như, nội dung tùy chỉnh như trang cảm ơn và tin nhắn email. <br/> <br/> Đây là ngôn ngữ, trong đó phiên bản chưa được dịch nội dung của bạn nên được viết.
+secondary_language:
+  title: Ngôn ngữ thứ hai
+  content: >
+    Lựa chọn ngôn ngữ cho nhân viên và người dùng cuối. Toàn bộ giao diện sẽ sử dụng ngôn ngữ này bao gồm các nội dụng tùy chọn như trang cảm ơn và các tiêu đề trợ giúp.
+#Attachments
+attachments:
+  title: Thiết lập đính kèm và lưu trữ
+  content: >
+    Cầu hình cách lưu tập tin đính kèm.
+default_storage_bk:
+  title: Tập tin lưu trữ khu quản trị
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Kích thước file lớn nhất
+  content: >
+    Chọn kích thước lớn nhất tải lên bởi hỗ trợ viên. Bao gồm tập tin đóng gói, cơ sở dữ liệu tham khảo, tập tin đính kèm trong thẻ hỗ trợ và phản hồi công việc hỗ trợ. Giới hạn ở mức hạn chết bởi tùy chọn PHP's <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: Cấu hình PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

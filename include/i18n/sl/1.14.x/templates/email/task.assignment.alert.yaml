@@ -1,0 +1,27 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Sent to agents when a task is assigned to them or the team to which
+  they belong. Use %{assigner} to distinguish who made the assignment.
+subject: |
+  Dodeljena ti je naloga
+body: |
+  <h3><strong>Pozdravljeni %{assignee.name.first},</strong></h3>
+  %{assigner.name.short} vam je dodelil nalogo <a href="%{task.staff_link}">#%{task.number}</a>
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>za ogled ali odgovor se prosim <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prijavite</span></a> v podporni sistem</div>
+  <em style="font-size: small; ">Vaš prijazni podporni sistem</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

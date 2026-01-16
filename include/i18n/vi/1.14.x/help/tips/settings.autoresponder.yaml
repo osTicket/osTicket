@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Lệnh mới
+  content: >
+    Kích hoạt nếu bạn muốn tự động phản hồi được gửi cho người dùng lệnh mới.
+  links:
+    - 
+      title: Khung tự động phản hồi lệnh mới
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Lệnh mới của các nhân viên
+  content: >
+    Chú thích được gửi khi một nhân viên thay mặt người dùng tạo một lệnh.<em>Nhân viên có thể ghi đè khi tạo những lệnh mới.</em>
+  links:
+    - 
+      title: Khung chú thích lệnh mới
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Xác nhận tin nhắn mới
+  content: >
+    Xác nhận chú thích được gửi khi một tin nhắn mới được nối với một lệnh hiện có.
+  links:
+    - 
+      title: Khung xác nhận tin nhắn mới
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Chú thích tin nhắn mới
+  content: >
+    Những tin nhắn quảng bá được nhận từ người đệ trình tin nhắn được phân phát tới tất cả những người tham gia lệnh này.
+  links:
+    - 
+      title: Khung chú thích hoạt động mới
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Chú thích lệnh đạt mức tối đa
+  content: >
+    Chú thích từ chối lệnh được gửi tới người dùng<span class="doc-desc-title">khi số lượng lệnh mở vượt quá mức tối đa</span>.
+  links:
+    - 
+      title: Khung chú thích lệnh đạt mức tối đa
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Đặt <em>mức lệnh mở tối đa</em>
+      href: /scp/settings.php?t=tickets

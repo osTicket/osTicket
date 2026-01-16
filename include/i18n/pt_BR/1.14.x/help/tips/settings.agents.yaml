@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formatação de Nome de Agente
+  content: >
+    Escolha um formato para nomes de Agentes no sistema. Modelos de e-mail os usarão para nomes se nenhum outro formato for especificado.
+staff_identity_masking:
+  title: Ocultar identidade pessoal
+  content: >
+    Se habilitado, isso irá esconder o nome do agente do cliente durante qualquer comunicação.
+#Authentication settings
+password_reset:
+  title: Política de expiração de senha
+  content: >
+    Configura a frequência (em meses) que Agentes deverão mudar de senha. Se desabilitado (configurado para "Não expira"), senhas nunca expirarão.
+password_expiration_policy:
+  title: Política de expiração de senha
+  content: >
+    Escolha a forma e quantas vezes serão  necessárias  para os agentes alterarem a sua senha. Se desativada (i.e. , sem expiração), as senhas não irão expirar.
+allow_password_resets:
+  title: Permitir redefinições de senha
+  content: >
+    Habilite esta funcionalidade se você deseja apresentar o link de <span class="doc-desc-title">"Esqueci Minha Senha"</span> na <span class="doc-desc-title">Página de Log-in de Agentes</span> após uma tentativa falha de log in.
+reset_token_expiration:
+  title: Janela de redefinição de senha
+  content: >
+    Escolha a duração (em minutos) para o qual os <span class="doc-desc-title"> Tokens de Redefinir senha</span> serão válidos. Quando um agente solicita uma <span class="doc-desc-title"> Redefinição de senha</span>, sera enviado por email um Token que permite o reset da senha atual e a inserção de uma nova senha
+staff_session_timeout:
+  title: Tempo limite de sessão do agente
+  content: >
+    Escolha o máximo de tempo ocioso (em minutos) antes que um Agente seja obrigado a logar novamente. <br><br> Se você deseja desabilitar o <span class="doc-desc-title">"Tempo Limite de Sessão do Agente"</span>, entre com valor 0.
+bind_staff_session_to_ip:
+  title: Vincular o sessão de agente para IP
+  content: >
+    Habilite isto se você deseja que o Agente seja lembrado pelo IP atual no momento do Log In.<br><br> Esta opção não é recomendada para usuários que tem seu endereço IP atribuído automaticamente.

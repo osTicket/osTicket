@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Detta visas efter att klienten har registrerat sig och verifierat sitt konto.
+name: "Kontot Verifierat!"
+body: >
+  <div><strong>Tack för din registrering av ett konto.</strong>< br / > < br / > du har bekräftat din e-postadress och verifierat ditt konto. Du kan nu skapa en ny biljett eller hantera befintliga biljetter. < br / > < br / > <em>vänliga hälsningar supportcentert</em> < br / > %{company.name}</div>

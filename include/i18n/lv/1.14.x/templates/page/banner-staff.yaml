@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Šis parametrs nosaka pirmreizējo paziņojumu un baneri, kas parādās darbinieku pieteikšanās lapā. Pirmais ievades lauks attiecas uz tekstu sarkanajā krāsā lapas augšdaļā. Pēdējais teksta lauks - banera saturs, kas kalpo kā formas akceptēšanas rīks.
+name: "Nepieciešama autentifikācija"
+body: ""

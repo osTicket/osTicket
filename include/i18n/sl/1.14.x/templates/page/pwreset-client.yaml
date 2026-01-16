@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Ta predloga določa e-sporočilo poslano strankam, ki so izbrale povezavo <strong>Pozabljeno geslo</strong> na strankini strani za prijavo.
+name: "%{company.name} dostop do mize pomoči"
+body: >
+  <h3><strong>Pozdravljeni %{user.name.first},</strong></h3> <div> Zahteva po ponastavitvi gesla je bila posredovana v vašem imenu na mizo pomoči %{url}.<br /> <br /> Če smatrate, da je bilo to storjeno pomotoma, izbrišite e-sporočilo in ga smatrajte brezpredmetnim. Vaš račun je še vedno varen in noben ni dobil dostopa do njega. Vaš račun ni zaklenjen in geslo bi bilo ponastavljeno. Nekdo je lahko pomotoma vpisal vaš naslov e-sporočila.<br /> <br /> Sledite spodnji povezavi, če se želite prijaviti na mizo pomoči in sami spremeniti geslo.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaš prijazen sistem tehnične podpore <br /> %{company.name}</em> </div>

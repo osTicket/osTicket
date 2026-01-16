@@ -1,0 +1,22 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  נשלח ללקוח כאשר הלקוח משיב לקריאה קיימת. הדבר יכול לקראות דרך השבה במייל או דרך ביקור באתר התמיכה.
+subject: |
+  הודעת אישור
+body: |
+  <h3><strong>היקר %{recipient.name.first},</strong></h3>
+  הבקשה שלך לפתיחה קריאה <ahref="%{recipient.ticket_link}">#%{ticket.number}</a> נשלחה
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  צוות %{company.name} התמיכה,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:center"><em>אתה יכול לצפות בהתקדמות הטיפול <ahref="%{recipient.ticket_link}">online here</a></em>
+  </div>

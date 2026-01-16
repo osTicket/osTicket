@@ -1,0 +1,36 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Diagnostics
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+test_outgoing_email:
+  title: Гадагшаа имэйл илгээхийн шалгах
+  content: >
+    Имэйл хүргэгдэх эсэх нь таны вэб (php.ini) болон SMTP серверийн тохиргооноос хамаарна.
+  links:
+    - 
+      title: SMTP (Outgoing) тохируулга хийх имэйл хаяг сонгох
+      href: /scp/emails.php
+from:
+  title: From
+  0: >
+
+to:
+  title: To
+  0: >
+
+subject:
+  title: Subject
+  0: >
+
+message:
+  title: Message
+  0: >
+

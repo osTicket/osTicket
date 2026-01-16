@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Öppna
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Öppna ärenden.
+- 
+  id: 2
+  name: Åtgärdad
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Lösta ärenden
+- 
+  id: 3
+  name: Stängd
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Stängda ärenden. Ärenden kommer fortfarande att vara åtkomliga i klient och handläggarpanelen.
+- 
+  id: 4
+  name: Arkiverade
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Ärenden med endast administrativ åtkomst. Ej längre tillgängliga i ärendekön och klientpanelen.
+- 
+  id: 5
+  name: Borttagna
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Ärenden köade för borttagning. Inte längre tillgängliga i ärendekön.

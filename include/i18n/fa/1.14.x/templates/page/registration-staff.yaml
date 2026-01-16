@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  این قالب متن ایمیل (اختیاری) اولیه ای را تعریف می کند که بعد از ایجاد حساب کاربری برای هر کارشناس برایش ارسال خواهد شد. 
+name: "به او اس تیکت خوش آمدید"
+body: >
+  <h3><strong>%{recipient.name.first}, سلام</strong></h3> <div> حساب کاربری در آدرس %{url} بر روی این سامانه ایجاد شد.<br /> <br /> لطفا با استفاده از لینک زیر حساب کاربری خود را تایید کنید تا دسترسی شما به درخواستها یتان فعال گردد.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">واحد پشتیبانی<br /> %{company.name}</em> </div>

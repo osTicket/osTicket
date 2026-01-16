@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Aquesta plantilla defineix el contingut mostrat després que els clients s'hagin registrat de manera satisfactòria confirmant el seu compte. Aquesta pàgina ha d'informar l'usuari que el registre ha estat completat i que el client pot enviar un nou Ticket o gestionar els Tickets ja existents.
+name: "Compte confirmat!"
+body: >
+  <div> <strong>Gràcies per haver registrat un compte.</strong><br /> <br /> Heu confirmat la vostra adreça electrònica i s'ha activat el vostre compte. Podeu procedir a obrir un nou Ticket o gestionar els Tickets existents.<br /> <br /> <em>El vostre estimat centre de suport</em><br /> %{company.name} </div>

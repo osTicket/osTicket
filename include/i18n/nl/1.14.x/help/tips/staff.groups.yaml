@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Groepen
+  content: >
+    Groepen worden gebruikt om rechten van verantwoordelijken in de help desk te definiëren. Groepen kunnen ook toegang verlenen tot Afdelingen die niet de Standaard Afdeling zijn van een Verantwoordelijke.
+status:
+  title: Status
+  content: >
+    Als dit <span class="doc-desc-opt">Uitgeschakeld</span> is, kunnen Verantwoordelijken die toegewezen zijn aan deze Groep niet inloggen en zullen geen Afdeling Waarschuwingen &amp; Mededelingen ontvangen.
+department_access:
+  title: Afdelingstoegang
+  content: >
+    Vink alle afdelingen aan waaraan de leden van de groep toegang hebben.

@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Champ de recherche
+  0: >
+
+advanced:
+  title: Avancé
+  content: >
+    Affiner vos paramètres de recherche. Une fois que vous aurez sélectionné vos critères de recherche avancée et lancé la recherche, vous pourrez <span class="doc-desc-title">exporter</span> ces données au bas de la page de billets.
+open_tickets_table:
+  title: Tableau des tickets ouverts
+  content: >
+    Tous les tickets actuellement ouverts et nécessitants une attention
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Date
+  0: >
+
+subject:
+  title: Sujet
+  0: >
+
+from:
+  title: De
+  0: >
+
+priority:
+  title: Priorité
+  0: >
+
+assigned_to:
+  title: Assigné à
+  0: >
+
+export:
+  title: Exporter
+  content: >
+    Exporter vos données visibles vers un fichier CSV. Les fichiers CSV peuvent être ouvert avec n'importe quel tableur (Microsoft Excel, Apple Pages, OpenOffice, etc..).
+advanced_search_dialog:
+  title: Recherche avancée
+  0: >
+
+adv_keyword:
+  title: Recherche par mots-clés
+  content: >
+    Trouver des éléments basés sur les objets et les messages ainsi que sur tout le contenu textuel associé aux champs personnalisés des utilisateurs et des tickets.
+adv_date_range:
+  title: Recherche par plage de dates
+  content: >
+    Définition ici
+merge_types:
+  title: Type de fusion
+  content: >
+    <b>Combiner les fils: </b> Les fils de tous les tickets seront affichés chronologiquement. </br> <b> Fils séparés: </b> Les fils des billets seront affichés un ticket à la fois.
+reply_types:
+  title: Types de réponse
+  content: >
+    <b>Répondre à tous : </b> La réponse est envoyée à l'utilisateur-rice et aux collaborateurs-rices que vous avez choisi d'associer au ticket.<br/><b> Réponse à l'utilisateur-rice : </b> La réponse est envoyée uniquement à l'utilisateur-trice (pas aux collaborateurs-trices).<br/><b>Ne pas répondre : </b> Aucune réponse n'est envoyée. Néanmoins, la réponse de l'agent-e est visible par <b>TOUS-TES</b> les utilisateurs-trices à la lecture du ticket.

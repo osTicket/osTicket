@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Strony serwisu
+  content: >
+    Strona może służyć jako mini system zarządzania treścią (CMS). Można zdefiniować wiele stron startowych, offline, i podziękowania oraz skonfigurować je w ustawieniach firmy i tematach pomocy.
+  links:
+    - 
+      title: Ustawienia firmy
+      href: /scp/settings.php?t=pages
+type:
+  title: Typ
+  content: >
+    <span class="doc-desc-opt">Strony Offline</span> są wyświetlane na portalu klienta, gdy jest on wyłączony. <span class="doc-desc-opt">Strony statrowe</span> są wyświetlane na stronie głównej portalu klienta. <span class="doc-desc-opt">Strony z podziękowaniami</span> są wyświetlane, gdy użytkownik dokona nowego zgłoszenia. <span class="doc-desc-opt">Inne strony</span> mogą być używane jako prosty system zarządzania treścią (CMS).

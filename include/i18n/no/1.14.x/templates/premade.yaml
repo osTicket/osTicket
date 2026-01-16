@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Hva er osTicket (eksempel)?
+  response: |
+    osTicket er ett mye brukt åpen kildekode støttesystem, et attraktivt alternativ til dyrere og mer komplekse systemer - enkel, lett, pålitelig, åpen kildekode, webbasert og enkel å installere og bruke.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: tekst/normal
+      data: Innebygde vedlegg Rocker!
+- 
+  isenabled: 1
+  title: Eksempel (med variabler)
+  response: |
+    Hei %{ticket.name.first},
+    <br>
+    <br>
+    Din sak #%{ticket.number} laget den %{ticket.create_date} er i
+    %{ticket.dept.name} avdelingen.
+  0: |
+

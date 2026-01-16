@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Esta plantilla define la notificación para los clientes a los que les fue enviado un enlace de acceso a su correo electrónico. El número de servicio y la dirección de correo electrónico abren el enlace de acceso.
+name: "Ticket [#%{ticket.number}] Enlace de acceso"
+body: >
+  <h3><strong>Hola %{recipient.name.first},</strong></h3><div>Un hipervínculo de acceso a la orden de servicio #%{ticket.number} se ha asignado a su nombre por el sistema de asistencia en %{url}.<br /> <br />Habrá el siguiente enlace para comprobar el estado de la entrada #%{ticket.number}.<br /> <br /><a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /><br /> ¿Si usted <strong>no</strong> hizo la petición, por favor elimínela, y haga caso omiso de este correo electrónico . Su cuenta todavía está segura y nadie ha dado acceso al sistema de servicio. Alguien pudo haber dado por error su dirección de correo electrónico.<br /> <br /> --<br /> %{company.name} </div>

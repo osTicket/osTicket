@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ordre d'exécution
+  content: >
+    Entrez un numéro de contrôle de la priorité du filtre. Plus le nombre est bas, plus ce filtre aura de la priorité par rapport à un autre filtre ayant un ordre d'exécution supérieur. <br><br>Si vous souhaitez que ce filtre soit le dernier filtre appliqué sur une correspondance, activez <span class="doc-desc-title"> Stopper le traitement plus loin dans la recherche</span>.
+target_channel:
+  title: Canal
+  content: >
+    Choisissez le <span class="doc-desc-title">canal</span> cible pour votre <span class="doc-desc-title">Filtre de billet</span>. Le <span class="doc-desc-title">canal</span> est la source à travers laquelle le billet arrive dans le système. <br><br>Par exemple, si vous choisissez des <span class="doc-desc-opt">formulaires</span>, vous dites que vous souhaitez appliquer le <span class="doc-desc-title">Filtre de billet</span> pour les billets qui proviennent du formulaire en ligne du portail client.
+rules_matching_criteria:
+  title: Règles correspondant aux critères de
+  content: >
+    Choisissez la rigueur que vous souhaitez pour les <span class="doc-desc-title">Filtres de billets</span>. Si vous souhaitez que le <span class="doc-desc-title">Filtre de billet</span> corresponde à n'importe quelle règle, et puis s'arrête, choisissez <span class="doc-desc-opt">Correspond à n'importe laquelle</span>. Si vous souhaitez que <em><strong>toutes les règles</strong></em> du <span class="doc-desc-title">Filtre de billet</span> soit appliquées, choisissez <span class="doc-desc-opt">Correspond à toutes</span>.
+reject_ticket:
+  title: Rejeter les tickets
+  content: >
+    Si cette option est activée, le traitement est arrêté et tous les autres choix d'actions ci-dessous seront ignorés.
+reply_to_email:
+  title: Adresse de réponse
+  content: >
+    Activer cette option si vous souhaitez que votre Service de Support propose l'option <span class="doc-desc-title">Répondre à</span> en en-tête des courriels de l'application de messagerie. Ce champ n'est pertinent que si le <span class="doc-desc-title">Canal</span> ci-dessus comprend l'option <span class="doc-desc-opt">Courriel</span>.
+ticket_auto_response:
+  title: Désactiver la réponse automatique
+  content: >
+    <em>Remarque : Ceci remplacera les <span class="doc-desc-title">Départements</span> ou les <span class="doc-desc-title">Réponses préenregistrées</span>.</em>
+canned_response:
+  title: Réponse préprogrammée
+  content: >
+    Choisir une <span class="doc-desc-title">Réponse pré-établie</span>, que vous souhaitez envoyer par courriel à l'utilisateur pour une correspondance sur <span class="doc-desc-title">un filtre de billet</span>.  Le modèle de <span class="doc-desc-title">Réponse automatique de nouveau billet</span> utilisé dépend de quel <span class="doc-desc-title">groupe de modèles</span> est attribué comme valeur par défaut, ou au <span class="doc-desc-title"> Département</span> d'un billet correspondant.
+  links:
+    - 
+      title: Gérer les réponses standardisées
+      href: /scp/canned.php
+    - 
+      title: Gérer l'ensemble de modèles
+      href: /scp/templates.php
+    - 
+      title: Nouveau modèle de réponse automatique
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Service
+  content: >
+    Choisissez quel <span class="doc-desc-title"> Département</span> vous souhaitez voir assigner aux correspondances du <span class="doc-desc-title">filtre de billets</span>.
+  links:
+    - 
+      title: Gérer les services
+      href: /scp/departments.php
+priority:
+  title: Priorité
+  content: >
+    Choisissez le niveau de <span class="doc-desc-title">priorité</span> que vous souhaitez voir appliqué aux correspondances du <span class="doc-desc-title">filtre de billets</span>. <br/><br/><em>Remarque : cela écrasera les paramètres de <span class="doc-desc-title">département</span> ou de <span class="doc-desc-title">rubrique d'aide</span>.</em>
+sla_plan:
+  title: Plan SLA
+  content: >
+    Choisissez le <span class="doc-desc-title">Plan SLA</span> que vous souhaitez appliquer aux correspondances du <span class="doc-desc-title">filtre de billets</span>.
+  links:
+    - 
+      title: Gérer les Plans SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Affecter automatiquement
+  content: >
+    Choisissez un personnel ou une équipe auquel vous voulez assigner les correspondances du <span class="doc-desc-title">filtre de billets</span>.
+  links:
+    - 
+      title: Gérer les personnels du support
+      href: /scp/staff.php
+    - 
+      title: Gérer les équipes
+      href: /scp/teams.php
+help_topic:
+  title: Rubrique d'aide
+  content: >
+    Choisissez la <span class="doc-desc-title">rubrique d'aide</span> que vous souhaitez appliquer aux correspondances du <span class="doc-desc-title">filtre de billets</span>.
+  links:
+    - 
+      title: Gérer les rubriques d'aide
+      href: /scp/helptopics.php
+admin_notes:
+  title: Note de l'administrateur
+  content: >
+    Ces notes ne sont visibles que pour ceux dont le type de compte est « <span class="doc-desc-title"> Admin</span>. »

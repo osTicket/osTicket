@@ -15,11 +15,15 @@ class NullLogger extends AbstractLogger
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed[] $context
+     * @param mixed  $level
+     * @param string|\Stringable $message
+     * @param array $context
+     *
+     * @return void
      *
      * @throws \Psr\Log\InvalidArgumentException
      */
-    public function log($level, string|\Stringable $message, array $context = []): void
+    public function log($level, string|\Stringable $message, array $context = [])
     {
         // noop
     }

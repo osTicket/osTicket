@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Suchfeld
+  0: >
+
+advanced:
+  title: Erweitert
+  content: >
+    Grenzen Sie Ihre Suchparameter ein. Wenn Sie Ihre erweiterten Suchkriterien ausgewählt und die Suche ausgeführt haben, können Sie die Ergebnisse am Ende der Ticket-Seite <span class="doc-desc-title">exportieren</span>.
+open_tickets_table:
+  title: Offene Tickets
+  content: >
+    Alle offenen Tickets, die Ihre Aufmerksamkeit erfordern.
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Datum
+  0: >
+
+subject:
+  title: Betreff
+  0: >
+
+from:
+  title: Von
+  0: >
+
+priority:
+  title: Priorität
+  0: >
+
+assigned_to:
+  title: Zugewiesen an
+  0: >
+
+export:
+  title: Exportieren
+  content: >
+    Exportieren Sie die aktuelle Ansicht als CSV-Datei. CSV-Dateien können mit jeder Tabellenkalkulations-Software (z.B. Microsoft Excel, Apple Pages, OpenOffice, etc.) geöffnet werden.
+advanced_search_dialog:
+  title: Erweiterte Suche
+  0: >
+
+adv_keyword:
+  title: Stichwortsuche
+  content: >
+    Findet Suchergebnisse basierend auf dem Betreff und dem Inhalt des Ticket-Vorgangs als auch auf dem gesamten Textinhalt innerhalb von benutzerdefinierten Feldern von Benutzern und Tickets.
+adv_date_range:
+  title: Suche nach Zeitraum
+  content: >
+    Definition hier
+merge_types:
+  title: Typen zusammenführen
+  content: >
+    <b>Themen kombinieren:</b> Themen von allen Tickets werden chronologisch dargestellt.</br> <b>Themen separieren:</b> Themen von Tickets werden einzeln dargestellt.
+reply_types:
+  title: Antwortarten
+  content: >
+    <b>Allen Antworten:</b> Diese Antwort wird an den Benutzer sowie alle Beteiligten die du ausgewählt hast gesendet.</br> <b>Antwort an den Benutzer:</b> Diese Antwort wird nur an den Benutzer gesendet, nicht an Beteiligte.</br> <b>Keine E-Mail Antwort:</b> Es wird keine E-Mail versendet, die Antwort des Agenten ist beim anschauen des Tickets trotzdem für<b>ALLE</b> sichtbar.

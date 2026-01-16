@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Plantillas de correo electrónico
+  content: >
+    Los conjuntos de plantillas de correo electrónico se utilizan para enviar alertas y respuestas automáticas para diversas acciones que pueden tener lugar durante la vida útil de un Ticket.
+template_to_clone:
+  title: Plantilla para Clonar
+  content: >
+    Elija una Pantilla para clonar o simplemente comienze con las plantillas de correo electrónico de fábrica.
+language:
+  title: Idioma
+  content: >
+    Seleccione el idioma deseado para las <span class="doc-desc-title"> Pantillas de Correo Electrónico </span> <span class="doc-desc-opt"> de fábrica</span>. Los paquetes de idioma están disponibles en osTicket.com.
+  links:
+    - 
+      title: Paquetes de Idioma de osTicket
+      href: http://OSticket.com/download
+status:
+  title: Estado
+  content: >
+    Los Conjuntos de Plantillas <span class="doc-desc-opt"> habilitados</span>  están disponibles para ser asociados con Departamentos y establecer el valor predeterminado del sistema.  Los Conjuntos de Plantillas actualmente en uso no pueden ser <span class="doc-desc-opt"> deshabilitados</span>.

@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Redosled izvršenja
+  content: >
+    Unesite broj koji određuje prioritet filtera sortiranja. Što je broj niži, to je veći prioritet ovog filtera u odnosu na druge filtere koji imaju veći broj. <br><br> Ukoliko želite da ovo bude poslednji filter koji se primenjuje kod pronalaska traženog pojma, omogućite <span class="doc-desc-title">Zaustavi obradu kod pronalaska traženog pojma</span>.
+target_channel:
+  title: Kanal
+  content: >
+    Odaberite <span class="doc-desc-title">Kanal</span> za svoj <span class="doc-desc-title">Filter pretrage</span>. <span class="doc-desc-title">Kanal</span> je put kojim je tiket stigao u sistem. <br><br>Npr, ukoliko odaberete <span class="doc-desc-opt">Veb obrasce</span>, znači da želite primeniti <span class="doc-desc-title">Filter</span> na tikete koji su došli sa klijentovih veb obrazaca.
+rules_matching_criteria:
+  title: Pravila koja se podudaraju sa kriterijumima
+  content: >
+    Odredite toleranciju u rezultatima pretrage za <span class="doc-desc-title">Filter Tiketa</span>. Ukoliko želite da <span class="doc-desc-title">Filter Tiketa</span> pronađe bilo koje od zadatih pojmova, i zatim stane, odaberite <span class="doc-desc-opt">Pronađi bilo koji</span>. Ukoliko želite pronaći <em><strong>Sve zadate pojmove</strong></em> u <span class="doc-desc-title">Filter Tiketa</span> odaberite <span class="doc-desc-opt">Pronađi sve</span>.
+reject_ticket:
+  title: Odbij tiket
+  content: >
+    Ukoliko je ovo omogućeno sva dalja obrada biće zaustavljena i sve odabrane radnje biće ignorisane u slučaju podudaranja.
+reply_to_email:
+  title: Odgovori na imejl
+  content: >
+    Omogućite ovo ukoliko želite da Vaša tehnička podrška uvažava korisničke imejl aplikacije <span class="doc-desc-title">Odgovori na</span> zaglavlje. Ovo polje je relevantno samo ako <span class="doc-desc-title">Kanal</span> iznad uključuje <span class="doc-desc-opt">imejl adresu</span>.
+ticket_auto_response:
+  title: Isključite automatske odgovore na tikete
+  content: >
+    <em>Napomena: Ovo će nadjačati bilo koji <span class="doc-desc-title">Odsek</span> ili <span class="doc-desc-title">Postavke automatizovanih odgovora</span>.</em>
+canned_response:
+  title: Pripremljeni automatski odgovori
+  content: >
+    Odaberite <span class="doc-desc-title">Pripremljeni odgovor</span> koji želite da bude poslat korisniku putem imejla prilikom podudaranja <span class="doc-desc-title">Filtera tiketa</span>. <span class="doc-desc-title">Automatski odgovor na novootvoreni tiket</span> korišćeni šablon zavisi od <span class="doc-desc-title">Šablona</span> koji je naveden kao osnovni, ili koji je naveden kao šablon za određeni <span class="doc-desc-title">Odsek</span>.
+  links:
+    - 
+      title: Upravljanje pripremljenim odgovorima
+      href: /scp/canned.php
+    - 
+      title: Upravljanje šablonima
+      href: /scp/templates.php
+    - 
+      title: Šablon za automatski odgovor na novootvoreni tiket
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Odsek
+  content: >
+    Odaberite <span class="doc-desc-title">Odsek</span> kojem želite dodeliti rezultate <span class="doc-desc-title">Filter tiketa</span>.
+  links:
+    - 
+      title: Upravljanje odsecima
+      href: /scp/departments.php
+priority:
+  title: Prioritet
+  content: >
+    Odredite <span class="doc-desc-title">Prioritet</span> koji će biti dodeljen rezultatima <span class="doc-desc-title">Filtera tiketa</span>.<br /> <br /> <em>Napomena: Ovo će nadjačati postavke <span class="doc-desc-title">Odseka</span> ili <span class="doc-desc-title">Teme pomoći</span>.</em>
+sla_plan:
+  title: Ugovor o nivou usluge
+  content: >
+    Odaberite <span class="doc-desc-title">Ugovor o nivou usluge</span> koji želite da se primenjuje na rezultate <span class="doc-desc-title">Filtera tiketa</span>.
+  links:
+    - 
+      title: Upravljanje ugovorima o nivou usluge
+      href: /scp/slas.php
+auto_assign:
+  title: Auto dodeljivanje
+  content: >
+    Odaberite zaposlenog ili tim kojem će rezultati <span class="doc-desc-title">Filtera tiketa</span> biti dodeljeni.
+  links:
+    - 
+      title: Upravljanje zaposlenima
+      href: /scp/staff.php
+    - 
+      title: Upravljanje timovima
+      href: /scp/teams.php
+help_topic:
+  title: Tema pomoći
+  content: >
+    Odaberite <span class="doc-desc-title">Teme pomoći</span> koje želite primeniti na <span class="doc-desc-title">Filtere tiketa</span>.
+  links:
+    - 
+      title: Upravljanje temama pomoći
+      href: /scp/helptopics.php
+admin_notes:
+  title: Beleške administratora
+  content: >
+    Ove beleške vidljive su samo ‘<span class="doc-desc-title">Administratorima</span>.’

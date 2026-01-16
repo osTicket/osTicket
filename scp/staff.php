@@ -109,7 +109,7 @@ if($_POST){
                         foreach($members as $s) {
                             if ($s->staff_id != $thisstaff->getId()) {
                               $s->delete();
-                              $i++;
+                                $i++;
                             }
                         }
 

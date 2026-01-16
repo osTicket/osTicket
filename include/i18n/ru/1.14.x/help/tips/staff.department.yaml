@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Статус
+  content: >
+    Если отключено или архивировано, то этот <span class="doc-desc-title">Отдел</span> не будет доступен.
+type:
+  title: Тип
+  content: >
+    Выберите <span class="doc-desc-opt">Приватный</span>, если Вы хотите замаскировать связи Заявок с этим Отделом в Клиентском Портале. Также, если отмечено как <span class="doc-desc-opt">Приватный</span>, то <span class="doc-desc-title">Подпись Отдела</span> не будет отображаться в письмах-ответах. <br/><br/> По крайней мере один отдел должен быть <span class="doc-desc-opt">Публичный</span>
+email:
+  title: Email
+  content: >
+    Адрес электронной почты, используемый при отправке ответов Пользователям, когда Сотрудники размещают Ответы на Заявки.
+template:
+  title: Набор шаблонов
+  content: >
+    <span class="doc-desc-title">Набор Шаблонов</span> Электронной Почты, используемый для Автоответов, Оповещений и Уведомлений для Заявок, отправленных на этот Отдел.
+  links:
+    - 
+      title: Управление шаблонами
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    SLA для Заявок направляемых в этот Отдел.
+  links:
+    - 
+      title: Управление Планами SLA
+      href: /scp/slas.php
+schedule:
+  title: График
+  content: >
+    Расписание используемое SLA при выходе на просрочку Заявок направленных в данный Отдел.<br><br>Этот параметр управляет настройками системы и расписания SLA.
+  links:
+    - 
+      title: Управление расписаниями
+      href: /scp/schedules.php
+manager:
+  title: Менеджер отдела
+  content: >
+    Выберите <span class="doc-desc-title">Менеджера</span> для этого отдела.<br/><br/>Менеджеры могут получать специальные уведомления и имеют права снимать заявки с назначения.
+  links:
+    - 
+      title: Управление оповещениями и уведомлениями
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Получатели оповещений и уведомлений
+  content: >
+    Выберите получателей из настроенных <span class="doc-desc-title">оповещений и уведомлений</span>.
+  links:
+    - 
+      title: Настройка Оповещений и Уведомлений
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Ограничения Назначения Заявок
+  content: >
+    Определите, можно ли назначить Заявки всем Сотрудникам, Сотрудникам Отдела с основным или расширенным доступом или только Сотрудникам с основным доступом Отдела.
+disable_auto_claim:
+  title: Отключить автоматическое назначение
+  content: >
+    Выберите пункт <strong>выключено</strong> автоматического назначния на ответ для этого отдела/сотрудника. <br><br> Сотрудники могут по-прежнему вручную назначать нераспределенные заявки
+disable_reopen_auto_assign:
+  title: Отключить автоматическое назначение при повторном открытии
+  content: >
+    Установите этот флажок, чтобы <strong>отключить</strong> автоматическое назначение вновь открытых заявок для этого отдела. <br><br> В противном случае заявка будет автоматически назначен последнему отвечающему сотруднику
+auto_response_settings:
+  title: Настройки Автоответчика
+  content: >
+    Это позволяет Вам переопределить глобальные настройки Автоответчика для этого Отдела.
+new_ticket:
+  title: Автоответ на новую Заявку
+  content: >
+    Вы можете отключить Автоответ, который отправляется Пользователю, когда создается новая Заявка и отправляется на этот Отдел.
+new_message:
+  title: Автоответ на Новое Сообщение
+  content: >
+    Вы можете отключить Автоответ, который отправляется Пользователю для подтверждения нового сообщения для Заявок в этом Отделе.
+auto_response_email:
+  title: Адрес Автоответа
+  content: >
+    Выберите адрес электронной почты, с которого отправляются Автоответы для этого Отдела.
+department_access:
+  title: Доступ к группе
+  content: >
+    Разрешить Сотрудникам других Отделов доступ к Заявкам этого Отдела.
+department_signature:
+  title: Подпись Отдела
+  content: >
+    Подпись становится доступной по выбору, для <span class="doc-desc-opt">Публичных</span> Отделов, при Ответах Сотрудников.

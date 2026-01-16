@@ -1,0 +1,237 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> System
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+helpdesk_status:
+    title: Helpdesk Status
+    content: >
+        If the status is changed to <span
+        class="doc-desc-opt">Offline</span>, the client interface will be
+        disabled.  Only Admins will be able to access the system.
+
+helpdesk_url:
+    title: Helpdesk URL
+    content: >
+        This URL is the base of your osTicket installation. It is used in email
+        communication to direct end-users back to your helpdesk.
+
+helpdesk_name_title:
+    title: Helpdesk Name/Title
+    content: >
+        This is the title that appears in the browser tab. If your help desk
+        page is bookmarked, this will be the title/name of the site page.
+
+default_department:
+    title: Default Department
+    content: >
+        Choose a default <span class="doc-desc-title">department</span>
+        for tickets that are not automatically routed to a department.
+        <br/><br/>
+        Ticket can be routed base on help topic, incoming email and ticket
+        filter settings.
+
+default_schedule:
+    title: Default Schedule
+    content: >
+        Choose the default Schedule to be used by SLA when rendering tickets
+        Overdue.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
+
+force_https:
+    title: Force HTTPS
+    content: >
+        This setting allows Admins to configure wether or not they want to Force
+        HTTPS system-wide. If enabled, any request that is using the HTTP protocol
+        will be redirected to the HTTPS protocol. Note, this will only work if you
+        have an SSL certificate installed and have HTTPS configured on the server.
+        <br/><br/>
+        <b>Note:</b><rb/>
+        This might affect remote piping scripts. Reference new scripts included in
+        <code>setup/scripts/</code> for updates.
+
+default_page_size:
+    title: Default Page Size
+    content: >
+        Choose the number of items shown per page in the Ticket Queues in the
+        Staff Panel. Each Agent can also customize this number for their own
+        account under <span class="doc-desc-title">My Preferences</span>.
+
+default_log_level:
+    title: Default Log Level
+    content: >
+        Determine the minimum level of issues which will be recorded in the
+        <span class="doc-desc-title">system log</span>. <span
+        class="doc-desc-opt">Debug</span> represents the least severity, and <span
+        class="doc-desc-opt">Error</span> represents the greatest severity.
+        For example, if you want to see all issues in the <span
+        class="doc-desc-title">System Logs</span>, choose <span
+        class="doc-desc-opt">Debug</span>.
+
+purge_logs:
+    title: Purge Logs
+    content: >
+        Determine how long you would like to keep <span
+        class="doc-desc-title">System Logs</span> before they are deleted.
+
+enable_richtext:
+    title: Enable Rich Text
+    content: >
+        If enabled, this will permit the use of rich text formatting between
+        Clients and Agents.
+
+enable_avatars:
+    title: Enable Avatars on Thread View
+    content: >
+        Enable this to show <span class="doc-desc-title">Avatars</span> on thread correspondence.
+        <br><br>
+        The <span class="doc-desc-title">Avatar Source</span> can be set in Agents' and Users' settings pages.
+    links:
+      - title: Agents Settings
+        href: /scp/settings.php?t=agents
+
+      - title: Users Settings
+        href: /scp/settings.php?t=users
+
+collision_avoidance:
+    title: Agent Collision Avoidance
+    content: >
+        Enter the maximum length of time an Agent is allowed to hold a lock
+        on a ticket or task without any activity.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
+
+allow_iframes:
+    title: Allow System iFrame
+    content: >
+        Enter comma separated list of urls/domains for the system to be framed
+        in. If left empty, the system will default to 'self'. This accepts
+        domain wildcards, HTTP/HTTPS URL scheme, and port numbers.
+        <br><br>
+        <b>Example:</b>
+        <br>
+        https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+    links:
+      - title: Syntax Information (host-source)
+        href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+
+acl:
+    title: ACL (Access Control List)
+    content: >
+        Enter a comma separated list of IP addresses to allow access to the system.
+        There are four options to choose which panel(s) to apply the ACL to.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Apply To</th>
+                <th>Description</th></tr>
+            <tr><td>Disabled</td>
+                <td>Disables ACL altogether.</td></tr>
+            <tr><td>All</td>
+                <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel,
+                 Admin Panel)</td></tr>
+            <tr><td>Client Portal</td>
+                <td>Applies ACL to only Client Portal.</td></tr>
+            <tr><td>Staff Panel</td>
+                <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr>
+        </tbody></table>
+
+embedded_domain_whitelist:
+    title: Embedded Domain Whitelist
+    content: >
+        Enter a comma separated list of domains to be whitelisted for iFrames used
+        in the system. Do not input <code>http(s)</code> or <code>www</code> with
+        the domain; only the domain name will be accepted. This is used when you
+        would like to embed content in the system (eg. YouTube video) via Client
+        Portal, Knowledgebase, etc. If you add an iFrame with a non-whitelisted
+        domain, the system will remove the iFrame automatically. By default the
+        system allows YouTube, Vimeo, DailyMotion, and Microsoft Stream.
+        <br><br>
+        <b>Example:</b>
+        <br>
+        domain.tld, sub.domain.tld
+
+# Date and time options
+date_time_options:
+    title: Date &amp; Time Options
+    content: >
+        The following settings define the default settings for Date &amp;
+        Time settings for the help desk. You can choose to use the locale
+        defaults for the selected locale or use customize the formats to
+        meet your unique requirements. Refer to the ICU format strings as a
+        reference for customization.  The dates shown below simply
+        illustrate the result of their corresponding values.
+    links:
+      - title: See the ICU Date Formatting Table
+        href: http://userguide.icu-project.org/formatparse/datetime
+
+languages:
+    title: System Languages
+    content: >
+        Choose a system primary language and optionally secondary languages
+        to make your interface feel localized for your agents and end-users.
+
+primary_language:
+    title: System Primary Language
+    content: >
+        Content of this language is displayed to agents and end-users if
+        their respective language preference is not currently available.
+        This includes the content of the interface, as well as, custom
+        content such as thank-you pages and email messages.
+        <br/><br/>
+        This is the language in which the untranslated versions of your
+        content should be written.
+
+secondary_language:
+    title: Secondary Languages
+    content: >
+        Select language preference options for your agents and end-users.
+        The interface will be available in these languages, and custom
+        content, such as thank-you pages and help topic names, will be
+        translatable to these languages.
+
+# Attachments
+attachments:
+    title: Attachment Settings and Storage
+    content: >
+        Configure how attachments are stored.
+
+default_storage_bk:
+    title: File Storage Backend
+    content: >
+        Choose how attachments are stored.
+        <br><br>
+        Additional storage backends can be added by installing storage plugins
+
+max_file_size:
+    title: Maximum File Size
+    content: >
+        Choose a maximum file size for attachments uploaded by agents. This
+        includes canned attachments, knowledge base articles, and
+        attachments to ticket and task replies. The upper limit is
+        controlled by PHP's <code>upload_max_filesize</code> setting.
+    links:
+      - title: PHP ini settings
+        href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+
+files_req_auth:
+    title: Require Login
+    content: >
+        Enable this setting to forbid serving attachments to unauthenticated
+        users. That is, users must sign into the system (both end users and
+        agents), in order to view attachments.
+        <br><br>
+        From a security perspective, be aware that the user's browser may
+        retain previously-viewed files in its cache. Furthermore, all file
+        links on your helpdesk automatically expire after about 24 hours.

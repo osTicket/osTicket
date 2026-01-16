@@ -4,15 +4,16 @@ if(!defined('OSTCLIENTINC') || !$faq  || !$faq->isPublished()) die('Access Denie
 $category=$faq->getCategory();
 
 ?>
-<div class="row">
-<div class="span8">
-
+<!--osta-->
 <h1><?php echo __('Frequently Asked Question');?></h1>
 <div id="breadcrumbs" style="padding-top:2px;">
     <a href="index.php"><?php echo __('All Categories');?></a>
     &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php
     echo $category->getFullName(); ?></a>
 </div>
+<!--osta-->
+<div class="row">
+<div class="span8">
 
 <div class="faq-content">
 <div class="article-title flush-left">
@@ -29,14 +30,7 @@ $category=$faq->getCategory();
 
 <div class="span4 pull-right">
 <div class="sidebar">
-<div class="searchbar">
-    <form method="get" action="faq.php">
-    <input type="hidden" name="a" value="search"/>
-    <input type="text" name="q" class="search" placeholder="<?php
-        echo __('Search our knowledge base'); ?>"/>
-    <input type="submit" style="display:none" value="search"/>
-    </form>
-</div>
+<!--osta-->
 <div class="content"><?php
     if ($attachments = $faq->getLocalAttachments()->all()) { ?>
 <section>
@@ -56,11 +50,21 @@ if ($faq->getHelpTopics()->count()) { ?>
 <section>
     <strong><?php echo __('Help Topics'); ?></strong>
 <?php foreach ($faq->getHelpTopics() as $T) { ?>
-    <div><?php echo $T->topic->getFullName(); ?></div>
+<!--osta-->
+    <div class="topic"><?php echo $T->topic->getFullName(); ?></div>
 <?php } ?>
 </section>
 <?php }
 ?></div>
+<!--osta-->
+<div class="searchbar">
+    <form method="get" action="faq.php">
+    <input type="hidden" name="a" value="search"/>
+    <input type="text" name="q" class="search" placeholder="<?php
+        echo __('Search our Knowledge Base'); ?>"/><!-- osta --> 
+    <input type="submit" style="display:none" value="search"/>
+    </form>
+</div>
 </div>
 </div>
 

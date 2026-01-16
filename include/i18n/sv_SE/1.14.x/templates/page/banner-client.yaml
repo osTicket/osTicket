@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Här definieras sidhuvudet på kund-inloggningssidan. Det kan vara lämpligt att utnyttja tillfället att här informera kunderna om reglerna kring inloggnings- och registreringsprocessen.
+name: "Logga in i %{company.name}"
+body: >
+  För att kunna ge bästa möjliga support rekommenderar vi dem som kontaktar oss att registrera ett konto.

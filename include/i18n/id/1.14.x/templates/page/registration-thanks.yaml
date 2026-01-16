@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Template ini menentukan konten yang ditampilkan setelah klien berhasil mendaftar mengkonfirmasikan account mereka. Halaman ini harus menginformasikan pengguna bahwa pendaftaran lengkap dan bahwa klien sekarang dapat mengirimkan tiket atau mengakses tiket yang sudah ada.
+name: "Akun dikonfirmasi!"
+body: >
+  <div><strong>Terima kasih untuk mendaftar untuk sebuah account.</strong><br / mengatakan <br / mengatakan Anda mengkonfirmasi alamat email Anda dan berhasil mengaktifkan account Anda. Anda dapat melanjutkan untuk membuka tiket baru atau mengelola ada tiket. <br / mengatakan < br / mengatakan <em>pusat dukungan ramah Anda</em> <br / mengatakan %{company.name}</div>

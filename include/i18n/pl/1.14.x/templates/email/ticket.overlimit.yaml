@@ -1,0 +1,20 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Wysyłane do użytkowników, którzy przekroczyli limit otwartych zgłoszeń. Limit jest konfigurowany w panelu administracyjnym i jest określona przez liczbę otwartych zgłoszeń z określonego adresu e-mail.
+subject: |
+  Limit otwartych zgłoszeń został osiągnięty
+body: |
+  <h3><strong>Szanowny(a) %{ticket.name.first},</strong></h3>
+  Osiągnięto maksymalną liczbę dozwolonych zgłoszeń. Aby móc
+  utworzyć kolejne zgłoszenie, jedno z oczekujących musi zostać zamknięte.
+  Aby zaktualizować lub dodać komentarz do otwartego zgłoszenia poprostu <a
+  href="%{url}/tickets.php?e=%{ticket.email}">zaloguj się do naszego systemu pomocy</a>.
+  <br>
+  <br>
+  Dziękujemy,<br/>
+  System Obsługi Zgłoszeń

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Standardsvar
+  content: >
+    Opret et <span class="doc-desc-title">Standardsvar</span> det kan os blive medtaget i et sags svar. Det kan os bruges som et <span class="doc-desc-title">Sags Autosvar</span> som indstilles i <span class="doc-desc-title">Sags Filter</span>.
+  links:
+    - 
+      title: Indstil et Sags Filter
+      href: /scp/filters.php
+canned_attachments:
+  title: standard vedhæftede filer
+  content: >
+    Vedhæft en fil, som du ønsker at være automatisk inkluderet i sags svar som udnytter det nye <span class="doc-desc-title">Standardsvar</span>.

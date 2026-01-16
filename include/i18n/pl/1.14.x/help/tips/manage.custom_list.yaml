@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Listy niestandardowe
+  content: >
+    Twoje <span class="doc-desc-title">Listy niestandardowe</span> pozwolą Ci na tworzenie list rozwijanych z predefiniowanych opcji, z których klient może wybrać w<span class="doc-desc-title">Przygotowanym formularzu</span>. Jeśli chcesz użyć tej <span class="doc-desc-title">listy niestandardowej</span> jako <span class="doc-desc-title">celu</span> w <span class="doc-desc-title">Filtrze zgłoszeń</span>, upewnij się, że dodałeś tą listę do swojego formularza <span class="doc-desc-title">Szczegółów zgłoszenia</span>.
+name:
+  title: Nazwa
+  0: >
+
+plural_name:
+  title: Nazwa w liczbie mnogiej
+  0: >
+
+sort_order:
+  title: Kolejność sortowania
+  0: >
+
+list_s_initial_items:
+  title: Początkowe pozycje listy
+  0: >
+
+value:
+  title: Wartość
+  0: >
+
+extra:
+  title: Dodatkowe
+  content: >
+    Skróty i inne. Jeśli zdarzy ci się użyć kodów wewnętrznych dla elementów w tej liście, te kody i skróty mogą być wprowadzone w tej kolumnie. Jeśli lista niestandardowa jest wyświetlana jako <span class="doc-desc-option"> TypeAhead</span>, to te skróty mogą być użyte do znalezienia jej elementów.

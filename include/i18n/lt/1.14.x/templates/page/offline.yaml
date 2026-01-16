@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Nepasiekiamo  tinklalapio pranešimas pasirodo Klientų sistemoje, kai Pagalbos Sistema yra nepasiekiam .
+name: Nepasiekiamas
+body: |
+  <div><h1>
+  <span style="font-size: medium">Bilietų Sistemos pagalba nepasiekiama</span>
+  </h1>
+  <p>Dėkojame už Jūsų susidomėjimą susisiekę su mumis</p>
+  <p>Mūsų pagalbos sistema atjungta, nepasiekiama , prašome patikrinti truputėlį vėliau.</p>
+  </div>

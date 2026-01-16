@@ -102,8 +102,8 @@ if($_POST){
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete()) {
-                                    $i++;
-                                }
+                                $i++;
+                        }
                         }
 
                         if($i && $i==$count)

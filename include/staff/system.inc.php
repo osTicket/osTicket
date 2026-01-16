@@ -9,17 +9,9 @@ $extensions = array(
             'name' => 'gdlib',
             'desc' => __('Used for image manipulation and PDF printing')
             ),
-        'iconv' => array(
-            'name' => 'iconv',
-            'desc' => __('Useful for email processing')
-            ),
         'imap' => array(
             'name' => 'imap',
-            'desc' => __('Useful for email processing')
-            ),
-        'ctype' => array(
-            'name' => 'ctype',
-            'desc' => __('Required for email fetching')
+            'desc' => __('Used for email fetching')
             ),
         'xml' => array(
             'name' => 'xml',
@@ -196,10 +188,10 @@ if (!$lv) { ?>
         if ($info['phar'])
             $p = 'phar://' . $p;
         $manifest = (file_exists($p . '/MANIFEST.php')) ? (include $p . '/MANIFEST.php') : null;
-?>
+?><div class="<?php echo ($info['code']); ?>"><!-- osta -->
     <h3><strong><?php echo Internationalization::getLanguageDescription($info['code']); ?></strong>
         <?php if ($manifest) { ?>
-            &mdash; <?php echo $manifest['Language']; ?>
+        &mdash; <?php echo $manifest['Language']; ?>
         <?php } ?>
 <?php   if ($info['phar'])
             PluginManager::showVerificationBadge($info['path']); ?>
@@ -211,7 +203,7 @@ if (!$lv) { ?>
                 ?>, <?php echo sprintf(__('for version %s'),
                     'v'.($manifest['Phrases-Version'] ?: '1.9')); ?>
             <br/> <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
-<?php   } ?>
+<?php   } ?></div><!--osta-->
         </div>
 <?php
     } ?>

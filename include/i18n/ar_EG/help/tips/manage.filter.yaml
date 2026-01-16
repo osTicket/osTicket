@@ -1,0 +1,82 @@
+---
+execution_order:
+  title: ترتيب التنفيذ
+  content: >
+    أدخل رقماً ليتحكم بأولوية الترشيح. كلما كان الرقم أصغر، كلما زادت أولوية تنفيذ هذا المرشح ضد مرشح آخر ذو ترتيب أعلى في التنفيذ. <br><br>إذا كنت ترغب في جعل هذا المرشح هو الأخير في تسلسل التنفيذ خلال الجلسة، قم بتفعيل <span class="doc-desc-title"> إيقاف معالجة المزيد في الجلسة</span>.
+target_channel:
+  title: القناة
+  content: >
+    اختر<span class="doc-desc-title"> القناة</span> لـ <span class="doc-desc-title">مرشح التذكرة</span>. <span class="doc-desc-title"> القناة</span> هي المصدر الذي من خلاله تصل التذكرة داخل النظام. <br><br>على سبيل المثال، إذا قمت باختيار <span class="doc-desc-opt"> نماذج ويب</span>، فأنت تعني أنك تريد تطبيق <span class="doc-desc-title">مرشح التذكرة</span> لتلك التذاكر التي نشأت من نموذج بوابة العميل.
+rules_matching_criteria:
+  title: قواعد مطابقة للمعايير
+  content: >
+    اختر مدى مرونة جلساتك <span class="doc-desc-title"> لمرشح التذكرة</span>. إذا كنت تريد <span class="doc-desc-title"> مرشح التذكرة</span> أن يطابق أياً من القواعد ثم يتوقف فاختر <span class="doc-desc-opt"> يتطابق مع الكل</span>. إذا كنت تريد <em><strong>كافة القواعد</strong></em> <span class="doc-desc-title"> لمرشح التذكرة</span> كي تكون مطابقة، اختر <span class="doc-desc-opt"> طابق الكل</span>.
+reject_ticket:
+  title: رفض التذكرة
+  content: >
+    إذا تم تفعيل هذا الخيار، ستتوقف المعالجة وسيتم تجاهل كافة الخيارات الأخرى للإجراء أدناه عند التطابق.
+reply_to_email:
+  title: الرد على البريد الإلكتروني
+  content: >
+    قم بتفعيل هذا إن كنت تريد أن يقوم الدعم الفني بتكريم رسالة طلب لأحد المستخدمين عبر عنوان<span class="doc-desc-title"> الرد على</span>. هذا الحقل قابل للتطبيق إذا كانت <span class="doc-desc-title"> القناة</span>أعلاه تتضمن <span class="doc-desc-opt"> البريد الإلكتروني</span>.
+ticket_auto_response:
+  title: تعطيل الإستجابة التلقائية للتذاكر
+  content: >
+    <em>ملاحظة: سوف يتم تجاوز إعدادات كل <span class="doc-desc-title">قسم</span> أو <span class="doc-desc-title">رد تلقائي</span>.</em>
+canned_response:
+  title: الرد التلقائي المسبق
+  content: >
+    اختر <span class="doc-desc-title"> استجابة مسبقة</span> تريد أن يتم ارسالها عبر البريد الإلكتروني إلى المستخدم في حال تطابق<span class="doc-desc-title"> مرشح التذكرة </span>. يستخدم قالب <span class="doc-desc-title">الرد التلقائي لتذكرة جديدة</span> حسب <span class="doc-desc-title"> تعيين القالب</span> المسند كافتراضي، أو لتذكرة متطابقة في<span class="doc-desc-title"> القسم</span>.
+  links:
+    - 
+      title: إدارة الردود المسبقة
+      href: /scp/canned.php
+    - 
+      title: إدارة مجموعات القالب
+      href: /scp/templates.php
+    - 
+      title: قالب الرد التلقائي لتذكرة جديدة
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: القسم
+  content: >
+    إختر <span class="doc-desc-title"> القسم</span> الذي تريد أن يتم إسناد نتائج <span class="doc-desc-title">مرشح التذاكر</span>إليه.
+  links:
+    - 
+      title: إدارة الأقسام
+      href: /scp/departments.php
+priority:
+  title: الأولوية
+  content: >
+    اختر مستوى  <span class="doc-desc-title">الأولوية</span> التي تريد تطبيقها على نتائج <span class="doc-desc-title">مرشح التذاكر</span>.<br /> <br /> <em> ملاحظة: سوف تقوم باستبدال إعدادات <span class="doc-desc-title">القسم</span> أو<span class="doc-desc-title"> موضوع المساعدة </span></em>
+sla_plan:
+  title: خطة اتفاقية مستوى الخدمة
+  content: >
+    اختر <span class="doc-desc-title">خطة اتفاقية مستوى الخدمة</span> التي تريد تطبيقها على نتائج <span class="doc-desc-title">مرشح التذاكر</span>.
+  links:
+    - 
+      title: إدارة خطط اتفاقية مستوى الخدمة
+      href: /scp/slas.php
+auto_assign:
+  title: إسناد تلقائي
+  content: >
+    اختر وكيلاً أو فريقاً تريد إسناد نتائج <span class="doc-desc-title"> مرشح التذاكر</span> إليهم.
+  links:
+    - 
+      title: إدارة الوكلاء
+      href: /scp/staff.php
+    - 
+      title: إدارة الفرق
+      href: /scp/teams.php
+help_topic:
+  title: موضوع المساعدة
+  content: >
+    اختر <span class="doc-desc-title"> موضوع المساعدة</span> الذي تريد تطبيقه على نتائج <span class="doc-desc-title"> مرشح التذاكر</span>.
+  links:
+    - 
+      title: إدارة مواضيع المساعدة
+      href: /scp/helptopics.php
+admin_notes:
+  title: ملاحظات المدير
+  content: >
+    هذه الملاحظات مرئية فقط للحسابات من نوع '<span class="doc-desc-title"> مدير</span>.'

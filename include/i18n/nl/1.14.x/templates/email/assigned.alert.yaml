@@ -1,0 +1,12 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Verzonden naar medewerkers wanneer een ticket aan hen is toegewezen. Tickets kunnen automatisch worden toegewezen door het systeem of handmatig door een andere medewerker. Gebruik %{assigner} om te onderscheiden wie de toewijzing heeft gemaakt.
+subject: |
+  Ticket is aan u toegewezen
+body: |
+  <h3><strong>Hoi %{assignee.name.first},</strong></h3> Ticket <a href="%{ticket.staff_link}"> #%{ticket.number}</a> is aan u toegewezen door %{assigner.name.short} <br><br><table><tbody><tr><td><strong>Van</strong>:</td> <td>%{ticket.name} &lt; %{ticket.email} &gt;</td></tr> <tr><td><strong>Onderwerp</strong>:</td> <td>%{ticket.subject}</td></tr></tbody></table> <br>%{comments} <br><br><hr><div>Om het ticket te zien of om er op te antwoorden, kunt u <a href="%{ticket.staff_link}"> <span style="color: rgb(84, 141, 212);" > inloggen</span></a> in het Support Ticket systeem</div> <em style="font-size: small;"> Uw vriendelijke Support Ticket systeem</em> <br><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

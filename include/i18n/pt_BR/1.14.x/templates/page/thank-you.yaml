@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Este modelo define o conteúdo mostrado na página Obrigado após um Cliente criar um novo chamado no Portal do Cliente.
+name: Obrigado
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Obrigado por nos contatar.
+  <br>
+  <br>
+  Um chamado foi criado e um atendente irá respondê-lo se necessário.</p>
+  <br>
+  <br>
+  Equipe de Suporte
+  </div>

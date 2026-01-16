@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Grupy
+  content: >
+    Grupy są używane żeby nadać uprawnienia przedstawicielowi/pracownikowi w biurze obsługi. Grupy mogą również nadawać dostęp do departamentów innych niż podstawowy departament przedstawiciela.
+status:
+  title: Status
+  content: >
+    Jeżeli <span class="doc-desc-opt">Wyłączone</span>, Przedstawiciele przypisani do tej Grupy nie mogą się zalogować, ani nie otrzymają Alertów &amp; Powiadomień z Działu.
+department_access:
+  title: Dostęp dla Departamentu
+  content: >
+    Sprawdź wszystkie departamenty, do których członkowie grupy mają dostęp.

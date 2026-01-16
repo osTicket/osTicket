@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Acest template defineste emailul trimis catre Angajati care acceseaza link-ul de <strong>Mi-am uitat Parola</strong> din pagina de autentificare Angajati.
+name: "Resetare parola pentru membrii personalului osTicket"
+body: >
+  <h3><strong>Draga %{staff.name.first},</strong></h3> <div> O cerere de reseatare parola a fost trimisa in numele tau pentru platforma de helpdesk de la adresa %{url}.<br /> <br /> Daca acest lucru s-a facut in mod eronat, sterge si ignora acest email. Contul tau este in continuare in siguranta si nimeni nu a primit acces la el. Nu este blocat si parola ta nu a fost resetata. Cineva ar fi putut introduce din greseala adresa ta de email.<br /> <br /> Da click pe link-ul de mai jos pentru a te loga in platforma de help desk si a reseta parola.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Your friendly Customer Support System</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

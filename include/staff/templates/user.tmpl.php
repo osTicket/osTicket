@@ -28,7 +28,8 @@ if ($info['error']) {
     } ?>
     <div><b><?php
     echo Format::htmlchars($user->getName()->getOriginal()); ?></b></div>
-    <div class="faded">&lt;<?php echo $user->getEmail(); ?>&gt;</div>
+    <!--osta-->
+    <div id="user-email"><a href="mailto://<?php echo $user->getEmail(); ?>"><?php echo $user->getEmail(); ?></a></div>
     <?php
     if (($org=$user->getOrganization())) { ?>
     <div style="margin-top: 7px;"><?php echo $org->getName(); ?></div>

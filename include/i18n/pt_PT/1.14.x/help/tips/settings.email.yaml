@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Conjunto de modelos de e-mail predefinidos
+  content: >
+    Selecione o <span class="doc-desc-title"> Conjunto de Modelos de Email</span> usado para enviar <span class="doc-desc-title"> alertas</span> e <span class="doc-desc-title"> Respostas Automáticas</span> para várias ações que podem ocorrer durante a vida de um Ticket.<br><br> Pode ser atribuído um Modelo de E-mail específico aos Departamentos.
+  links:
+    - 
+      title: Gerir conjunto de modelos de e-mail
+      href: /scp/templates.php
+default_system_email:
+  title: E-mail de saída predefinido
+  content: >
+    Escolha um endereço de e-mail do qual são enviados os e-mails para fora. <br><br>Cada <span class="doc-desc-title"> Departamento</span> pode definir seu próprio <span class="doc-desc-title"> endereço de e-mail</span> que irá substituir o que está definido aqui.
+  links:
+    - 
+      title: Gerir endereços de e-mail
+      href: /scp/emails.php
+default_alert_email:
+  title: Email de aviso padrão
+  content: >
+    Escolher um endereço de e-mail do qual <span class="doc-desc-title"> Alertas e Avisos</span> são enviados aos Agentes.
+  links:
+    - 
+      title: Gerir endereços de e-mail
+      href: /scp/emails.php
+admins_email_address:
+  title: Endereço de e-mail do admin
+  content: >
+    Indique um e-mail de administrador para o envio de <span class="doc-desc-title">erros de sistema</span> e <span class="doc-desc-title">alertas de novos pedidos</span>(se ativado).
+  links:
+    - 
+      title: Gerir alertas & avisos
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Leitura de e-mail
+  content: >
+    Permitir polling IMAP/POP para <span class="doc-desc-title"> Caixas de correio</span> configuradas e ativas.
+  links:
+    - 
+      title: Gerir caixas de correio
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Ler E-mails usando Auto-cron
+  content: >
+    Permite leitura periódica de e-mail usando um gestor de tarefas interno desencadeado pela atividade dos Agentes.<br><br> Por favor note que não serão lidos e-mails se ninguém estiver conectado ao Painel de Controle de Pessoal (Staff). Um agendador de tarefas externo é altamente recomendado para intervalos de busca previsíveis.
+  links:
+    - 
+      title: Utilizar o agendador de tarefas externo
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Remover Resposta Citada
+  content: >
+    Se ativo, irá remover a correspondência anterior entre comunicações por e-mail. <br><br>Este recurso está dependente da <span class="doc-desc-title"> Tag de separador de Resposta </span> abaixo.
+reply_separator_tag:
+  title: Tag de separador de Resposta
+  content: >
+    Este é um token que indica ao utilizador para responder acima da linha. <br><br><strong>Nota:</strong> só é relevante se <span class="doc-desc-title"> Remover Resposta Citada </span> está ativo acima.
+emailed_tickets_priority:
+  title: Prioridade de Pedidos Enviados por Mensagem Eletrónica
+  content: >
+    Escolha se desejaria que a opção de prioridade/importância do correio eletrónico do utilizador (exemplo, OutLook) para ditar a prioridade do novo pedido. <br><br>Esta configuração pode ser substituída por um <span class="doc-desc-title"> Filtro de Pedido</span>.
+  links:
+    - 
+      title: Criar e Gerir Filtros de Pedido
+      href: /scp/filters.php
+accept_all_emails:
+  title: Aceitar todos os e-mails
+  content: >
+    Aceitar e-mails de utilizadores desconhecidos.<br><br> Se esta opção não estiver ativada, os pedidos serão rejeitados.
+accept_email_collaborators:
+  title: Aceitar colaboradores de e-mail
+  content: >
+    Adicione participantes de e-mail incluídos no campo <code><strong>Para</strong></code> e <code><strong>CC</strong></code> como colaboradores do ticket. <br /><br /> <em>Os Colaboradores podem sempre ser adicionados manualmente por Agentes ao visualizar um ticket.</em>
+default_mta:
+  title: MTA predefinido
+  content: >
+    <span class="doc-desc-title"> MTA padrão</span> trata do processo de entrega de e-mail para e-mails enviados sem configuração SMTP.
+ticket_response_files:
+  title: Ficheiros de Resposta de Pedido
+  content: >
+    Se ativado, qualquer anexo colocado por um agente na resposta a um pedido, será incluído no e-mail enviado ao utilizador.
+verify_email_addrs:
+  title: Verificar o endereço E-mail
+  content: >
+    Ative esta opção para verificar se o endereço de e-mail possui um mail exchanger(MX) no DNS do domínio. Isto é útil para detectar endereços de e-mail digitados incorretamente. Esta função é realizada em adição à verificação do formato do endereço de e-mail.

@@ -6,7 +6,7 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
         <div class="front-page-button flush-right">
 <p>
 <?php
-    if ($cfg->getClientRegistrationMode() != 'disabled'
+					if ($cfg->getClientRegistrationMode() != 'disabled'
         || !$cfg->isClientLoginRequired()) { ?>
             <a href="open.php" style="display:block" class="blue button"><?php
                 echo __('Open a New Ticket');?></a>

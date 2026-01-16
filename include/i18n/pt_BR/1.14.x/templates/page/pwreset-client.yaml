@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Este modelo define o e-mail enviado aos clientes que selecionarem o link <strong>Esqueci minha senha</strong> na página de acesso do cliente.
+name: "%{company.name} Acesso ao Help Desk"
+body: >
+  <h3><strong>Olá %{user.name.first},</strong></h3> <div> Uma requisição para redefinir sua senha foi enviada em seu nome ao sistema de suporte em %{url}. <br /> <br /> Se você acha que isso foi um equivoco, apague ou ignore esse e-mail. Sua conta ainda é segura e ninguém tem acesso a ela. A conta não está bloqueada e sua senha não foi alterada. Alguém pode apenas por engano ter digitado seu endereço de e-mail. <br /> <br /> Siga o link abaixo para acessar o sistema de atendimento e trocar sua senha. <br /> <br/> <a href="%{link}">%{link}</a> <br /> <br /> <em style="font-size: small">Sistema de Suporte</em> <br /> <br /> %{company.name}</em> </div>

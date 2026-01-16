@@ -1,0 +1,98 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Výchozí sada šablon e-mailů
+  content: >
+    Vyberte <span class="doc-desc-title">sadu šablon e-mailů</span> pro odesílání <span class="doc-desc-title">automatických odpovědí</span> a <span class="doc-desc-title">upozornění</span> pro různé události v průběhu životního cyklu požadavku.
+    <br><br> Jednotlivým oddělením může být přiřazena specifická sada šablon emailů.
+  links:
+    - 
+      title: Správa sad šablon e-mailů
+      href: /scp/templates.php
+default_system_email:
+  title: Výchozí systémová e-mailová adresa
+  content: >
+    Vyberte e-mailovou adresu, ze které budou odesílány odchozí e-maily. <br><br> <span class="doc-desc-title">Oddělení</span> si mohou nastavit <span class="doc-desc-title">e-mailovou adresu</span>, která přepíše toto nastavení.
+  links:
+    - 
+      title: Správa e-mailových adres
+      href: /scp/emails.php
+default_alert_email:
+  title: Výchozí e-mail pro upozornění
+  content: >
+    Vyberte e-mailovou adresu, ze které budou pracovníkům rozesílána <span class="doc-desc-title"> upozornění a oznámení</span>.
+  links:
+    - 
+      title: Správa e-mailových adres
+      href: /scp/emails.php
+admins_email_address:
+  title: E-mailová adresa správce
+  content: >
+    Zadejte e-mailovou adresu správce pro zasílání (pokud je povoleno) <span class="doc-desc-title">systémových záznamů</span> a <span class="doc-desc-title">upozornění na nové požadavky</span>.
+  links:
+    - 
+      title: Správa upozornění a oznámení
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Stahování e-mailů
+  content: >
+    Tato volba umožní stahování e-mailů pomocí IMAP/POP protokolů pro nastavené a povolené <span class="doc-desc-title">e-mailové schránky</span>.
+  links:
+    - 
+      title: Správa e-mailových adres
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Stahování e-mailů pomocí auto-cron
+  content: >
+    Umožní pravidelné stahování e-mailů pomocí interního správce úloh, spouštěného aktivitami pracovníků. <br><br> Berte prosím na vědomí, že e-maily nebudou staženy, pokud není žádný pracovník přihlášen do systému. Je doporučeno použití plánovače úloh, aby se e-maily stahovaly v daných intervalech.
+  links:
+    - 
+      title: Použití externího plánovače úloh
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Odstranit citaci v odpovědi
+  content: >
+    Při povolení této volby systém odstraní předchozí zprávu z e-mailové komunikace. <br><br> Tato vlastnost závisí na níže zobrazené <span class="doc-desc-title">značce pro oddělení odpovědi</span>.
+reply_separator_tag:
+  title: Značka pro oddělení odpovědi
+  content: >
+    Text indikující uživateli, aby odpověděl nad daným oddělovačem. <br><br> <strong>Poznánka:</strong> Má význam pouze pokud je zapnuto <span class="doc-desc-title">Odstranit citaci v odpovědi</span> výše.
+emailed_tickets_priority:
+  title: Priorita požadavků zaslaných e-mailem
+  content: >
+    Zvolte, pokud chcete, aby se nastavení priority zaslaného e-mailu určovalo prioritu nového požadavku (viz např. Outlook). <br><br>
+    Toto nastavení může být přepsáno pomocí <span class="doc-desc-title">filtrů požadavků</span>.
+  links:
+    - 
+      title: Správa filtrů požadavků
+      href: /scp/filters.php
+accept_all_emails:
+  title: Přijímat všechny e-maily
+  content: >
+    Nastavení, zda-li se mají přijímat e-maily od neznámých uživatelů. <br><br> Odškrtnutím této volby budou požadavky automaticky odmítány.
+accept_email_collaborators:
+  title: Přidat spolupracovníky z e-mailu
+  content: >
+    Přidat adresáty obsažené v položkách <code><strong>Komu</strong></code> a <code><strong>Kopie</strong></code> jako spolupracovníky požadavku. <br /><br /> <em>Spolupracovníci mohou být kdykoliv přidáni ručně pracovníky při zobrazení požadavku.</em>
+default_mta:
+  title: Výchozí MTA
+  content: >
+    <span class="doc-desc-title">Výchozí MTA</span> zajišťuje odeslání e-mailů z e-mailových adres, které nemají nastaven SMTP protokol.
+ticket_response_files:
+  title: Přílohy v odpovědi na požadavek
+  content: >
+    Volba pro přiložení všech příloh vložené zaměstnancem v odpovědi na požadavek do e-mailu zaslanému zákazníkovi.
+verify_email_addrs:
+  title: Oveření e-mailové adresy
+  content: >
+    Tato volba zajistí kontrolu, zda-li e-mailová adresa má nastaven MX záznam ve své DNS doméně. Toto je užitečné např. na detekci špatně zadaných e-mailových adres. Tato kontrola je přidána na vrch kontrole na správnost zadání e-mailové adresy.

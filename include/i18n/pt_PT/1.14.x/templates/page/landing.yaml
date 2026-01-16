@@ -1,0 +1,12 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  A página de entrada "Landing Page" refere-se ao conteúdo da vista inicial do Portal de Cliente. O modelo modifica o conteúdo visto acima dos dois endereços <strong>Abrir novo pedido de suporte</strong> e <strong>Verificar estado de pedido de suporte</strong>.
+name: Página Inicial
+body: >
+  <h1>Bem-vindo ao Centro de Suporte</h1>
+  <p>
+  De modo a agilizar as solicitações de suporte e melhor atendê-lo, utilizamos um sistema de pedidos de assistência. A cada pedido de suporte é atribuído um número de pedido único que pode usar para verificar o progresso e as respostas on-line. Para sua referência,  fornecemos arquivos completos e histórico de todos os seus pedidos de suporte. Um endereço de e-mail válido é necessário para enviar um pedido de assistência. </p>

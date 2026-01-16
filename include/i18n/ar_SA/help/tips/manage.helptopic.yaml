@@ -1,0 +1,77 @@
+---
+help_topic_information:
+  title: بيانات موضوع المساعدة
+  content: >
+    <span class="doc-desc-title"> مواضيع المساعدة</span> توضح طبيعة البيانات التي يتم جمعها من المستخدمين، وكيف يتم توجيه تذاكر أو إسنادها.
+topic:
+  title: إسم الموضوع
+  content: >
+    إسم موضوع مساعدة فريد.
+status:
+  title: الحالة
+  content: >
+    إذا كانت معطلة، لن يكون <span class="doc-desc-title"> موضوع المساعدة</span> هذا متوفراً.
+type:
+  title: النوع
+  content: >
+    إذا كان <span class="doc-desc-title"> موضوع المساعدة</span> مُعلم كخاص، سيكون متوفراً للوكلاء فقط عند فتح تذكرة جديدة في لوحة تحكم الموظفين.
+parent_topic:
+  title: الموضوع الأساسي
+  content: >
+    حدد الموضوع الأصل الذي ينتمي <span class="doc-desc-title"> موضوع المساعدة</span> إليه. سوف يظهر الموضوع الأصل الأول في القائمة مع <span class="doc-desc-title"> موضوع المساعدة</span> هذا مدرجاً تحت الأصل.
+custom_form:
+  title: نموذج مخصص
+  content: >
+    النماذج المخصصة سوف تساعدك على الحصول على بيانات أكثر تحديداً من المستخدمين الذين لهم صلة بـ <span class="doc-desc-title"> موضوع المساعدة</span> هذا.
+  links:
+    - 
+      title: إدارة النماذج المخصصة
+      href: /scp/forms.php
+priority:
+  title: الأولوية
+  content: >
+    حدد الأولوية المعطاة لتذاكر جديدة مرتبطة بـ <span class="doc-desc-title"> موضوع المساعدة</span> هذا.<br><br> يمكن لمرشح التذاكر إستبدال أولوية التذكرة الجديدة.
+department:
+  title: القسم
+  content: >
+    اختر القسم الذي يندرج تحت موضوع المساعدة هذا ليتم توجيه التذاكر الجديدة إليه.
+  links:
+    - 
+      title: إدارة الأقسام
+      href: /scp/departments.php
+sla_plan:
+  title: خطة اتفاقية مستوى الخدمة
+  content: >
+    اختر خطة إتفاقية مستوى الخدمة المقترنة مع <span class="doc-desc-title">موضوع المساعدة</span> هذا. <br><br>سيتجاوز هذا الاختيار أي خطة اتفاقية مستوى الخدمة للقسم المختار
+  links:
+    - 
+      title: إدارة خطة اتفاقية مستوى الخدمة
+      href: /scp/slas.php
+thank_you_page:
+  title: صفحة الشكر
+  content: >
+    اختر صفحة الشكر التي سيتم توجيه  المستخدم إليها بعد فتح تذكرة تحت <span class="doc-desc-title"> موضوع المساعدة</span> هذا.
+  links:
+    - 
+      title: إدارة صفحات الشكر
+      href: /scp/pages.php
+auto_assign_to:
+  title: إسناد تلقائي للتذاكر الجديدة
+  content: >
+    (اختياري) اختر وكيلاً أو فريقاً ليتم إسناد التذاكر التي تم فتحها مع <span class="doc-desc-title">موضوع المساعدة</span> <br><br> تلقائياً إليه. مرشح التذكرة يمكنه تجاوز الإسناد.
+  links:
+    - 
+      title: إدارة الموظفين والفرق
+      href: /scp/staff.php
+ticket_auto_response:
+  title: الاستجابة التلقائية للتذكرة
+  content: >
+    إذا تم إختياره، الإعداد سيعطل الاستجابات التلقائية للتذاكر الجديدة لـ <span class="doc-desc-title">موضع المساعدة</span> هذا. <br><br> يتجاوز هذا الرد إعداد الرد التلقائي لـ <span class="doc-desc-title">القسم</span> وأيضاً <span class="doc-desc-title">إعدادات الرد التلقائي</span> العامة.
+  links:
+    - 
+      title: إعدادات الرد التلقائي
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: أرقام التذاكر المخصصة
+  content: >
+    اختر "مخصص" هنا لتجاوز تنسيق ترقيم التذاكر الافتراضي الخاص بالنظام للتذاكر التي تم انشاؤها في موضوع المساعدة هذا. أنظر إلى تعليمات المساعدة في صفحة الإعدادات \ التذاكر  لمزيد من التفاصيل حول الإعدادات.

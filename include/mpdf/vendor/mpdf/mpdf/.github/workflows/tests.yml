@@ -1,6 +1,6 @@
 # https://help.github.com/en/categories/automating-your-workflow-with-github-actions
 
-name: "Tests"
+name: "CI"
 
 on:
   pull_request:
@@ -30,15 +30,11 @@ jobs:
           - "7.4"
           - "8.0"
           - "8.1"
-          - "8.2"
-          - "8.3"
-          - "8.4"
-          - "8.5"
         operating-system: [ubuntu-latest, windows-latest]
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v2"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"

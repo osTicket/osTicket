@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Titre de formulaire
+  content: >
+    Ce texte de titre est affiché dans une zone grise dessus des champs de formulaire
+form_instructions:
+  title: Formulaire d'Instructions
+  content: >
+    Vous pouvez ajouter des instructions supplémentaires qui aideront à guider l'utilisateur dans les champs de formulaire et éventuellement mettre en évidence des données requises.
+field_sort:
+  title: Position d'affichage de champ
+  content: >
+    Cliquez sur l'icône de flèche et faites glisser la ligne à trier dans ce formulaire. La préférence de tri ne prend pas effet temps que le formulaire n'est pas enregistré.
+field_label:
+  title: Étiquette du champ
+  content: >
+    Cette étiquette est affichée comme l'invite pour ce champ. En général, un champ de réponse courte rendrait comme celui-ci : <br><strong>Etiquette:</strong>&nbsp; <input type="text">
+field_type:
+  title: Type de contenu de champ
+  content: >
+    Ceci est utilisé pour définir le type d'entrée attendu de l'utilisateur. Vous pouvez sélectionner des réponses courtes et longues, numéro de téléphone, date et temps, case à cocher, liste déroulante ou une sélection de liste personnalisée.
+  links:
+    - 
+      title: Listes personnalisées
+      href: /scp/lists.php
+field_visibility:
+  title: Visibilité du champ
+  content: >
+    Choisissez si ce champ doit être renseigné (requis) ainsi qu'une option de visibilité. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Paramètres</th> <th>Résultat</th></tr> <tr><td>Option</td> <td>Agents et EndUsers peuvent voir ce champ mais ils ne sont pas autorisés à le renseigner.</td></tr> <tr><td>Required</td> <td>Agents and EndUsers can see the field, and both are required to answer</td></tr> <tr><td>Requis pour les EndUsers</td> <td>Agents et EndUsers peuvent vooir ce champ, les EndUsers seulement sont autorisé à le renseigner.</td></tr> <tr><td>Requis pour les Agents</td> <td>Les Agents et les EndUsers peuvent voir ce champ, mais seulement les Agents doivent impérativement le renseigner</td></tr> <tr><td>Option (interne)</td> <td>Seulement les Agents peuvent voir ce champ, la réponse est facultative.</td></tr> <tr><td>Requis (interne)</td> <td>Seulement les Agents peuvent voir ce champ, la réponse est requise.</td></tr> <tr><td>EndUsers uniquement</td> <td>Seulement les EndUsers peuvent voir ce champ, la réponse est requise.</td></tr> </tbody></table>
+field_variable:
+  title: Champ automatique
+  content: >
+    Les données du champ seront disponibles pour les modèles de courriel et de pages via le nom utilisé dans cette colonne. Par exemple, les champs du formulaire commun de tickets sont disponibles via <code>%{ticket.variable}</code>, où la <strong>variable</strong> est le nom utilisé dans cette colonne.<br><br><em>Les informations sur la société sont diffusées par <code>%{</code> <code>company.variable}</code>et les informations de l'utilisateur sont disponibles via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Supprimer ce champ
+  content: >
+    Vérifier et enregistrer le formulaire pour supprimer un champ de ce formulaire.<br><br><em>Supprimer un champ ne supprimera pas les entrées précédemment données pour le champ sur les formulaires remplis. Par exemple, si un ticket soumis antérieurement a des données pour un champ, supprimer le champ de ce formulaire ne supprimera pas les données sur le ticket.</em>

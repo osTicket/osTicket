@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Αρχεία Καταγραφής Συστήματος
+  content: >
+    Εδώ θα βρείτε οποιαδήποτε δραστηριότητα καταγραφής σχετιζόμενη με αντιμετώπιση προβλημάτων (π.χ., Σφάλματα, Προειδοποιήσεις ή Λάθη Κώδικα).
+  links:
+    - 
+      title: Προσαρμόστε τι είδους δραστηριότητα καταγράφεται αλλάζοντας το <br /><span class="doc-desc-title">Προεπιλεγμένο Επίπεδο Καταγραφής</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Χρονικό Διάστημα
+  content: >
+    Επιλέξτε το χρονικό διάστημα που θα θέλατε να δείτε στα <span class="doc-desc-title">Αρχεία Καταγραφής Συστήματος</span>.
+type:
+  title: Τύπος
+  content: >
+    Κάντε μια επιλογή για να περιορίσετε την εστίασή σας σε ένα συγκεκριμένο τύπο δραστηριότητας. Το <span class="doc-desc-opt">Debug</span> αντιπροσωπεύει τη χαμηλότερη κρισιμότητα, και το <span class="doc-desc-opt">Σφάλμα</span> αντιπροσωπεύει την υψηλότερη κρισιμότητα.
+showing_logs:
+  title: Εμφάνιση&hellip;Αρχείων Καταγραφής
+  content: >
+    Βεβαιωθείτε ότι έχετε ελέγξει την ενότητα <span class="doc-desc-title">Σελίδα</span> παρακάτω για να εξασφαλίσετε ότι δεν υπάρχουν άλλες σελίδες που εμφανίζουν τα διαθέσιμα Αρχεία Καταγραφής Συστήματος.
+log_title:
+  title: Τίτλος Αρχείου Καταγραφής
+  content: >
+    Κάντε κλικ στην κεφαλίδα του πίνακα <span class="doc-desc-title">Τίτλος Αρχείου Καταγραφής</span> αν επιθυμείτε να ταξινομήσετε τα αποτελέσματα σύμφωνα με τον <span class="doc-desc-title">Τίτλο Αρχείου Καταγραφής</span>.
+log_type:
+  title: Τύπος Αρχείου Καταγραφής
+  content: >
+    Κάντε κλικ στην κεφαλίδα του πίνακα <span class="doc-desc-title">Τύπος Αρχείου Καταγραφής</span> αν επιθυμείτε να ταξινομήσετε τα αποτελέσματα σύμφωνα με τον <span class="doc-desc-title">Τύπο Αρχείου Καταγραφής</span>.
+log_date:
+  title: Ημερομηνία Αρχείου Καταγραφής
+  content: >
+    Αυτή είναι η ημερομηνία που δημιουργήθηκε το αρχείο καταγραφής από το λογισμικό. Εάν επιθυμείτε να ταξινομήσετε τα αποτελέσματα σύμφωνα με την <span class="doc-desc-title">Ημερομηνία Αρχείου Καταγραφής</span>, απλά κάντε κλικ στην κεφαλίδα του πίνακα <span class="doc-desc-title">Χρονικό Διάστημα</span>.  (Χρησιμοποιήστε τη φόρμα <span class="doc-desc-title">Χρονικό Διάστημα</span> παραπάνω για να περιορίσετε το χρονικό διάστημα εμφάνισης των αρχείων καταγραφής.)
+ip_address:
+  title: Διεύθυνση IP
+  content: >
+    Αυτό αναφέρεται στην <span class="doc-desc-title">Διεύθυνση</span> <span class="doc-desc-title"> IP</span>, είτε του Εκπροσώπου ή του πελάτη που χρησιμοποιούσε το osTicket τη στιγμή που δημιουργήθηκε το Αρχείο Καταγραφής.

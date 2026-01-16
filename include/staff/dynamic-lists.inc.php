@@ -58,10 +58,10 @@ $showing=$pageNav->showing().' '._N('custom list', 'custom lists', $count);
         <tr>
             <td align="center">
                 <?php
-                if ($list->isDeleteable()) { ?>
-                <input width="7" type="checkbox" class="ckb" name="ids[]"
+                if ($list->isDeleteable()) { ?><!--osta-->
+                <p class="checkbox"><input width="7" type="checkbox" class="ckb" name="ids[]"
                 value="<?php echo $list->getId(); ?>"
-                    <?php echo $sel?'checked="checked"':''; ?>>
+                    <?php echo $sel?'checked="checked"':''; ?>><label></label></p>
                 <?php
                 } else {
                     echo '&nbsp;';

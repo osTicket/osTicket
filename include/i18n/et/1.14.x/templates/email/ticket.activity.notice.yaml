@@ -1,0 +1,24 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Kaastöötajatele saadetav teade, kui piletiga on tegevusi, nt vastus või sõnum.
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Tere %{recipient.name.first}</strong></h3>
+  <div>
+      <em>%{poster.name}</em> lisas sõnumi piletile, milles ka sina oled osaline.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Said selle emaili kuna oled märgitud piletil   
+  <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a> kaastöötajaks.  Osalemiseks lihtsalt vasta sellele emailile või <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >vajuta siia</a>, et näha kogu pileti infot.</em>
+  </div>

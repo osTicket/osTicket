@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  このテンプレートは、アカウントがエージェントのために作成されたときに、エージェントに送信される最初のメール (オプション) を定義します。
+name: "OsTicket へようこそ"
+body: >
+  <h3><strong>こんにちは %{recipient.name.first}</strong></h3><div>私達のヘルプ デスク にあなたのアカウントを作成しました。%{url}.<br /> < br /> チケットへアクセスするにはアカウントを確認するために以下のリンクの手順に従ってください <br /> <br /> <a href="%{link}"> % {link}</a><br /> <br /> <em style="font-size: small">フレンドリーなカスタマー サポート システム <br /> %{company.name}</em> </div>

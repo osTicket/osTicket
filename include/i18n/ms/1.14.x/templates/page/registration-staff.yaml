@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Templat ini merujuk kepada emel pertama (pilihan) yang dihantar kepada ejen apabila satu akaun telah dicipta bagi pihak mereka.
+name: "Selamat datang ke osTicket"
+body: >
+  <h3><strong>Hi %{recipient.name.first},</strong></h3> <div> Kami telah membuat akuan untuk anda di meja bantuan di %{url}.<br /> <br /> Sila ikut pautan dibawah untuk sahkan akuan anda dan mendapatkan akses kepada tiket anda.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Pelanggan anda yang mesra sistem sokongan<br /> %{company.name}</em> </div>

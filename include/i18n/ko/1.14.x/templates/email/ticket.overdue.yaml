@@ -1,0 +1,27 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  티켓의 처리기한이 초과되면 직원에게 전송됩니다.
+  지연된 티켓은 티켓의 만기일과 티켓에 정의된 SLA 정책에 따라 발생합니다.
+subject: |
+  만료된 티켓 알림
+body: |
+  <h3><strong>안녕하세요 %{recipient.name}</strong>님,</h3>
+  티켓 <a href="%{ticket.staff_link}">#%{ticket.number}</a>의 처리기간이 지났습니다.
+  <br>
+  <br>
+  티켓이 정해진 일정 내에 처리될 수 있도록 업무를 처리해 주시기 바랍니다.
+  <br>
+  <br>
+  <br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>
+  티켓을 조회하거나 티켓 답변을 작성하려면, 고객지원시스템에 <a href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);">로그인</span></a> 하세요.
+  회원님이 소속된 팀 또는 부서에 본 티켓이 할당되어 있어 회원님에게 알림이 전송되었습니다.</div>
+  <em style="font-size: small"><span style="font-size: smaller">(although with limited patience)</span>고객지원시스템</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19" alt="Powered by osTicket" width="126" style="width: 126px;">

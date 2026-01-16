@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Hjælpe Emne Information
+  content: >
+    <span class="doc-desc-title">Hjælpe Emne</span> en guide til hvilke oplysninger indsamles fra Brugerne og hvordan sager er distribueret eller tildelt.
+topic:
+  title: Emnenavn
+  content: >
+    Unikt Hjælpe Emne navn.
+status:
+  title: Status
+  content: >
+    Hvis deaktiveret eller arkiveret vil dette <span class="doc-desc-title">Hjælpe Emne</span> ikke være tilgængeligt.
+type:
+  title: Type
+  content: >
+    Hvis et <span class="doc-desc-title">Hjælpe Emne</span> er markeret som privat, vil det kun være tilgængelig for agenter at vælge, når en agent åbner en ny sag under Personale Panelet.
+parent_topic:
+  title: Overordnede Emne
+  content: >
+    Vælg det overordnede Emne som dette <span class="doc-desc-title"> Hjælpe Emne</span> skal tilhøre. Det overordnede Emne vises først i fortegnelsen med dette <span class="doc-desc-title">Hjælpe Emne</span> vises bag overordnet.
+custom_form:
+  title: Brugerdefineret Formular
+  content: >
+    Brugerdefinerede Formularer vil hjælpe dig med at tilegne sig mere specifikke oplysninger fra brugerene, der er relevant for dette <span class="doc-desc-title">Hjælpe Emne</span>.
+  links:
+    - 
+      title: Administrere Brugerdefinerede Formularer
+      href: /scp/forms.php
+priority:
+  title: Prioritet
+  content: >
+    Vælg prioriteringen af nye sager relateret til dette <span class="doc-desc-title">Hjælpe Emne</span>. <br><br>sags Filter kan tilsidesætte nye sager Prioritet.
+department:
+  title: Afdeling
+  content: >
+    Vælg Afdeling hvor nye sager under dette Hjælpe Emne vil blive sendt hen.
+  links:
+    - 
+      title: Administrere Afdelinger
+      href: /scp/departments.php
+sla_plan:
+  title: SLA Plan
+  content: >
+    Vælg SLA plan tilknyttet dette <span class="doc-desc-title">Hjælpe Emne</span>. <br><br>Dette valg vil overskrive valgte Afdelings SLA plan
+  links:
+    - 
+      title: Administrere SLA planer
+      href: /scp/slas.php
+thank_you_page:
+  title: Mange Tak Side
+  content: >
+    Vælg den tak side som en bruger bliver videresendt efter åbning af en sag under dette <span class="doc-desc-title">Hjælpe Emne</span>.
+  links:
+    - 
+      title: Administrere Mange Tak Sider
+      href: /scp/pages.php
+auto_assign_to:
+  title: Autotildele Nye Sager
+  content: >
+    Du kan eventuelt vælge en Agent eller hold til auto-tildele sager åbnede med dette <span class="doc-desc-title">Hjælpe Emne</span> <br><br>sags filter kan tilsidesætte tildeling.
+  links:
+    - 
+      title: Administrere Personale og Hold
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Sager Autosvar
+  content: >
+    Hvis markeret, deaktiveres indstillingen nye sager autosvar for dette <span class="doc-desc-title">Hjælpe Emne</span>. <br><br>Dette tilsidesætter autosvar indstilling for <span class="doc-desc-title">Afdeling</span> samt globale <span class="doc-desc-title">Autosvar indstillinger</span>.
+  links:
+    - 
+      title: Autosvar Indstillinger
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Brugerdefinerede Sags Nummer
+  content: >
+    Vælg "Brugerdefineret" her for at tilsidesætte systemets standard sags nummerering format for sager, der er oprettet i dette Hjælp Emne. Se tips Indstillinger / Sags side for flere oplysninger om indstillinger.

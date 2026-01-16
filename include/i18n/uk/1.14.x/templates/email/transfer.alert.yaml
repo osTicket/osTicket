@@ -1,0 +1,29 @@
+---
+#Email template: transfer.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Оповіщення відправляється всім співробітникам відділу, коли завдання передається до їхнього відділу.
+subject: |
+  Заявка №%{ticket.number} передана - %{ticket.dept.name}
+body: |
+  <h3>Вітаємо, %{recipient.name},</h3>
+  Заявка <a href="%{ticket.staff_link}">№%{ticket.number}</a> була
+  передана у відділ %{ticket.dept.name} спеціалистом
+  <strong>%{staff.name.short}</strong>
+  <br>
+  <br>
+  <blockquote>
+      %{comments}
+  </blockquote>
+  <hr>
+  <div>Для перегляду або відповіді на заявку, будь ласка <a
+  href="%{ticket.staff_link}">увійдіть</a> в систему підтримки.
+  </div>
+  <em style="font-size: small; ">Служба підтримки</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"
+      alt="Powered By osTicket" style="width: 126px;"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

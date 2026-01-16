@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Pošalji agentima kada je nova poruka dodana u zadatak. Ovo se može dogoditi ako suradnik ili agent odgovori na email iz sustava ili posjeti web portal i postavi novu poruku tamo.
+subject: |
+  Aktivnost zadataka [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Pozdrav %{recipient.name},</strong></h3>
+  Zadatak<a href="%{task.staff_link}">#%{task.number}</a> ažuriran: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Za pregled ili odgovor, molimo <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prijavite se</span></a>u sustav</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Vaša korisnička podrška</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

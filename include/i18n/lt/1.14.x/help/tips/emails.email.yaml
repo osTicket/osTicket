@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Naujos užklausos tema
+  content: >
+    Pasirinkite kokia <span class="doc-desc-title">Užklauso Tema</span> bus automatiškai susieta su užklausomis sukurtomis, naudojant šį elektroninio pašto adresą. <br/><br/> Formos, susijusios su Užklausos Tema bus pridėtos prie užklausos, bet neturės jokių duomenų.
+  links:
+    - 
+      title: Valdyti Užklausos Temas
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Naujos užklausos prioritetas
+  content: >
+    Pasirinkite <span class="doc-desc-title">prioritetą</span> naujoms užklausoms, sukurtoms naudojant šį elektroninio pašto adresą.
+new_ticket_department:
+  title: Nauja padalinio užklausa
+  content: >
+    Pasirinkite <span class="doc-desc-title">padalinį</span>, kuriam bus priskiriamos naujos užklausos, sukurtos naudojant šį elektroninio pašto adresą.
+  links:
+    - 
+      title: Valdyti padalinius
+      href: /scp/departments.php
+auto_response:
+  title: Automatinis atsakymas naujai užklausai
+  content: >
+    Jūs galite išjungti automatinių atsakymų siuntimą Vartotojui, kuomet užklausa sukurta, naudojant šį elektroninio pašto adresą.
+username:
+  title: Vartotojo vardas
+  0: >
+
+password:
+  title: Slaptažodis
+  0: >
+
+login_information:
+  title: Elektroninio pašto prisijungimo informacija
+  content: >
+    <span class="doc-desc-title">Vartotojo vardas</span> ir<span class="doc-desc-title">Slaptažodis</span> rekalaujami, kad parsisiųsti elektoninį elektroninį laišką iš IMAP / POP pašto dėžučių ir taip pat siųsti elektronius laiškus per SMTP.
+mail_account:
+  title: Gaunamas elektroninis paštas
+  content: >
+    Atsisiųskite elektroninius laiškus iš nuotolinės IMAP arba POP mašto dėžutės ir konvertuokite juos į užklausas savo pagalbos sistemoje.
+  links:
+    - 
+      title: Valdykite <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> nustatymus.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Nutolęs mazgas
+  content: >
+    Įveskite <span class="doc-desc-title">prieglobos serverio pavadinimas</span> and <span class="doc-desc-title">prievadas</span> skaičių savo pašto serveriui. Tai galima rasti  dokumentacijoje apie jūsų prieglobos paskyrą, arba gauti iš elektroninio pašto dežutės administratoriaus.
+protocol:
+  title: Pašto dėžutės protokolas
+  content: >
+    Pasirinkite pašto dėžutės protokolą, kurį palaiko jūsų nuotolinis pašto serveris. IMAP rekomenduojamas ir SSL yra skatinamas, jeigu apskritai įmanomas.
+fetch_frequency:
+  title: Skaitymo dažnumas
+  content: >
+    Įveskite kas kiek minučių, sistema teiks užklausą pašto dėžutei  <br/><br/>. Tai apibrėš vidutinį Automatinio atsakymo vėlavimą po to kai vartotojas siunčia laišką į šią pašto dėžutę.
+emails_per_fetch:
+  title: Elektronių laiškų kiekis skaitymui
+  content: >
+    Įveskite elektroninių laiškų skaičių, apdorojamų vienu metu.
+fetched_emails:
+  title: Paimti elektroniniai laiškai
+  content: >
+    Nuspręskite ką daryti su apdorojamais elektroniais laiškais:<br/><br/> <span class="doc-desc-opt"><b>Perkelti į katalogą</b></span>: tai padarys elektroninių laiškų  kopijas iš Gautieji katalogo į katalogą, kurį nurodėte. Jeigu katalogas dar neegzistuoja serveryje, sistema bandys jį automatiškai sukurti.(<b>Rekomenduojama</b>) <hr> <span class="doc-desc-opt"><b>Trinti elektroninius laiškus</b></span>: Tai ištrins laišką iš Gautieji katalogo, kai baigiama juos apdoroti. <hr><span class="doc-desc-opt"><b>Nieko nedaryti</b></span>: Tai paliks elektroninius laiškus Gautieji kataloge. Sistema įrašys pašto dežutės žinučių ID ir bandys jų daugiau neapdoroti. Tačiau šis variantas gali sukurti besidubliuojančias užkklausas (<em>Nerekomenduojama</em>)
+smtp_settings:
+  title: SMTP nustatymai
+  content: >
+    Elektroniniai laiškai išsiųsti iš  pagalbos sistemos , gal būti siunčiami per SMTP serverį. Tai rekomenduojama, jei įmanoma, kadangi tai padidins elektroninio laiško pristatymo tikimybę ir sumažins tikimybę, jog elektroninis laiškas bus pažymėtas kaip šlamštas.
+header_spoofing:
+  title: Leisti antraštės apsimetimą kitu
+  content: >
+    Įgalinkite šią parinktį, kad būtų leidžiama siųsti  elektroninius laiškus per šią pašto dėžutę iš  kito adreso, negu nurodyta<span class="doc-desc-title"> El.pašto adreso</span> nustatyme aukščiau.<br/><br/> Šis papildomas nustatymas paprastai naudojamas, kuomet laiškas siunčiamas iš pašto dežutės alternatyvių vardų.
+

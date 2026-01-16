@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Systemets logfiler
+  content: >
+    Dette er, hvor du vil finde nogen fejlfinding relaterede logføring af aktivitet (f.eks. Fejl & Advarsler).
+  links:
+    - 
+      title: Tilpas hvilken type aktivitet der er logged ved at skifte <br/><span class="doc-desc-title">Standard Log Niveau</span>.
+      href: /SCP/Settings.php?t=system
+date_span:
+  title: Dato Span
+  content: >
+    Vælg din kalender række vide, som du gerne vil se i <span class="doc-desc-title">System logfiler</span>.
+type:
+  title: Type
+  content: >
+    Vælg en indstilling for at indsnævre dit fokus på en bestemt type af aktivitet. <span class="doc-desc-opt">Debug</span> repræsenterer mindst sværhedsgraden, og <span class="doc-desc-opt">Fejl</span> repræsenterer den største alvor.
+showing_logs:
+  title: Viser&hellip;Logs
+  content: >
+    Sørg for at tjekke den <span class="doc-desc-title">Side</span> nedenfor for at sikre, at der ikke er flere sider, der viser tilgængelige System Logfiler.
+log_title:
+  title: Log Titel
+  content: >
+    Klik på <span class="doc-desc-title">Log Titel</span> tabeloverskrift, hvis du vil sortere resultaterne efter <span class="doc-desc-title">Log Titel</span>.
+log_type:
+  title: Logtype
+  content: >
+    Klik på <span class="doc-desc-title">Log Type</span> tabel header, hvis du vil sortere resultaterne efter <span class="doc-desc-title">Log type</span>.
+log_date:
+  title: Log Dato
+  content: >
+    Dette er datoen for loggen blev genereret af softwaren. Hvis du vil sortere resultaterne efter <span class="doc-desc-title">Log Dato</span>, blot klikke på tabellen <span class="doc-desc-title">Log Dato</span> datohovedet. (Brug <span class="doc-desc-title">Dato Span</span> formularen ovenfor til at indsnævre din kalender span af logs.)
+ip_address:
+  title: IP-adresse
+  content: >
+    Dette henviser til <span class="doc-desc-title">IP</span>-<span class="doc-desc-title">Adressen</span> på enten Agent eller Kunde, der var ved hjælp af osTicket dengang loggen blev genereret.

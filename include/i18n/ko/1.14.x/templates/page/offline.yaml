@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  헬프데스크가 오프라인일 때 고객 포탈에 표시되는 오프라인 페이지입니다.
+name: 오프라인
+body: |
+  <div><h1>
+  <span style="font-size: medium">시스템이 오프라인 상태입니다.</span>
+  </h1>
+  <p>방문해 주셔서 감사합니다.</p>
+  <p>현재 헬프데스크는 오프라인 상태입니다. 나중에 다시 접속해 주시기 바랍니다.</p>
+  </div>

@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Felhasználóknak küldve, mikor egy új üzenetet küldenek válaszul egy hibajegyre. Ezt emailre válaszolva vagy az ügyfél portálon keresztül egy új üzenet küldésével tudja megtenni.
+subject: |
+  Üzenet-visszaigazolás
+body: |
+  <h3><strong>Kedves %{recipient.name.first},</strong></h3>
+  Kérését <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> rendszerünkben rögzítettük
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  %{company.name} csapata,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Megtekintheti a kérés folyamatát <a
+  href="%{recipient.ticket_link}">online itt</a></em>
+  </div>

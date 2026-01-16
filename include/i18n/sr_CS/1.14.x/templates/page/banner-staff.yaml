@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Ovo su osnovna poruka i baner prikazani samo na stranici za prijavljivanje menažera. Prvo polje za unos se odnosi na tekst koji je crvene boje i pojavljuje se na vrhu. Poslednje polje za unos teksta je za baner koji bi trebalo da posluži kao odricanje.
+name: "Neophodna autentifikacija"
+body: ""

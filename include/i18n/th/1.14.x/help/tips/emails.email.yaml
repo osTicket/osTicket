@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Ticket ใหม่ หัวข้อการช่วยเหลือ
+  content: >
+    เลือก <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> ที่จะเชื่อมโยงโดยอัตโนมัติกับ Ticket ที่สร้างขึ้นผ่านทางอีเมลนี้ <br/><br/> ฟอร์มที่เกี่ยวข้องกับหัวข้อการช่วยเหลือจะถูกเพิ่มลง Ticket แต่จะไม่ได้มีข้อมูลใดๆ
+  links:
+    - 
+      title: จัดการหัวข้อการช่วยเหลือ
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: ระดับความสำคัญของ Ticket ใหม่
+  content: >
+    เลือก<span class="doc-desc-title">ระดับความสำคัญ</span>สำหรับ Ticket ใหม่ที่สร้างขึ้นผ่านทางอีเมลนี้
+new_ticket_department:
+  title: Ticket แผนกใหม่
+  content: >
+    เลือก<span class="doc-desc-title">แผนก</span>ที่ Ticket ใหม่ที่สร้างขึ้นผ่านทางอีเมลนี้จะส่ง
+  links:
+    - 
+      title: จัดการแผนก
+      href: /scp/departments.php
+auto_response:
+  title: การตอบกลับอัตโนมัติสำหรับ Ticket ใหม่
+  content: >
+    คุณอาจปิดใช้งานการตอบกลับอัตโนมัติที่ส่งไปยังผู้ใช้งานเมื่อสร้าง Ticket ใหม่ผ่านอีเมลนี้
+username:
+  title: ชื่อผู้ใช้
+  0: >
+
+password:
+  title: รหัสผ่าน
+  0: >
+
+login_information:
+  title: ข้อมูลเข้าสู่ระบบอีเมล
+  content: >
+    <span class="doc-desc-title">ชื่อผู้ใช้</span>และ<span class="doc-desc-title">รหัสผ่าน</span>จะต้องสามารถดึงข้อมูลอีเมลจากกล่องจดหมาย IMAP / POP เช่นเดียวกับการส่งอีเมล์ผ่าน SMTP
+mail_account:
+  title: ดึงข้อมูลอีเมล
+  content: >
+    ดึงข้อมูลอีเมลจาก IMAP หรือ POP และแปลงเป็น Ticket ในระบบของคุณ
+  links:
+    - 
+      title: จัดการตั้งค่า <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span>
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: โฮสต์ระยะไกล
+  content: >
+    ใส่ <span class="doc-desc-title">ชื่อเครื่อง</span> และหมายเลย <span class="doc-desc-title">พอร์ท</span> ของเมลเซิร์ฟเวอร์ของคุณ ข้อมูลในจะอยู่ในเอกสารสำหรับบัญชีโฮสติ้งของคุณหรือจากผู้ดูแลระบบอีเมลของคุณ
+protocol:
+  title: Mail Box โปรโตคอล
+  content: >
+    เลือกชนิดโปรโตคอลของ mail box ที่เมลเซิร์ฟเวอร์ของคุณรองรับ หากเป็นไปได้แนะนำให้ใช้ IMAP และ SSL
+fetch_frequency:
+  title: ความถึ่ในการดึงข้อมูล
+  content: >
+    ป้อนความถี่เป็นนาทีในการดีงข้อมูลใน mail box <br/><br/> การกำหนดนี้จะเป็นค่าเวลาในการตอบกลับอัตโนมัติหลังจากผู้ใช้งานส่งอีเมลถึง mail box
+emails_per_fetch:
+  title: จำนวนอีเมลต่อการดึงข้อมูล
+  content: >
+    ใส่จำนวนของอีเมลที่ประมวลผลได้ในครั้งเดียว
+fetched_emails:
+  title: ดึงอีเมล
+  content: >
+    ตัดสินใจว่าจะทำอย่างไรกับการประมวลผลอีเมล: <br/><br/> <span class="doc-desc-opt"><b> ย้ายไปยังโฟลเดอร์ </b></span>: จะสำรองข้อมูลอีเมลของคุณจากโฟลเดอร์ INBOX ที่คุณระบุ ถ้าโฟลเดอร์ยังไม่มีอยู่บนเซิร์ฟเวอร์ ระบบจะสร้างมันขึ้นมาให้โดยอัตโนมัติ (<b>แนะนำ</b>) <hr> <span class="doc-desc-opt"><b>ลบอีเมล</b></span>: เมื่อประมวลผลจะลบอีเมลใน INBOX ของคุณ <hr> <span class="doc-desc-opt"><b>ไม่ทำอะไร</b></span>: จะเก็บอีเมลใน INBOX ของคุณ ระบบจะบันทึกรหัสข้อความของอีเมลของคุณและพยายามที่จะไม่ดีงข้อมูลอีก อย่างไรก็ตามตัวเลือกนี้อาจทำให้เกิดการสร้าง Ticket ซ้ำกันได้ (<em>ไม่แนะนำ</em>)
+smtp_settings:
+  title: การตั้งค่า SMTP
+  content: >
+    อีเมล์ที่ส่งมาจากศูนย์ช่วยเหลือที่สามารถส่งผ่านเซิร์ฟเวอร์ SMTP ถ้าเป็นไปได้จะแนะนำวิธีนี้ซึ่งจะเพิ่มโอกาสในการส่งอีเมลและจะลดโอกาสที่อีเมลที่ถูกส่งออกออกไปจะถูกมองว่าเป็นสแปม
+header_spoofing:
+  title: อนุญาตให้แก้ไขส่วนหัว
+  content: >
+    เปิดใช้งานนี่เพื่ออนุญาตให้ส่งอีเมลผ่าน mail box นี้ จากที่อยู่อันนึงที่ได้รับจากการตั้งค่า <span class="doc-desc-title">ที่อยู่อีเมล</span> ด้านบน <br/><br/> การตั้งค่าขั้นสูงนี้โดยทั่วไปจะใช้เมื่องส่งอีเมลจากชื่อแทน(aliases) ของ mail box นี้
+

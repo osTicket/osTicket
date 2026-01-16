@@ -1,0 +1,29 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Ред за подпис на служител
+  content: |
+    Създаване на подпис на служителя при отговор на заявки. Този подпис
+    ще се показва като опция в края на отговора на заявката
+type:
+  title: Тип на акаунта
+  content: |
+    Администратори имат привилегията за достъп до Администраторския панел. Служителите
+    има достъп само до управлението на заявки, както и до базата от знания
+group:
+  title: Назначена група
+  content: |
+    Членството в групите определя ролята на служителя в системата. Посетете
+    страница за управление на групата, за да определите какъв достъп трябва да
+    има този служител до системата за поддръжка
+notes:
+  title: Вътрешни бележки
+  content: |
+    Поставя вътрешни бележки относно служител; бележките са видими само за
+    служители, чиито тип на профила е администратор

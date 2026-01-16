@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Trimis catre utilizatorii care si-au depasit limita maxima de tichete deschise. Limita este configurata din panoul de administrarea, si este definita de numarul de tichete deschise de o anumita adresa de email.
+subject: |
+  Limita tichete deschise atinsa
+body: |
+  <h3><strong>Draga %{ticket.name.first},</strong></h3>
+  In acest moment ati atins numarul maxim de tichete deschise permis. Pentru a deschide un tichet nou trebuie sa inchizi cel putin unul din tichetele deschise. Pentru a updata sau adauga comentarii la tichetele tale deschise <a
+  href="%{url}/tickets.php?e=%{ticket.email}">autentificate in platfoma noastra de helpdesk</a>.
+  <br>
+  <br>
+  Iti multumim,<br/>
+  Support Ticket System

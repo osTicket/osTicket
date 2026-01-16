@@ -1,0 +1,21 @@
+---
+notes: |
+  تُرسل إلى مستخدم عندما يتم إنشاء تذكرة جديدة
+subject: |
+  تذاكر دعم مفتوحة [#%{ticket.number}]
+body: |
+  <h3><strong>عزيزي %{recipient.name.first},</strong></h3>
+  <p>
+  تم إنشاء وإسناد طلب دعم #%{ticket.number}.
+  سيقوم المندوب بمتابعتك في أقرب فرصة ممكنة بإمكانك
+  <a href="%{recipient.ticket_link}">إستعراض سير العمل لهذه التذكرة </a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  فريق عمل %{company.name} ,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>إذا كنت ترغب في تقديم المزيد من التعليقات أو المعلومات المتعلقة بالمشكلة الرجاء الرد إلى هذا البريد الإلكتروني أو <a href="%{recipient.ticket_link}"><span<br>
+  style="color: rgb(84, 141, 212);" >تسجيل الدخول إلى حسابك</span></a>لتصفح الأرشيف الكامل لطلبات الدعم الخاصة بك.</em></div>

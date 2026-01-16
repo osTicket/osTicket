@@ -1,0 +1,16 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  این ایمیل هنگامی که کاربر یک پیام جدید به تیکت خود اضافه کرده به کاربر فرستاده میشود.
+  همچنین هنگامی که به یک ایمیل از طرف سیستم پشتیبانی پاسخ دهد، یا  از طریق پورتال وب یک پاسخ در سیستم ایجاد نماید نیز این ایمیل ارسال میشود.
+subject: |
+  تایید دریافت پیام
+body: |
+  <h3><strong>%{recipient.name.first} عزیز،</strong></h3>
+  به درخواست پشتیبانی <a href="%{recipient.ticket_link}">#%{ticket.number}</a> شما پاسخ داده شده است.<br><br><div style="color: rgb(127, 127, 127); "> تیم پشتیبانی %{company.name}،<br>%{signature}</div><hr><div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>شما می‌توانید پیشرفت درخواست پشتیبانی خود را <a
+  href="%{recipient.ticket_link}"> به صورت آن‌لاین</a></em> مشاهده کنید.</div>

@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: 優先度＋最近の更新
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: 優先度＋最近の作成
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: 優先度＋期日
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: 期限日
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: 終了日
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: 作成日
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Tetapan asas pengetahuan
+  0: >
+
+knowledge_base_status:
+  title: Status asas pengetahuan
+  content: >
+    Dayakan tetapan ini untuk membolehkan pengguna anda layan diri mengakses kepada artikel asas pengetahuan umum anda. <br><br> Kategori asas pengetahuan dan Soalan Lazim boleh dibuat dalaman (hanya boleh dilihat oleh Ejen).
+  links:
+    - 
+      title: Mengurus asas pengetahuan
+      href: /scp/kb.php
+restrict_kb:
+  title: Hadkan Akses ke Pangkalan Pengetahuan
+  content: >
+    Aktifkan tetapan ini untuk menghalang pengguna yang tidak berdaftar daripada mengakses artikel asas pengetahuan anda pada antara muka pelanggan.
+  links:
+    - 
+      title: Tetapan Kawalan Akses
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Respon Terkumpul
+  content: >
+    Aktifkan tetapan ini untuk membolehkan Ejen menggunakan <span class="doc-desc-title">Respon Terkumpul</span> ketika membalas tiket.
+  links:
+    - 
+      title: Urus Respon Terkumpul
+      href: /scp/canned.php

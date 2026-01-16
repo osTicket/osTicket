@@ -4,7 +4,7 @@
  * This file is part of FPDI
  *
  * @package   setasign\Fpdi
- * @copyright Copyright (c) 2024 Setasign GmbH & Co. KG (https://www.setasign.com)
+ * @copyright Copyright (c) 2020 Setasign GmbH & Co. KG (https://www.setasign.com)
  * @license   http://opensource.org/licenses/mit-license The MIT License
  */
 
@@ -29,7 +29,6 @@ use setasign\Fpdi\PdfParser\Type\PdfString;
 use setasign\Fpdi\PdfParser\Type\PdfToken;
 use setasign\Fpdi\PdfParser\Type\PdfType;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
-use setasign\Fpdi\PdfReader\DataStructure\Rectangle;
 use setasign\Fpdi\PdfReader\PageBoundaries;
 use setasign\Fpdi\PdfReader\PdfReader;
 use setasign\Fpdi\PdfReader\PdfReaderException;
@@ -124,18 +123,17 @@ trait FpdiTrait
      * Get a new pdf parser instance.
      *
      * @param StreamReader $streamReader
-     * @param array $parserParams Individual parameters passed to the parser instance.
      * @return PdfParser|FpdiPdfParser
      */
-    protected function getPdfParserInstance(StreamReader $streamReader, array $parserParams = [])
+    protected function getPdfParserInstance(StreamReader $streamReader)
     {
-        // note: if you get an exception here - turn off errors/warnings on not found classes for your autoloader.
+        // note: if you get an exception here - turn off errors/warnings on not found for your autoloader.
         // psr-4 (https://www.php-fig.org/psr/psr-4/) says: Autoloader implementations MUST NOT throw
         // exceptions, MUST NOT raise errors of any level, and SHOULD NOT return a value.
         /** @noinspection PhpUndefinedClassInspection */
         if (\class_exists(FpdiPdfParser::class)) {
             /** @noinspection PhpUndefinedClassInspection */
-            return new FpdiPdfParser($streamReader, $parserParams);
+            return new FpdiPdfParser($streamReader);
         }
 
         return new PdfParser($streamReader);
@@ -146,10 +144,9 @@ trait FpdiTrait
      *
      * @param string|resource|PdfReader|StreamReader $file An open file descriptor, a path to a file, a PdfReader
      *                                                     instance or a StreamReader instance.
-     * @param array $parserParams Individual parameters passed to the parser instance.
      * @return string
      */
-    protected function getPdfReaderId($file, array $parserParams = [])
+    protected function getPdfReaderId($file)
     {
         if (\is_resource($file)) {
             $id = (string) $file;
@@ -180,7 +177,7 @@ trait FpdiTrait
             $streamReader = $file;
         }
 
-        $reader = new PdfReader($this->getPdfParserInstance($streamReader, $parserParams));
+        $reader = new PdfReader($this->getPdfParserInstance($streamReader));
         /** @noinspection OffsetOperationsInspection */
         $this->readers[$id] = $reader;
 
@@ -213,24 +210,7 @@ trait FpdiTrait
      */
     public function setSourceFile($file)
     {
-        return $this->setSourceFileWithParserParams($file);
-    }
-
-    /**
-     * Set the source PDF file with parameters which are passed to the parser instance.
-     *
-     * This method allows us to pass e.g. authentication information to the parser instance.
-     *
-     * @param string|resource|StreamReader $file Path to the file or a stream resource or a StreamReader instance.
-     * @param array $parserParams Individual parameters passed to the parser instance.
-     * @return int The page count of the PDF document.
-     * @throws CrossReferenceException
-     * @throws PdfParserException
-     * @throws PdfTypeException
-     */
-    public function setSourceFileWithParserParams($file, array $parserParams = [])
-    {
-        $this->currentReaderId = $this->getPdfReaderId($file, $parserParams);
+        $this->currentReaderId = $this->getPdfReaderId($file);
         $this->objectsToCopy[$this->currentReaderId] = [];
 
         $reader = $this->getPdfReader($this->currentReaderId);
@@ -245,7 +225,6 @@ trait FpdiTrait
      * @param int $pageNumber The page number.
      * @param string $box The page boundary to import. Default set to PageBoundaries::CROP_BOX.
      * @param bool $groupXObject Define the form XObject as a group XObject to support transparency (if used).
-     * @param bool $importExternalLinks Define whether external links are imported or not.
      * @return string A unique string identifying the imported page.
      * @throws CrossReferenceException
      * @throws FilterException
@@ -254,20 +233,16 @@ trait FpdiTrait
      * @throws PdfReaderException
      * @see PageBoundaries
      */
-    public function importPage(
-        $pageNumber,
-        $box = PageBoundaries::CROP_BOX,
-        $groupXObject = true,
-        $importExternalLinks = false
-    ) {
-        if ($this->currentReaderId === null) {
+    public function importPage($pageNumber, $box = PageBoundaries::CROP_BOX, $groupXObject = true)
+    {
+        if (null === $this->currentReaderId) {
             throw new \BadMethodCallException('No reader initiated. Call setSourceFile() first.');
         }
 
         $pageId = $this->currentReaderId;
 
         $pageNumber = (int)$pageNumber;
-        $pageId .= '|' . $pageNumber . '|' . ($groupXObject ? '1' : '0') . '|' . ($importExternalLinks ? '1' : '0');
+        $pageId .= '|' . $pageNumber . '|' . ($groupXObject ? '1' : '0');
 
         // for backwards compatibility with FPDI 1
         $box = \ltrim($box, '/');
@@ -403,19 +378,13 @@ trait FpdiTrait
             $stream = PdfStream::create($dict, '');
         }
 
-        $externalLinks = [];
-        if ($importExternalLinks) {
-            $externalLinks = $page->getExternalLinks($box);
-        }
-
         $this->importedPages[$pageId] = [
             'objectNumber' => null,
             'readerId' => $this->currentReaderId,
             'id' => 'TPL' . $this->getNextTemplateId(),
             'width' => $width / $this->k,
             'height' => $height / $this->k,
-            'stream' => $stream,
-            'externalLinks' => $externalLinks
+            'stream' => $stream
         ];
 
         return $pageId;
@@ -444,7 +413,6 @@ trait FpdiTrait
             unset($x['pageId']);
             \extract($x, EXTR_IF_EXISTS);
             /** @noinspection NotOptimalIfConditionsInspection */
-            /** @phpstan-ignore function.alreadyNarrowedType  */
             if (\is_array($x)) {
                 $x = 0;
             }
@@ -462,77 +430,19 @@ trait FpdiTrait
             $this->setPageFormat($newSize, $newSize['orientation']);
         }
 
-        $scaleX = ($newSize['width'] / $originalSize['width']);
-        $scaleY = ($newSize['height'] / $originalSize['height']);
-        $xPt = $x * $this->k;
-        $yPt = $y * $this->k;
-        $newHeightPt = $newSize['height'] * $this->k;
-
         $this->_out(
             // reset standard values, translate and scale
             \sprintf(
                 'q 0 J 1 w 0 j 0 G 0 g %.4F 0 0 %.4F %.4F %.4F cm /%s Do Q',
-                $scaleX,
-                $scaleY,
-                $xPt,
-                $this->hPt - $yPt - $newHeightPt,
+                ($newSize['width'] / $originalSize['width']),
+                ($newSize['height'] / $originalSize['height']),
+                $x * $this->k,
+                ($this->h - $y - $newSize['height']) * $this->k,
                 $importedPage['id']
             )
         );
 
-        if (count($importedPage['externalLinks']) > 0) {
-            foreach ($importedPage['externalLinks'] as $externalLink) {
-                // mPDF uses also 'externalLinks' but doesn't come with a rect-value
-                if (!isset($externalLink['rect'])) {
-                    continue;
-                }
-
-                /** @var Rectangle $rect */
-                $rect = $externalLink['rect'];
-                $this->Link(
-                    $x + $rect->getLlx() / $this->k * $scaleX,
-                    $y + $newSize['height'] - ($rect->getLly() + $rect->getHeight()) / $this->k * $scaleY,
-                    $rect->getWidth() / $this->k * $scaleX,
-                    $rect->getHeight()  / $this->k * $scaleY,
-                    $externalLink['uri']
-                );
-
-                $this->adjustLastLink($externalLink, $xPt, $scaleX, $yPt, $newHeightPt, $scaleY, $importedPage);
-            }
-        }
-
         return $newSize;
-    }
-
-    /**
-     * This method will add additional data to the last created link/annotation.
-     *
-     * It is separated because TCPDF uses its own logic to handle link annotations.
-     * This method is overwritten in the TCPDF implementation.
-     *
-     * @param array $externalLink
-     * @param float|int $xPt
-     * @param float|int $scaleX
-     * @param float|int $yPt
-     * @param float|int $newHeightPt
-     * @param float|int $scaleY
-     * @param array $importedPage
-     * @return void
-     */
-    protected function adjustLastLink($externalLink, $xPt, $scaleX, $yPt, $newHeightPt, $scaleY, $importedPage)
-    {
-        // let's create a relation of the newly created link to the data of the external link
-        $lastLink = count($this->PageLinks[$this->page]);
-        $this->PageLinks[$this->page][$lastLink - 1]['importedLink'] = $externalLink;
-        if (count($externalLink['quadPoints']) > 0) {
-            $quadPoints = [];
-            for ($i = 0, $n = count($externalLink['quadPoints']); $i < $n; $i += 2) {
-                $quadPoints[] = $xPt + $externalLink['quadPoints'][$i] * $scaleX;
-                $quadPoints[] = $this->hPt - $yPt - $newHeightPt + $externalLink['quadPoints'][$i + 1] * $scaleY;
-            }
-
-            $this->PageLinks[$this->page][$lastLink - 1]['quadPoints'] = $quadPoints;
-        }
     }
 
     /**
@@ -597,7 +507,7 @@ trait FpdiTrait
         } elseif ($value instanceof PdfString) {
             $this->_put('(' . $value->value . ')', false);
         } elseif ($value instanceof PdfHexString) {
-            $this->_put('<' . $value->value . '>', false);
+            $this->_put('<' . $value->value . '>');
         } elseif ($value instanceof PdfBoolean) {
             $this->_put($value->value ? 'true ' : 'false ', false);
         } elseif ($value instanceof PdfArray) {
@@ -616,8 +526,11 @@ trait FpdiTrait
         } elseif ($value instanceof PdfToken) {
             $this->_put($value->value);
         } elseif ($value instanceof PdfNull) {
-            $this->_put('null ', false);
+            $this->_put('null ');
         } elseif ($value instanceof PdfStream) {
+            /**
+             * @var $value PdfStream
+             */
             $this->writePdfType($value->value);
             $this->_put('stream');
             $this->_put($value->getStream());
@@ -634,22 +547,12 @@ trait FpdiTrait
 
             $this->_put($this->objectMap[$this->currentReaderId][$value->value] . ' 0 R ', false);
         } elseif ($value instanceof PdfIndirectObject) {
+            /**
+             * @var PdfIndirectObject $value
+             */
             $n = $this->objectMap[$this->currentReaderId][$value->objectNumber];
             $this->_newobj($n);
             $this->writePdfType($value->value);
-
-            // add newline before "endobj" for all objects in view to PDF/A conformance
-            if (
-                !(
-                    ($value->value instanceof PdfArray) ||
-                    ($value->value instanceof PdfDictionary) ||
-                    ($value->value instanceof PdfToken) ||
-                    ($value->value instanceof PdfStream)
-                )
-            ) {
-                $this->_put("\n", false);
-            }
-
             $this->_put('endobj');
         }
     }

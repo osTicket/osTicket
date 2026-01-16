@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Стандарт имэйлийн загварууд
+  content: >
+    Хүсэлтийн янз бүрийн үе шатанд илгээх <span class="doc-desc-title">Автомат хариу</span> болон <span class="doc-desc-title">Анхааруулга</span> мэйлүүдийн ашиглах Select <span class="doc-desc-title">Загварын багцыг</span> тохируулна. <br><br> Алба нь тус бүрт загвар тохируулах боломжтой.
+  links:
+    - 
+      title: Стандарт имэйл загваруудыг засварлах
+      href: /scp/templates.php
+default_system_email:
+  title: Илгээх имэйлийн стандарт
+  content: >
+    Гадагш илгээх мэйлийн хаягийг сонгоно. <br><br> <span class="doc-desc-title">Алба</span> нь өөрийн <span class="doc-desc-title">мэйл хаягтай</span> бол түүнийг ашиглана.
+  links:
+    - 
+      title: Имэйл хаягуудыг зохицуулах
+      href: /scp/emails.php
+default_alert_email:
+  title: Сануулгын үндсэн имэйл
+  content: >
+    <span class="doc-desc-title">Сануулга &amp; Мэдэгдэл</span> -ийг ямар хаягнаас Ажилтнуудад илгээхийг сонгоно уу.
+  links:
+    - 
+      title: Имэйл хаягуудыг зохицуулах
+      href: /scp/emails.php
+admins_email_address:
+  title: Админы имэйл хаяг
+  content: >
+    Админы мэйл хаягийг оруулснаар <span class="doc-desc-title">Системийн алдаа</span> болон <span class="doc-desc-title">Шинэ хүсэлтийн мэдэгдэл</span> тухайн хаяг руу илгээгдэнэ.
+  links:
+    - 
+      title: Сануулга ба Мэдэгдэл зохицуулах
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Имэйл татаж авах
+  content: >
+    <span class="doc-desc-title">Мэйл хаягуудаас</span> IMAP/POP протоколоор мэйл цуглуулах боломжийг нээнэ.
+  links:
+    - 
+      title: Mailbox зохицуулах
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Автомат ажилбар ашиглан имэйл татаж авах
+  content: >
+    Ажилтны үйл ажиллагаанд тулгуурлан дотоод системээр мэйлүүдийг давтамжтайгаар татаж авна.  <br><br> Хэрвээ ямар ч ажилтан системд нэвтрээгүй бол мэйл татагдахгүй болохыг анхаарна уу. Иймээс серверт мэйл татах програм тохируулахыг зөвлөж байна.
+  links:
+    - 
+      title: Гуравдагч ажлын хуваарь ашиглах
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Хариултыг таслах
+  content: >
+    Идэвхижүүлсэн үед мэйлүүдийн өмнө бичсэн хэсгийг хасна. <br><br> Энэ тохиргоо нь <span class="doc-desc-title">Хариулт тусгаарлагчийн</span> ажиллагаатай шууд холбоотой.
+reply_separator_tag:
+  title: Хариулт тусгаарлах тег
+  content: >
+    Хэрэглэгчийн хариу бичих хэсгийг тусгаарлах зурвас. <br><br> <strong>Анхаар:</strong> Энэ тохиргоо нь зөвхөн <span class="doc-desc-title">Хариултыг таслах</span> тохиргоо идэвхитэй үед ажиллана.
+emailed_tickets_priority:
+  title: Имэйлдсэн хүсэлтүүдийн зэрэглэл
+  content: >
+    Хэрэглэгчийн мэйлийн түвшинг хүсэлтийн түвшин болгож тооцох эсэхийг тохируулна. <br><br> Энэ тохиргоо нь <span class="doc-desc-title">Хүсэлтийн шүүлтүүрээр</span> өөрчлөгдөж болзошгүй.
+  links:
+    - 
+      title: Хүсэлтийн шүүлт үүсгэх/зохицуулах
+      href: /scp/filters.php
+accept_all_emails:
+  title: Бүх имэйлийг хүлээж авах
+  content: >
+    Танихгүй хэрэглэгчдээс имэйл хүлээж авах <br><br> Үүнийг чагтлахгүй орхивол хүсэлтийг шууд татгалзах болно.
+accept_email_collaborators:
+  title: Имэйлээр хамтрагч бүртгэж авах
+  content: >
+    <code><strong>To</strong></code> болон <code><strong>CC</strong></code> талбарт байгаа мэйл хаягуудыг хүсэлтийн хамтрагчид руу нэмнэ. <br /><br /> <em>Ажилчид мөн өөр оролцогчдыг нэмэх боломжтой.</em>
+default_mta:
+  title: Стандарт MTA (Mail Transfer Agent)
+  content: >
+    <span class="doc-desc-title">Стандарт MTA</span> нь гадагш илгээгдэх SMTP-гүй мэйлүүдийн ашиглах систем юм.
+ticket_response_files:
+  title: Хүсэлтийн хариу файлууд
+  content: >
+    Идэвхижүүлсэн үед ажилтны хариултанд хавсаргасан файлууд нь хэрэглэгч рүү мэйлээр давхар илгээгдэнэ.
+verify_email_addrs:
+  title: Имэйл хаяг баталгаажуулах
+  content: >
+    Имэйл хаягийн домений DNS нь Mail Exchanger (MX) бичлэгтэй эсэхийг шалгах бол үүнийг идэвхжүүлнэ үү. Хаягаа буруу оруулсан эсэхийг тодруулахад энэ нь хэрэг болно. Энэ шалгалтыг имэйл хаягийн формат үнэн зөв эсэхийг шалгахаас гадуур нэмэлтээр хийх юм.

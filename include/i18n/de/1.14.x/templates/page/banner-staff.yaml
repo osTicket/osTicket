@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Dies ist die erste Nachricht und das Banner, die auf der Agenten-Login-Seite angezeigt wird. Das erste Eingabefeld bezieht sich auf den rot formatierten Text, der oben erscheint. Der letztere Textbereich ist für den Inhalt des Banners, welcher den Haftungsausschluss beinhalten sollte.
+name: "Authentifizierung erforderlich"
+body: ""

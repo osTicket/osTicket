@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Статус
+  content: >
+    Ако е деактивиран или архивиран, този <span class="doc-desc-title">Отдел</span> няма да бъде наличен.
+type:
+  title: Тип
+  content: >
+    Изберете <span class="doc-desc-opt">частен</span> ако искате да се скриете възложените на този отдел заявки от клиентския портал. Освен това, когато е обозначен като <span class="doc-desc-opt">частен</span>, подписът <span class="doc-desc-title">на отдела</span> няма да се показва в отговорите на ел. писма. <br/><br/>Поне един от отделите трябва да е <span class="doc-desc-opt">публичен</span>
+email:
+  title: Email
+  content: >
+    Имейл адресът, от който изпраща отговор на потребителите, когато сътрудник публикува отговор на заявка.
+template:
+  title: Набор от шаблони
+  content: >
+    <span class="doc-desc-title">Набор от шаблони</span> за имейли, който се използват за автоматични отговори и предупреждения &amp; уведомления за билети, насочени към този отдел.
+  links:
+    - 
+      title: Управление на шаблоните
+      href: /scp/templates.php
+sla:
+  title: Споразумение за обслужване
+  content: >
+    Споразумение за обслужване за билети насочени към този отдел .
+  links:
+    - 
+      title: Управление на SLA плановете
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Ръководител отдел
+  content: >
+    Изберете <span class="doc-desc-title">ръководител</span> на този отдел. <br/><br/> Ръководителите могат да бъдат конфигурирани да получат специални предупреждения и също имат право да отменят възлагането на билети .
+  links:
+    - 
+      title: Управление на предупреждения &amp; уведомления
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Получатели на предупреждения &amp; уведомления
+  content: >
+    Изберете получатели на настроените <span class="doc-desc-title">предупреждения &amp; уведомления</span>.
+  links:
+    - 
+      title: Настройка на предупреждения &amp; уведомления
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Ограничения за възлагане на заявки
+  content: >
+    Определя дали Билетите могат да бъдат възлагани на всички агенти, агенти с достъп до основен или разширен отдел или само агенти с достъп до основния отдел.
+disable_auto_claim:
+  title: Изключване на автоматичното искане
+  content: >
+    Проверете това <strong>disable</strong> автоматично искане за отговор / отговор за този отдел. <br><br> Агентите все още могат ръчно да заявят неприсвоени билети
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Настройки за автоматичните отговори
+  content: >
+    Това позволява да се заменят глобалните настройки за автоматичен отговор за този отдел .
+new_ticket:
+  title: Автоматичен отговор на нова заявка
+  content: >
+    Можете да забраните автоматичния отговор, който се изпраща до потребителя, когато нов билет е създаден и насочен към този отдел.
+new_message:
+  title: Автоматичен отговор при ново съобщение
+  content: >
+    Можете да забраните автоматичния отговор, който се изпраща до потребителя за потвърждение на наскоро публикувано съобщение за билет в този отдел.
+auto_response_email:
+  title: Автоматичен имейл отговор
+  content: >
+    Изберете имейл адрес, от който да се изпращат автоматичните отговори за този отдел.
+department_access:
+  title: Достъп до групата
+  content: >
+    Разреши на сътрудниците от други отдели да имат достъп до заявките на този отдел .
+department_signature:
+  title: Подпис на отдела
+  content: >
+    Подписът се предоставя по избор, за <span class="doc-desc-opt">публични</span> отдели, при публикуване на отговор на сътрудник.

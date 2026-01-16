@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Loại
+  content: >
+    Nếu là Ban ngành tư nhân, chữ ký của Ban Ngành đó sẽ không có giá trị để phản hồi hay phần bổ nhiệm phòng ban sẽ không xuất hiện trên cổng thông tin Khách hàng.
+dept_manager:
+  title: Trưởng phòng
+  content: >
+    Bạn có thể chọn một nhân viên làm trưởng phòng để nhận được thông báo và cảnh báo yêu cầu trong phòng ban.
+  0: Nhân viên sẽ không cần thiết phải là thành viên của một Ban ngành để trở thành Quản lý của Ban ngành đó

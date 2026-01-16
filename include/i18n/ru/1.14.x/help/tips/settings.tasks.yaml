@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Формат нумерации задач
+  content: >
+    Эти настройки используются для генерации номеров задач. Используйте знак решетки (`#`) в качестве цифр. Любой другой текст будет сохранен. <span class="doc-desc-title">Категории задач</span> могут иметь свои числовые форматы. <br/><br/> Например, для шестизначных номеров используйте код <code>######</code>.
+sequence_id:
+  title: Последовательность нумерации задач
+  content: >
+    Выберите последовательность, из которой задачи получают новые номера. Система имеет увеличивающиеся последовательность и случайную последовательность по-умолчанию. Вы можете создать столько последовательностей, сколько хотите.
+default_sla:
+  title: Базовое SLA
+  content: >
+    Выберите соглашение об уровне обслуживания по-умолчанию для контроля того, как долго задача может оставаться открытой до её перемещения в просроченные.
+  links:
+    - 
+      title: Создать больше профилей SLA
+      href: /scp/slas.php
+default_priority:
+  title: Приоритет по умолчанию
+  content: >
+    Выберите <span class="doc-desc-title">приоритет</span> по-умолчанию для выполнения задач, у которых не будет автоматического назначения.
+task_attachment_settings:
+  title: Вложения к задаче
+  content: >
+    Настройка параметров для файлов прикрепленных к полю <span class="doc-desc-title">описание</span>. Эти настройки используются для всех новых задач и новых сообщений независимо от их источника (портал, электронная почта, Api и т. д.).
+page_title:
+  title: Оповещения и уведомления
+  content: >
+    Оповещения и уведомления - это автоматические сообщения по электронной почте, которые отправляются сотрудникам при возникновении различных событий в задаче.
+task_alert:
+  title: Оповещение о новой задаче
+  content: >
+    <p> Оповещение, которое отправляется сотрудникам, когда создается новая задача. </p><p class="info-banner"> <i class="icon-info-sign"></i> Это оповещение не отправляется, если задача назначается автоматически на основании фильтра задач или категории. </p>
+  links:
+    - 
+      title: Шаблон оповещения по-умолчанию для новой задачи
+      href: /scp/templates.php?default_for=task.alert
+activity_alert:
+  title: Оповещение о новой активности
+  content: >
+    Оповещение, отправляемое сотрудникам, когда к существующей задаче добавляется новое сообщение от пользователя.
+  links:
+    - 
+      title: Шаблон оповещения по-умолчанию о новой активности
+      href: /scp/templates.php?default_for=task.activity.alert
+assignment_alert:
+  title: Оповещение о назначении задачи
+  content: >
+    Оповещение, отправляемое сотрудникам о назначении заявки.
+  links:
+    - 
+      title: Шаблон по-умолчанию для оповещения о задаче
+      href: /scp/templates.php?default_for=task.assignment.alert
+transfer_alert:
+  title: Оповещение о передаче задачи
+  content: >
+    Оповещение, отправляемое сотрудникам, когда задача перемещается между отделами.
+  links:
+    - 
+      title: Шаблон по-умолчанию о перемещении задачи
+      href: /scp/templates.php?default_for=task.transfer.alert
+overdue_alert:
+  title: Оповещение о просроченной задаче
+  content: >
+    Оповещение, отправляемое сотрудникам, когда задача становится просроченной на основании SLA или даты выполнения.
+  links:
+    - 
+      title: Шаблон по-умолчанию для уведомления о просроченной задаче
+      href: /scp/templates.php?default_for=task.overdue.alert
+    - 
+      title: Управление SLA
+      href: /scp/slas.php
+

@@ -1,0 +1,16 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Yardım Masası kapalı olduğunda bu safya Müşteri Portalında görüntlenir.
+name: Çevrimdışı
+body: |
+  <div><h1>
+  <span style="font-size: medium">Destek Talep Sistemi Çevrimdışı</span>
+  </h1>
+  <p>Bizimle iletişim kurmaya çalıştığınız için teşekkür ederiz.</p>
+  <p>Yardım masamız şu an için çevrimdışıdır, 
+  lütfen bir süre sonra tekrar deneyiniz.</p>
+  </div>

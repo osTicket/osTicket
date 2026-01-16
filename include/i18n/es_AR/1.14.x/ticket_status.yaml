@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Abrir
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Tickets abiertos.
+- 
+  id: 2
+  name: Resuelto
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Tickets resueltos
+- 
+  id: 3
+  name: Cerrado
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Tickets cerrados. Los tickets siguen siendo accesibles por el cliente y los miembros del panel.
+- 
+  id: 4
+  name: Archivado
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Tickets únicamente administrables, pero no accesibles en las colas de entrada ni en el panel del cliente.
+- 
+  id: 5
+  name: Eliminado
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Tickets en cola para su eliminación. No se puede acceder en las colas de entrada.

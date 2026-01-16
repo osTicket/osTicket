@@ -56,7 +56,7 @@ echo sprintf('<div class="pull-right flush-right">
         echo '</div>';
     }
     ?>
-    </div>
+</div>
 <?php
 if (!$thisstaff->hasPerm(Dept::PERM_DEPT)) {
     $staffTopics = $thisstaff->getTopicNames(false);
@@ -82,11 +82,11 @@ if ($faqs->exists(true)) {
             $show = true;
 
         if ($show)
-            echo sprintf('
-                <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
-                $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
-                $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
-            );
+        echo sprintf('
+            <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
+            $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
+            $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
+        );
     }
     echo '  </ol>
          </div>';

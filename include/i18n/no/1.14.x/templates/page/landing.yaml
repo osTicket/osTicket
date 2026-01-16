@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Start siden refererer til innholdet i Kundeportals standardvisning. Malen endrer innholdet  som sees over de to koblingene <strong>åpne en ny sak</strong> og <strong>Kontroller saks status</strong>.
+name: Landing
+body: >
+  <h1>Velkommen til Støtte Senteret</h1> <p>For å effektivisere støtteanmodninger og bedre tjene deg, bruker vi ett sakssystem. Hver henvendelse tilordnes et unikt saksnummer som du kan bruke til å spore fremdrift og svar via Internett. For referanse tilbyr vi komplette arkiver og historien til alle dine støtte hendvendelser. En gyldig epostadresse kreves for å opprette en saks. </p>

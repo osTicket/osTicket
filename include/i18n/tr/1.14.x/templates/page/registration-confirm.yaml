@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Bu şablonları kayıt formunu tamamladıktan sonra Müşteriler gösterilen sayfayı belirler.Şablon sistemi, onlara bir e-posta onaylama linki gönderiyor ve kayıt sürecinde bir sonraki adım ne olduğunu belirtmek gerekir.
+name: "Hesap Açma"
+body: >
+  <div> <strong> Kayıt olduğunuz için teşekkür ederiz. </ strong> <br /> <br/> Biz sadece girdiğiniz adrese bir e-posta gönderdik. Hesabınızı onaylamak ve bilet erişmek için e-postadaki linki takip edin. </ div>

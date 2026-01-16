@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Tudásbázis-beállítások
+  0: >
+
+knowledge_base_status:
+  title: Tudásbázis-állapota
+  content: >
+    Engedélyezze a felhasználóknak az önkiszolgáló szolgáltatás elérését, hogy hozzáférhessenek a publikus tudásbázishoz. <br><br>Tudásbázis kategória és GYIK készíthető belsőleg. (csak az agent látja).
+  links:
+    - 
+      title: Tudásbázis kezelése
+      href: /scp/kb.php
+restrict_kb:
+  title: A tudásbázis elérésének korlátozása
+  content: >
+    Engedélyezze ezt a beállítást, hogy megakadályozza a nem regisztrált felhasználók hozzáférését a tudásbázis cikkekhez a kliens felületen.
+  links:
+    - 
+      title: Hozzáférés Vezérlő Beállítások
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Sablon válaszok
+  content: >
+    Ez a beállítás engedélyezi a munkatársaknak, hogy használhassák a<span class="doc-desc-title">Sablon válaszokat</span> mikor megválaszolnak egy hibajegyet.
+  links:
+    - 
+      title: Sablon válaszok kezelése
+      href: /scp/canned.php

@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Bu şablon tanımlar e-posta hesap istemci Portal veya onların adına bir ajan tarafından oluşturuldu ve müşteriler için gönderildi. Ayrıca bu e-posta e-posta adresi doğrulamak içindir. %{link}
+name: "%{company.name} Hoşgeldiniz"
+body: >
+  <h3><strong>Merhaba %{recipient.name.first},</strong></h3> <div> %{url} adresinden ulaşabileceğiniz destek merkezimizde sizin için bir hesap oluşturduk.<br /> <br /> Lütfen aşağıdaki bağlantı adresini takip ederek hesap bilgilerinizi doğrulayınız. Bu size varolan taleplerinize erişim hakkı sağlayacaktır.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Müşteri Destek Sistemi<br /> %{company.name}</em> </div>

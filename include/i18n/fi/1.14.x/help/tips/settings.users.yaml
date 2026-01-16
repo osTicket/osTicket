@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Oletus nimimuotoilu
+  content: >
+    Valitse muotoilu järjestelmän agenteille. Sähköpostiviestipohjat käyttävät tätä ellei muuta muotoilua ole määritelty.
+#Authentication settings
+client_session_timeout:
+  title: Asiakkaan istunnon aikakatkaisu
+  content: >
+    Valitse maksimi poissaoloaika (minuuteissa), jonka jälkeen käyttäjän pitää kirjautua sisään uudelleen.<br><br> Jos haluat poistaa käytöstä <span class="doc-desc-title">Käyttäjän istunnon aikakatkaisun</span>, syötä arvoksi 0.
+registration_method:
+  title: Rekisteröitymisvaihtoehdot
+  content: >
+    <span class="doc-desc-title">Rekisteröitymistapa</span> ja <span class="doc-desc-title">Rekisteröityminen vaadittu</span> valintoja käytetään yhdessä määrittelemään kuinka käyttäjät rekisteröityvät ja pääsevät tukisivustoon. Taulukko alla kertoo kuinka nämä asetukset vaikuttavat järjestelmään. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Rekisteröityminen vaadittu</th> <th>Rekisteröitysmistapa</th> <th>Tulos</th></tr> <tr><td>Ei</td><td>Julkinen</td> <td>Rekisteröitymiseen kannustetaan, mutta ei vaadita uusien tikettien luomiseksi.</td></tr> <tr><td>Kyllä</td><td>Julkinen</td> <td>Rekisteröityminen ja kirjautuminen vaaditaan uusien tikettien luomiseksi</td></tr> <tr><td>Ei</td><td>Yksityinen</td> <td>Kuka tahansa voi luoda tiketin, mutta ainoastaan Käsittelijät voivat rekisteröidä tilejä</td></tr> <tr><td>Kyllä</td><td>Yksityinen</td> <td>Käyttäjät pääsevät sivustolle ainoastaan kutsusta</td></tr> <tr><td>Ei</td><td>Poistettu</td> <td>Kukaan ei voi rekisteröityä, mutta kuka tahansa voi luoda tikettejä. <em>Näin osTicket toimi ennen 1.9 versiota</em></td></tr> <tr><td>Kyllä</td><td>Poistettu</td> <td>Estä uudet tiketit Verkkosivuston kautta</td></tr> </tbody></table>
+client_verify_email:
+  title: Vaadi sähköpostivarmennus
+  content: >
+    Poista ominaisuus jonka antaa asiakkaille pääsyn tiketteihin "Tarkista tiketin tila" kirjautumissivulla asiakassivustolla. Jos aktivoitu, (oletusasetus), asiakkailta vaaditaan sähköpostiosoite ja seuraamaan viestin linkkiä tikettiin pääsyä varten. <br><br>Sähköpostivarmennuksen poistaminen voi mahdollistaa muiden esittäytyä tiketin omistajana.
+allow_auth_tokens:
+  title: Ota käyttöön automaattinen todentaminen
+  content: >
+    Ota tämä asetus käyttöön salliaksesi automaattisen todentamisen kirjautumisessa, kun käyttäjät klikkaavat tiketin linkkiä.

@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: რა არის osTicket (მარტივი)?
+  response: |
+    osTicket -ი  არის მხარდაჭერის ბილეთების ფართოდ გამოყენებადი  ღია კოდის სისტემა, მაღალი ფასის მქონე, მომხმარებლის მხარდაჭერის კომპლექსური  სისტემების მიმზიდველი ალტერნატივაა - მარტივი, მსუბუქი, საიმედო, ღია რესურსი, ვებზე დაფუძნებული, მარტივად მოსამართი და გამოსაყენებელი.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: კონსერვირებული მიმაგრებები უფასოდ!
+- 
+  isenabled: 1
+  title: მაგალითი (ცვლადებით)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

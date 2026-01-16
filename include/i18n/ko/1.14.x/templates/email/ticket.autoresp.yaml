@@ -1,0 +1,23 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  새로운 티켓이 등록되면 사용자에게 전송됩니다.
+subject: |
+  티켓이 오픈 되었습니다 [#%{ticket.number}]
+body: |
+  <h3><strong> %{recipient.name.first}님,</strong></h3>
+  <p>
+  지원요청 티켓 #%{ticket.number}이 접수되었습니다.
+  담당자가 곧 지원할 예정입니다. <a href="%{recipient.ticket_link}">티켓 진행상태 보기</a>를 통해 확인하실 수 있습니다.
+  A representative will follow-up with you as soon as possible. You can
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  %{company.name} 팀,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>이슈에 관해 추가적인 코멘트나 정보를 추가하려면 이 이메일에 회신하거나 <a href="%{recipient.ticket_link}"><span style="color: rgb(84, 141, 212);" >로그인</span></a> 하여 지원요청에 대해 내용을 추가할 수 있습니다.</em></div>

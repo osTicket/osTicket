@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Pagalbos tarnybos pavadinimas
+  content: |
+    <p>Jūsų pagalbos tarnybos pavadinimas pavyzdžiui [Įmonės pavadinimas] pagalba</p>
+system_email:
+  title: Numatytasis sistemos el. paštas
+  content: |
+    <p>Numatytasis sistemos el. pašto adresas, pvz. pagalba@manoadresas.lt Vėliau galėsite pridėti daugiau!</p>
+default_lang:
+  title: Numatyta Sistemos Kalba
+  content: |
+    <p>Pradiniai duomenys bus įdiegti į duomenu bazę pasirinkta kalba. Pavyzdžiui el.pašto šablonai ir numatytieji sistemos puslapiai bus šia kalba.</p>
+  links:
+    - 
+      title: osTicket Kalbos Paketai
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Vardas
+  content: |
+    <p>Administratoriaus vardas</p>
+last_name:
+  title: Pavardė
+  content: |
+    <p>Administratoriaus pavardė </p>
+email:
+  title: Elektroninis paštas
+  content: |
+    <p>Administratoriaus asmeninis el.pašto adresas. Turi būti kitoks nei sistemos pagrindinis el. pašto adresas.</p>
+username:
+  title: Vartotojo vardas
+  content: |
+    <p>Administratoriaus prisijungimo vardas. Turi būti ne mažiau kaip trys (3) simboliai.</p>
+password:
+  title: Slaptažodis
+  content: |
+    <p>Administratoriaus slaptažodis.  Sudaromas iš penkių (5) ar daugiau ženklų.</p>
+password2:
+  title: Patvirtinti slaptažodį
+  content: |
+    <p>Pakartokite administratoriaus slaptažodį. Turi sutapti.</p>
+db_prefix:
+  title: MySQL lentelės priešdėlis
+  content: |
+    <p>Siekiant išvengti galimų lentelės konfliktų bendrai naudojamoje duomenų bazėje, osTicket reikalauja lentelės priešdėlio.</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>
+    Dauguma virtualaus serverio tiekėjų naudoja 'localhost' kaip vietinės duomenų bazės vardą. Jei 'localhost' netinka, susisiekite su paslaugos tiekėju
+    </p>
+    <p>
+    Numatytasis prievadas naudojamas kaip nurodyta php.ini. Jei norite naudoti nestandartinį prievadą, nurodykite jį taip: <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL duombazė
+  content: |
+    <p>Duomenų bazės pavadinimas, kurį osTicket naudos.</p>
+db_user:
+  title: MySQL vartotojo vardas
+  content: |
+    <p>MySQL vartotojas privalo turėti visas teises į duomenų bazę.</p>
+db_password:
+  title: MySQL slaptažodis
+  content: |
+    <p>MySQL slaptažodis susijęs su anksčiau minėtu vartotoju.</p>

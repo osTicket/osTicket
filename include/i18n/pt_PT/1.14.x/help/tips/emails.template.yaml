@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Modelos de e-mail
+  content: >
+    Conjuntos de modelo de e-mail são usados para enviar alertas e Auto-respostas para várias ações que podem ocorrer durante a duração de um Tícket.
+template_to_clone:
+  title: Modelo de Clone
+  content: >
+    Escolha um modelo definido para clonar ou simplesmente começar com os modelos de ações de e-mail.
+language:
+  title: Idioma
+  content: >
+    Selecione o idioma desejado para o <span class="doc-desc-title"> modelo de E-mail</span><span class="doc-desc-opt"> predefinido</span>. Pacotes de idiomas estão disponíveis em osTicket.com.
+  links:
+    - 
+      title: osTicket pacotes de idiomas
+      href: https://osticket.com/download
+status:
+  title: Estado
+  content: >
+    Modelos <span class="doc-desc-opt"> Ativos</span> estão disponíveis para serem associados com departamentos e definidos como o padrão do sistema. Os modelos atualmente em utilização não podem ser <span class="doc-desc-opt"> desativados</span>.

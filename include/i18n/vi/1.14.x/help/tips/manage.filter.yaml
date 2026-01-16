@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Thứ tự thực hiện lệnh
+  content: >
+    Nhập số kiểm soát quyền ưu tiên của bộ lọc. Số càng thấp, quyền ưu tiên của bộc lọc càng lơn và sẽ được thực hiện trước bộ lọc khác có thứ tự thực hiện lệnh cao hơn.<br><br>Nếu bạn muốn bộ lọc này là bộ lọc cuối cùng được áp dụng để ghép lệnh, kích hoạt<span class="doc-desc-title">Chế độ ngừng xử lý ghép lệnh</span>.
+target_channel:
+  title: Kênh
+  content: >
+    Chọn mục tiêu<span class="doc-desc-title">Kênh</span>cho<span class="doc-desc-title">Bộ lọc lệnh của bạn</span>.<span class="doc-desc-title">Kênh này</span>là nguồn nơi lệnh đi vào hệ thống.<br><br>Ví dụ, nếu bạn chọn<span class="doc-desc-opt">bảng mẫu web</span>,ý bạn là bạn muốn áp dụng<span class="doc-desc-title">bộ lọc lệnh</span>tới những lệnh lấy từ bảng mẫu web của cổng thông tin khách hàng.
+rules_matching_criteria:
+  title: Tiêu chuẩn ghép lệnh
+  content: >
+    Chọn cách mà bạn muốn ghép<span class="doc-desc-title">bộ lọc lệnh</span>. Nếu bạn muốn<span class="doc-desc-title">bộ lọc lệnh</span>ghép với bất kì lệnh nào, hãy dừng lại, chọn<span class="doc-desc-opt">Ghép với tất cả các lệnh</span>. Nếu bạn muốnghép<em><strong>tất cả các lệnh</strong></em>trong<span class="doc-desc-title">bộ lọc lệnh</span>,chọn <span class="doc-desc-opt">Ghép với tất cả các lệnh</span>.
+reject_ticket:
+  title: Từ chối lệnh
+  content: >
+    Nếu bạn kích hoạt từ chối lệnh, việc xử lý lệnh sẽ ngừng và tất cả các hoạt động khác bên dưới sẽ bị hoãn lại.
+reply_to_email:
+  title: Trả lời thư
+  content: >
+    Kích hoạt lệnh này nếu bạn muốn bộ phận trợ giúp thực hiện một ứng dụng email của người dùng<span class="doc-desc-title">Tiêu đề Trả lời thư</span>. Trường này chỉ tương thích nếu <span class="doc-desc-title">kênh</span>ở trên bao gồm<span class="doc-desc-opt">email</span>.
+ticket_auto_response:
+  title: Vô hiệu quá chế độ phản hồi tự động
+  content: >
+    <em>Chú ý: Việc này sẽ làm đè lên<span class="doc-desc-title">tất cả các phòng ban</span>hoặc<span class="doc-desc-title">Chế độ phản hồi tự động</span>.</em>
+canned_response:
+  title: Chế độ trả lời tự động trước
+  content: >
+    Chọn một<span class="doc-desc-title">Phản hồi trước</span>mà bạn muốn gửi đến người dùng trên<span class="doc-desc-title">bộ lọc lệnh</span>.<span class="doc-desc-title">Chế độ trả lời tự động mới này</span>được sử dụng dựa trên<span class="doc-desc-title">khung mẫu</span>mặc định, hoặc theo <span class="doc-desc-title">phòng ban của một lệnh ghép</span>.
+  links:
+    - 
+      title: Quản lý Phản hồi trước
+      href: /scp/canned.php
+    - 
+      title: Quản lý khung mẫu
+      href: /scp/templates.php
+    - 
+      title: Khung mẫu trả lời tự động mới
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Phòng ban
+  content: >
+    Chọn<span class="doc-desc-title">Phòng ban</span>bạn muốn ghép<span class="doc-desc-title">trong bộ lọc</span>được chỉ định.
+  links:
+    - 
+      title: Quản lý phòng ban
+      href: /scp/departments.php
+priority:
+  title: Quyền ưu tiên
+  content: >
+    Chọn<span class="doc-desc-title">mức độ quyền ưu tiên</span>mà bạn muốn áp dụng cho việc ghép lệnh trong<span class="doc-desc-title">bộ lọc</span>.<br /><br /><em>Chú ý: Việc này sẽ ghi đè lên bất kì<span class="doc-desc-title">phòng ban</span>hoặc<span class="doc-desc-title">cài đặt tiêu đề trợ giúp nào</span>.</em>
+sla_plan:
+  title: Dự án SLA
+  content: >
+    Chọn<span class="doc-desc-title">Dự án SLA</span>bạn muốn áp dụng để ghép lệnh trong<span class="doc-desc-title">bộ lọc lệnh</span>.
+  links:
+    - 
+      title: Quản lý dự án SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Tự động chỉ định
+  content: >
+    Chọn một nhân viên hoặc một nhóm nhân viên bạn muốn ghép trong<span class="doc-desc-title">bộ lọc lệnh</span>để chỉ định.
+  links:
+    - 
+      title: Quản lý nhân viên
+      href: /scp/staff.php
+    - 
+      title: Quản lý đội
+      href: /scp/teams.php
+help_topic:
+  title: Tiêu đề trợ giúp
+  content: >
+    Chọn<span class="doc-desc-title">Tiêu đề trợ giúp</span>bạn muốn áp dụng để ghép trong<span class="doc-desc-title">bộ lọc lệnh</span>.
+  links:
+    - 
+      title: Quản lý Tiêu đề trợ giúp
+      href: /scp/helptopics.php
+admin_notes:
+  title: Ghi chú của admin
+  content: >
+    Những ghi chú này chỉ được nhìn thấy bởi những người có loại tài khoản<span class="doc-desc-title">như admin</span>.

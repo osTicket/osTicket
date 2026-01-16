@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Benutzername
+  content: >
+    Bitte wählen Sie einen <span class="doc-desc-title">Benutzername</span> für den Agenten, der einmalig in Ihrem <span class="doc-desc-title">Helpdesk</span> ist.
+email_address:
+  title: E-Mail-Adresse
+  content: >
+    Geben Sie die E-Mail-Adresse des Agenten ein, welche <span class="doc-desc-title">Benachrichtigungen</span> vom <span class="doc-desc-title">Helpdesk</span> erhalten wird.
+  0: <br><br>
+  1: Agenten können sich am Agenten-Bereich entweder mit dem Benutzernamen oder der E-Mail-Adresse anmelden.
+welcome_email:
+  title: Willkommens-E-Mail
+  content: >
+    Senden Sie dem neuen Agenten einen Konto-Zugangslink, mit dem der Agent sein Passwort festlegen kann. Wenn der Haken nicht gesetzt ist, müssen Sie das Passwort festlegen und dem neuen Agenten die Anmeldedaten mitteilen.
+account_password:
+  title: Kontopasswort
+  content: >
+    Als <span class="doc-desc-title"> Administrator</span> können Sie das Passwort eines Agenten ändern.
+forced_password_change:
+  title: Passwort-Änderung erzwingen
+  content: >
+    Aktivieren Sie diese Funktion, wenn Sie möchten, dass der neue Agent beim nächsten Anmeldung sein Passwort ändern muss.
+agents_signature:
+  title: Signatur des Agenten
+  content: >
+    Erstellen Sie eine Signatur für den Agenten, die beim Antworten auf ein Ticket ausgewählt werden kann.
+account_status:
+  title: Kontostatus
+  content: >
+    Wenn der Agenten-Status auf <span class="doc-desc-opt">gesperrt</span> gesetzt ist, kann der Agent sich nicht am Helpdesk anmelden.
+assigned_group:
+  title: Zugewiesene Gruppe
+  content: >
+    Die <span class="doc-desc-title"> Gruppe</span>, die Sie dem Agenten zuweisen, wird die Berechtigungen festlegen, die der Agent innerhalb des <span class="doc-desc-title">Helpdesk</span> erhält.
+  links:
+    - 
+      title: Gruppen verwalten
+      href: /scp/groups.php
+primary_department:
+  title: Primäre Abteilung
+  content: >
+    Wählen Sie die primäre <span class="doc-desc-title">Abteilung</span>, zu der dieser Agent gehört und eine effektive <span class="doc-desc-title">Rolle</span>.
+  links:
+    - 
+      title: Abteilungen verwalten
+      href: /scp/departments.php
+primary_role:
+  title: Primäre Rolle
+  content: >
+    Wählen Sie die primäre <span class="doc-desc-title">Rolle</span>, zu der dieser Agent gehört.
+primary_role_on_assign:
+  title: Primäre Rolle für Zuweisungen verwenden
+  content: >
+    Aktivieren Sie den Rückfall auf die <span class="doc-desc-title">primäre Rolle</span> wenn diesem Agent Tickets und Aufgaben außerhalb der <span class="doc-desc-title">primären Abteilung</span> und den Abteilungen mit <span class="doc-desc-title">Erweitertem Zugang</span> zugewiesen sind. Ansonsten wird der Agent nur Lesezugang erhalten.
+daylight_saving:
+  title: Sommerzeit
+  content: >
+    Aktivieren Sie diese Funktion, wenn Sie wollen, dass die Sommerzeit automatisch bei der Zeitzone des Agenten berücksichtigt wird.
+limited_access:
+  title: Eingeschränkter Zugang
+  content: >
+    Wenn aktiviert, wird der Agent nur Zugang zu Tickets haben, die ihm direkt oder seinem Team zugewiesen sind.
+directory_listing:
+  title: Verzeichnisliste
+  content: >
+    Aktivieren Sie diese Funktion, wenn Sie wollen, dass dieser Agent im <span class="doc-desc-title">Agentenverzeichnis</span> aufgelistet wird.
+  links:
+    - 
+      title: Agentenverzeichnis anzeigen
+      href: /scp/directory.php
+vacation_mode:
+  title: Urlaubsmodus
+  content: >
+    Wenn Sie den Status des Agenten auf <span class="doc-desc-opt"> Urlaubsmodus</span> ändern, wird der Agent keine <span class="doc-desc-title">Benachrichtigungen</span> erhalten, noch wird er für Zuweisung von Tickets verfügbar sein.
+

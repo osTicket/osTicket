@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Системски логови
+  content: >
+    Овде ќе ги пронајдете записите поврзани со решавањето на проблемите (пр. Грешки, Предупредувања или Багови).
+  links:
+    - 
+      title: Прилагодување кои врсти активности ќе се запипуваат во логовите <br /><span class="doc-desc-title">Предефинирани логови</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Временски период
+  content: >
+    Одберете временски интервал за преглед <span class="doc-desc-title">Системски логови </span>.
+type:
+  title: Тип
+  content: >
+    Одберете опции како би го насочиле вашиот фокус на одреден тип активности. <span class="doc-desc-opt">Дебагирање </span> претставува мала сериозност, и <span class="doc-desc-opt">Грешка</span> претставува голема сериозност.
+showing_logs:
+  title: Прикажување&hellip;логови
+  content: >
+    Бидете сигурни дека сте ја чекирале <span class="doc-desc-title">Страницата</span> подолу за да бидете сигурни дека нема повеќе страници што ги прикажуваат системските логови.
+log_title:
+  title: Наслов на дневникот
+  content: >
+    Кликнете на <span class="doc-desc-title">Насловот на дневникот</span> во заглавјето доколку сакате да ги сортирате резултатите спрема<span class="doc-desc-title">Насловот на дневникот</span>.
+log_type:
+  title: Тип на дневникот
+  content: >
+    Кликнете на <span class="doc-desc-title">Типот на дневникот</span> во заглавјето доколку сакате да ги сортирате резултатите спрема<span class="doc-desc-title">Типот на дневникот</span>.
+log_date:
+  title: Датум на дневникот
+  content: >
+    Ова е датумот на креирање на дневникот од страна на софтверот. Доколку сакате да ги сортирате резултатите по датум  <span class="doc-desc-title">Датум на дневникот</span>, кликнете на <span class="doc-desc-title">Датум на дневникот</span> во заглавјето. (Користете <span class="doc-desc-title">Датум на дневникот</span> за да се ограничат временски записите.)
+ip_address:
+  title: IP адреса
+  content: >
+    Ова се однесува на <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Адреса</span> агент или корисник на osTicket во моментот на генерирање на дневникот.

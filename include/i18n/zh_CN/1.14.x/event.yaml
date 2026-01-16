@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: 已创建
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: 重新开启
+  description:
+- 
+  id: 4
+  name: 已分配
+  description:
+- 
+  id: 5
+  name: 已发布
+  description:
+- 
+  id: 6
+  name: 已转移
+  description:
+- 
+  id: 7
+  name: 已转达
+  description:
+- 
+  id: 0
+  name: 过期
+  description:
+- 
+  id: 9
+  name: 已编辑
+  description:
+- 
+  id: 10
+  name: 已查看
+  description:
+- 
+  id: 11
+  name: 错误
+  description:
+- 
+  id: 12
+  name: 协作
+  description:
+- 
+  id: 13
+  name: 重新发送
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: merged
+  description:
+- 
+  id: 16
+  name: unlinked
+  description:
+- 
+  id: 17
+  name: linked
+  description:

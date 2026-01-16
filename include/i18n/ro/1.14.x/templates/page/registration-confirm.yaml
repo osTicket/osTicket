@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Acest șablon defineste pagina afișată Clientilor după completarea formularului de înregistrare. Șablonul ar trebui să specifice faptul că sistemul va trimite un email ce conține un link de confirmare a înregistrării, precum și care este urmatorul pas din procesul de înregistrare.
+name: "Inregistrare cont"
+body: >
+  <div><strong>Iti multumim pentru inregistrarea contului.</strong><br/> <br /> Tocmai ti-am trimis un email pe adresa folosita in formalarul de inregistrare. Te rugam sa dai click pe link-ul din corpul emailului pentru a confirma contul si a obtine acces la tichetele tale. </div>

@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informacija o temi pomoči
+  content: >
+    <span class="doc-desc-title">Teme pomoči</span>obveščajo uporabnike, katere informacije se pridobivajo od uporabnikov, ter kako in komu se dodeljujejo novo odprte kartice za podporo.
+topic:
+  title: Ime teme
+  content: >
+    Edinstveno ime teme pomoči.
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Tip
+  content: >
+    Če so<span class="doc-desc-title">teme pomoči</span>označene kot privatne, bojo dostopne samo zaposlenim, ko odprejo novo kartico pod uporabniškimi nastavitvami zaposlenega.
+parent_topic:
+  title: Osnovna tema
+  content: >
+    Izberite osnovno kategorijo, kateri bo ta<span class="doc-desc-title">tema pomoči</span>pripadala. Osnovna tema, bo prikazana prva v seznamu, ta  bo<span class="doc-desc-title">tema pomoči</span>pa prikazana, takoj za osnovno.
+custom_form:
+  title: Prilagojeni obrazec
+  content: >
+    Prilagojeni obrazci, vam bodo pomagali, pri pridobivajnu specifičnih podatkov z strani uporabnika, pomembni so za<span class="doc-desc-title">teme pomoči</span>.
+  links:
+    - 
+      title: Upravljanje prilagojenih obrazcev
+      href: /scp/forms.php
+priority:
+  title: Pomembnost
+  content: >
+    Določite prioriteto novoodprtih kartic povezanih s tole<span class="doc-desc-title">temo pomoči</span>.<br><br>Filtri kartic, lahko premostiijo prioriteto novoodprtih kartic.
+department:
+  title: Oddelek
+  content: >
+    Izberite odsek, pod katerega bodo spadale novoodprte kartice ustvarjene pod to temo za pomoč.
+  links:
+    - 
+      title: Urejanje oddelkov
+      href: /scp/departments.php
+sla_plan:
+  title: Sporazum o ravni storitev
+  content: >
+    Izberite Ugovor o nivoju usluge, ki je povezan s tem<span class="doc-desc-title">tema pomoči</span>.<br><br>Ta izbira, bo premostila osnovni ugovor o nivoju usluge
+  links:
+    - 
+      title: Upravljajte s sporazumi o ravni storitev
+      href: /scp/slas.php
+thank_you_page:
+  title: Zahvalna stran
+  content: >
+    Izberite zahvalno stran na katero je uporabnik preusmerjen po oddaji zahtevka za pomoč na naslovu <span class="doc-desc-title">Teme Pomoči</span>.
+  links:
+    - 
+      title: Uredi zahvalne strani
+      href: /scp/pages.php
+auto_assign_to:
+  title: Avtomatično dodeli nove zahtevke
+  content: >
+    Opcijsko izberi agenta ali ekipo kateri se avtomatično dodeli odprtje zahtevka v razdelku <span class="doc-desc-title">Teme Pomoči</span> <br><br> Filtri zahtevka lahko povozijo dodeljene zahtevke.
+  links:
+    - 
+      title: Urejaj Zaposlene in Ekipe
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Avtomatični odzivnik zahtevka za pomoč
+  content: >
+    Če je opcija obkljukana je avtomatični odziv zahtevka onemogočen v temi <span class="doc-desc-title">Teme Pomoči</span>. <br><br> To razveljavi avtomatični odzivnik za <span class="doc-desc-title">Oddelek</span> kakor tudi globalne <span class="doc-desc-title">Nastavitve za avtomatični odzivnik</span>.
+  links:
+    - 
+      title: Nastavitve avtomatičnega odzivnika
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Nastavitev številčenja zahtevkov po meri
+  content: >
+    Izberite "Po meri" za ponastavitev privzetega sistema za številčenje zahtevkov izdelanih v temah pomoči. Oglejte si namige v nastavitvah / stran zahtevkov za podrobnejše informacije o nastavitvah.

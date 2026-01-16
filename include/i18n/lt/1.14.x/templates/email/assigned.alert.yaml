@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Siunčiama pagalbos tarnybos darbuotojo, kai bilietas yra priskirtas jam. Sistema gali priskirti bilietus automatiškai arba kito pagalbos tarnybos darbuotojo. Naudokite %{assigner} tam, kad nustatyti kas atliko paskirstymą.
+subject: |
+  Bilietas, priskirtas Jums
+body: |
+  <h3><strong>Sveiki %{assignee.name.first},</strong></h3>
+  Bilietas <a href="%{ticket.staff_link}">#%{ticket.number}</a> priskirtas Jums  %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Nuo</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Tema</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Norėdami matyti/atsakyti į bilietą, prašom <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prisijungti</span></a> prie pagalbos sistemos</div>
+  <em style="font-size: small; ">Jūsų draugiška klientų aptarnavimo sistema</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Sukurta osTicket" width="126" height="19" style="width: 126px;">

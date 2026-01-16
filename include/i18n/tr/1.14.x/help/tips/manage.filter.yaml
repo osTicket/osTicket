@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Yürütme Sırası
+  content: >
+    Filtrenin önemini belirten bir sayı girin. Daha küçük bir sayı önceliği diğer filtrelerden daha yüksek bir filtre demektir. <br><br> Eğer bu filtrenin uygulanan en son filtre olmasını istiyorsanız, <span class="doc-desc-title">İşleme devam etme</span> seçeneğini etkinleştirin.
+target_channel:
+  title: Kanal
+  content: >
+    <span class="doc-desc-title">Kayıtları filtrelemek</span> için hedef bir <span class="doc-desc-title">Kanal</span> seçin. Bu kanal kayıtlar için önceden tanımlanmış olmalıdır. <br><br> Örneğin, eğer siz <span class="doc-desc-opt">Web Formları</span>nı seçerseniz, müşteri panelindeki <span class="doc-desc-title">filtrelemede</span> de bu ayarı seçmiş olacaksınız.
+rules_matching_criteria:
+  title: Kural Eşleşme Kriteri
+  content: >
+    Yapılacak <span class="doc-desc-title">Talep Filtresi</span> eşleşmelerinizin ne kadar esnek olacağını seçin. <span class="doc-desc-title">Talep Filtresi</span>nin kuralların herhangi biriyle eşleşmesini ve ardından durmasını isterseniz, <span class="doc-desc-opt">Herhangi Birini Eşle</span> öğesini seçin. <span class="doc-desc-title">Talep Filtresi</span>nin <em><strong>tüm kurallarının</strong></em> eşleşmesini isterseniz, <span class="doc-desc-opt">Tümünü Eşle</span> öğesini seçin.
+reject_ticket:
+  title: Kaydı Reddet
+  content: >
+    Eğer bunu seçerseniz, diğer eşleşen işlemler göz ardı edilecektir.
+reply_to_email:
+  title: Yanıt için e-posta
+  content: >
+    Yardım Masanızın bir Kullanıcının eposta uygulamasına ait <span class="doc-desc-title">Yanıtla</span> başlığına yanıt vermesini isterseniz, bunu etkinleştirin. Bu alan sadece yukarıdaki <span class="doc-desc-title">Kanal</span> <span class="doc-desc-opt">Eposta</span> öğesini içeriyorsa, ilişkilidir.
+ticket_auto_response:
+  title: Talep Otomatik Yanıtlamayı Devredışı Bırak
+  content: >
+    <em>Not: Bu herhangi bir <span class="doc-desc-title">Bölüm</span> veya <span class="doc-desc-title">Otomatik yanıt verici ayarları</span> öğelerini geçersiz kılacaktır.</em>
+canned_response:
+  title: Kaydedilmiş Otomatik Yanıtlamalar
+  content: >
+    <span class="doc-desc-title">Talep Filtresi</span> eşleşmesinde kullanıcıya epostayla gönderilmesini istediğiniz bir <span class="doc-desc-title">Hazır Yanıtı</span> seçin. Kullanılan <span class="doc-desc-title">Yeni Talep Otomatik Yanıtla</span> şablonu varsayılan olarak hangi <span class="doc-desc-title">şablon seti</span> öğesinin atandığına veya eşleşen talebin <span class="doc-desc-title">Bölüm</span> öğesine atandığına dayanır.
+  links:
+    - 
+      title: Kaydedilmiş Yanıtları Yönet
+      href: /scp/canned.php
+    - 
+      title: Şablon Setlerini Yönet
+      href: /scp/templates.php
+    - 
+      title: Yeni Talep Otomatik Yanıt Şablonu
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Bölüm
+  content: >
+    <span class="doc-desc-title">Talep Filtresi</span> eşleşmelerine hangi <span class="doc-desc-title">Bölüm</span> öğesinin atanmasını istediğinizi seçin.
+  links:
+    - 
+      title: Bölüm Yönetimi
+      href: /scp/departments.php
+priority:
+  title: Öncelik
+  content: >
+    <span class="doc-desc-title">Talep Filtresi</span> eşleşmelerine uygulanmasını istediğiniz <span class="doc-desc-title">Öncelik</span> düzeyini seçin.<br /> <br /> <em>Not: Bu, <span class="doc-desc-title">Bölüm</span> veya <span class="doc-desc-title"> Yardım Konusu</span> ayarlarını geçersiz kılacaktır.</em>
+sla_plan:
+  title: SLA planı
+  content: >
+    <span class="doc-desc-title">Talep Filtresi</span> eşleşmelerine uygulanmasını istediğiniz <span class="doc-desc-title">SLA Planı</span> öğesini seçin.
+  links:
+    - 
+      title: SLA Planları Yönet
+      href: /scp/slas.php
+auto_assign:
+  title: Otomatik-Atama
+  content: >
+    <span class="doc-desc-title">Talep Filtresi</span> eşleşmelerinin atanmasını istediğiniz bir Temsilci veya bir Ekibi seçin.
+  links:
+    - 
+      title: Temsilcileri Yönet
+      href: /scp/staff.php
+    - 
+      title: Ekipleri yönet
+      href: /scp/teams.php
+help_topic:
+  title: Yardım Konusu
+  content: >
+    <span class="doc-desc-title">Talep Filtresi</span> eşleşmelerine uygulanmasını istediğiniz <span class="doc-desc-title">Yardım Konusu</span> öğesini seçin.
+  links:
+    - 
+      title: Yardım Başlıkları Yönetimi
+      href: /scp/helptopics.php
+admin_notes:
+  title: Yönetici Notları
+  content: >
+    Bu notlar sadece ‘<span class="doc-desc-title">Yönetici</span>’ türündeki hesaplar tarafından görüntülenebilir.

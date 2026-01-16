@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Pagina de Mulţumire este afisata in portalul de client, atunci când un utilizator inainteaza un nou tichet prin intermediul portalului client.
+name: Va multumim
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Va multumim ca ne-ati contactat.
+  <br>
+  <br>
+  Cererea de suport a fost creata. Daca va fi necesar, veti fi contactat de catre un reprezentant al firmei</p>
+  <br>
+  <br>
+  Departamentul tehnic
+  </div>

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: ユーザー名
+  content: >
+    <span class="doc-desc-title">ヘルプデスク</span>に固有のエージェント<span class="doc-desc-title">ユーザー名</span>を選択してください。
+email_address:
+  title: メールアドレス
+  content: >
+    <span class="doc-desc-title">ヘルプデスク</span>から<span class="doc-desc-title">アラートと通知</span>を受け取るエージェントのメールアドレスを入力します。
+  0: <br><br>
+  1: スタッフは、ユーザ-名またはメールアドレスを使用してスタッフコントロールパネルにサインインできます。
+welcome_email:
+  title: ようこそメール
+  content: >
+    エージェントが自分のパスワードを設定できるアカウントへのアクセスのリンクを新しいエージェントに送信します。このチェックボックスがオフになっている場合は、パスワードを設定して、新しいスタッフにログイン情報を知らせる必要があります。
+account_password:
+  title: アカウントのパスワード
+  content: >
+    <span class="doc-desc-title">管理者</span>として、あーじぇんとのパスワードを変更できます。
+forced_password_change:
+  title: パスワードの変更を強制
+  content: >
+    次回のログイン時に新しいエージェントが自分のパスワードを変更することを強制するには、これを有効にします。
+agents_signature:
+  title: エージェントの署名
+  content: >
+    チケットに返信するときに選択できるエージェントの署名を作成します。
+account_status:
+  title: アカウントステータス
+  content: >
+    エージェントのステータスが<span class="doc-desc-opt">ロック</span>の場合、エージェントはヘルプデスクにサインインできません。
+assigned_group:
+  title: アサインされたグループ
+  content: >
+    このエージェントが属する<span class="doc-desc-title">グループ</span>の選択は、<span class="doc-desc-title">ヘルプデスク</span>内でそのエージェントが何の許可を持つかを決定します。
+  links:
+    - 
+      title: グループの管理
+      href: /scp/groups.php
+primary_department:
+  title: 主要部門
+  content: >
+    このエージェントの所属と主務<span class="doc-desc-title">ロール</span>のプライマリ <span class="doc-desc-title">部署</span>を選択します。
+  links:
+    - 
+      title: 担当部門の管理
+      href: /scp/departments.php
+primary_role:
+  title: プライマリロール
+  content: >
+    このエージェントの所属のプライマリ<span class="doc-desc-title">ロール</span>を選択します。
+primary_role_on_assign:
+  title: 割り当てのプライマリロールを使用
+  content: >
+    このエージェントは、<span class="doc-desc-title">プライマリ部門</span>と<span class="doc-desc-title">拡張アクセス</span>部門の外にチケットとタスクを割り当てられたときに<span class="doc-desc-title">プライマリ・ロール</span>にフォールバックするには、これを有効にします。そうでない場合、エージェントはアクセスのみを表示しています。
+daylight_saving:
+  title: 夏時間
+  content: >
+    このエージェントのタイムゾーンに自動的に夏時間を設定するには、この機能を有効にします。
+limited_access:
+  title: 制限付きアクセス
+  content: >
+    有効になっている場合、エージェントは直接またはチームを通じてアサインされたチケットのみにアクセスできます。
+directory_listing:
+  title: 連絡先リスト
+  content: >
+    <span class="doc-desc-title">スタッフ連絡先</span>にこのエージェントを含めるには、これを有効にします。
+  links:
+    - 
+      title: スタッフ連絡先にアクセス
+      href: /scp/directory.php
+vacation_mode:
+  title: 休暇モード
+  content: >
+    エージェントのステータスを<span class="doc-desc-opt">休暇モード</span>に変更すると、エージェントは<span class="doc-desc-title">アラートと通知</span>を受け取らず、チケットのアサインが行われなくなります。
+

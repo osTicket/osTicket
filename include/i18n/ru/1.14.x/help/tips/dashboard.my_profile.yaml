@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Контактная информация
+  0: >
+
+username:
+  title: Имя пользователя
+  content: >
+    Только Сотрудники со статусом Администратора могут менять имя пользователя. Усли Вы - Сотрудник с привилегиями Администратора - то вы можете сделать это, выбрав Сотрудника для редактирования из таблицы <span class="doc-desc-title">Персонал</span>.
+  links:
+    - 
+      title: Изменить имя пользователя как Администратор
+      href: /scp/staff.php
+time_zone:
+  title: Часовой пояс
+  0: >
+
+daylight_saving:
+  title: Летнее Время
+  0: >
+
+maximum_page_size:
+  title: Максимальный размер страницы
+  0: >
+
+auto_refresh_rate:
+  title: Частота автоматического обновления
+  0: >
+
+default_signature:
+  title: Подпись по умолчанию
+  0: >
+
+default_paper_size:
+  title: Размер Бумаги по Умолчанию
+  0: >
+
+show_assigned_tickets:
+  title: Показать Назначенные Заявки
+  content: >
+    <p> Включение этой опции переопределит глобальные настройки сокрытия назначенных заявок из открытых очередей. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Этот параметр доступен только тогда, когда назначенные заявки исключены из общего списка. </p>
+password:
+  title: Пароль
+  0: >
+
+current_password:
+  title: Текущий пароль
+  0: >
+
+new_password:
+  title: Новый пароль
+  0: >
+
+confirm_new_password:
+  title: Подтвердить новый пароль
+  0: >
+
+signature:
+  title: Подпись
+  content: >
+    Создайте опциональную <span class="doc-desc-title">Подпись</span>, которая будет появляться в конце Ваших Ответов на Заявки. Будет появляться эта <span class="doc-desc-title">Подпись</span> или нет - зависит от того, какой <span class="doc-desc-title">Шаблон Письма</span> будет использоваться в Ответе на Заявку.
+  links:
+    - 
+      title: Создайте Шаблоны Писем в Панели Администратора
+      href: /scp/templates.php

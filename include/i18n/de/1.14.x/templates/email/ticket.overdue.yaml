@@ -1,0 +1,30 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Wird an Agenten versendet, wenn ein Ticket in den Status "Überfällig" wechselt. 
+  Überfällige Tickets entstehen, wenn das Fälligkeitsdatum des Tickets erreicht wird oder die Frist für das
+  definierte SLA abläuft.
+subject: |
+  Überfälliges Ticket
+body: |
+  <h3><strong>Hallo %{recipient.name}</strong>,</h3>
+  ein Ticket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> ist
+  überfällig.
+  <br>
+  <br>
+  Wir sollten gemeinsam daran arbeiten, dass die Tickets innerhalb der entsprechenden
+  Zeit abgearbeitet werden. 
+  <br>
+  <br>
+  Unterschrieben,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Um das Ticket zu betrachten/beantworten, bitte am Support-Ticket-System <a href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);">anmelden</span></a>. Sie erhalten diese Benachrichtigung, da Ihnen oder einem Team, in dem Sie Mitglied sind, dieses Ticket zugewiesen wurde.</div>
+  <em style="font-size: small">Ihr freundliches <span style="font-size: smaller"
+  >(wenn auch mit begrenzter Geduld)</span> Support-Ticket-System</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

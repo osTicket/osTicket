@@ -119,11 +119,12 @@ if ($task->isOverdue())
             } else { ?>
                <h2>
                 <a  id="reload-task"
-                    href="tasks.php?id=<?php echo $task->getId(); ?>"><i
-                    class="icon-refresh"></i>&nbsp;<?php
-                    echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
+                    href="tasks.php?id=<?php echo $task->getId(); ?>"><?php
+					// osta
+                    echo sprintf(__('Task #%s'), $task->getNumber()); ?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>
+					</a>
                 <?php if ($object) { ?>
-                    &nbsp;/&nbsp;
+					<!--osta-->
                     <a class="preview"
                       href="tickets.php?id=<?php echo $object->getId(); ?>"
                       data-preview="#tickets/<?php echo $object->getId(); ?>/preview"
@@ -199,7 +200,7 @@ if ($task->isOverdue())
                 </ul>
             </div>
             <?php
-        } else { ?>
+           } else { ?>
                 <span
                     class="action-button"
                     data-dropdown="#action-dropdown-tasks-status">
@@ -330,7 +331,7 @@ if (!$ticket) { ?>
                                     title="<?php echo __('Change Status'); ?>"><?php echo $task->getStatus(); ?></a>
                             </td>
                           <?php } else { ?>
-                              <td><?php echo $task->getStatus(); ?></td>
+                        <td><?php echo $task->getStatus(); ?></td>
                           <?php } ?>
                     </tr>
                     <tr>
@@ -397,15 +398,15 @@ if (!$ticket) { ?>
                             ?></span>
                             </a>
                         </td>
-                        <?php
+                            <?php
                         } else { ?>
                         <td>
                           <?php
                           if($task->isAssigned())
                               echo Format::htmlchars(implode('/', $task->getAssignees()));
-                          else
-                              echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
-                          ?>
+                            else
+                                echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
+                            ?>
                         </td>
                         <?php
                         } ?>

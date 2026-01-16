@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Felhasználónév formátum
+  content: >
+    Válasszon egy formázást a rendszerben szereplő neveknek. Az email sablonok névként fogják használni, ha nincs más meghatározott formátum a változóban.
+#Authentication settings
+client_session_timeout:
+  title: Felhasználói munkamenet időtúllépése
+  content: >
+    Válassza ki a maximális időt (percben), ami után a felhasználónak újra be kell jelentkeznie.<br><br> Amennyiben szeretné letiltani a <span class="doc-desc-title">Felhasználó Időtullépést</span>, írjon be 0-t.
+registration_method:
+  title: Regisztrációs feltételek
+  content: >
+    <span class="doc-desc-title">Regisztrációs módszer</span> és a <span class="doc-desc-title">Regisztráció kötelező</span> együttes beállításával konfigurálhatja a felhasználók regisztrációjának folyamatát és az ügyfélszolgálat honlapjához való hozzáférésüket. Az alábbi táblázat összefoglalja, hogyan értelmezi a rendszer a két beállítást. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tr><th>Regisztráció kötelező</th> <th>Regisztrációs módszer</th> <th>Eredmény</th></tr><tr><td>Nem</td><td>Nyilvános</td> <td>A regisztráció ajánlott, de nem kötelező az új hibajegyekhez.</td></tr><tr><td>Igen</td><td>Nyilvános</td> <td>Regisztráció és belépés kötelező az új hibajegyekhez</td></tr><tr><td>Nem</td><td>Személyes</td><td>Bárki létre hozhat hibajegyet, de csak a kezelők regisztrálhatnak fiókot</td></tr> <tr><td>Igen</td><td>Személye</td> <td>Felhasználók csak meghívás útján érik el</td></tr><tr><td>Nem</td><td>Kikapcsolva</td> <td>Senki sem regisztrálhat fiókot, de bárki létre hozhat egy hibajegyet.<em> Így működött az osTicket az 1.9 előtt</em></td></tr> <tr><td>Igen</td><td>Kikapcsolva</td><td>Tiltja az új hibajegyek létrehozását weben keresztül</td></tr> </tbody></table>
+client_verify_email:
+  title: Email aktiváció kérése
+  content: >
+    Kapcsolja ki ezt a funkciót, ha azonnali elérést szeretne biztosítani a felhasználóknak a hibajegyekhez a "Hibajegy státusz ellenőrzése" bejelentkezési oldalra az ügyfélportálon. Ha engedélyezi (ez az alapbeállítás) a felhasználók az emailben kapott linket követve láthatják a hibajegyet. <br><br> Az email hitelesítés kikapcsolása lehetővé teheti harmadik személyek részére (pl. hibajegy munkatársak), hogy a hibajegy tulajdonosa helyett cselekedjenek.
+allow_auth_tokens:
+  title: Hitelesítőkulcsok engedélyezése
+  content: >
+    Engedélyezd ezt a lehetőséget, hogy a hitelesítési tokenek használják az automatikus belépéskor a felhasználók a jegyek linkjének kattintásakor.

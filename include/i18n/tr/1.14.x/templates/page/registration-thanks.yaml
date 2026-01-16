@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Bu şablon kullanıcıların kayıt olması ve ardından hesap bilgilerini teyit etmesi ile gözüken içeriği tanımlar. Bu sayfa kullanıcıyı kayıt işlemlerinin tamamlandığı ve kullanıcının yeni bir talep oluşturabileceği ya da var olan taleplere erilebileceği ile ilgili bilgilendirme içermelidir.
+name: "Hesap doğrulandı!"
+body: >
+  <div> <strong>Hesap oluşturduğunuz için teşekkür ederiz.</strong><br /> <br /> E-posta adresinizi doğrulayarak hesabınızı başarı ile etkinleştirdiniz. Yeni bir talep oluşturabilir ya da var olan taleplerinizi yönetebilirsiniz.<br /> <br /> <em>Destek Merkezi</em><br /> %{company.name} </div>

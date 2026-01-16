@@ -1,0 +1,15 @@
+---
+#Welcome ticket template
+#When the system if first installed and the installer finishes setting up
+#the database, it creates a first ticket with a welcome message to the
+#administrator
+#---
+deptId: 1 #support
+topicId: 1 #support
+name: Підтримка osTicket
+email: support@osticket.com
+source: Веб #notrans
+subject: osTicket встановлено!
+message: |
+  <p> 
+  Дякуємо, що обрали osTicket. </p><p> Будь ласка, переконайтеся, що Ви приєдналися до <a href="http://osticket.com/forums"> форма osTicket</a> і нашому <a href = "http://osticket.com/updates"> списку розсилки </a>, щоб залишатися в курсі останніх новин, попереджень системи безпеки і оновлень. Форуми osTicket є також прекрасним місцем для отримання допомоги, керівництв, порад і допомогою інших користувачів osTicket. Крім форумів osTicket wiki надає колекцію корисних навчальних матеріалів, документації і заміток членів спільноти. Ми вітаємо ваш внесок у спільноту osTicket.</p><p>Якщо вам необхідний більш високий рівень підтримки, ми надаємо професійні послуги та комерційну підтримку з гарантованим відгуком і доступ до команди розробників ядра. Ми також можемо допомогти налаштувати osTicket або навіть додати нові функції в систему для задоволення ваших унікальних потреб.</p><p>Якщо управління, оновлення і установка osTicket складні, ви можете спробувати osTicket як готовий сервіс на <a href="http://www.supportsystem.com"> http://www.supportsystem.com/ </a> - установка не потрібно, і ми можемо імпортувати ваші дані в систему "під ключ", ви отримаєте відмінну osTicket і зможете сконцентруватися на ваших клієнтах без необхідності самостійно стежити за оновленнями, стабільністю та безпекою.</p><p>З повагою,</ p > <p> - <br/> команда osTicket http://osticket.com/ </ p >

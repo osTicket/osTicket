@@ -1,0 +1,27 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  נשלח לסוכן כאשר מטלה הוקצת אליו או לצוות שלו.
+  השתמש ב%{assigner} כדי להבחין מי ביצע הקצאה זו.
+subject: |
+  משימה שהוקצתה לך
+body: |
+  <h3><strong>היי %{assignee.name.first},</strong></h3>
+  המשימה <a href="%{task.staff_link}">#%{task.number}</a> הוקצאה לך ע"י %{assigner.name.short}
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>כדי לצפות/להשיב למשימה, בבקשה<a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >התחבר</span></a> למערכת התמיכה</div>
+  <em style="font-size: small; ">מערכת שירות הלקוחות החברותית</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

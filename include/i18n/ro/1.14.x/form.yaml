@@ -1,0 +1,223 @@
+---
+- 
+  #Default (dynamic) form configuration. This data is used as the initial,
+  #minimal data for dynamic forms that ships with the system.
+  #Fields:
+  #id:       Used only if associated with a help topic
+  #title:    Bold section title of the form
+  #instructions: Title deck, detailed instructions on entering form data
+  #notes:    Notes for the form, shown under the fields
+  #flags:
+  #0x0001  If the form can be removed from the system
+  #fields:   List of fields for the form
+  #type:       Field type (short name) (eg. 'text', 'memo', 'phone', ...)
+  #label:      Field label shown to the user
+  #name:       Name used with the data internally. This is especially
+  #useful for page and email templates, where %{ ticket.<name> }
+  #will be used to retrieve the data from the field.
+  #hint:       Help text shown with the field
+  #flags:      Bit mask for settings & options
+  ## From class DynamicFormField
+  #const FLAG_MASK_CHANGE      = 0x0010;     # Type cannot change
+  #const FLAG_MASK_DELETE      = 0x0020;     # Cannot be deleted
+  #const FLAG_MASK_EDIT        = 0x0040;     # Data cannot be edited
+  #const FLAG_MASK_DISABLE     = 0x0080;     # Field cannot be disabled
+  #const FLAG_MASK_REQUIRE     = 0x10000;    # Requirement cannot be changed
+  #const FLAG_MASK_VIEW        = 0x20000;    # View settings cannot be changed
+  #const FLAG_MASK_NAME        = 0x40000;    # Name cannot be changed
+  #configuration: Field-specific configuration
+  #size:     (text) width of the field
+  #length:   (text) maximum size of the data in the field
+  #cols:     (memo) width of the textarea
+  #rows:     (memo) height of the textarea
+  #---
+  id: 1
+  type: U #notrans
+  title: Informații de contact
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: email #notrans
+      label: Adresa de e-mail
+      sort: 1
+      flags: 489395
+      configuration:
+        size: 40
+        length: 64
+        validator: email #notrans
+    - 
+      type: text #notrans
+      name: name #notrans
+      label: Nume
+      sort: 2
+      flags: 489395
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: phone #notrans
+      name: phone #notrans
+      label: Numar de telefon
+      sort: 3
+      flags: 13057
+    - 
+      type: memo #notrans
+      name: notes
+      label: Note interne
+      sort: 4
+      flags: 12289
+      configuration:
+        rows: 4
+        cols: 40
+- 
+  id: 2
+  type: T #notrans
+  title: Detalii tichet
+  instructions: Vă rugăm să descrieţi problema
+  notes: |
+    Acest formular va fi ataşat la fiecare bilet, indiferent de sursa acesteia. Puteţi adăuga orice câmpuri la acest formular şi ele vor fi disponibile pentru toate biletele, şi vor putea fi căutate cu căutare avansată şi filtrabile.
+  flags: 0
+  fields:
+    - 
+      id: 20
+      type: text #notrans
+      name: subject #notrans
+      label: Sumarul problemei
+      sort: 1
+      flags: 489265
+      configuration:
+        size: 40
+        length: 50
+    - 
+      id: 21
+      type: thread #notrans
+      name: message #notrans
+      label: Detaliile problemei
+      hint: Detalii privind motivul(ele) de deschidere a biletului.
+      sort: 2
+      flags: 480547
+    - 
+      id: 22
+      type: priority #notrans
+      name: priority #notrans
+      label: Prioritate
+      flags: 274609
+      sort: 3
+- 
+  type: C #notrans
+  title: Informaţii Companie
+  instructions: Detalii disponibile în template-urile de e-mail
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: name #notrans
+      label: Numele companiei
+      sort: 1
+      flags: 291249
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: text #notrans
+      name: website #notrans
+      label: Site web
+      sort: 2
+      flags: 274705
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: phone #notrans
+      name: phone #notrans
+      label: Numar de telefon
+      sort: 3
+      flags: 274705
+      configuration:
+        ext: false
+    - 
+      type: memo #notrans
+      name: address
+      label: Adresa
+      sort: 4
+      flags: 12545
+      configuration:
+        rows: 2
+        cols: 40
+        html: false
+        length: 100
+- 
+  type: O #notrans
+  title: Informații despre organizație
+  instructions: Detalii despre organizația utilizatorului
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: name #notrans
+      label: Nume
+      sort: 1
+      flags: 489395
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: memo
+      name: address
+      label: Adresa
+      sort: 2
+      flags: 13057
+      configuration:
+        rows: 2
+        cols: 40
+        length: 100
+        html: false
+    - 
+      type: phone
+      name: phone
+      label: Telefon
+      sort: 3
+      flags: 13057
+    - 
+      type: text
+      name: website
+      label: Site web
+      sort: 4
+      flags: 13057
+      configuration:
+        size: 40
+        length: 0
+    - 
+      type: memo #notrans
+      name: notes
+      label: Note interne
+      sort: 5
+      flags: 12289
+      configuration:
+        rows: 4
+        cols: 40
+- 
+  type: A #notrans
+  title: Detalii
+  instructions: Va rugam sa descrieti problema
+  notes: |
+    Acest formular este folosit in a crea o noua Sarcina.
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: titlu #notrans
+      flags: 290993
+      sort: 1
+      label: Titlu
+      configuration:
+        size: 40
+        length: 50
+    - 
+      type: thread #notrans
+      name: description #notrans
+      flags: 282867
+      sort: 2
+      label: Descriere
+      hint: Detalii-le pentru care s-a creat acest Subiect.

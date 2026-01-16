@@ -1,0 +1,68 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Ügyfélszolgálat neve
+  content: |
+    <p>A támogatási rendszer neve pl. [vállalat neve] Ügyfélszolgálat</p>
+system_email:
+  title: Alapértelmezett rendszer e-mail címe
+  content: |
+    <p>Alapértelmezett e-mail cím például support@yourcompany.com - később továbbiakat is hozzáadhat!</p>
+default_lang:
+  title: Rendszer alapértelmezett nyelve
+  content: |
+    <p>A kezdeti adatok ehhez a nyelvhez lesznek telepítve az adatbázisba. Például e-mail sablonok és alapértelmezett rendszer oldalak.</p>
+  links:
+    - 
+      title: osTicket nyelvi csomagok
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Utónév
+  content: |
+    <p>Admin utóneve</p>
+last_name:
+  title: Vezetéknév
+  content: |
+    <p>Admin vezetékneve</p>
+email:
+  title: Email cím
+  content: |
+    <p>Admin személyes e-mail címe. A rendszer alapértelmezett e-mail címétől különböznie kell.</p>
+username:
+  title: Felhasználónév
+  content: |
+    <p>Admin felhasználói neve. Legalább három (3) karakterből kell állnia.</p>
+password:
+  title: Jelszó
+  content: |
+    <p>Admin jelszava.  Minimum öt (5) karakter hosszúságúnak kell lennie.</p>
+password2:
+  title: Jelszó megerősítése
+  content: |
+    <p>Ismételd meg az admin jelszavát. Meg kell egyeznie.</p>
+db_prefix:
+  title: MySQL tábla előtag
+  content: |
+    <p>osTicket megköveteli a tábla előtagot, a megosztott adatbázisok lehetséges tábla ütközésének elkerülése érdekében.</p>
+db_host:
+  title: MySQL kiszolgálónév
+  content: |
+    <p>a legtöbb kiszolgáló a 'localhost'-ot használja a helyi adatbázis kiszolgálóneveként. Ellenőrizze a kiszolgálónevet ha localhost nem működik. </p> <p>A php.ini-ben meghatározott port az alapértelmezett. Nem szabványos portszám megadható <code>hostname:port</code> formában.</p>
+db_schema:
+  title: MySQL adatbázis
+  content: |
+    <p>osTicket által használt adatbázis neve.</p>
+db_user:
+  title: MySQL felhasználónév
+  content: |
+    <p>A MySQL felhasználónak az adatbázis felett teljes körű jogosultságokkal kell rendelkeznie.</p>
+db_password:
+  title: MySQL jelszó
+  content: |
+    <p>A fenti felhasználóhoz társított MySQL jelszó.</p>

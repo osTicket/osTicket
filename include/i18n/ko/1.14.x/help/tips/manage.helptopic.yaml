@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: 도움말 항목 정보
+  content: >
+    <span class = "doc-desc-title">도움말 항목 </span> 사용자로부터 어떤 정보가 수집되고 티켓이 어떻게 전달되고 할당됐는지 알려줍니다.
+topic:
+  title: 항목 명
+  content: >
+    고유 도움말 항목명
+status:
+  title: 상태
+  content: >
+    비활성화 되거나 보관된 경우, 이 <span class="doc-desc-title">도움 주제</span> 을(를) 사용할 수 없습니다.
+type:
+  title: Type
+  content: >
+    <span class="doc-desc-title">도움말 항목</span>이 Private이면, 에이전트가 스태프 패널에서 새 티켓을 열었을 경우에만 적용됩니다.
+parent_topic:
+  title: 상위 항목
+  content: >
+    이 <span class = "doc-desc-title">도움말 항목</span>이 속할 부모 항목을 선택합니다. 부모 항목은 목록에서 첫번째로 표시되고 부모 항목 뒤에 이 <span class = "doc-desc-title">도움말 항목</span> 표시됩니다.
+custom_form:
+  title: 고유 양식
+  content: >
+    사용자 지정 양식은 이 <span class = "doc-desc-title">도움말 항목</span>과 관련된 사용자들로부터 보다 구체적인 정보를 얻을 수 있도록 합니다.
+  links:
+    - 
+      title: 커스텀 양식 관리
+      href: /scp/forms.php
+priority:
+  title: 우선순위
+  content: >
+    이 <span class = "doc-desc-title">도움말 항목</span> 관련된 새 티켓에 할당할 우선 순위를 선택합니다. <br> <br> 티켓 필터는 새 티켓의 우선 순위를 무시할 수 있습니다.
+department:
+  title: 부서
+  content: >
+    이 도움말 항목에 해당하는 새 티켓이 절달되는 부서를 선택하세요.
+  links:
+    - 
+      title: 부서 관리
+      href: /scp/departments.php
+sla_plan:
+  title: SLA 계획
+  content: >
+    이 <span class = "doc-desc-title">도움말 항목</span>에 연결할 SLA 계획을 선택합니다. <br> <br>선택된 SLA 계획은 선택된 부서의 모든 SLA 계획보다 우선합니다.
+  links:
+    - 
+      title: SLA 계획 관리
+      href: /scp/slas.php
+thank_you_page:
+  title: 감사 페이지
+  content: >
+    이 <span class = "doc-desc-title">도움말 항목</span>에 해당하는 티켓을 오픈한 후 사용자에게 표시되는 안내 페이지를 선택합니다.
+  links:
+    - 
+      title: 감사 페이지 관리
+      href: /scp/pages.php
+auto_assign_to:
+  title: 새 티켓 자동할당
+  content: >
+    이 <span class = "doc-desc-title">도움말 항목</span>으로 오픈된 티켓을 자동 할당할 에이전트 또는 팀을 선택하세요. <br> <br> 티켓 필터는 할당을 무시할 수 있습니다.
+  links:
+    - 
+      title: 스태프/팀 관리
+      href: /scp/staff.php
+ticket_auto_response:
+  title: 티켓 자동응답
+  content: >
+    체크되어 있으면, 이 <span class = "doc-desc-title">도움말 항목</span>에 대한 새 티켓의 자동응답이 비활성화됩니다.<br> <br> 이 설정은 <span class = "doc-desc-title">부서</span> 자동 회신 설정뿐만 아니라 글로벌 <span class = "doc-desc-title">자동 응답 설정</span>를 무시합니다 ·
+  links:
+    - 
+      title: 자동응답기 설정
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: 고유 티켓 번호
+  content: >
+    이 도움말 항목으로 생성된 티켓에 대한 시스템의 기본 티켓 번호 형식을 정의하려면 "사용자 지정"을 선택하세요. 설정에 대한 자세한 내용은 설정 / 티켓 페이지에서 도움말 팁을 참조하세요.

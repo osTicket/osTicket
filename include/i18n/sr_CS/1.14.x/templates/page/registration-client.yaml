@@ -1,0 +1,12 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Ovaj šablon definiše imejl poslat klijentima kada kreiraju nalog sa klijentske strane, ili kada ga agent kreira umesto njih. Ovaj imejl služi za verifikaciju imejl adrese.
+  Molimo koristite %{link} negde unutar tela imejla.
+name: "Dobrodošli u %{company.name}"
+body: >
+  <h3><strong>Poštovani %{recipient.name.first},</strong></h3> <div> Kreirali smo za Vas nalog u našem korisničkom centru na linku  %{url}.<br /> <br /> Molimo kliknite na link ispod da biste verifikovali Vaš nalog.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaš Customer Support System <br /> %{company.name}</em> </div>

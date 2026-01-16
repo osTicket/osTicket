@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Tai e-laiško forma (neprivaloma) skirta siųsti Agentui, kuris buvo naujai sukurtas.
+name: "Sveiki prisijungę prie osTicket"
+body: >
+  <h3><strong>Sveiki %{recipient.name.first},</strong></h3> <div> Mes sukūrėme jums paskyrą mūsų pagalbos sistemoje %{url}.<br /> <br /> Paspauskite nuorodą žemiau ir patvirtinkite savo paskyrą ir įgyti prieigą prie jūsų bilietų.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Jūsų draugiška klientų pagalbos sistema<br /> %{company.name}</em> </div>

@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Pagalbos tarnybos būsena
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: Pagalbos tarnybos URL
+  content: >
+    Šis URL yra jūsų osTicket sistemos diegimo bazė. Jis naudojamas  elektroninių laiškų ryšyje, nukreipiant galutinius vartotojus į jūsų pagalbos sistemą.
+helpdesk_name_title:
+  title: Pagalbos tarnybos vardas/pavadinimas
+  content: >
+    Tai pavadinimas, kuris rodomas naršyklės skirtuke. Jei jūsų pagalbos tarnybos puslapis  yra pažymėtas, tai bus svetainės puslapio pavadinimas/vardas.
+default_department:
+  title: Departamentas pagal nutylėjimą
+  content: >
+    Pasirinkite <span class="doc-desc-title">departamentą</span>pagal nutylėjimą užklausoms, kurios nėra automatiškai priskiriamos prie departamento.<br/><br/>Užklausa gali būti nukreipta pagal pagalbos tema, ateinantį el. pašto adresą ir užklausos filtrų nustatymus.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Numatytasis puslapio dydis
+  content: >
+    Pasirinkite elementų skaičių, rodomą puslapyje užklausų eilėse personalo skydelyje. Kiekvienas agentas taip pat gali individualizuoti šį skaičių savo paskyrai <span class="doc-desc-title">Mano nustatymuose</span>.
+default_log_level:
+  title: Žurnalo lygis pagal nutylėjimą
+  content: >
+    Nustatytikite minimalų problemų lygį, kurios bus įrašomos <span class="doc-desc-title">sistemos žurnale</span>.<span class="doc-desc-opt">Derinimas</span>, atstovauja mažiausią sudetingumą, ir <span class="doc-desc-opt">Klaida</span>, atstovauja didžiausią sudetingumą. Pavyzdžiui, jeigu jūs norite matyti visas problemas<span class="doc-desc-title">Sistemos žurnaluose</span>, pasirinkite<span class="doc-desc-opt">Derinimas</span>.
+purge_logs:
+  title: Išvalyti įrašus
+  content: >
+    Nustatykite kiek laiko norėtumėte laikyti <span class="doc-desc-title">Sistemos įrašus</span>, kol jie ištrinami.
+enable_richtext:
+  title: Įjungti Rich Text
+  content: >
+    Jei ši parinktis įjungta, tai leis naudoti raiškiojo teksto formatavimą tarp klientų ir agentų.
+enable_avatars:
+  title: Įjungti piktogramas saraše
+  content: >
+    Enable this to show <span class="doc-desc-title">Avatars</span> on thread correspondence. <br><br> The <span class="doc-desc-title">Avatar Source</span> can be set in Agents' and Users' settings pages.
+  links:
+    - 
+      title: Agentų nustatymai
+      href: /scp/settings.php?t=agents
+    - 
+      title: Naudotojų nustatymai
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Agento susidūrimo vengimas
+  content: >
+    Įveskite maksimalų laiką, kiek Agentui leidžiama laikyti užklausą užrakintą be jokios veiklos.<br><br>Įveskite<span class="doc-desc-opt">0</span>, kad išjungtumėte užrakinimo funkciją.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Datos&amp;laiko parinktys
+  content: >
+    Šie nustatymai nustato Datos &amp; laiko nustatymus puslapiui.
+  links:
+    - 
+      title: Žiūrėti ICU Datos formatavimo lentelę
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Sistemos kalbos
+  content: >
+    Pasirinkti pagrindinę sistemos kalbą arba antrają kalbą.
+primary_language:
+  title: Sistemos pagrindinė kalba
+  content: >
+    Content of this language is displayed to agents and end-users if their respective language preference is not currently available. This includes the content of the interface, as well as, custom content such as thank-you pages and email messages. <br/><br/> This is the language in which the untranslated versions of your content should be written.
+secondary_language:
+  title: Kitos kalbos
+  content: >
+    Pasirinkti kalbą agentam arba naudotojam. Puslapis bus prieinamas šiomis kalbomis.
+#Attachments
+attachments:
+  title: Pridėtų failų nustatymai ir saugykla
+  content: >
+    Konfiguruoti, kaip išsaugomi pridėti failai.
+default_storage_bk:
+  title: Failų saugykla galinės sąsajos
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Maksimalus failo dydis
+  content: >
+    Pasirinkti maksimalų failų dydį kurį gali pridėti agentai. Šis limitas yra kontroliuojamas PHP <code>upload_max_filesize</code> nustatymu
+  links:
+    - 
+      title: PHP ini nustatymai
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

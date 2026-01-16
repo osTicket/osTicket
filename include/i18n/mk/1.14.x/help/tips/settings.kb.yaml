@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Подесувања за базата на знаење
+  0: >
+
+knowledge_base_status:
+  title: Статус за базата на знање
+  content: >
+    Овозможете го ова подесување за да можете да имате кориснички притап во јавната база на знаења. <br><br> Категоријата на бази на знаења и често поставуваните прашања можат да се направат интерно (видливи само за Агентите).
+  links:
+    - 
+      title: Управување со базата на знаења
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Овозможете ја оваа опција за да спречите нерегистрирани корисници да пристапуваат до вашите статии од базата на знаење на клиентскиот интерфејс.
+  links:
+    - 
+      title: Пристап на поставувањата на контрола
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Предефинирани одговори
+  content: >
+    Овозможете ја оваа опција за да се овозможи агенти да користат  <span class="doc-desc-title">Предефинирани одговори</span> кога одговарате на тикети.
+  links:
+    - 
+      title: Управување спремни одговори
+      href: /scp/canned.php

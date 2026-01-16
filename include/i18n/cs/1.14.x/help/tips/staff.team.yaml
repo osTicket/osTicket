@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Týmy
+  content: >
+    Týmy jsou jeden či více pracovníků sdružených pro přiřazování požadavků. Členství v týmu je nezávislé na hranicích jednotlivých oddělení.
+status:
+  title: Stav
+  content: >
+    Je-li nastaveno na <span class="doc-desc-opt">zakázáno</span>, nebude tento tým dostupný pro přiřazování požadavků ani nebude dostávat upozornění na přiřazení.
+lead:
+  title: Vedoucí týmu
+  content: >
+    <span class="doc-desc-title">Tým</span> může mít ustanoveného vedoucího pracovníka, který bude dostávat <span class="doc-desc-title">upozornění a oznámení</span> odděleně od členů týmu.
+  links:
+    - 
+      title: Nastavení upozornění o oznámení
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Upozoronění na přiřazení požadavku
+  content: >
+    Můžete vypnout <span class="doc-desc-title">upozornění na přiřazení požadavku</span> pro požadavky přiřazené tomuto týmu.
+  links:
+    - 
+      title: Nastavení upozornění o oznámení
+      href: /scp/settings.php?t=alerts
+members:
+  title: Členové týmu
+  content: >
+    Členství v týmu je nastaveno v profilu pracovníka.
+  links:
+    - 
+      title: Správa pracovníků
+      href: /scp/staff.php

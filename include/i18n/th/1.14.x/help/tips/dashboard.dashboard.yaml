@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: กิจกรรมของ Ticket
+  content: >
+    เลือกช่วงวันที่ทำกราฟและตาราง (cf. <span class="doc-desc-title">สถิติ</span>) ด้านล่างเพื่อเน้นข้อมูลที่เกี่ยวข้องสำหรับผู้ที่ต้องการ กราฟด้านล่างเสมอจะสะท้อนภาพรวมความกว้างของข้อมูลของระบบทั้งหมด (เช่น ประชากร) อย่างไรก็ตาม คุณสามารถนำทางผ่านตาราง<span class="doc-desc-title">สถิติ</span>ข้างล่างเน้นให้แคบลงหัวข้อน่าสนใจ (เช่น ภาควิชา หัวข้อ หรือพนักงาน) นอกจากนี้ คุณอาจส่งข้อมูลใด ๆ ที่ถูกแสดงอยู่ในตาราง<span class="doc-desc-title">สถิติ</span>
+report_timeframe:
+  title: รายงานตามช่วงเวลา
+  content: >
+    เลือกวันเริ่มต้นสำหรับตัวอย่างข้อมูลที่ต้องใช้ตัวใช้เลือกวันที่ จากนั้นเลือกระยะเวลาจากวันที่กำหนดวันสิ้นสุดสำหรับตัวอย่างข้อมูลของคุณ
+statistics:
+  title: สถิติ
+  content: >
+    นำทางไปยังเรื่องที่น่าสนใจโดยการคลิกที่แท็บที่เหมาะสมเพื่อที่จะดูตัวอย่างที่เฉพาะเจาะจงของข้อมูล ภายในตาราง, วงกลมที่แสดงขนาดของข้อมูลที่ระบุ ด้วยเหตุนั้นจำนวนขนาดใหญ่ในเซลล์เฉพาะ จะเป็นวงกลมขนาดใหญ่ที่อยู่ติดกัน
+opened:
+  title: เปิดอยู่
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: มอบหมายให้
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: เกินกำหนด
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: ปิด
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: เปิดใหม่
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: ลบแล้ว
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: เวลาการให้บริการ
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: ระยะเวลาการตอบกลับ
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

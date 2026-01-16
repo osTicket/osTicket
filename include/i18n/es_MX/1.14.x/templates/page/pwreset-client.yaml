@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Esta plantilla define el Email enviado a los clientes que seleccionan el vínculo <strong>Olvidé mi contraseña</strong> en la página de registro del cliente.
+name: "%{company.name} Acceso al sistema de soporte"
+body: >
+  <h3><strong>Hola %{user.name.first},</strong></h3> <div> Una solicitud para restablecer su contraseña se ha enviado en su nombre por el sistema de soporte en %{url}.<br /> <br /> Si cree que es un error, borre este correo. Su cuenta aún es seguroy nadie ha tenido acceso a ella. No está bloqueada y su contraseña no ha sido restablecida. Alguien pudo haber escrito su correo por error.<br /> <br /> Siga la siguiente liga para ingresar al sistema de ayuda y cambie su contraseña.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Sistema de soporte<br /> %{company.name}</em> </div>

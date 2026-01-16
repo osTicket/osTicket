@@ -1,0 +1,8 @@
+#header-image,
+#header-default {
+    display: none;
+}
+#header-text {
+	display: inline-block !important;
+}
+ 

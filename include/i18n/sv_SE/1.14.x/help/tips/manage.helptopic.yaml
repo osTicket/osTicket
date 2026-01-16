@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informatiom om Hjälpämnet
+  content: >
+    <span class="doc-desc-title">Hjälpämnen</span> styr vilken information samlas in från användarna och hur ärenden skickas vidare eller tilldelas.
+topic:
+  title: Namn på Ämne
+  content: >
+    Unikt namn på Hjälp-rubrik.
+status:
+  title: Status
+  content: >
+    Om inaktiv eller arkiverad, kommer inte <span class="doc-desc-title">hjälpen</span> att vara tillgänglig.
+type:
+  title: Typ
+  content: >
+    Om en <span class="doc-desc-title">Hjälp-rubrik</span> anges som Privat, kommer den endast vara tillgänglig för supportpersonalen när dessa öppnar nya ärenden via Panelen för Anställda.
+parent_topic:
+  title: Moder-rubrik
+  content: >
+    Välj Moder-rubrik som denna <span class="doc-desc-title">Hjälp-rubrik</span> kommer tillhöra. Moder-rubriken kommer att synas först i listan med detta <span class="doc-desc-title">Hjälp-rubrik</span> listad bakom modern.
+custom_form:
+  title: Anpassat Formulär
+  content: >
+    Anpassade formulär hjälper dig att samla in mer specifik information från användare som är relevant för denna <span class="doc-desc-title">Hjälp-rubrik</span>.
+  links:
+    - 
+      title: Hantera Anpassade formulär
+      href: /scp/forms.php
+priority:
+  title: Prioritet
+  content: >
+    Välj prioritet för nya ärenden som är relaterade till denna <span class="doc-desc-title">Hjälp-rubrik</span>. <br><br> Ärendefilter kan upphäva Prioriteten för nya ärenden.
+department:
+  title: Avdelning
+  content: >
+    Välj vilken Avdelning som ärenden ska hamna under, om de hör till denna Hjälp-rubrik.
+  links:
+    - 
+      title: Administrera avdelningar
+      href: /scp/departments.php
+sla_plan:
+  title: SLA-regel
+  content: >
+    Välj SLA-regler som ska gälla för denna <span class="doc-desc-title">Hjälp-rubrik</span>. <br><br> Det här valet upphäver eventuell vald avdelnings SLA-regler
+  links:
+    - 
+      title: Hantera SLA-regler
+      href: /scp/slas.php
+thank_you_page:
+  title: Tack-sida
+  content: >
+    Välj Tack-sida som användaren ska hamna på efter att ha skapat ett ärende under denna  <span class="doc-desc-title">Hjälp-rubrik</span>.
+  links:
+    - 
+      title: Hantera Tack-sidor
+      href: /scp/pages.php
+auto_assign_to:
+  title: Auto-tilldela Nya ärenden
+  content: >
+    Alternativt välj en person i supportpersonalen eller i ett Team som tilldelas ärenden under denna <span class="doc-desc-title">Hjälp-rubrik</span> <br><br> Ärendefiltren kan upphäva denna tilldelning.
+  links:
+    - 
+      title: Hantera Personal och Team
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Ärende-autosvar
+  content: >
+    Detta alternativ inaktiverar nya ärende-autosvar för denna <span class="doc-desc-title">Hjälp-rubrik</span>. <br><br> Detta upphäver autosvars-inställningarna för <span class="doc-desc-title">Avdelningen</span> samt även de globala <span class="doc-desc-title">Autosvars-inställningarna</span>.
+  links:
+    - 
+      title: Autosvars-inställningar
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Anpassade Ärende-nummer
+  content: >
+    Välj "Anpassat" här för att åsidosätta systemets standard-numrering för ärenden som skapas under denna hjälp-rubriken. Se hjälpen på sidan Inställningar / Ärenden för mer detaljerad information om dessa inställningar.

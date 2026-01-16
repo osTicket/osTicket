@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nauja užklausa
+  content: >
+    Įgalinkite šią funkciją, jie norite, kad būtų siunčiamas automatinis atsakymas vartotojui dėl naujos užklausos.
+  links:
+    - 
+      title: Naujos užklausos automatinio atsakymo šablonas
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nauja užklausa sukurta darbuotojo
+  content: >
+    Pranešimas, siunčiamas kuomet agentas sukūria užklausą vartotojo vardu.<em>Agentas šio nustatymo gali nepaisyti kurdamas naujas užklausas.</em>
+  links:
+    - 
+      title: Naujos užklausos pranešimo šablonas
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Naujo pranešimo patvirtinimas
+  content: >
+    Patvirtinimo pranešimas siučiamas kuomet pridedama nauja žinutė prie egzistuojančios užklausos.
+  links:
+    - 
+      title: Naujos žinutės patvirtinimo šablonas
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Naujos žinutės pranešimas
+  content: >
+    Tinklo pranešimai gauti iš pranešimo teikėjo visiems kitiems užklausos dalyviams.
+  links:
+    - 
+      title: Naujos veiklos pranešimo šablonas
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Viršytų apribojimų pranešimas
+  content: >
+    Užklausos atmetimo pranešimas siunčiamas vartotojui pažeidus <span class="doc-desc-title">Maksimalaus atidarytų užklausų kiekio</span>apribojimus.
+  links:
+    - 
+      title: Viršytų apribojimų pranešimo šablonas
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Nustatykite<em>Maksimalų atidarytų užklausų kiekį</em>
+      href: /scp/settings.php?t=tickets

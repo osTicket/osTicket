@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: loodud
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: taasavatud
+  description:
+- 
+  id: 4
+  name: suunatud
+  description:
+- 
+  id: 5
+  name: vabastatud
+  description:
+- 
+  id: 6
+  name: üle antud
+  description:
+- 
+  id: 7
+  name: määratud
+  description:
+- 
+  id: 8
+  name: üle tähtaja
+  description:
+- 
+  id: 9
+  name: muudetud
+  description:
+- 
+  id: 10
+  name: vaadatud
+  description:
+- 
+  id: 11
+  name: viga
+  description:
+- 
+  id: 12
+  name: kaastöötaja
+  description:
+- 
+  id: 13
+  name: saadetud
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: merged
+  description:
+- 
+  id: 16
+  name: unlinked
+  description:
+- 
+  id: 17
+  name: linked
+  description:

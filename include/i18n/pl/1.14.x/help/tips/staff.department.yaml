@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    Wyłączone lub zarchiwizowane, ten <span class="doc-desc-title">Departament</span> nie będzie dostępny.
+type:
+  title: Typ
+  content: >
+    Wybierz <span class="doc-desc-opt">Prywatne</span>, jeżeli chcesz ukryć przydział tego Departamentu na Portalu Klienta.  Dodatkowo, jeżeli oznaczysz jako <span class="doc-desc-opt">Prywatny</span>, <span class="doc-desc-title">Podpis Departamentu</span> nie będzie on wyświetlany w odpowiedziach na e-mail. <br/><br/> Co najmniej jeden Departament musi być <span class="doc-desc-opt">Publiczny</span>
+email:
+  title: Email
+  content: >
+    Adresy e-mail użyte przy wysyłce odpowiedzi, gdy przedstawiciel doda odpowiedź do zgłoszenia.
+template:
+  title: Zestaw szablonów
+  content: >
+    Adresy e-mail <span class="doc-desc-title">Zestaw szablonów</span> użytych w automatycznej odpowiedzi oraz Alertach i Powiadomieniach dla zgłoszeń kierowanych do tego Departamentu.
+  links:
+    - 
+      title: Zarządzanie szablonami
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Gwarantowany poziom świadczenia usług dla zgłoszeń kierowanych do tego Departamentu.
+  links:
+    - 
+      title: Zarządzanie Planami SLA
+      href: /scp/slas.php
+schedule:
+  title: Harmonogram
+  content: >
+    Harmonogram używany przez SLA przy renderowaniu biletów, skierowany do tego działu, spóźniony. <br> <br> To ustawienie ma pierwszeństwo przed ustawieniami harmonogramu systemu i SLA.
+  links:
+    - 
+      title: Zarządzaj harmonogramami
+      href: /scp/schedules.php
+manager:
+  title: Kierownik departamentu
+  content: >
+    Wybierz <span class="doc-desc-title">Menadżera</span> dla tego Departamentu. <br/><br/> Menadżerowie mogą otrzymywać specjalne powiadomienia oraz mogą cofnąć przydział zgłoszenia.
+  links:
+    - 
+      title: Zarządzaj Alertami i Powiadomieniami
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Odbiorcy Alertów i Powiadomień
+  content: >
+    Zaznacz odbiorców dla skonfigurowanych <span class="doc-desc-title">Alertów i Powiadomień</span>.
+  links:
+    - 
+      title: Konfiguracja Alertów i Powiadomień
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Ograniczenia przypisania zgłoszeń
+  content: >
+    Sprawdza czy zgłoszenie może być przypisane do wszystkich przedstawicieli, przedstawiciela z Podstawowym lub Rozszerzonym dostępem do departamentu, lub tylko przedstawiciele z Podstawowym dostępem do departamentu.
+disable_auto_claim:
+  title: Wyłącz automatyczne przejmowanie
+  content: >
+    Zaznacz aby <strong>wyłączyć</strong> automatyczne przejmowanie przy odpowiedzi dla tego departamentu.<br><br>Przedstawiciele wciąż mogą przejmować nieprzypisane zgłoszenia
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Ustawienia autorespondera
+  content: >
+    Pozwala na nadpisanie globalnych ustawień automatycznej odpowiedzi dla tego Departamentu.
+new_ticket:
+  title: Nowa auto-odpowiedź
+  content: >
+    Możesz wyłączyć automatyczną odpowiedź wysyłaną do Użytkownika, gdy tworzone jest nowe zgłoszenie i kierowane jest do tego Departamentu.
+new_message:
+  title: Nowa wiadomość automatycznej odpowiedzi
+  content: >
+    Możesz wyłączyć automatyczną odpowiedź wysyłaną do Użytkownika, potwierdzającą opublikowanie wiadomości dla zgłoszenia w tym Departamencie.
+auto_response_email:
+  title: Automatyczne odpowiedzi E-mail
+  content: >
+    Wybierz adres e-mail, z którego automatyczne odpowiedzi będą wysyłane do tego Departamentu.
+department_access:
+  title: Dostęp dla grupy
+  content: >
+    Umożliwienie przedstawicielom innych Departamentów dostępu do zgłoszeń tego Departamentu.
+department_signature:
+  title: Podpis w departamencie
+  content: >
+    Podpis jest dostępny do wyboru, dla <span class="doc-desc-opt">Publicznych</span> Departamentów, przy odpowiedziach przedstawicieli.

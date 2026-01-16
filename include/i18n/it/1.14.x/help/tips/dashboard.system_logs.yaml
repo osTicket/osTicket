@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Log di sistema
+  content: >
+    Questo è dove troverete qualsiasi attività di registrazione in risoluzione dei problemi correlati (ad esempio, errori, avvisi o bug).
+  links:
+    - 
+      title: Personalizzare il tipo di attività che viene registrata cambiando il < br / > <span class="doc-desc-title"> Livello di Log di Default</span>.
+      href: /SCP/Settings.php?t=System
+date_span:
+  title: Intervallo data
+  content: >
+    Selezionare un intervallo di tempo che si desidera visualizzare nei <span class="doc-desc-title"> Log di sistema</span>.
+type:
+  title: TIPO
+  content: >
+    Scegliere un'opzione per restringere la ricerca su un tipo specifico di attività. <span class="doc-desc-opt"> debug</span> rappresenta la minor gravità ed <span class="doc-desc-opt"> errore</span> rappresenta la maggior gravità.
+showing_logs:
+  title: Mostrando&hellip; il log
+  content: >
+    Controllare la sezione della <span class="doc-desc-title"> pagina</span> qui sotto per assicurarsi che non ci siano ulteriori dati disponibili da visualizzare nel log di sistema.
+log_title:
+  title: Titolo del registro
+  content: >
+    Fare clic sull'intestazione di tabella <span class="doc-desc-title"> Titolo del registro</span> se si desidera ordinare i risultati secondo il <span class="doc-desc-title"> Titolo del registro</span>.
+log_type:
+  title: Tipo di registro
+  content: >
+    Fare clic sull'intestazione di tabella <span class="doc-desc-title"> Tipo di registro</span> se si desidera ordinare i risultati secondo il <span class="doc-desc-title"> Tipo di registro</span>.
+log_date:
+  title: Data Registro
+  content: >
+    Questa è la data di generazione del log. Se si desidera ordinare i risultati secondo la <span class="doc-desc-title"> Data registro</span>, semplicemente fare clic sull'intestazione di tabella <span class="doc-desc-title"> Data registro</span>. (Utilizzare il modulo <span class="doc-desc-title"> intervallo Data </span> sopra per restringere l'intervallo di tempo del registri).
+ip_address:
+  title: Indirizzo IP
+  content: >
+    Questo si riferisce all' <span class="doc-desc-title"> indirizzo</span> <span class="doc-desc-title"> IP</span> del cliente o dell'agente che stava usando osTicket al momento che è stato generato il registro.

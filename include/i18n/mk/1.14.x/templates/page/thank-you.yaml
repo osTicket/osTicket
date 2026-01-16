@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Овој темплејт ја дефинира содржината која ќе биде прикажана на страната Ви благодариме, по креирањето на нов тикет од клиентот на порталот на клиентот.
+name: Ви благодариме
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Ви благодариме што не контактиравте.
+  <br>
+  <br>
+  Барањето за поддршка на тикет е креирано и доколку е потребно нашиот претставник ќе ве контактира.</p>
+  <br>
+  <br>
+  Тимот за поддршка
+  </div>

@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Dit is de kop van de Klanten Login pagina. Het kan bruikbaar zijn om uw klanten te informeren over uw inlog- en registratiebeleid.
+name: "Log in bij %{company.name}"
+body: >
+  Om u beter van dienst te kunnen zijn, vragen wij onze klanten om te een account te registreren.

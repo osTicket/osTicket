@@ -1,0 +1,35 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Bude odesláno uživateli v okamžiku, kdy bude zveřejněna automatická odpověď na vytvořený zákaznický požadavek.
+
+  Dostupné proměnné pro přepsání: %{ticket.*}, %{response}
+subject: |
+  Re: %{ticket.subject} [č. %{ticket.number}]
+body: |
+  <h3><strong>Vážený/a %{recipient.name.first},</strong></h3>
+  požadavek na podporu byl vytvořen a byl mu přidělen tiket č. <a
+  href="%{recipient.ticket_link}">%{ticket.number}</a>, s následující
+  automatickou odpovědí
+  <br>
+  <br>
+  Téma podpory: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Předmět: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">Tým podpory %{company.name},<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Doufáme,
+  že naše odpověď dostatečně zodpověděla Váš dotaz. Pokud nám přesto chcete poskytnout
+  nějaké další informace či poznámky, prosím, odpovězte na tento e-mail, 
+  nebo <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >se přihlašte k vašemu účtu</span></a> pro
+  zobrazení všech vašich požadavků.</em></div>

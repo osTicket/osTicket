@@ -1,0 +1,33 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Personele sistemdeki bir talebin süresi geçtiğinde  gönder. Taleplerin SLA süresi 
+  ya da talebe atanmış son kapanma tarihi esas alınarak,  işlemler yürütülür.
+subject: |
+  Eski Talep Uyarısı
+body: |
+  <h3><strong>Merhaba %{recipient}</strong>,</h3>
+  <a href="%{ticket.staff_link}">#%{ticket.number}</a> numaralı talebinizin süresi %{ticket.due_date} tarihinde dolmuştur.
+  <br>
+  <br>
+  Ekip olarak tüm taleplerin zamanında cevaplanarak sonuçlanması 
+  ve kapatılması için çaba göstermeliyiz.
+  <br>
+  <br>
+  Gereğini rica ederim,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Talebi görüntülemek ya da cevap yazmak için lütfen Destek Talep Sistemine
+  <a href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);">giriş</span>
+  </a> yapın. 
+
+  Bu uyarıyı almanızın nedeni; talebin size, takımınıza ya da departmanınıza
+  atanmış bir talep olmasıdır.
+  </div>
+  <em style="font-size: small">Müşteri Destek Sistemi</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="osTicket tarafından güçlendirildi" width="126" style="width: 126px;">

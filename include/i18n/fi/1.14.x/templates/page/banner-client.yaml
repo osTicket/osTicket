@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Pohja määrittää kirjautumissivun ylätunnisteen tekstin. On hyödyllistä kertoa mm. rekisteröinnistä ja yleisistä palvelun ehdoista.
+name: "Kirjaudu palveluun %{company.name}"
+body: >
+  Palvellaksemme sinua paremmin, suosittelemme että rekisteröidyt palvelun käyttäjäksi.

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Tiketin historia
+  content: >
+    Valitse päivämääräalue kaaviolle sekä taulukkolle (ks. <span class="doc-desc-title"> Tilastot</span>)  alle päivittyvät valitun aikajakson tiedot. Alla oleva kaavio esittää aina katsauksen koko järjestelmän tiedoista (esim. määrät). Voit kuitenkin selata <span class="doc-desc-title"> Tilastot</span> Ja taulukossa esitetään valitun aiheen mukaiset tiedot  (esim. osastot, aiheet tai henkilöstö). Lisäksi voit ladata taulukon <span class="doc-desc-title"> Tilastot</span> esitetyt tiedot.
+report_timeframe:
+  title: Raportin aikarajaus
+  content: >
+    Valitse alkamispäivämäärä kalenterista. Seuraavaksi valitse raportointijakson pituus.
+statistics:
+  title: Tilastot
+  content: >
+    Valitse haluamasi raportointivälilehti. Taulukossa oleva pallot kuvaavat aineiston määrää eli mitä suurempi pallo sitä enemmän aiheeseen liittyvää dataa on.
+opened:
+  title: Avattu
+  content: >
+    Alunperin osaston tai ohjeaiheen avaamat tiketit tai tiketit, jotka on avattu käsittelijän puolesta.
+assigned:
+  title: Osoitettu
+  content: >
+    Käsittelijälle tai tiimille osoitetut tiketit. Mukaan lukien tiketit, jotka on manuaalisesti osoitettu käsittelijöille tai tiimeille, lunastetut tiketit ja tiketit, jotka on osoitettu automaattisten sääntöjen ja suodattimien avulla.
+overdue:
+  title: Myöhässä
+  content: >
+    Vanhentuneeksi merkityt tiketit. Tiketit merkitään vanhentuneiksi, kun ne ovat rikkoneet niille määritellyn SLA-tason pysymällä Avoin-tilassa yli määritetyn eräpäivän.
+closed:
+  title: Suljettu
+  content: >
+    Nykyisten Suljettu -tilassa olevien tikettien määrä.
+reopened:
+  title: Uudelleen avatut
+  content: >
+    Uudelleenavattujen tikettien kokonaismäärä. Tiketti on uudelleenavattu, kun tila on vaihdettu Suljettu -tilasta takaisin Avoin -tilaan.
+deleted:
+  title: Poistettu
+  content: >
+    Poistettujen tikettien määrä.
+service_time:
+  title: Palveluaika
+  content: >
+    Kertoo keston tiketin avaamisesta sen sulkemiseen. Palveluaika mittaa keskimääräistä tiketin palveluaikaa tunneissa.
+response_time:
+  title: Vasteaika
+  content: >
+    Näyttää käsittelijän keskimääräisen tiketteihin vastausajan tunneissa.

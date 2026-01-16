@@ -1,0 +1,11 @@
+<div class="example-group">
+  {{#if (content "description")}}
+    <div class="example-group-description">
+      {{#block "description"}}{{/block}}
+    </div>
+  {{/if}}
+
+  <div class="example-group-body">
+    {{#block "body"}}{{/block}}
+  </div>
+</div>

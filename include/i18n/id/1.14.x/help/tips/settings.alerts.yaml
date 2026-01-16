@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Tanda dan Pemberitahuan
+  content: >
+    Peringatan dan Pemberitahuan adalah email pemberitahuan otomatis yang dikirim kepada Agen ketika kejadian beragam tiket berlangsung.
+ticket_alert:
+  title: Pemberitahuan Tiket Baru
+  content: >
+    Pemberitahuan dikirim ke agen ketika tiket baru dibuat. Peringatan ini tidak dikirim jika tiket adalah ditugaskan otomatis melalui Filter Ticket atau Topik Bantuan . 
+  links:
+    - 
+      title: Templat Peringatan Tiket Baru
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Peringatan Pesan Baru
+  content: >
+    Pemberitahuan dikirim ke agen ketika pesan baru dari Pengguna ditambahkan ke tiket yang ada.
+  links:
+    - 
+      title: Templat Peringatan Pesan Baru Standar
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Peringatan aktifitas internal baru
+  content: >
+    Peringatan dikirim ke Agen ketikan aktivitas internal seperti sebuah catatan internal atau jawaban agen ditambahkan pada sebuah tiket.
+  links:
+    - 
+      title: Templat Aktivitas Tiket Standar
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Peringatan Penugasan Tiket
+  content: >
+    Peringatan yang dikirim kepada Agen pada saat penugasan tiket.
+  links:
+    - 
+      title: Templat Peringatan Penugasan Tiket Standar
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Pemberitahuan saat transfer
+  content: >
+    Peringatan yang dikirim kepada Agen pada saat pentransferan tiket antar Departemen.
+  links:
+    - 
+      title: Kerangka Standar Pemberitahuan Transfer tiket
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Pemberitahuan Tiket Jatuh Tempo
+  content: >
+    Peringatan yang dikirim kepada Agen ketika sebuah tiket menjadi kadaluarsa berdasarkan SLA atau Tanggal Kadaluarsa.
+  links:
+    - 
+      title: Templat Peringatan Tiket Stalasi Standar
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Kelola SLA
+      href: /scp/slas.php
+system_alerts:
+  title: Pemberitahuan Sistem
+  content: >
+    Kejadian sistem yang signifikan yang dikirim kepada Administrator (%{config.admin_email}). Tergantung pada <span class="doc-desc-title">Level Log</span> yang diatur, kejadian-kejadian juga dibuat dan tersedia di <span class="doc-desc-title">Log System</span>
+  links:
+    - 
+      title: Lihat Log Sistem
+      href: /scp/logs.php
+    - 
+      title: Ganti Email Admin
+      href: /scp/settings.php?t=emails

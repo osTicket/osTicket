@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Uyarılar ve Bildirimler
+  content: >
+    Uyarılar ve bildirimler çeşitli bilet etkinlik tetiklendiğinde acentelere gönderilen otomatik e-posta bildirim vardır.
+ticket_alert:
+  title: Yeni Talep Uyarısı
+  content: >
+    <p> Yeni bir talep oluşturulduğunda Temsilciye uyarı gönder. </p><p class="info-banner"> <i class="icon-info-sign"></i> Eğer talep Talep Filtresi veya Yardım Konusu ile oluşturulmuşsa bu uyarı gönderilmez. </p>
+  links:
+    - 
+      title: Varsayılan Yeni Talep Uyarı Şablonu
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Yeni Mesaj Uyarısı
+  content: >
+    Varolan bir talebe Kullanıcı yeni mesaj eklendiğinde Temsilcilere uyarı gönderilir.
+  links:
+    - 
+      title: Varsayılan Yeni Mesaj Uyarı Taslağı
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Yeni İç Aktivite Alarmı
+  content: >
+    İç not veya bir yetkilinin talebe cevap yazması gibi iç aktiviteler olduğunda, yetkililere bildirim gönderilir.
+  links:
+    - 
+      title: Varsayılan Talep Aktivite Şablonu
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Talep Atama Uyarısı
+  content: >
+    Talep görevlendirilmelerinde Temsilcilere uyarı gönderilir.
+  links:
+    - 
+      title: Varsayılan Talep Görevlendirme Taslağı
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Transfer Sırasında Uyarı
+  content: >
+    Bölümler arası talep transferinde Temsilcilere uyarı gönderilir.
+  links:
+    - 
+      title: Varsayılan Talep Transfer Uyarı Şablonu
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Zaman aşımına uğramış Talep Uyarısı
+  content: >
+    Bir talep SLA veya Bitiş tarihi yüzünden zaman aşımına uğradığında uyarı gönderilir.
+  links:
+    - 
+      title: Varsayılan çok eski Talep Uyarı Taslağı
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: SLA(ları) Yönet
+      href: /scp/slas.php
+system_alerts:
+  title: Sistem Uyarıları
+  content: >
+    Yönetice göndrilen önemli sistem bildirimleri (%{config.admin_email}). Önceden ayarlanmış <span class="doc-desc-title">Kayıt Sevıyesi</span>ne göre, bu bildirimler ayrıca <span class="doc-desc-title">Sistem Kayıtları</span>nda da bulunacaktır
+  links:
+    - 
+      title: Sistem günlüğünü görüntüle
+      href: /scp/logs.php
+    - 
+      title: Yönetici e-posta değişikliği
+      href: /scp/settings.php?t=emails

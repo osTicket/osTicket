@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  このテンプレートは、クライアント ページに <strong>私のパスワードを忘れてしまった</strong> リンクからクライアントに送信される電子メールを定義します。
+name: "%{company.name} ヘルプ デスク アクセス"
+body: >
+  <h3><strong>こんにちは %{user.name.first}</strong></h3>あなたに代わって %{url}.<br でヘルプデスクの <div>パスワード リセット要求が送信されました/> < br/> 心当たりがない場合は削除し、このメールを無視してください。あなたのアカウントはまだ安全です。だれもアクセスしていません。パスワードはロックもリセットされていません。誰かが誤ってメールアドレスを入力した可能性があります。< br/> < br/> ヘルプ デスクへのログインとパスワードを変更するには下のリンクをクリックして下さい。< br/> < br/> <a href="%{link}"> % {link}</a> < br/> < br/> <em style="font-size: small">、フレンドリーなカスタマー サポート システム < br/> %{company.name}</em></div>

@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Verstuurd naar agenten wanneer een nieuw bericht/nota aan een taak toegevoegd wordt. Dit kan gebeuren als een medewerker of een agent reageert op een email van het systeem of het webportaal bezoekt en daar een nieuwe boodschap toevoegt.
+subject: |
+  Taak Activiteit [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Beste %{recipient.name},</strong></h3>
+  Taak <a href="%{task.staff_link}">#%{task.number}</a> geüpdated: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Om deze taak te bekijken of om erop te reageren, <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >log in</span></a> tot het ticketsysteem</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Uw vriendelijke Helpdesk Team</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Mogelijk gemaakt door osTicket" width="126" height="19" style="width: 126px;">

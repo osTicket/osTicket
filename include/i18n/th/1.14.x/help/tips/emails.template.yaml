@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: แม่แบบอีเมล
+  content: >
+    ชุดแม่แบบอีเมล์ที่ใช้ในการส่งอีเมลตอบกลับอัตโนมัติ รวมทั้งการแจ้งเตือนสำหรับการดำเนินการต่างๆ ที่เกิดขึ้นในช่วงอายุของ Ticket
+template_to_clone:
+  title: แม่แบบในการคัดลอก
+  content: >
+    เลือกชุดแม่แบบการคัดลอกหรือเริ่มต้นง่ายๆ ด้วยสต็อกแม่แบบอีเมล
+language:
+  title: ภาษา
+  content: >
+    เลือกภาษาที่ต้องการสำหรับ <span class="doc-desc-opt">สต็อก</span> <span class="doc-desc-title">ชุดแม่แบบอีเมล</span> ชุดภาษาที่มีอยู่บน osTicket.com
+  links:
+    - 
+      title: ชุดภาษาของ osTicket
+      href: https://osticket.com/download
+status:
+  title: สถานะ
+  content: >
+    <span class="doc-desc-opt">เปิดใช้งาน</span> ชุดแม่แบบที่มีอยู่ให้สัมพันธ์กับแผนกและตั้งให้เป็นค่าเริ่มต้นระบบ  ชุดแม่แบบทีใช้งานอยู่ในขณะนี้ไม่สามารถ <span class="doc-desc-opt">ปิดใช้งาน</span>.

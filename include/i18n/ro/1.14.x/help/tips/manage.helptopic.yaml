@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informații despre subiectul de ajutor
+  content: >
+    <span class="doc-desc-title">Subiectele de ajutor</span> ghidează informațiile culese de la utilizatori și felul în care sunt rutate sau asignate tichetele.
+topic:
+  title: Numele subiectului
+  content: >
+    Numele unic al subiectului de ajutor.
+status:
+  title: Stare
+  content: >
+    Dacă este dezactivat sau arhivat, acesta <span class="doc-desc-title">Help Topic</span> nu va fii valabil.
+type:
+  title: Tip
+  content: >
+    Dacă un <span class="doc-desc-title">subiect de ajutor</span> este etichetat ca Prvat, va fi disponibil pentru deschidere de tichete doar agenților, în panoul personalului.
+parent_topic:
+  title: Subiectul părinte
+  content: >
+    Selectează subiectul părinte căruia acest <span class="doc-desc-title">subiect de ajutor</span> îi va aparține. Subiectul părinte va fi afișat primul, urmat de acest <span class="doc-desc-title">subiect de ajutor</span>.
+custom_form:
+  title: Formular personalizat
+  content: >
+    Formularele personalizate ajută la colectarea de la utilizatori a informațiilor specifice relevante pentru acest <span class="doc-desc-title">subiect de ajutor</span>.
+  links:
+    - 
+      title: Administrează formulare personalizate
+      href: /scp/forms.php
+priority:
+  title: Prioritate
+  content: >
+    Selecteză prioritatea atribuită tichetelor noi asociate acestui <span class="doc-desc-title">subiect de ajutor</span>.<br><br>Filtrele de tichet pot modifica prioritatea tichetelor noi.
+department:
+  title: Departament
+  content: >
+    Alege departamentul către care vor fi îndreptate tichetele noi introduse sub acest subiect de ajutor.
+  links:
+    - 
+      title: Administreaza Departamente
+      href: /scp/departments.php
+sla_plan:
+  title: Plan SLA
+  content: >
+    Alege planul ANS (SLA) asociat cu acest <span class="doc-desc-title">subiect de ajutor</span>.<br><br>Această selecție are prioritate față de orice plan ANS (SLA) ales pentru departament.
+  links:
+    - 
+      title: Administrare Planuri SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Pagina de gratificare
+  content: >
+    Alege pagina de gratificare către care sunt directați utilizatorii după ce dschid un tichet în acest <span class="doc-desc-title">subiect de ajutor</span>.
+  links:
+    - 
+      title: Administrează paginile de gratificare
+      href: /scp/pages.php
+auto_assign_to:
+  title: Alocarea automată a tichetelor noi
+  content: >
+    Alege (opțional) un agent sau o echipă cărora le vor fi alocate automat tichetele noi deschise în acest <span class="doc-desc-title">subiect de ajutor</span><br><br>Filtrele de tichet pot modifica această asignare.
+  links:
+    - 
+      title: Administrare Personal si Echipe
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Răspuns automat la tichet
+  content: >
+    Dacă e bifată, această opțiune va invalida răspunsurile automate la tichetele noi pentru acest <span class="doc-desc-title">subiect de ajutor</span>.<br><br>Are prioritate față de setările de răspuns automat ale <span class="doc-desc-title">departament</span>ului, precum și față de <span class="doc-desc-title">setările de răspuns automat</span> globale.
+  links:
+    - 
+      title: Setările pentru răspuns automat
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Numere de tichet personalizate
+  content: >
+    Dacă alegi "Personalizat", aplicația va ignora formatul predefinit la nivelul sistemului pentru numerotarea tichetelor, pentru tichetele create în acest subiect de ajutor. Vezi informațiile de la pagina Setări / Tichete pentru mai multe detalii privind această setare.

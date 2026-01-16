@@ -1,0 +1,51 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Pošljite uslužbencem kadar je zahtevek dodeljen njim. Zahtevki so lahko 
+  dodeljeni samodejno preko sistema ali ročno s strani drugega uslužbenca. 
+  Uporabite %{assigner} da določite kdo je naredil dodelitev.
+subject: |
+  Zahtevek dodeljen meni
+body: |
+  <h3><strong>Pozdravljeni %{assignee.name.first},</strong></h3>
+  Zahtevek <a href="%{ticket.staff_link}">#%{ticket.number}</a> vam je 
+  bil dodeljen od %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+  <td>
+  <strong>Od</strong>:
+  </td>
+  <td>
+  %{ticket.name} &lt;%{ticket.email}&gt;
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <strong>Zadeva</strong>:
+  </td>
+  <td>
+  %{ticket.subject}
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Da pogledate/odgovorite na zahtevek, prosim izvedite<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prijavo</span></a> v sistem zahtevkov pomoči</div>
+  <em style="font-size: small; ">Vaš prijazen sistem 
+  podpore</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="uporablja pogon osTicket" width="126" height="19" style="width: 126px;">

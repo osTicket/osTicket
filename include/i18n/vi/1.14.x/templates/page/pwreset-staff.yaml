@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Khung mẫu này là mẫu email được gửi đến nhân viên đã bấm link <strong>Forgot My Password</strong> trên trang đăng nhập của nhân viên.
+name: "Cài đặt lại mật khẩu cho nhân viên của osTicket "
+body: >
+  <h3><strong>Xin chào %{staff.name.first},</strong></h3> <div>Bạn đã gửi yêu cầu đặt lại mật khẩu tại %{url}.<br / > < br / > nếu đây là lỗi hệ thống, vui lòng xóa và bỏ qua email này. Tài khoản của bạn vẫn an toàn và không ai có quyền truy cập. Tài khoản của bạn không bị khóa và mật khẩu của bạn  không thay đổi. Có thể  ai đó đã nhập nhầm email của bạn. < br / > < br / > Bấm vào link này để đăng nhập trợ giúp và thay đổi mật khẩu của bạn. < br / > < br / > <a href="%{link}"> %{link}</a> < br / > < br / > <em style="font-size: small"> hệ thống hỗ trợ khách hàng của bạn</em> < br / > <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /></div>

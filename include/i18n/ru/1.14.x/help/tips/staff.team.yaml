@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Команды
+  content: >
+    Команды  - это один или несколько Сотрудников, объединенных вместе в целях назначения Заявок. Членство в команде может выходить за пределы границ Отдела.
+status:
+  title: Статус
+  content: >
+    Если <span class="doc-desc-opt">Отключено</span>  - то эта Команда не будет доступна для назначения Заявок, а также не будет получать Оповещения и Уведомления по старым назначениям.
+lead:
+  title: Руководитель команды
+  content: >
+    <span class="doc-desc-title">Команда</span> может иметь назначенного лидера, который может получать <span class="doc-desc-title">Оповещения и Уведомления</span> отдельно от членов.
+  links:
+    - 
+      title: Настройка Оповещений и Уведомлений
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Оповещение о Назначении
+  content: >
+    Вы можете отключить <span class="doc-desc-title">Оповещение о Назначении Заявки</span> для Заявок, назначаемых этой Команде.
+  links:
+    - 
+      title: Настройка Оповещений и Уведомлений
+      href: /scp/settings.php?t=alerts
+members:
+  title: Члены команды
+  content: >
+    Членство в команде настраивается в профиле Сотрудника.
+  links:
+    - 
+      title: Управление Персоналом
+      href: /scp/staff.php

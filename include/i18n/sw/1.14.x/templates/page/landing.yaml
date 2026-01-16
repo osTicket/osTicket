@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  The Landing Page refers to the content of the Customer Portal's initial view. The template modifies the content seen above the two links <strong>Open a New Ticket</strong> and <strong>Check Ticket Status</strong>.
+name: Kutua
+body: >
+  <h1>Karibu katika Kituo cha Msaada</h1>
+  <p>
+  Ili kuhuisha maombi ya msaada na kukutumikia wewe kwa ubora, tunatumia mfumo wa tiketi ya msaada. Kila ombi la msaada inapewa nambari ya tiketi ya kipekee ambayo unaweza kutumia kufuatilia maendeleo na majibu kwa mtandao. Kwa ajili ya ukumbusho yako, sisi hutoa nyaraka kamili na historia ya misaaada yako yote. Anuani halali ya barua pepe inatakana kuwasilisha tiketi.
+  </p>

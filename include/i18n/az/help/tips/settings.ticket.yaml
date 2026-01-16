@@ -1,0 +1,91 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+number_format:
+  title: Sorğu nömrəsi formatı
+  content: >
+    Bu tənzimləmə sorğu nömrələrinin yaradılmasında istifadə olunur. Diez (`#`) işarəsini rəqəmlərin yerləşəcəyi yerdə istifadə edin. Hər hansı digər nömrə formatındakı mətn qorunacaq. <span class="doc-desc-title">Kömək mövzusu</span> xüsusi nömrə formatlarını müəyyən edə bilir. <br/><br/> Məsələn, altı rəqəmli nömrələr <code>######</code> kimi istifadə olunur.
+sequence_id:
+  title: Sorğu nömrəsi ardıcıllığı
+  content: >
+    Yeni sorğu nömrələri əldə etmək üçün ardıcıllıq seçin. Sistemin cari artan ardıcıllığı və təsadüfi ardıcıllığı var. Siz istədiyiniz qədər ardıcıllıq yarada bilərsiniz. Kömək mövzuları üçün <span class="doc-desc-title">sorğu nömrəsi formatı</span> konfiqurasiyasında müxtəlif ardıcıllıqlardan istifadə edin.
+queue_bucket_counts:
+  title: Top-Level Ticket Counts
+  content: >
+    This setting is used to hide or show the ticket counts on Main-Level queues. Get back to the way things used to be.
+default_ticket_status:
+  title: Yeni sorğular üçün cari statuslar
+  content: >
+    Statusu yeni sorğular üçün cari seçin. Bu hər bir kömək mövzusu üçün müəyyənləşdirilə bilər, əgər arzuolunandırsa. Həmçinin sorğu filteri tərəfindən aradan qaldırıla bilər.
+  links:
+    - 
+      title: Sorğu statuslarını idarə edin
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: Mövcud SLA
+  content: >
+    Sorğunun göstərilən bitmə vaxtından əvvəl nə qədər açıq qala biləcəyini idarə etmək üçün cari servis səviyyəsi razılığını seçin.
+  links:
+    - 
+      title: Daha çox SLA planları yarat
+      href: /scp/slas.php
+default_priority:
+  title: Cari prioritet
+  content: >
+    Prioriteti avtomatik təyin etməyən sorğular üçün cari <span class="doc-desc-title">prioritet</span> seçin. <br/><br/> Prioritet kömək mövzusu, istiqamətləndirilən şöbə və ya sorğu filteri tənzimləməsi vasitəsilə təyin oluna bilər.
+maximum_open_tickets:
+  title: Maksimum açıq sorğular
+  content: >
+    Help deskinizdə istifadəçinin <em>açmağa</em> icazə verdiyi sorğuların maksimum <strong>sayını</strong> daxil edin . <br><br>Daxil edin<span class="doc-desc-opt">0 </span> əgər bu məhdudiyyəti deaktiv etməyə üstünlük verirsinizsə.
+email_ticket_priority:
+  title: E-poçt sorğu prioriteti
+  content: >
+    E-poçt ünvanları xidmətinin təyin etdiyi e-poçt prioritetini istifadə edin
+show_related_tickets:
+  title: Əlaqədar sorğuları göstərin
+  content: >
+    İstifadəçi girişində bütün əlaqədar sorğuları göstərin - əks təqdirdə giriş bir sorğuya hər girişdə baxmağı məhdudlaşdırır
+human_verification:
+  title: İnsan təsdiqləməsi
+  content: >
+    Gələn sorğunun insan fəaliyyətinin nəticəsi olduğunu təsdiq etmək üçün müştəri portalında CAPTCHA-ı aktiv edin. <br><br> Tələb olunan GDLib kitabxanası
+claim_tickets:
+  title: Cavabda sorğunu göstərmək
+  content: >
+    Enable this to auto-assign unassigned tickets to the responding Agent. <br><br> Reopened tickets are always assigned to the last respondent unless auto assign on reopen is disabled on the Department level.
+auto_refer:
+  title: Auto-refer Tickets on Close
+  content: >
+    Enable this to auto-refer tickets to the assigned or closing Agent when a ticket is closed. <br><br> This is necessary when you want to give agents with limited access continued access to assigned tickets after they're closed.
+collaborator_ticket_visibility:
+  title: Collaborator Tickets Visibility
+  content: >
+    If Enabled, Users will have visibility to ALL Tickets they participate in when signing into the Web Portal. <br><br> If Disabled, Users will only be able to see their own Tickets when signing into the Web Portal.
+require_topic_to_close:
+  title: Require Help Topic to Close
+  content: >
+    If Enabled, a Ticket must have a Help Topic in order to be Closed by an Agent
+allow_external_images:
+  title: Allow External Images
+  content: >
+    If Enabled, the system will allow external inline images that have a valid image extension (.png, .jpg, .jpeg, .gif). If Disabled, the system will exclude any external inline images. One caveat to note, is if the setting is Disabled we will still store external inline images that have a valid image extension in case the setting is re-enabled in the future.
+assigned_tickets:
+  title: Təyin olunmuş sorğular
+  content: >
+    Təyin olunmuş sorğuları <span class="doc-desc-title">sorğuları növbə ilə açmaq</span> linkindən istisna etmək üçün bu xüsusiyyəti aktiv edin.
+answered_tickets:
+  title: Cavablandırılmış sorğular
+  content: >
+    Cavablanmış sorğuları <span class="doc-desc-title">növbəli cavablanan suallarda</span> göstərmək üçün bu xüsusiyyəti aktiv edin. Əks təqdirdə, bu <span class="doc-desc-title">sorğuları növbə ilə aç</span> linkinə daxil olacaq.
+ticket_attachment_settings:
+  title: Bilet mövzusu əlavələri
+  content: >
+    <span class="doc-desc-title">Problem detalları</span> sahəsinə faylları yükləmək üçün tənzimləmələri konfiqurasiya edin. Bu tənzimləmələr kanalın mənbəyindən (veb portal, e-poçt, api və s.) asılı olmayaraq bütün yeni sorğular və yeni mesajlar üçün istifadə olunur.

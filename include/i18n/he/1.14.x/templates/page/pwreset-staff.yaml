@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  תבנית זו מגדירה את ה- EMail שנשלח לאנשי הצוות שלחצו על הקישור <strong>שכחתי את הסיסמה</strong> בדף הכניסה של לוח הבקרה לאנשי צוות.
+name: "איפוס ססמה לאנשי צוות"
+body: >
+  <h3><strong>שלום!%{staff.name.first},</strong><div> בקשת איפוס ססמה נשלחה עבורך למערכת תמיכת לקוחות שבכתובת %{url}.<br /><br />אם הודע זו נשלחה אליך בטעות התעלם ממכתב זה. חשבונך עדיין פעיל ומאובטח ולא ניתנה גישה לאף אחד. החשבון לא נעול והססמה לא השתנתה. משהוא כנראה בטעות הכניס את כתובת הדואל שלך.<br /><br /> לחץ על הקישור הבא על מנת לאפס ולשנות את הססמה שלך<br /><br /><a href="%{link}">%{link}</a><br /><br /><em style="font-size: small"> מערכת תמיכת לקוחות </em><br /><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /></div>

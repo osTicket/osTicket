@@ -1,0 +1,11 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+notes: >
+  Bu şablon müştərilər qeydiyyat formunu tamamladıqdan sonra onlara görünən səhifəni müəyyən edir. Şablon sistemin onlara təsdiq linki e-poçtu göndərdiyini və qeydiyyat prosesində növbəti addımın nə olduğunu qeyd etməlidir.
+name: "Hesab qeydiyyatı"
+body: >
+  <div><strong>Qeydiyyatdan keçdiyiniz üçün təşəkkürlər.</strong><br/> <br />Daxil etdiyiniz e-poçta məktub göndərdik. Xahiş edirik hesabınızı təsdiq etmək üçün e-poçtdakı linkə daxil olun və sorğularınıza giriş əldə edin. </div>

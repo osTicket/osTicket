@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Conjunto de modelo de Email padrão
+  content: >
+    Selecione o <span class="doc-desc-title"> Conjunto de modelo de Email</span> usado para enviar <span class="doc-desc-title"> alertas</span> e <span class="doc-desc-title"> Auto-respostas</span> para várias ações que podem ocorrer durante a vida de um Tiket. Departamentos de <br><br>podem ser atribuídos um modelo específico de E-mail.
+  links:
+    - 
+      title: Gerenciar conjuntos de modelo de Email
+      href: /scp/templates.php
+default_system_email:
+  title: E-mail padrão de saída
+  content: >
+    Escolha um endereço de e-mail do qual e-mails serão enviados. <br><br><span class="doc-desc-title"> Departamento</span> pode definir seu próprio <span class="doc-desc-title"> endereço de e-mail</span> que irá substituir o que está definido aqui.
+  links:
+    - 
+      title: Gerenciar endereços de E-mail
+      href: /scp/emails.php
+default_alert_email:
+  title: Alerta de e-mail padrão
+  content: >
+    Escolher um endereço de e-mail do qual <span class="doc-desc-title"> alertas e avisos</span> são enviados aos agentes.
+  links:
+    - 
+      title: Gerenciar endereços de E-mail
+      href: /scp/emails.php
+admins_email_address:
+  title: Endereço de e-mail dos administradores
+  content: >
+    Digite o endereço de e-mail de um administrador para o qual são enviados <span class="doc-desc-title"> Alerta de novos Tikets</span> (se habilitado) e <span class="doc-desc-title"> Erros do sistema</span>.
+  links:
+    - 
+      title: Gerenciar Alertas & Avisos
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Busca de e-mail
+  content: >
+    Permitem a sondagem para IMAP/POP configurado e habilitado para <span class="doc-desc-title"> Caixas de email</span>.
+  links:
+    - 
+      title: Gerenciar caixa de correio
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Buscar E-mails usando Auto-cron
+  content: >
+    Habilitando e-mail periódico ele irá usar o Gerenciador de tarefas interno desencadeado pela atividade dos agentes.  <br><br>Por favor note que e-mails não serão obtidos se ninguém estiver conectado ao painel de controle de pessoal. O agendador de tarefa externa é altamente recomendado para tempo de busca personalizável.
+  links:
+    - 
+      title: Usando o Agendador de tarefas externas
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Remover reposta citada
+  content: >
+    Se ativado, isto irá remover a correspondência anterior entre as comunicações de e-mail. <br> Este recurso é relacionado e dependente da <span class="doc-desc-title"> resposta Separador Tag </ span> abaixo.
+reply_separator_tag:
+  title: Tag separadora de resposta
+  content: >
+    Este é um token indicando ao usuário para</span> resposta acima da linha. <br><br><strong>Nota:</strong> só é relevante se <span class="doc-desc-title"> trecho citado na resposta</span> é habilitado acima.
+emailed_tickets_priority:
+  title: Prioridade dos Tickets enviados por e-mail
+  content: >
+    Escolha se você gostaria que a opção de prioridade/importância do email do usuário (por exemplo, OutLook) para ditar a prioridade do novo Tiket. <br><br>Essa configuração pode ser substituída por um <span class="doc-desc-title"> Filtro de Tiket</span>.
+  links:
+    - 
+      title: Criar &amp; gerenciar filtros de tickets
+      href: /scp/filters.php
+accept_all_emails:
+  title: Aceitar todos os E-mails
+  content: >
+    Aceite e-mails de usuários desconhecidos. <br><br>Desmarcar essa configuração irá resultar em Tikets rejeitados.
+accept_email_collaborators:
+  title: Aceitar E-mail de colaboradores
+  content: >
+    Adicione participantes e-mail incluídos <code><strong>para</strong></code> e <code><strong>CC</strong></code> campos como colaboradores do Tiket. < br / > < br / > <em>colaboradores podem sempre ser adicionados manualmente por agentes ao visualizar um Tiket.</em>
+default_mta:
+  title: Padrão MTA
+  content: >
+    <span class="doc-desc-title"> MTA padrão</span> cuida do processo de entrega de e-mail para e-mails enviados sem configuração SMTP.
+ticket_response_files:
+  title: Arquivos de resposta do ticket
+  content: >
+    Se habilitado, todos os anexos que um agente pode anexar a uma resposta de Tiket serão incluídos também no email para o usuário.
+verify_email_addrs:
+  title: Verificar o endereço E-mail
+  content: >
+    Habilite esta opção para verificar se o endereço de e-mail possui um mail exchanger(MX) no DNS do domínio. Isto é útil para detectar endereços de e-mail digitados incorretamente. Esta função é realizada em adição a verificação do formato do endereço de e-mail.

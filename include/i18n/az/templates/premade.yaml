@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  isenabled: 1
+  title: osTicket nədir?
+  response: |
+    osTicket sorğu sistemini dəstəkləyən geniş istifadəli açıq mənbədir, 
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Canned Attachments Rock!
+- 
+  isenabled: 1
+  title: Nümunə (fərqli)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

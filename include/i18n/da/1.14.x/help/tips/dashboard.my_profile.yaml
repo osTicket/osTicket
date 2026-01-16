@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktoplysninger
+  0: >
+
+username:
+  title: Brugernavn
+  content: >
+    Kun Agenter med Admin status kan ændre et Brugernavn. Hvis du er en Agent med administratorrettigheder, kan du redigere dette ved at vælge en Agent og ændre det fra  <span class="doc-desc-title">Medarbejdere</span> tabellen.
+  links:
+    - 
+      title: Ændre et Brugernavn som Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Tidszone
+  0: >
+
+daylight_saving:
+  title: Sommertid
+  0: >
+
+maximum_page_size:
+  title: Maksimale sidestørrelse
+  0: >
+
+auto_refresh_rate:
+  title: Auto opdateringshastighed
+  0: >
+
+default_signature:
+  title: Standardsignatur
+  0: >
+
+default_paper_size:
+  title: Standardpapirstørrelse
+  0: >
+
+show_assigned_tickets:
+  title: Vis Tildelt Sager
+  content: >
+    <p> Hvis du vælger at aktivere dette, vil det overskrive dine globale indstillinger til at skjule tildelte sager fra åbne køer </p> <p class="info-banner"> <i class="icon-info-sign"></i> Denne indstilling er kun tilgængelig når tildelte sager er ekskluderet globalt. </p>
+password:
+  title: Adgangskode
+  0: >
+
+current_password:
+  title: Nuværende adgangskode
+  0: >
+
+new_password:
+  title: Ny adgangskode
+  0: >
+
+confirm_new_password:
+  title: Bekræft ny adgangskode
+  0: >
+
+signature:
+  title: Signatur
+  content: >
+    Opret en valgfri <span class="doc-desc-title">Signatur</span> der måske vises i slutningen af dine Sags svar. Om denne <span class="doc-desc-title">Signatur</span> vises, eller ej, afhænger af den <span class="doc-desc-title">Email Skabelon</span>, der bruges i en Sags Svar.
+  links:
+    - 
+      title: Opret email skabeloner i Admin Panel
+      href: /scp/templates.php

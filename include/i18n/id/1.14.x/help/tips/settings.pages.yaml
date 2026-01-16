@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Informasi Perusahaan
+  content: >
+    Hal ini mengacu pada perusahaan atau organisasi yang akan mendapatkan keuntungan dari aplikasi osTicket dan staf pendukungnya. Informasi disini akan nampak pada signature email (misalnya, pada footer) ketika tiket dijawab oleh agen.
+  links:
+    - 
+      title: Formulir informasi perusahaan
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Halaman Landing
+  content: >
+    <span class="doc-desc-title">Halaman Landing</span> ditampilkan pada halaman depan dari situs dukungan Anda.
+offline_page:
+  title: Halaman Luring
+  content: >
+    <span class="doc-desc-title">Halaman Luring</span> ditampilkan pada situs dukunga ketika help desk luring, lihat Panel Admin -&gt; Pengaturan -&gt; Sistem -&gt; Status Helpdesk.
+default_thank_you_page:
+  title: Halaman Default Terima Kasih
+  content: >
+    <span class="doc-desc-title">Halaman Terima Kasih</span> ditampilkan untuk pelanggan ketika seorang <span class="doc-desc-title">Klien</span> mengirim sebuah tiket baru. <br/><br/> Halaman <span class="doc-desc-title">Terima Kasih</span> dapat diasosiakan dengan topik bantuan.
+logos:
+  title: Logo
+  content: >
+    Anda dapat melakukan kustomisasi <span class="doc-desc-title">Logo</span> yang akan ditampikan kepada Pelanggan pada Portal Pelanggan (misalnya, Site Dukungan Anda).
+upload_a_new_logo:
+  title: Unggah logo baru
+  content: >
+    Pilih citra dalam format .gif, .jpg atau .png. Kami akan mengubah ukuran secara proposional pada tampilan citra Anda. Tetapi bagaimanapun, kami tidak melakukan perubahan pada data citranya. Untuk mempercepat waktu muat, direkomendasikan Anda untuk menjaga citra Anda mendekati ukuran default citra (817px &times; 170px).
+backdrops:
+  title: Latar belakang
+  content: >
+    Anda dapat mengatur <span class="doc-desc-title">Latar belakang</span> yang akan ditampilkan pada halaman login staf.
+upload_a_new_backdrop:
+  title: Unggah Latar belakang baru
+  content: >
+    Pilih gambar dalam format .gif, .jpg atau .png. Kami akan mengubah ukuran gambar akan secara proporsional. Tetapi bagaimanapun, kami tidak melakukan perubahan pada data citranya. Untuk mempercepat waktu muat, Anda direkomendasikan untuk menjaga citra Anda sekecil mungkin (di bawah satu Megabyte). Catat bahwa pengaturan upload max PHP juga berlaku.

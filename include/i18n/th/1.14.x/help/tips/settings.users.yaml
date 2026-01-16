@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: การจัดรูปแบบชื่อ
+  content: >
+    เลือกรูปแบบสำหรับชื่อของเจ้าหน้าที่ทั่วทั้งระบบ มิเช่นนั้นแม่แบบของอีเมล์จะถูกนำมาใช้ในกรณีที่ไม่ได้มีการกำหนดรูปแบบไว้
+#Authentication settings
+client_session_timeout:
+  title: กำหนดระยะเวลาการเชื่อมต่อของผู้ใช้
+  content: >
+    เลือกเวลาว่างสูงสุด (นาที) ก่อนที่จะผู้ใช้งานจะต้องเข้าสู่ระบบอีกครั้ง <br><br> ถ้าคุณต้องการที่จะปิดการใช้งาน <span class="doc-desc-title">User Session Timeouts,</span> ใส่เลข 0
+registration_method:
+  title: ตัวเลือกการลงทะเบียน
+  content: >
+    <span class="doc-desc-title">วิธีการลงทะเบียน</span> และ <span class="doc-desc-title">ข้อมูลที่ใช้ในการลงทะเบียน</span> ถูกนำมาใช้ร่วมกันเพื่อกำหนดค่าวิธีที่ผู้ใช้ลงทะเบียนและการเข้าถึงเว็บพอร์ทัลของระบบช่วยเหลือของคุณ ตารางด้านล่างสรุปว่าทั้งสองการตั้งค่าจะถูกตีความโดยระบบ <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Registration Required</th> <th>วิธีการลงทะเบียน</th> <th>ผลลัพธ์</th></tr> <tr><td>No</td><td>Public</td> <td>ลงทะเบียนรับการสนับสนุน แต่ไม่จำเป็นสำหรับเปิด Ticket ใหม่</td></tr> <tr><td>Yes</td><td>Public</td> <td>การลงทะเบียนและเข้าสู่ระบบที่จำเป็นสำหรับเปิด Ticket ใหม่</td></tr> <tr><td>No</td><td>ส่วนบุคคล</td> <td>ทุกคนสามารถสร้าง Ticket แต่เจ้าหน้าที่เท่านั้นที่สามารถลงทะเบียนบัญชีผู้ใช้</td></tr> <tr><td>Yes</td><td>ส่วนบุคคล</td> <td>ผู้ใชสามารถเข้าใช้งานผ่านการเชิญเท่านั้น</td></tr> <tr><td>No</td><td>ปิดใช้งาน</td> <td>ไม่มีใครสามารถลงทะเบียนสำหรับบัญชีผู้ใช้ แต่ทุกคนสามารถสร้าง Ticket ได้ <em>This was how osTicket functioned prior to 1.9</em></td></tr> <tr><td>Yes</td><td>ปิดใช้งาน</td> <td>ปิดการใช้ Ticket ใหม่ผ่านทางเว็บพอร์ทัล</td></tr> </tbody></table>
+client_verify_email:
+  title: จำเป็นต้องมีการยืนยันอีเมล
+  content: >
+    ปิดการใช้งานตัวเลือกนี้เพื่อให้ผู้ใช้ของคุณเข้าถึงได้ Ticket ทันที ผ่าน "ตรวจสอบสถานะ Ticket" หน้าเข้าสู่ระบบในพอร์ทัลลูกค้า หากเปิดใช้งาน (ซึ่งเป็นค่าเริ่มต้น) ผู้ใช้จะต้องได้รับอีเมลและปฏิบัติตามลิงก์ในอีเมลนี้เพื่อดู Ticket <br><br> การปิดใช้งานการยืนยันอีเมลอาจทำให้บุคคลที่สาม (เช่น ผู้ประสานงาน Ticket) ปลอมตัวเป็นเจ้าของ Ticket
+allow_auth_tokens:
+  title: Enable Authentication Tokens
+  content: >
+    Enable this option to allow use of authentication tokens to auto-login users on ticket link click.

@@ -1,0 +1,67 @@
+---
+username:
+  title: اسم المستخدم
+  content: >
+    الرجاء إختيار <span class="doc-desc-title">اسم مستخدم</span> فريد للوكيل في<span class="doc-desc-title">الدعم الفني</span> الخاص بك.
+email_address:
+  title: البريد الإلكتروني
+  content: >
+    أدخل بريداً التكرونياً للوكيل الذي سيستلم <span class="doc-desc-title">التنبيهات و الإشعارات</span> من<span class="doc-desc-title"> الدعم الفني</span>.
+  0: <br><br>
+  1: يمكن لطاقم العمل تسجيل الدخول الى لوحة التحكم الخاصة بهـم عن طريق اسم المستخدم او البريد الإلكتروني.
+welcome_email:
+  title: الرسالة الترحيبية
+  content: >
+    أرسل إلى الوكيل الجديد رابط سماح بالوصول إلى الحساب الذي من خلاله يمكن للوكيل امتلاك كلمة السر الخاصة به. إذا تم الشطب، فستحتاج إلى وضع كلمة مرور وارسال معلومات تسجيل الدخول إلى فريق العمل الجديد.
+account_password:
+  title: كلمة مرور الحساب
+  content: >
+    بإمكانك كـ <span class="doc-desc-title">مدير</span> تغيير كلمة مرور لوكيل.
+forced_password_change:
+  title: تغيير كلمة المرور إجبارياً
+  content: >
+    قم بتمكين هذا الخيار في حال رغبتك فرض تغيير كلمة المرور على العميل عند تسجيل الدخول القادم.
+agents_signature:
+  title: توقيع الوكيل
+  content: >
+    إنشاء توقيع خاص بالعميل يتمكن اختياره اثناء الرد على التذكرة.
+account_status:
+  title: حالة الحساب
+  content: >
+    إذا كانت حالة الوكيل <span class="doc-desc-opt">مجمد</span>، فلن يستطيع تسجيل الدخول إلى الدعم الفني.
+assigned_group:
+  title: المجموعة المسند إليها
+  content: >
+    <span class="doc-desc-title">المجموعة</span> التي تختارها لهذا الوكيل ستحدد الصلاحيات التي سيحصل عليها داخل <span class="doc-desc-title">الدعم الفني</span>.
+  links:
+    - 
+      title: إدارة المجموعات
+      href: /scp/groups.php
+primary_department:
+  title: القسـم الأساسي
+  content: >
+    اختر <span class="doc-desc-title">القسم</span> الأساسي الذي ينتمي اليه هذا الوكيل.
+  links:
+    - 
+      title: إدارة الأقسام
+      href: /scp/departments.php
+daylight_saving:
+  title: التوقيت الصيفي
+  content: >
+    قم بتمكين هذا الخيار إذا أردت للتوقيت الصيفي أن يعمل تلقائياً للمنطقة الزمنية الخاصة بالوكيل.
+limited_access:
+  title: وصول محدود
+  content: >
+    إذا تم تفعيل الخيار، سيتمكن الوكيل من الوصول فقط إلى التذاكر المسنده بشكل مباشر أو عبر الفريق.
+directory_listing:
+  title: عرض المجلدات
+  content: >
+    قم بتمكين هذا الخيار إذا أردت إدراج هذا الوكيل في <span class="doc-desc-title">دليل فريق العمل</span>.
+  links:
+    - 
+      title: قم بزيارة مجلد فريق العمل
+      href: /scp/directory.php
+vacation_mode:
+  title: وضعية العطلة
+  content: >
+    إذا غيّرت حالة الوكيل إلى <span class="doc-desc-opt">وضعية العطلة</span>، فإنه لن يتلقى أي <span class="doc-desc-title">تنبيهات و إشعارات</span> ولن يكون متوفراً في إسناد التذاكر.

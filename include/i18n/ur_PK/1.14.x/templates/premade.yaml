@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: osTicket کیا ہے (نمونہ)؟
+  response: |
+    osTicket وسیع پیمانے پر استعمال کردہ کھلا سپورٹ ٹکٹ سسٹم ہے جو اعلی لاگت اور پیچیدہ کسٹمر سپورٹ کے نظام کے لئے ایک پرکشش متبادل ہے - سادہ، ہلکا پھلکا، قابل اعتماد، کھلی منبع، ویب پر مبنی اور سیٹ اپ اور استعمال کرنے میں آسان.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: پہلے سے طے شدہ منسلکات بہترین ہیں!
+- 
+  isenabled: 1
+  title: نمونہ (متغیرات کے ساتھ)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

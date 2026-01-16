@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: Kλειδί API
+  content: >
+    Κλειδιά API χρησιμοποιούνται για τον έλεγχο ταυτότητας των πελατών που υπβάλλουν νέα αιτήματα μέσω της διεπαφής προγραμματισμού εφαρμογών (API). Κλειδιά API χρησιμοποιούνται αντί των κωδικών πρόσβασης. Δεδομένου ότι τα κλειδιά API μπορεί να αποστέλλονται χωρίς κρυπτογράφηση, συνδέονται με την δικτυακή διεύθυνση IP του κάθε πελάτη.
+  links:
+    - 
+      title: Τεκμηρίωση του API του osTicket
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: Διεύθυνση IP
+  content: >
+    Δικτυακή IP διεύθυνση του Πελάτη. Κάθε μοναδική διεύθυνση IP πελάτη απαιτεί ξεχωριστά κλειδιά API

@@ -1,0 +1,27 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Što je osTicket(uzorak)?
+  response: |
+    osTicket je široko korišteni open source sustav za tehničku podršku,
+    atraktivna alternativa skuplje i složene sustave tehničke podrške - jednostavan, lagan, pouzdan, open source, web baziran i jednostavan za postavljanje i upotrebu .
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Pripremljeni prilozi su zakon!
+- 
+  isenabled: 1
+  title: Uzorak (sa varijablama)
+  response: |
+    Pozdrav %{ticket.name.first},
+    <br>
+    <br>
+    Vaš zadatak #%{ticket.number} kreiran %{ticket.create_date} je u
+    %{ticket.dept.name} odjelu.
+  0: |
+

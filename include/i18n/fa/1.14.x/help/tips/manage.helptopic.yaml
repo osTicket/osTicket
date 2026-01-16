@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: اطلاعات سرفصل راهنما
+  content: >
+    <span class="doc-desc-title">موضوع کمک </span>مشخص می کند چه اطلاعاتی از کاربر گرفته شود و درخواست ها به کجا ارسال و یا ارجاع شوند.
+topic:
+  title: نام موضوع
+  content: >
+    نام موضوع کمک باید منحصر به فرد باشد.
+status:
+  title: وضعیت
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: نوع
+  content: >
+    اگر<span class="doc-desc-title"> موضوع کمک</span> را به عنوان خصوصی انتخاب کنید ، فقط برای کارمندان وقتی که بخواهند از طریق صفحه خودشان درخواست بفرستند قابل انتخاب می شود.
+parent_topic:
+  title: موضوع والد
+  content: >
+    مشخص کنید این <span class="doc-desc-title">موضوع کمک</span> به کدام موضوع والد تعلق داشته باشد. موضوع والد ابتدا ظاهر می شود و<span class="doc-desc-title"> موضوع کمک</span> بعد از آن قرار می گیرد.
+custom_form:
+  title: فرم سفارشی
+  content: >
+    فرم های سفارشی کمک می کنند تا اطلاعات خاص تر و موضوعی تر را از کاربرانی که این <span class="doc-desc-title">موضوع کمک</span> را انتخاب می کنند بدست بیاورید.
+  links:
+    - 
+      title: مدیریت فرم های سفارشی
+      href: /scp/forms.php
+priority:
+  title: اولویت
+  content: >
+    اولویت درخواست های مربوط به <span class="doc-desc-title">موضوع کمک</span> را انتخاب کنید.<br><br> فیلترهای درخواست می توانند اولویت درخواست جدید را زیر پا بگذارنند و آنها را بازنویسی کنند.
+department:
+  title: واحد سازمانی
+  content: >
+    واحد سازمانی را که درخواست های مربوط به این موضوع کمک را دریافت می کند را مشخص کنید.
+  links:
+    - 
+      title: مدیریت واحد های سازمانی
+      href: /scp/departments.php
+sla_plan:
+  title: طرح SLA
+  content: >
+    لطفا طرح SLA مربوط به این <span class="doc-desc-title"> موضوع راهنما </span> را انتخاب نمایید <br><br> این انتخاب طرح SLA تمامی بخشهای انتخاب شده را بازنویسی میکند .
+  links:
+    - 
+      title: مدیریت طرح SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: صفحه ی تشکر
+  content: >
+    صفحه تشکری که کاربر بعد از ارسال درخواست جدید با <span class="doc-desc-title">موضوع کمک</span> موردنظر به آن هدایت می شود را مشخص کنید.
+  links:
+    - 
+      title: مدیریت صفحات تشکر 
+      href: /scp/pages.php
+auto_assign_to:
+  title: خودکار اختصاص درخواست جدید
+  content: >
+    بصورت اختیاری می توانید کارشناس و یا تیمی را برای مرجوع شدن درخواست های جدید با این <span class="doc-desc-title">موضوع کمک</span> انتخاب کنید.<br><br> فیلترهای درخواست می توانند این ارجاع را زیر پا بگذارند.(اولویت با فیلترهای درخواست است)
+  links:
+    - 
+      title: مدیریت کارکنان و تیم ها
+      href: /scp/staff.php
+ticket_auto_response:
+  title: پاسخ خودکار درخواست
+  content: >
+    گر انتخاب شود تنظیمات مربوط به پاسخ خودکار برای این <span class="doc-desc-title">موضوع کمک</span> غیرفعال می شود.<br><br>این تنظیمات مربوط به پاسخ دهنده خودکار <span class="doc-desc-title">واحد سازمانی </span>و تنظیمات کلی <span class="doc-desc-title">پاسخ دهنده خودکار</span> را زیر پا می گذارد.
+  links:
+    - 
+      title: تنظیمات پاسخگوی خودکار 
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: شماره درخواست های سفارشی
+  content: >
+    برای زیر پا گذاشتن شماره گذاری پیش فرض درخواست های ایجاد شده در این موضوع کمک "سفارشی" را انتخاب کنید. برای جزئیات بیشتر صفحه ی راهنمای تنظیمات / درخواست ها را مشاهده کنید.

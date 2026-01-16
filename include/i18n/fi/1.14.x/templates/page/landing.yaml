@@ -1,0 +1,17 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Tukijärjestelmän etusivun teksti. Pohja määrittää sisällön ennen <strong>Avaa uusi tiketti</strong> ja <strong>Tarkista tiketin tila</strong> linkkejä.
+name: Aloitussivu
+body: >
+  <h1>Tervetuloa tukikeskukseen</h1>
+  <p>
+  Nopeuttaaksemme tukipyyntöjä ja parantaaksemme palvelutasoamme, 
+  käytämme tikettijärjestelmää. Jokainen tukipyyntö saa oman 
+  tikettinumeron, jota voit käyttää seuraaksesi etenemistä ja vastauksia verkossa.
+  Arkistoimme täyden historian kaikista tukipyynnöistäsi myöhempää käyttöä varten.
+  Toimiva sähköpostiosoite tarvitaan, jotta voit lähettää tukitiketin.
+  </p>

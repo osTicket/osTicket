@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: 案件動態
+  content: >
+    選擇一個日期範圍，可影響圖型與表格（參閱 <span class="doc-desc-title"> 統計</span>） 把重點放在任何這些日期所相應的資料。下圖將反映整個系統的資料（如：人口）簡要概述。然而，您可能會在下面把重點縮小到（例如，部門、 主題或工作人員） 的 <span class="doc-desc-title"> 統計</span> 表格。此外，您可以匯出當前顯示任何資料<span class="doc-desc-title"> 統計</span> 表格。
+report_timeframe:
+  title: 回報時間範圍
+  content: >
+    使用日期選擇器的選擇所需的資料開始日期。然後，從該日期來定義您的選擇時間的長度與資料樣本的結束日期。
+statistics:
+  title: 統計資料
+  content: >
+    藉由點擊搜尋表格與査看有興趣的特殊範本資料。在表內，圓圈代表的被指定資料的大小。因此，較大圓圈相應較大的資料。
+opened:
+  title: 已開啟
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: 已分配
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: 逾期
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: 已關閉
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: 已重啟
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: 已刪除
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: 服務時間
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: 回覆時間
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Тип
+  content: >
+    Ако вида на отдела е частен, тогава подписът на отдела няма да е достъпен при отговор, нито назначенията на отдела ще се показват в клиентския портал.
+dept_manager:
+  title: Ръководител отдел
+  content: >
+    Може да изберете сътрудник за ръководител на отдела, за да получава предупреждения и уведомления за заявките в отдела.
+  0: Не е необходимо сътрудниците да са членове на отдела, за да бъдат негови ръководители

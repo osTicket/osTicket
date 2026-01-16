@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: E-pasta šabloni
+  content: >
+    E-pasta šablonu kopnes tiek lietotas, lai nosūtītu automātiskās atbildes un brīdinājumus par dažādiem notikumiem, kas var notikt pieteikuma darbības laikā.
+template_to_clone:
+  title: Šablona klonēšana
+  content: >
+    Izvēlieties šablonu kopni, kas jāklonē vai vienkārši sāciet ar iekļautajiem e-pastu šabloniem.
+language:
+  title: Valoda
+  content: >
+    Izvēlaties vēlamo valodu <span class="doc-desc-opt">standarta</span><span class="doc-desc-title">E-pasta šablonu kopnei</span>. Valodu pakotnes pieejamas osTicket.com.
+  links:
+    - 
+      title: osTicket Valodas pakotne
+      href: https://osticket.com/download
+status:
+  title: Statuss
+  content: >
+    <span class="doc-desc-opt"> Iespējots</span> Šablonu kopnes iespējams pievienot Departamentiem un pēc noklusējuma uzstādot sistēmu. Lietošanā esošās Šablonu kopnes nav iespējams <span class="doc-desc-opt"> Atspējot</span>.

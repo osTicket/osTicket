@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Dane Firmy
+  content: >
+    Odnosi się to do firmy lub organizacji, która będzie korzystać z oprogramowania osTicket i jej personelu pomocniczego. Informacje zawarte tutaj będą pojawiać się w podpisach maili (w stopce), gdy przedstawiciel udzieli odpowiedzi na zgłoszenie.
+  links:
+    - 
+      title: Formularz informacyjny firmy
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Strona Startowa
+  content: >
+    <span class="doc-desc-title">Strona Startowa</span> jest wyświetlany na stronie głównej witryny pomocy technicznej.
+offline_page:
+  title: Strona w trybie offline
+  content: >
+    <span class="doc-desc-title">Strona w trybie offline</span> jest wyświetlana w witrynie wsparcia, gdy system jest nieaktywny, zobacz Panel administracyjny -&gt; Ustawienia -&gt; System -&gt; Status systemu.
+default_thank_you_page:
+  title: Domyślna strona podziękowania
+  content: >
+    <span class="doc-desc-title">Strona z podziękowaniem</span> jest wyświetlana, gdy <span class="doc-desc-title">Klient</span> założy nowe zgłoszenie. <br/><br/> <span class="doc-desc-title">Strony podziękowania</span> mogą być powiązane z tematami pomocy.
+logos:
+  title: Logo
+  content: >
+    Możesz dostosować <span class="doc-desc-title">Logo</span>, które będzie wyświetlane na Portalu Klienta (twojej Stronie Systemu Wsparcia).
+upload_a_new_logo:
+  title: Prześlij nowe logo
+  content: >
+    Wybierz obraz w formatach .gif, .jpg lub .png. Dostosujemy proporcjonalnie rozmiar wyświetlanego obrazu, jednak nie zmienimy jego rzeczywistych wymiarów. W związku z tym, aby przyspieszyć ładowanie zalecamy, aby rozmiar obrazu był możliwie bliski (817px × 170px).
+backdrops:
+  title: Tło
+  content: >
+    Możesz dostosować <span class="doc-desc-title">Tło</span>, które będzie wyświetlane na stronie logowania załogi.
+upload_a_new_backdrop:
+  title: Wgraj nowe tło
+  content: >
+    Wybierz obraz w formacie GIF, JPG lub PNG. Będziemy proporcjonalnie zmienić rozmiar wyświetlanego obrazu. Nie będziemy jednak zmienić rozmiar obrazu. Dlatego, aby przyśpieszyć czas ładowania, zaleca się, aby obraz był stosunkowo mały (poniżej megabajta). Należy również zauważyć, że obowiązują maksymalne ustawienia PHP dla wczytywanych plików.

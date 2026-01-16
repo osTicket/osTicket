@@ -1,0 +1,11 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Kjo mostër përcakton njoftimin që i dërgohet klientit që linku i çasjes është dërguar në e-mail. Numri i tiketës dhe e-mail adresa mundësojnë çasjen në linkun e dërguar.
+name: "Çasja në Tiketën [#%{ticket.number}]"
+body: >
+  <h3><strong>Përshëndetje %{recipient.name.first},</strong></h3> <div>Kërkesa juaj për linkun e çasjes në lidhje me tiketën #%{ticket.number} është dërguar për %{url}.<br /><br /> 
+  Klikoni linkun e mëposhtëm për të kontrolluar statusin e tiketës #%{ticket.number}.<br /><br /><a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br />Nëse ju <strong>nuk e keni bërë</strong> këtë kërkesë, ju lutemi fshijeni dhe injoroni këtë e-mail. Kontoja juaj ende është e sigurtë dhe askujt nuk i kemi dhënë çasje në tiketën tuaj. Dikush ka mundur ta shkruaj e-mail adresën tuaj gabimisht.<br /> <br /> --<br /> %{company.name} </div>

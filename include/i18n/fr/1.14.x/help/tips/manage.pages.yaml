@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Pages du site
+  content: >
+    Les pages du site peuvent servir comme un mini CMS. Vous pouvez définir plusieurs pages de destination, hors ligne et pages de remerciement et les configurer dans les paramètres de la société et dans les rubriques d'aide.
+  links:
+    - 
+      title: Paramètres de la société
+      href: /scp/settings.php?t=pages
+type:
+  title: Type
+  content: >
+    Les pages <span class="doc-desc-opt">hors-ligne</span> sont affichées sur le portail client si votre service d'assistance est désactivée. Les pages de <span class="doc-desc-opt">renvoi</span> sont affichées sur la page d'accueil de votre portail client. Les pages de <span class="doc-desc-opt">remerciement</span> s'affichent après qu'un utilisateur soumet un billet. Les <span class="doc-desc-opt">autres</span> pages peuvent être utilisées comme un système de gestion de contenu (CMS).

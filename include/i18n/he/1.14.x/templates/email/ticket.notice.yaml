@@ -1,0 +1,37 @@
+---
+#Email template: ticket.notice.yaml
+#Sent to a user when a staff member creates a ticket on the user's behalf.
+#This is most commonly performed when user's call in on the phone.
+#---
+notes: |
+  נשלח ללקוח כאשר הסוכן פותח קריאה על שמו.
+  הדבר הכי נפוץ כאשר הלקוח יוצר קשר דרך הטלפון.
+subject: |
+  %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>היקר %{recipient.name.first},</strong></h3>
+  צוות התמיכה שלנו פתח קריאה <a href="%{recipient.ticket_link}">#%{ticket.number}</a> בשמך
+  נושא הקריאה הוא:
+  <br>
+  <br>
+  Topic: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Subject: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  נציג יצור עמך קשר בקרוב או שיטפל בקריאה מרחוק, בכל מקרה תקבל עדכון לגבי מצב הקריאה,בנוסף אתה יכול לעקב אחר<a href="%{recipient.ticket_link}">צפה במצב הקריאה שלך באתר התמיכה שלנו</a>.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">
+  צוות %{company.name} התמיכה שלך,<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>אם יש לך תגובות נוספות לגבי קריאה זו אנא השב למייל זה, או
+  <a href="%{recipient.ticket_link}"><span style="color: rgb(84, 141, 212);" >התחבר למשתמש שלך באתר התמיכה שלנו</span></a> for
+  על מנת לראות את כל תהליך הטיפול בקריאה.</em></div>

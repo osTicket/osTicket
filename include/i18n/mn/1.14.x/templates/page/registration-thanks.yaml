@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Хэрэглэгч бүртгэлээ амжилттай баталгаажуулсны дараа харуулах хуудас дээрх агуулгын загвар. Энэхүү загварт хэрэглэгчийн бүртгэл бүрэн хийгдсэн бөгөөд хэрэглэгч одоо шинээр хүсэлт үүсгэх эсвэл өмнөх хүсэлтүүдээ үзэж болохыг түүнд мэдээлэх нь зүйтэй.
+name: "Бүртгэл баталгаажлаа!"
+body: >
+  <div> <strong>Бүртгүүлсэнд баярлалаа.</strong><br /> <br /> Таны имэйл хаяг баталгаажсан бөгөөд хэрэглэгчийн бүртгэл тань идэвхжсэн байна. Та одоо шинээр хүсэлт нээх эсвэл өмнөх хүсэлтүүд уруугаа хандаж болно.<br /> <br /> <em>Тусламж үйлчилгээний алба</em><br /> %{company.name} </div>

@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Ces modèles définissent la page présentée aux Clients après avoir terminé le formulaire d'inscription. Le modèle devrait mentionner que le système leur envoie un lien de confirmation par courriel et quelle est la prochaine étape dans le processus d'inscription.
+name: "Enregistrement d'un compte"
+body: >
+  <div><strong>Merci pour l'ouverture d'un compte.</strong><br/><br />Nous venons juste de vous envoyer un courriel à l'adresse indiquée. Veuillez suivre ce lien pour confirmer votre compte et accédez à vos tickets.</div>

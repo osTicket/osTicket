@@ -1,0 +1,45 @@
+{{#extend "example-group"}}
+  {{#content "body"}}
+    {{#extend "example"}}
+      {{#content "title"}} Using the ConsoleDebug extension {{/content}}
+      {{#content "description"}}
+        <p>
+          When the <code>debug</code> option is enabled, the builtin Debugger extension
+          will be loaded.
+          <br>
+          On debug mode, every event is logged (as debug level) in the browser console.
+          You can also intercept those logs with the 'colorpickerDebug' event, as shown
+          in this example.
+          <br>
+          This example also shows how the events are triggered and when.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp1" class="input-group colorpicker-component">
+          <input type="text" class="form-control input-lg" value="#902100"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <br>
+        <ul id="cp1_debug"></ul>
+        <script>
+          $(function () {
+            var n = 0;
+            $('#cp1').colorpicker({
+              debug: true
+            }).on('colorpickerDebug', function (e) {
+              var dbg = $('#cp1_debug');
+              n++;
+              while (dbg.find('li').length > 10) {
+                // only list last 10 events
+                dbg.find('li').first().remove();
+              }
+              dbg.append(`<li>${n}: ${e.debug.eventName}</li>`);
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+  {{/content}}
+{{/extend}}

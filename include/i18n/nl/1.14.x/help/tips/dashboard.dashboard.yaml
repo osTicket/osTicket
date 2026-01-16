@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Ticket activiteit
+  content: >
+    Selecteer een datumbereik om zowel de grafiek en de tabel hieronder (zie  <span class="doc-desc-title">Statistieken</span>) aan te passen aan de gegevens uit die periode. De grafiek hieronder geeft steeds een algemeen overzicht van alle beschikbare data (bv. populatie). Je kan echter ook navigeren via de <span class="doc-desc-title">Statistieken</span> tabel hieronder om de focus meer specifiek te maken (bv. Afdeling, Onderwerpen of Personeel). Bovendien kan je alle data zichtbaar in de <span class="doc-desc-title">Statistieken</span> tabel exporteren.
+report_timeframe:
+  title: Rapportage tijdspanne
+  content: >
+    Kies voor het gewenste gegevens voorbeeld een startdatum met de datumkiezer. Kies vervolgens de tijdsduur vanaf die datum om het einde van het gegevensvoorbeeld vast te stellen.
+statistics:
+  title: Statistieken
+  content: >
+    Om een specifiek onderwerp te bekijken, navigeer naar het gewenste onderwerp door op de overeenkomstige tab te klikken. Binnen de tabel wordt de grootte van de nominale data voorgesteld door de cirkels. Zodoende zal bij een groter getal in een bepaalde cel de aangrenzende cirkel groter zijn.
+opened:
+  title: Geopend
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Toegewezen
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Achterstallig
+  content: >
+    Tckets die door het systeem als verlopen gemarkeerd zijn. Tickets worden als verlopen gemarkeerd wanneer ze nog 'open' staan terwijl de responstijd (volgens het SLA) voorbij is.
+closed:
+  title: Gesloten
+  content: >
+    Het aantal tickets dat momenteel de status gesloten heeft.
+reopened:
+  title: Heropend
+  content: >
+    Het totaal aantal keer dat een ticket heropend is. Een ticket wordt heropend als de status wordt veranderd van gesloten naar open.
+deleted:
+  title: Verwijderd
+  content: >
+    Het aantal tickets dat verwijderd is.
+service_time:
+  title: Service tijd
+  content: >
+    Verwijst naar de tijdsduur die begint op het moment dat een ticket geopend wordt en eindigt wanneer een ticket gesloten wordt. De kolom servicetijd geeft de gemiddelde servicetijd per ticket aan in uren.
+response_time:
+  title: Reactietijd
+  content: >
+    Geeft de gemiddelde responstijd aan van een medewerker, in uren, van een bericht op een ticket.

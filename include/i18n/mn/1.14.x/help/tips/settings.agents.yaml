@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Ажилтны нэрийн формат
+  content: >
+    Системд ашиглах ажилтны нэрийн форматыг сонгоно уу. Хэрэв өөр ямар нэг формат зааж өгөөгүй бол имэйл загварууд энэ форматыг ашиглах болно.
+staff_identity_masking:
+  title: Ажилтны нэрийг нуух
+  content: >
+    Хэрэв идэвхжүүлсэн бол хэрэглэгчтэй харилцах явцад Ажилтны нэрийг нуух болно.
+#Authentication settings
+password_reset:
+  title: Нууц үгийн хүчинтэй байх хугацаа
+  content: >
+    Ямар хугацаа (сараар) өнгөрсний дараа ажилтнуудын нууц үгийг солиулахыг тохируулна. Хэрэв идэвхгүй бол ("Үргэлж хүчинтэй") нууц үг дуусах хугацаа гэж байхгүй.
+password_expiration_policy:
+  title: Нууц үгийн хүчинтэй байх хугацаа
+  content: >
+    Ажилчдын нууц үгээ солих давтамжийг тохируулна. Хэрвээ идэвхигүй болговол (жиш., <span class="doc-desc-opt">Дуусахгүй</span>) нууц үгийг солих шаардлагагүй.
+allow_password_resets:
+  title: Нууц үг сэргээхийг зөвшөөрөх
+  content: >
+    Нэвтрэх оролдлого амжилтгүй болох үед <span class="doc-desc-title">Ажилтны нэвтрэх хэсэг</span> хуудас дээр <span class="doc-desc-title">Нууц үгээ мартсан</span> холбоосыг харуулах бол энийг идэвхжүүлнэ үү.
+reset_token_expiration:
+  title: Нууц үг сэргээх цонх
+  content: >
+    <span class="doc-desc-title">Нууц үг сэргээх кодын</span> хүчинтэй хугацааг (минутаар) сонгоно уу. Ажилтан <span class="doc-desc-title">Нууц үг сэргээх</span> хүсэлт гаргахад энэ үйлдлийг хийх түр кодыг мэйл хаягаар нь илгээнэ.
+staff_session_timeout:
+  title: Ажилтны нэвтрэлтийн үргэлжлэх хугацаа
+  content: >
+    Ажилтан үйлдэл хийхгүй хэдэн минут болсны дараа дахин нэвтрэх шаардлагатайг сонгоно уу. <br><br> Хэрвээ үүнийг идэвхигүй болгохыг хүсвэл <span class="doc-desc-title">Ажилтнуудын Session Timeout</span>-д 0 гэж оруулна.
+bind_staff_session_to_ip:
+  title: Ажилтны нэвтрэлтийг IP хаягтай нь уях
+  content: >
+    Амжилттай нэвтэрсний дараа тухайн ажилтан аль IP хаягнаас нэвтэрснийг сануулах бол үүнийг идэвхжүүлнэ. <br><br> IP хаягийг динамикаар олгодог бол ашиглахгүй байхыг зөвлөж байна.

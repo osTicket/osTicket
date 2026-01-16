@@ -1,0 +1,25 @@
+---
+#Email template: task.transfer.alert.yaml
+#Sent to agents when a task is transfered to their department.
+#---
+notes: |
+  ارسال به کارشناسان در زمان انتقال وظیفه به دپارتمان آنها.
+subject: |
+  Task #%{task.number} transfer - %{task.dept.name}
+body: |
+  <h3>سلام %{recipient},</h3>
+  درخواست <a href="%{ticket.staff_link}">#%{ticket.number}</a> توسط <strong>%{staff.name.short}</strong>به بخش %{ticket.dept.name} department by انتقال یافت.
+  <br>
+  <br>
+  <blockquote>
+      %{comments}
+  </blockquote>
+  <hr>
+  <div>برای مشاهده یا پاسخ به این درخواست لطفا <a
+  href="%{ticket.staff_link}">وارد</a> سیستم پشتیبانی درخواست ها شوید.
+  </div>
+  <em style="font-size: small; ">سیستم پشتیبانی مشتریان شما</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"
+      alt="Powered By osTicket" style="width: 126px;"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  این الگو محتوای نمایش داده شده پس از ثبت موفق کاربر را تعیین میکند. این صفحه باید کاربر را از ثبت نام موفق با خبر ساخته و راهنمایی لازم جهت ایجاد درخواست جدید و یا دسترسی به درخواستهای قبلی را انجام دهد.
+name: "حساب کاربری تائید شد!"
+body: >
+  <div> <strong>با تشکر از ثبت نام شما</strong><br /> <br /> آدرس پست الکترونیک شما تایید و حساب کاربری با موفقیت فعال شد. شما می توانید درخواست جدید ثبت نمایید یا درخواستهای قبلی خود را مدیریت کنید.<br /> <br /> <em>واحد پشتیبانی</em><br /> %{company.name} </div>

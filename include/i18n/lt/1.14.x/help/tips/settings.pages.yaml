@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Įmonės informacija
+  content: >
+    Tai susiję su įmone arba organizacija, kurios gaus naudos dėl osTicket programinės įrangos ir pagalbinių darbuotojų. Informaciją rasite elektroninio pašto parašuose (t.y., paraštėje) kai į užklausas atsakoma agentų.
+  links:
+    - 
+      title: Informacijos apie kompaniją formą
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Pagrindinis puslapis
+  content: >
+    <span class="doc-desc-title">Nukreipimo puslapis</span>, rodomas jūsų pagalbos sistemos tituliniame puslapyje.
+offline_page:
+  title: Neprisijungęs tinklalapis
+  content: >
+    <span class="doc-desc-title">Neprisijungęs tinklalapis</span>, rodomas pagalbos sistemos puslapyje, kuomet pagalbos sistema yra atsisjungusi, žr. Administratoriaus valdymo meniu &gt;nustatymas&gt;sistema&gt;Pagalbos sistemos statusas.
+default_thank_you_page:
+  title: Numatytasis padėkos puslapis
+  content: >
+    <span class="doc-desc-title">Padėkos puslapis</span>yra rodomas vartotojui, kuomet <span class="doc-desc-title">Klientas</span>pateikia naują užklausą<br/><br/><span class="doc-desc-title">Padėkos</span>puslapiai gali būti susieti su pagalbos temomis.
+logos:
+  title: Logotipai
+  content: >
+    Galite individualizuoti<span class="doc-desc-title">Logotipą</span>, kuris bus rodomas klientui jo portale (t.y. jūsų pagalbos puslapyje).
+upload_a_new_logo:
+  title: Įkelti naują logotipą
+  content: >
+    Pasirinkite vaizdinį .gif, .jpg arba .png formatu. Mes proporcingai pakeisime rodomą paveikslėlio dydį. Vis dėlto mes nepakeisime paveikslėlio duomenų. Vis dėlto, norint pagreiinti krovimo laikus, rekomenduojama, kad paveikslėlio dydis būtų artimas numatytajam pagal nutylėjimą (817px &times; 170px).
+backdrops:
+  title: Fonai
+  content: >
+
+    Galite tinkinti <span class = "doc-desc-title"> fonas </ span>, kuris bus rodomas darbuotojų prisijungimo puslapyje.
+upload_a_new_backdrop:
+  title: Įkelti naują foną
+  content: >
+    Pasirinkite atvaizdą per .gif, .jpg arba .png formatus. Mes proporcingai keisti savo įvaizdį ekrane. Mes ne, tačiau pakeisti vaizdo dydį duomenis. Todėl greičio apkrovos metu, ji yra rekomenduojama, kad jūs išlaikyti savo įvaizdį gana mažas (pagal megabaitą). Taip pat atkreipkite dėmesį, kad taikyti PHP maks įkelti nustatymai.

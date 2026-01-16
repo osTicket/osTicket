@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Detta är det huvudmeddelandet och omslagsbilden som visas på personalens inloggningssida. Det första inmatningsfältet avser den röd-formaterade texten som visas längs upp. Den efterföljande textrutan avser omslagets innehåll och bör tjäna som ansvarsfriskrivning.
+name: "Autentisering krävs"
+body: ""

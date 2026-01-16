@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Информация за помощната тема
+  content: >
+    <span class="doc-desc-title">Помощните теми</span> управляват каква информация се събира от потребителите и как се насочват и възлагат заявките.
+topic:
+  title: Име на темата
+  content: >
+    Уникално име на помощната тема.
+status:
+  title: Статус
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Тип
+  content: >
+    Ако <span class="doc-desc-title">помощната тема</span> е отбелязана като частна тя ще бъде налична за избиране само от сътрудници, когато сътрудник отваря нова заявка от панела за сътрудниците.
+parent_topic:
+  title: Основна тема
+  content: >
+    Изберете основната тема, към която тази <span class="doc-desc-title">помощната тема</span> ще принадлежи. Основната тема ще се показва първа в списъка, последвана от тази <span class="doc-desc-title">помощна тема</span>.
+custom_form:
+  title: Потребителска формуляр
+  content: >
+    Потребителските формуляри помагат за получаването на по-конкретна информация от потребителите, засегнати от тази <span class="doc-desc-title">помощна тема</span>.
+  links:
+    - 
+      title: Управление на потребителските формуляри
+      href: /scp/forms.php
+priority:
+  title: Приоритет
+  content: >
+    Изберете приоритета на възлаганите за нови заявки, който са свързани с тази <span class="doc-desc-title">помощна тема</span>. <br><br> Филтрите за заявки могат да променят приоритета на новите заявки.
+department:
+  title: Отдел
+  content: >
+    Изберете отдела, към който ще бъдат изпращани новите заявки, в рамката на тази помощна категория.
+  links:
+    - 
+      title: Управление на отделите
+      href: /scp/departments.php
+sla_plan:
+  title: SLA план
+  content: >
+    Изберете SLA план, който отговаря за тази <span class="doc-desc-title">помощна тема</span>. <br><br> Този избор ще замени всеки друг предварително избран SLA план за отдела
+  links:
+    - 
+      title: Управление на SLA плановете
+      href: /scp/slas.php
+thank_you_page:
+  title: Страница с благодарности
+  content: >
+    Изберете страницата с благодарности, към която ще се насочва потребителят, след отваряне на заявка в тази <span class="doc-desc-title">помощна тема</span>.
+  links:
+    - 
+      title: Управление на страниците с благодарности
+      href: /scp/pages.php
+auto_assign_to:
+  title: Автоматично възлагане на нови заявки
+  content: >
+    При необходимост, изберете сътрудник или екип, на който ще се възлагат автоматично заявките, отворени с тази <span class="doc-desc-title">помощна тема</span> <br><br> Филтърът за заявки може да замени това възлагане.
+  links:
+    - 
+      title: Управление на служители и екипи
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Автоматичен отговор на заявка
+  content: >
+    Ако тази настройка е избрана, тя ще изключи автоматичните отговори на нови заявки за тази <span class="doc-desc-title">помощна тема</span>. <br><br> Тя заменя настройката за автоматичните отговори за <span class="doc-desc-title">отдела</span>, а също така и глобалните настройки за <span class="doc-desc-title">автоматични отговори</span>а.
+  links:
+    - 
+      title: Настройки за автоматичните отговори
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Форматиране на номерацията на заявки по избор
+  content: >
+    Изберете по избор, за да замените номерацията на заявките по подразбиране на системата с ваша, за заявки, които са създадени в тази помощна тема. Погледнете подсказките на страницата настройки/заявки, за по-подробна информация за настройките.

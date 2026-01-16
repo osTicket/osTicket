@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Keutamaan + sebahagian Tempahan dikemaskini
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: Keutamaan + sebahagian Tempahan dicipta
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: Keutamaan + tarikh matang
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: Tarikh Akhir
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: Tarikh ditutup
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: Cipta Tarikh
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

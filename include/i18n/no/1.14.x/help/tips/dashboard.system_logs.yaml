@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Systemlogg
+  content: >
+    Dette er hvor du finner alle feillogger og aktivitets logg (f.eks advarsler eller feil).
+  links:
+    - 
+      title: Tilpasse hva slags aktiviteter som logges ved å endre < br / > <span class="doc-desc-title"> Standard loggnivå</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Datointervall
+  content: >
+    Velg fra-til dato for det du vil vise i <span class="doc-desc-title"> Systemlogger</span>.
+type:
+  title: Type
+  content: >
+    Velg et alternativ for å begrense fokus til en bestemt type aktivitet. <span class="doc-desc-opt"> Feilsøk</span> representerer minst alvorlighetsgraden og <span class="doc-desc-opt"> Feil</span> representerer den høyeste alvorlighetsgraden.
+showing_logs:
+  title: Viser &hellip; logger
+  content: >
+    Husk å sjekke <span class="doc-desc-title"> side</span> delen nedenfor for å sikre at det ikke er flere sider som viser tilgjengelige systemlogg.
+log_title:
+  title: Logg tittel
+  content: >
+    Klikk på <span class="doc-desc-title"> Logg tittel</span> hvis du vil sortere resultatene etter <span class="doc-desc-title"> Logg tittel</span>.
+log_type:
+  title: Loggtype
+  content: >
+    Klikk på <span class="doc-desc-title"> Loggtype</span> hvis du ønsker å sortere resultatene etter <span class="doc-desc-title"> Loggtypen</span>.
+log_date:
+  title: Logg dato
+  content: >
+    Dette er datoen loggen ble generert av programvaren. Hvis du vil sortere resultatene etter <span class="doc-desc-title"> Logg dato</span>, klikker du <span class="doc-desc-title"> Logg dato</span> på tabelloverskriften. (Bruk <span class="doc-desc-title"> Dato Spenn</span> skjemaet ovenfor begrense loggenes tidsrom.)
+ip_address:
+  title: IP-adresse
+  content: >
+    Dette refererer til <span class="doc-desc-title"> IP</span>-<span class="doc-desc-title"> adressen</span> til enten agent eller klient som bruker osTicket når loggen ble generert.

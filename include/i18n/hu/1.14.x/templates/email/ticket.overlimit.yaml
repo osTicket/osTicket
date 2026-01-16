@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Felhasználóknak küldve, mikor elérik a nyitott hibajegyek maximum értékét. Ez a határérték az Admin felületen adható meg és a nyitott hibajegyek számát határozza meg az egyes email címekhez.
+subject: |
+  Nyitott hibajegyek határértékének elérése
+body: |
+  <h3><strong>Kedves %{ticket.name.first},</strong></h3>
+  Elérte a maximálisan nyitható hibajegyek számát. Ahhoz, hogy új hibajegyet küldjön be, egy folyamatban lévő hibajegyet le kell zárni. Egy nyitott hibajegy állapotának frissítéséhez vagy megjegyzéséhez egyszerűen <a
+  href="%{url}/tickets.php?e=%{ticket.email}">lépjen be az online ügyfélszolgálatra</a>.
+  <br>
+  <br>
+  Köszönettel,<br/>
+  Ügyfélszolgálat

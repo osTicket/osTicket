@@ -1,0 +1,19 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  เทมเพลตนี้สำหรับตั้งค่า email ที่ส่งออกไปยังผู้ใช้งานระบบที่คลิก <strong>Forgot My Password</strong> link
+name: "%{company.name} Help Desk Access"
+body: >
+  <h3><strong>สวัสดี %{user.name.first},</strong></h3> 
+
+  <div> เราได้รับคำร้องของสมาชิก Ticket Support แจ้งขอเปลี่ยนแปลง Password ท่านสามารถตั้งรหัสผ่านใหม่สำหรับใช้งาน เพื่อยืนยันตัวตนและตั้งรหัสผ่าน คลิกที่นี่ %{url}.
+  <br /> 
+  <br /> <a href="%{link}">%{link}</a>
+  <br /> 
+  <br /> If you feel that this has been done in error, delete and disregard this email. Your account is still secure and no one has been given access to it. It is not locked and your password has not been reset. Someone could have mistakenly entered your email address.
+  <br /> 
+  <br /> <em style="font-size: small">Support System 
+  <br /> %{company.name}</em> </div>

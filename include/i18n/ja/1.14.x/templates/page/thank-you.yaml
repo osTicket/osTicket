@@ -1,0 +1,23 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  お問い合わせ完了ページはユーザーがカスタマーポータル上で新たにチケットを発行した場合に表示されます。
+
+name: ありがとうございます。
+body: |
+  <div>%{ticket.name}様
+  <br>
+  <br>
+  お問い合わせ頂きましてありがとうございます。
+  <br>
+  <br>
+  お問い合わせを受け付けました。
+  担当のものが対応準備いたしますので今しばらくお待ちください。
+  </p>
+  <br>
+  <br>
+  Support Team
+  </div>

@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Настраиваемые списки
+  content: >
+    Ваши <span class="doc-desc-title">пользовательские списки</span> позволят Вам создавать выпадающие списки с предустановленными вариантами, из которых Клиент сможет выбрать, когда он будет использовать Ваши <span class="doc-desc-title">Пользовательские Формы</span>. Если Вы хоите использовать этот <span class="doc-desc-title">пользовательский список</span> как <span class="doc-desc-title">цель</span> для <span class="doc-desc-title">Фильтра Заявок</span>, обязательно добавьте этот список к Вашей форме <span class="doc-desc-title">Детали Заявки</span>.
+name:
+  title: Имя
+  0: >
+
+plural_name:
+  title: Имя во Множественном Числе
+  0: >
+
+sort_order:
+  title: Порядок Сортировки
+  0: >
+
+list_s_initial_items:
+  title: Первоначальные Элементы Списка
+  0: >
+
+value:
+  title: Значение
+  0: >
+
+extra:
+  title: Дополнительно
+  content: >
+    Аббревиатуры и подобное. Если Вы используете внутренние коды для элементов списка, эти коды и аббревиатуры могут быть введены в этой колонке. Если пользовательский список визуализируется как <span class="doc-desc-option"> TypeAhead</span>, эти аббревиатуры смогут использоваться для поиска элементов пользовательского списка.

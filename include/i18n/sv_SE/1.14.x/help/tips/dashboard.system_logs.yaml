@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Systemloggar
+  content: >
+    Här hittar du felsökningsrelaterad historik (t ex Fel, Varningar eller Buggar).
+  links:
+    - 
+      title: Anpassa vilken typ av händelser som loggas genom att ändra <br /><span class="doc-desc-title">Standardnivån för loggning</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Datumintervall
+  content: >
+    Välj datumintervall för vilket du vill visa <span class="doc-desc-title">Systemloggarna</span>.
+type:
+  title: Typ
+  content: >
+    Välj ett alternativ för att gallra ut vissa typer av händelser. <span class="doc-desc-opt">Avlusning</span> representerar den lägsta allvarlighetsgraden, och <span class="doc-desc-opt">Fel</span> motsvarar den allvarligaste typen av händelse.
+showing_logs:
+  title: Visar&hellip;loggar
+  content: >
+    Se till att kontrollera <span class="doc-desc-title">Sidor</span>-delen nedan så det inte finns fler sidor som visar tillgängliga systemloggar.
+log_title:
+  title: Logg-titel
+  content: >
+    Klicka på <span class="doc-desc-title">Logg-titeln</span> i tabellhuvudet för att sortera resultatet enligt <span class="doc-desc-title">Loggens titel</span>.
+log_type:
+  title: Loggtyp
+  content: >
+    Klicka på <span class="doc-desc-title">Logg-typ</span> i tabellhuvudet för att sortera resultatet enligt <span class="doc-desc-title">Loggens typ</span>.
+log_date:
+  title: Loggdatum
+  content: >
+    Detta är datumet som loggen skapades av programvaran. Om du vill sortera informationen efter <span class="doc-desc-title">Loggdatum</span> klickar du på<span class="doc-desc-title">Loggdatum</span> i tabellhuvudet. (Använd <span class="doc-desc-title">Datumintervall-</span>funktionen ovan för att gallra ut den tidsperiod du är intresserad av.)
+ip_address:
+  title: IP-adress
+  content: >
+    Detta refererar till till <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Addressen</span> för antingen supportpersonen eller kunden som använde osTicket då loggfilen genererades.

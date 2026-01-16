@@ -1,0 +1,44 @@
+---
+new_ticket:
+  title: تذكرة جديدة
+  content: >
+    قم بتفعيل هذا الخيار إذا اردت أن يتم إرسال إستجابة تلقائية إلى المستخدم عند إنشاء تذكرة جديدة.
+  links:
+    - 
+      title: قالب استجابة تلقائية عند إنشاء تذكرة جديدة
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: تذكرة جديدة عبر طاقم العمل
+  content: >
+    يتم إرسال إشعار عندما ينشيء وكيل تذكرةً بالنيابة عن المستخدم. <em>يمكن للوكيل تجاوز هذا عند إنشاء تذاكر جديدة.</em>
+  links:
+    - 
+      title: قالب إشعار تذكرة جديدة
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: تأكيد إنشاء رسالة جديدة
+  content: >
+    يتم إرسال إشعار تأكيد عندما يتم إضافة رسالة جديدة إلى التذكرة الحالية.
+  links:
+    - 
+      title: قالب تأكيد رسالة جديدة
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: إشعار رسالة جديدة
+  content: >
+    قم ببث الرسائل المستلمة من مرسل الرسالة إلى جميع المشاركين في التذكرة.
+  links:
+    - 
+      title: قالب الإشعار بنشاط جديد
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: إشعار بتجاوز المدة المخصصة
+  content: >
+    تم إرسال إشعار تذكرة ممنوعة إلى المستخدم لمخالفة <span class="doc-desc-title"> الحد الأقصى للتذاكر المفتوحة</span>.
+  links:
+    - 
+      title: قالب إشعار تجاوز الحد
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: قم بتحديد <em>الحد الأقصى للتذاكر المفتوحة</em>
+      href: /scp/settings?t=tickets

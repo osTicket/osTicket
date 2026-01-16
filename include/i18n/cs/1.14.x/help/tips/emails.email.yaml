@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Téma podpory nového požadavku
+  content: >
+    Vyberte <span class="doc-desc-title">téma podpory</span>, které bude automaticky přiřazeno požadavkům odeslané na tuto e-mailovou adresu. <br/><br/> Formuláře přiřazené tomuto tématu podpory budou přidány k požadavku, ale nebudou obsahovat údaje.
+  links:
+    - 
+      title: Správa témat podpory
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Priorita nového požadavku
+  content: >
+    Vyberte <span class="doc-desc-title">prioritu</span> nových požadavků, které přisly na tuto e-mailovou adresu.
+new_ticket_department:
+  title: Oddělení nového požadavku
+  content: >
+    Vyberte <span class="doc-desc-title">oddělení</span>, do které budou nové požadavky odeslané na tuto e-mailovou adresu zařazeny.
+  links:
+    - 
+      title: Správa oddělení
+      href: /scp/departments.php
+auto_response:
+  title: Automatická odpověď na nový požadavek
+  content: >
+    Můžete automatickou odpověď, která se posílá uživatelům při vytvoření nového požadavku z této e-mailové adresy, vypnout.
+username:
+  title: Uživatelské jméno
+  0: >
+
+password:
+  title: Heslo
+  0: >
+
+login_information:
+  title: Přihlašovací údaje e-mailové schránky
+  content: >
+    <span class="doc-desc-title">Uživatelské jméno</span> a <span class="doc-desc-title">heslo</span> jsou vyžadovány pro stažení e-mailů z IMAP/POP schránek, stejně tak pro jejich odesílání pomocí SMTP.
+mail_account:
+  title: Stahování e-mailů
+  content: >
+    Stahování e-mailů ze vzdálených IMAP nebo POP e-mailových schránek a jejich převod na požadavky ve vašem systému zákaznické podpory.
+  links:
+    - 
+      title: Správa <span class="doc-desc-title">stahování e-mailů</span> a nastavení stahování pomocí funkce <span class="doc-desc-title">AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Server e-mailové schránky
+  content: >
+    Zadejte <span class="doc-desc-title">název</span> a <span class="doc-desc-title">číslo portu</span> vašeho e-mailového serveru. Tyto údaje by měly být dostupné v dokumentaci k vašemu e-mailovému účtu nebo u vašeho správce e-mailového serveru.
+protocol:
+  title: Protokol e-mailové schránky
+  content: >
+    Vyberte protokol e-mailové schránky podporovaný vaším e-mailovým serverem. Je-li možné, prokokol IMAP s SSL je doporučeno nastavit.
+fetch_frequency:
+  title: Frekvence stahování
+  content: >
+    Zadejte v minutách, jak často bude systém pokoušet se stahovat e-maily.<br/><br/> Tímto se definuje také průměrné zpoždění automatické odpovědi poté, co 
+    uživatel pošle e-mail na tuto e-mailovou adresu.
+emails_per_fetch:
+  title: Počet e-mailů při jednom stažení
+  content: >
+    Zadejte počet e-mailů, které budou zpracovány během jednoho stažení.
+fetched_emails:
+  title: Stažené e-maily
+  content: >
+    Rozhodněte, co udělat se zpracovanými emaily: <br/><br/> <span class="doc-desc-opt"><b>Přesunout do složky</b></span>: Tímto se přesune e-mail z doručené pošty do složky, kterou nastavíte. Pokud tato složka na serveru ještě neexistuje, systém se pokusí ji automaticky vytvořit. (<b>Doporučeno</b>) <hr> <span class="doc-desc-opt"><b>Smazat e-maily</b></span>: Touto volbou se smažou e-maily z Doručené pošty poté, co jsou zpracovány. <hr> <span class="doc-desc-opt"><b>Nedělat nic</b></span>: Tímto ponecháte e-maily ve svém Doručené poště. Systém si uloží identifikátory těchto vašich e-mailů a pokusí se je dále nezpracovávat. Přesto se může stát, že to způsobí duplikaci tiketů. (<em>Nedoporučeno</em>)
+smtp_settings:
+  title: Nastavení SMTP
+  content: >
+    E-mail ze systému zákaznické podpory může být odeslán pomocí SMTP serveru. Pokud je možno použít SMTP server, tak je tato volba doporučena, neboť se zvýší šance úspěšného odeslání e-mailů, což také bude mít za následek, že se sníží možnost jejich označení za spam.
+header_spoofing:
+  title: Povolit falšování hlaviček
+  content: >
+    Touto volbou umožníte odesílání e-mailů pomocí této e-mailové schránky z adresy, která je jiná než ta uvedená ve výše uvedeném nastavení 
+    <span class="doc-desc-title">E-mailová adresa</span>. <br/><br/> Toto rozšířené nastavení je používáno v momentě, když se posílá e-mail z aliasu této poštovní schránky.
+

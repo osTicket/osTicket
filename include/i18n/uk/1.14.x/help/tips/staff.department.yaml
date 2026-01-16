@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Статус
+  content: >
+    Якщо вимкнуто або архівовано то, цей <span class="doc-desc-title"> відділ </span> буде не доступний.
+type:
+  title: Тип
+  content: >
+    Виберіть <span class = "doc-desc-opt"> Приватний </span>, якщо Ви хочете приховати зв'язки заявок з відділом в клієнтському порталі. Також, якщо відзначено як <span class = "doc-desc-opt"> приватний </span>, то <span class = "doc-desc-title"> підпис відділу </span> не буде відображатися в листах-відповідях. <br/> <br/> Принаймні один відділ повинен бути <span class = "doc-desc-opt"> Загальний </span>
+email:
+  title: Email
+  content: >
+    Адреса електронної пошти, використовується при відправці відповідей користувачам, коли співробітники розміщують відповіді в заявці.
+template:
+  title: Набір шаблонів
+  content: >
+    <span class = "doc-desc-title"> Набір шаблонів </span> електронної пошти, використовуваний для автовідповіді, сповіщення та повідомлення для заявок, відправлених на відділ.
+  links:
+    - 
+      title: Керування шаблонами
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    SLA для заявок, які направляються в відділ.
+  links:
+    - 
+      title: Керування SLA планами
+      href: /scp/slas.php
+schedule:
+  title: Розклад
+  content: >
+    Розклад використовується для SLA при простроченні заявок спрямованих в даний відділ. <br> <br> Цей параметр керує налаштуваннями системи та розкладу SLA.
+  links:
+    - 
+      title: Керування розкладом
+      href: /scp/schedules.php
+manager:
+  title: Керування відділом
+  content: >
+    Виберіть <span class = "doc-desc-title"> менеджера </span> для відділу. <br/> <br/> Менеджери можуть отримувати спеціальні повідомлення і мають права знімати заявки з призначення.
+  links:
+    - 
+      title: Керування оповіщеннями та повідомленнями
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Одержувачі оповіщень і повідомлень
+  content: >
+    Виберіть одержувачів з налаштованих <span class = "doc-desc-title"> оповіщень і повідомлень </span>.
+  links:
+    - 
+      title: Налаштувати сповіщення та повідомлення
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Обмеження призначення заявок
+  content: >
+    Оберіть, кому можна призначати заявки: всім співробітникам, співробітникам відділу з основним або розширеним доступом або тільки співробітникам з основним доступом відділу.
+disable_auto_claim:
+  title: Вимкнути авто призначення заявок
+  content: >
+    Активуйте, щоб <strong>вимкнути</strong> авто призначення при відповіді для цього відділу. <br><br> Агенти все одно зможуть вручну призначати заявки
+disable_reopen_auto_assign:
+  title: Відключити автоматичне призначення при повторному відкритті
+  content: >
+    Встановіть цей прапорець, щоб <strong>відключити</strong> автоматичне призначення знову відкритих заявок для цього відділу. <br><br> В іншому випадку заявка буде автоматично призначена останньому відповідальному співробітнику
+auto_response_settings:
+  title: Налаштування автовідповідача
+  content: >
+    Це дозволяє Вам перевизначити глобальні настройки автовідповідача для цього відділу.
+new_ticket:
+  title: Автовідповідь на нову заявку
+  content: >
+    Ви можете відключити автовідповідь, яка відправляється користувачеві, коли створюється нова заявка і відправляється на цей Відділ.
+new_message:
+  title: Автовідповідь на нове повідомлення
+  content: >
+    Ви можете відключити автовідповідь, яка відправляється користувачеві для підтвердження нового повідомлення для заявок в цьому відділі.
+auto_response_email:
+  title: Авто-відповіді по Email
+  content: >
+    Виберіть адресу електронної пошти, з якої відправляються автовідповіді для цього відділу.
+department_access:
+  title: Група доступу
+  content: >
+    Дозволити співробітникам інших відділів доступ до заявок цього відділу.
+department_signature:
+  title: Підпис відділу
+  content: >
+    Підпис стає доступним за вибором для <span class = "doc-desc-opt"> загальних </span> відділів, при відповіді співробітників.

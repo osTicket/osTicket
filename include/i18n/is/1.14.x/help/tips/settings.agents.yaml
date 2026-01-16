@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Stilling á nafni fulltrúa
+  content: >
+    Veldu stillingu fyrir nafn fulltrúa sem birtist í kerfinu. Póstar munu innihalda nafnið ef engar aðrar stillingar eru skilgreindar.
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Password Expiration Policy
+  content: >
+    Stilling hversu oft (í mánuði) fulltrúi þarf að breyta lykilorði sínu. Ef ekki á að virkja (setjið "endalaust"), lykilorðið mun þá ekki renna út á tíma.
+password_expiration_policy:
+  title: Password Expiration Policy
+  content: >
+    Choose how often Agents will be required to change their password. If disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords will not expire.
+allow_password_resets:
+  title: Allow Password Resets
+  content: >
+    Merktu hér við ef þú vilt að <span class="doc-desc-title">Gleymt lykilorð</span> tengill sjáist á<span class="doc-desc-title">logn síðu starfsmanna</span> þegar þeir geta ekki tengst.
+reset_token_expiration:
+  title: Password Reset Window
+  content: >
+    Choose the duration (in minutes) for which the <span class="doc-desc-title"> Password Reset Tokens</span> will be valid. When an Agent requests a <span class="doc-desc-title">Password Reset</span>, they are emailed a token that will permit the reset to take place.
+staff_session_timeout:
+  title: Agent Session Timeout
+  content: >
+    Veldu hámarks tíma (í mínútum) áður en fulltrúi verður að tengjast aftur. <br><br> Ef þú vilt óvirkja <span class="doc-desc-title">Tenging fulltrúa útrunnin</span>, ritaðu 0.
+bind_staff_session_to_ip:
+  title: Bind Agent Session to IP
+  content: >
+    Virkjaðu hér ef þú vilt að fulltrúi þekkist af iptölu sem hann tengist með. <br><br> Þessi stilling er ekki viturleg fyrir notendur sem tengjast með breytanlegum ip tölum (dhcp).

@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Žinių bazės nustatymai
+  0: >
+
+knowledge_base_status:
+  title: Žinių bazės statusas
+  content: >
+    Įgalinkite šį parametrą, kad suteiktumėte vartotojams savitarnos prieigą prie savo viešosios žinių bazės straipsnių.<br><br>Žinių bazės kategorijos ir DUK gali būti vidiniai (matomi tik Agentams).
+  links:
+    - 
+      title: Žinių bazės valdymas
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Įgalinkite šį parametrą siekiant uždrausti neregistruotiems vartotojams prieigą prie žinių bazės kliento sąsajoje.
+  links:
+    - 
+      title: Prieigos kontrolės nustatymai
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Paruošti atsakymai
+  content: >
+    Įgalinkite šį parametrą, kad agentams būtų leidžiama naudoti<span class="doc-desc-title">Paruoštus atsakymus</span>atsakant į užklausas.
+  links:
+    - 
+      title: Valdyti uždelstus atsakymus
+      href: /scp/canned.php

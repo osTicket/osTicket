@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: チーム
+  content: >
+    チームは、チケットのアサインの目的で1人以上のエージェントによって構成されます。チームメンバーシップは、複数の部門に渡って指定できます。
+status:
+  title: ステータス
+  content: >
+    <span class="doc-desc-opt">無効</span>にすると、このチームはチケットのアサインに利用できなくなり、前のアサインについてのアラートと通知をうけとりません。
+lead:
+  title: チームリード
+  content: >
+    <span class="doc-desc-title">チーム</span>は、メンバーとは別に<span class="doc-desc-title">アラートと通知</span>を受信することができる指名されたリーダーを持つことができます。
+  links:
+    - 
+      title: アラートと通知の設定
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: アサインアラート
+  content: >
+    このチームにアサインされたチケットへの<span class="doc-desc-title">チケットアサインアラート</span>を無効にできます。
+  links:
+    - 
+      title: アラートと通知の設定
+      href: /scp/settings.php?t=alerts
+members:
+  title: チームメンバー
+  content: >
+    チームメンバーシップは、エージェントのプロファイルを通じて設定します。
+  links:
+    - 
+      title: スタッフの管理
+      href: /scp/staff.php

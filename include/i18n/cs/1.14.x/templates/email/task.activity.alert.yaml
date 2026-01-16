@@ -1,0 +1,27 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Zasláno pracovníkům v případě, že je přidána nová zpráva nebo interní poznámka
+  k úkolu. Toto může nastat, pokud spolupracovník nebo pracovník odpoví na e-mail  zaslaný systémem nebo přes webové rozhraní.
+subject: |
+  Událost úkolu [č. %{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Vážený/á %{recipient.name},</strong></h3>
+  úkol č. <a href="%{task.staff_link}">%{task.number}</a> byl změněn: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Pro zobrazení či odpověď na tento požadavek, prosím, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >přihlašte se</span></a> do systému zákaznické podpory</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Zákaznická
+  podpora</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

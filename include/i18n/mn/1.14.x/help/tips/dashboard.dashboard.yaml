@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Хүсэлтийн явц
+  content: >
+    График болон хүснэгтийн мэдээллийн хугацааны интервалыг сонгоно уу (<span class="doc-desc-title">Статистик</span>). Доорх график нь системийн нийт мэдээлэлд үндэслэн харуулна (жиш., хандалт). Харин та <span class="doc-desc-title">Статистик</span> цэсээс илүү нарийвчилсан мэдээллүүдийг харах боломжтой (жиш., Алба, сэдэв, ажилтан). Мөн та <span class="doc-desc-title">Статистик</span> хүснэгтийн мэдээллийг экспорт хийж авах боломжтой.
+report_timeframe:
+  title: Тайлант хугацаа
+  content: >
+    Эхлэх огноог сонгоно уу. Хугацааны интервалыг сонгосноор дуусах хугацааг тодорхойлно.
+statistics:
+  title: Статистик
+  content: >
+    Харгалзах хэсгүүд дээр дарж илүү дэлгэрэнгүй мэдээлэл авах боломжтой. Хүснэгт дотор харагдаж байгаа тойрог нь тухайн хэсгийн хэмжээг харуулна. Том хэмжээтэй бол их хүсэлт байгааг илтгэнэ.
+opened:
+  title: Нээгдсэн
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Даалгасан
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Хугацаа хэтэрсэн
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Хаагдсан
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Дахин нээгдсэн
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Устгагдсан
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Үйлчилгээний хугацаа
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Хариулах хугацаа
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Novo Ticket
+  content: >
+    Habilite isso, se você quer que uma resposta automática seja enviada para o usuário a cada novo ticket.
+  links:
+    - 
+      title: Template de resposta automática para novo ticket
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Novo Tiket do pessoal
+  content: >
+    Aviso enviado quando um agente cria um Tiket em nome do usuário. <em> O agente pode substituir isso ao criar novos Tikets.</em>
+  links:
+    - 
+      title: Aviso de novo modelo de Tiket
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Nova confirmação de mensagem
+  content: >
+    Aviso enviado confirmando quando uma nova mensagem é adicionada a um ticket existente.
+  links:
+    - 
+      title: Novo modelo de confirmação de mensagem
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Aviso de nova Mensagem
+  content: >
+    Transmissão de mensagens recebidas do emissor da mensagem para todos os outros participantes no Tiket.
+  links:
+    - 
+      title: Novo modelo de aviso de atividade
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Aviso de limite ultrapassado
+  content: >
+    Tiket negado a notificação enviada ao usuário na violação <span class="doc-desc-title">Máxima Tikets abertos</span>.
+  links:
+    - 
+      title: Modelo de aviso de limita alcançado
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Definir o máximo Tickets </em> Aberto
+      href: /scp/settings.php?t=tickets

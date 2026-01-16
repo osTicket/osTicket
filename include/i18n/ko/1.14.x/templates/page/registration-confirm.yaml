@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  이 템플릿은 고객이 등록 양식을 작성한 후 고객에게 표시되는 페이지를 정의합니다. 템플릿에는 시스템이 이메일 확인 링크를 보내는 것과 등록 절차의 다음 단계가 무엇인지 기재되어야 합니다.
+name: "계정 등록"
+body: >
+  <div> <strong>계정을 등록해 주셔서 감사합니다.</strong> <br/> <br/> 입력하신 주소로 이메일을 보냈습니다. 이메일에 포함 된 링크에 접속하여 계정을 확인하고 티켓에 접근하세요. </div>

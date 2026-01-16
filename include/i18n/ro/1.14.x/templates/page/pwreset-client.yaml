@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Acest template defineste emailul trimis catre Clienti care acceseaza link-ul de <strong>Mi-am uitat Parola</strong> din pagina de autentificare Clienti.
+name: "Acces Help Desk %{company.name}"
+body: >
+  <h3><strong>Draga %{user.name.first},</strong></h3> <div> O cerere de reseatare parola a fost trimisa in numele tau pentru platforma de helpdesk de la adresa %{url}.<br /> <br /> Daca acest lucru s-a facut in mod eronat, sterge si ignora acest email. Contul tau este in continuare in siguranta si nimeni nu a primit acces la el. Nu este blocat si parola ta nu a fost resetata. Cineva ar fi putut introduce din greseala adresa ta de email.<br /> <br /> Da click pe link-ul de mai jos pentru a te loga in platforma de help desk si a reseta parola.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Cu drag Platforma de Suport <br /> %{company.name}</em> </div>

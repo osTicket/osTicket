@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: 스태프 멤버
+  content: >
+    다음의 표는 위의 필터에 따른 결과를 표시합니다. 필터가 선택되지 않으면 모든 <span class="doc-desc-title">담당자</span>(직원) <span class="doc-desc-title">멤버</span>가 페이지별로 표시되며, 아래의 패이지를 통해 더 많은 결과를 볼 수 있습니다.
+status:
+  title: 상태
+  content: >
+    <span class="doc-desc-title">담당자</span>의 상태가 잠김, 활동중, 활동중(휴가)인지 여부를 표시합니다.

@@ -1,0 +1,47 @@
+---
+- 
+  #Default groups defined for the system
+  #Fields:
+  #id - Primary id for the group
+  #role_id - (int)  default role for the group
+  #flags - (bit mask) group flags
+  #name - (string) descriptive name for the group
+  #notes - (string) administrative notes (viewable internally only)
+  #depts: (list<Department<id>>) id's of the departments to which the group
+  #should initially have access
+  #NOTE: ------------------------------------
+  #The very first group listed in this document will be the primary group of
+  #the initial staff member -- the administrator.
+  #---
+  id: 1
+  role_id: 1
+  flags: 1
+  name: شیر سدھانے والے
+  notes: |
+    سسٹم کے بااثر لوگ۔ یہ لوگ (ابتدائی طور پر) ان تمام محکموں پر مکمل کنٹرول رکھتے ہیں جن تک وہ رسائی رکھتے ہیں.
+  depts:
+    - 1
+    - 2
+    - 3
+- 
+  id: 2
+  role_id: 2
+  flags: 1
+  name: ہاتھی ٹہلانے والے
+  notes: |
+    "منیجرز" گروپ کے لئے نوٹس. انگریزی ورژن ایک ایسا فشنگ بیان ہے کہ وہ اعلی جگہ میں رہتے ہیں اور محنت پسند طبقے کے "اسٹاف" کے ارکان کے ساتھ رہا نہیں کرتے ہیں
+  depts:
+    - 1
+    - 2
+    - 3
+- 
+  id: 3
+  role_id: 2
+  flags: 1
+  name: پسو ٹرینرز
+  notes: |
+    لچلے درجے کے ارکان
+  depts:
+    - 1
+    - 2
+    - 3

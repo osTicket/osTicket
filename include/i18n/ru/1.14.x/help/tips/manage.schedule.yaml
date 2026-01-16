@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Определение расписания
+  content: >
+    <b>Имя</b>: Уникальное имя задания.<hr><b>Тип</b>: Выберите тип Задания.<span class="doc-desc-title">Часы работы</span>определяют часы, которые учитываются при расчете времени исполнения SLA, в то время как <span class="doc-desc-title"> Выходные дни</span>учитываться не будут.<hr><b>Часовой пояс</b>: Выберите часовой пояс для задания. Рекомендуется оставить поле пустым в случае работы с <span class="doc-desc-title">разными</span>часовыми поясами.<br><br> Если не указывать часовой пояс, отчет времени будет вестись согласно текущего часового пояса.
+

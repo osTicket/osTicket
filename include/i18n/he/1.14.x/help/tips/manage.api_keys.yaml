@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: API מפתח
+  content: >
+    מפתחות API משמשים לאימות לקוחות ששולחים כרטיסים חדשים באמצעות ממשק תכנות יישומים (API). מפתחות API משמשים במקום ססמאות. מאחר ומפתחות API עשויים להישלח לא מוצפנים, הם מקושרים לכתובת ה-IP ברשת של כל לקוח.
+  links:
+    - 
+      title: osTicket תיעוד ממשק אפליקציית התכנות
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: כתובת IP
+  content: >
+    כתובת IP של הלקוח. כל כתובת IP לקוח ייחודית תדרוש מפתחות API נפרדים

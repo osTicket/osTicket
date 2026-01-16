@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Apri
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Ticket Aperti.
+- 
+  id: 2
+  name: Risolto
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Tickets risolti
+- 
+  id: 3
+  name: Chiuso
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Ticket chiusi. I ticket rimarranno accessibili dal pannello di controllo degli utenti e dello staff.
+- 
+  id: 4
+  name: Archiviato
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Ticket amministrativi; non accessibili nelle liste dei Tickets e nel pannello di controllo dell'utente.
+- 
+  id: 5
+  name: Eliminato
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Ticket in coda per la cancellazione. Non accessibili sulle code dei ticket.

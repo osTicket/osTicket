@@ -97,11 +97,11 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 				<?php
                 foreach (PasswordPolicy::allActivePolicies() as $P) {
                     $id = $P->getBkId();
-                    echo sprintf('<option value="%s" %s>%s</option>',
+					echo sprintf('<option value="%s" %s>%s</option>',
                             $id,
                             (($config['client_passwd_policy'] == $id) ? 'selected="selected"' : ''),
-                            $P->getName());
-                }
+						$P->getName());
+					}
 				?>
 				</select>
 				<font class="error"><?php echo

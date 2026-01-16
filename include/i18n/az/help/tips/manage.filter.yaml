@@ -1,0 +1,92 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+execution_order:
+  title: Tamamlanan sifariş
+  content: >
+    Filterin prioritetlərini yoxlayan nömrəni daxil edin. Nömrə aşağı olduqca filterin prioritetləri yüksək olur
+target_channel:
+  title: Kanal
+  content: >
+    <span class="doc-desc-title">Sorğu filteriniz</span> üçün <span class="doc-desc-title">kanal</span> hədəfi seçin. <span class="doc-desc-title">Kanal</span> sorğunun sistemə çatmasının mənbəyidir. <br><br> Məsələn, əgər siz  <span class="doc-desc-opt">veb formalar</span> seçirsinizsə, <span class="doc-desc-title">sorğu filterinə</span> müraciət etmək istədiyinizi deyirsiniz (başlanğıcını müştəri portalının vebformundan  götürən sorğulara).
+rules_matching_criteria:
+  title: Kriteriyalarln uyğun gəlməsi qaydaları
+  content: >
+    <span class="doc-desc-title">Sorğu filterinizin</span> uyğunluğunun necə elastik olmasını seçin. Əgər <span class="doc-desc-title">sorğu filterinin</span> hər hansı qaydaya uyğun olmasını və sonra dayanmasını istəyirsinizsə, <span class="doc-desc-opt">hər hansı bir uyğun</span> seçin. Əgər siz <span class="doc-desc-title">sorğu filterinin</span> <em><strong>bütün qaydalarının</strong></em> uyğun olmasını istəyirsinizsə <span class="doc-desc-opt">hamısı uyğun</span> seçin.
+reject_ticket:
+  title: Sorğunu rədd etmək
+  content: >
+    Əgər bu aktivdirsə sonrakı proses dayanır və yuxarıdakı fəaliyyətin qalan bütün seçimləri nəzərə alınmır.
+reply_to_email:
+  title: E-poçta cavab vermək
+  content: >
+    Əgər help deskinizin istifadəçinin başlığı <span class="doc-desc-title">cavab vermək</span> olan e-poçt tətbiqetməsini nəzərə almasını istəyirsinizsə, bunu aktiv edin. Bu sahə ancaq <span class="doc-desc-title">kanalın</span> yuxarısına <span class="doc-desc-opt">e-poçt</span> daxildirsə münasibdir.
+ticket_auto_response:
+  title: Sorğunun avtomatik cavabını deaktiv etmək
+  content: >
+    <em>Qeyd: Bu hər hansı <span class="doc-desc-title">şöbəni</span> və ya <span class="doc-desc-title">avtomatik cavabvermə tənzimləmələrini ləğv edəcək</span>.</em>
+canned_response:
+  title: Hazır avtomatik cavab
+  content: >
+    <span class="doc-desc-title">Sorğu filterinin</span> uyğunluğunda istifadəçiyə e-poçt göndərilməsini istədiyiniz <span class="doc-desc-title">hazır cavabı</span> seçin. <span class="doc-desc-title">Yeni sorğuya avtomatik cavab</span> şablonunun istifadəsi cari təyin olunmuş <span class="doc-desc-title">şablon quraşdırmasından</span>  və ya sorğu <span class="doc-desc-title">şöbəsiylə</span> uyğun gəlməsindən asılıdır.
+  links:
+    - 
+      title: Hazır cavabları idarə edin
+      href: /scp/canned.php
+    - 
+      title: Şablon quraşdırmalarını idarə edin
+      href: /scp/templates.php
+    - 
+      title: Yeni sorğu avtomatik cavab şablonu
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Şöbə
+  content: >
+    <span class="doc-desc-title">Sorğu filterinin</span> təyin olunması üçün uyğun olmasını istədiyiniz <span class="doc-desc-title">şöbəni</span> seçin.
+  links:
+    - 
+      title: Şöbələri idarə et
+      href: /scp/departments.php
+priority:
+  title: Prioritet
+  content: >
+    <span class="doc-desc-title">Sorğu filterinin</span> tətbiq olunmasını istədiyiniz uyğunluqlarının <span class="doc-desc-title">prioritet</span> səviyyəsini seçin. <br /><br /><em>Qeyd: Bu, <span class="doc-desc-title">şöbəni</span> və ya <span class="doc-desc-title">kömək mövzusu</span> tənzimləmələrini ləğv edəcək.</em>
+sla_plan:
+  title: SLA plan
+  content: >
+    <span class="doc-desc-title">Sorğu filterinin</span> tətbiq olunmasını istədiyiniz uyğunluqlarının <span class="doc-desc-title">SLA planını</span> seçin.
+  links:
+    - 
+      title: SLA planları idarə edin
+      href: /scp/slas.php
+auto_assign:
+  title: Avtomatik təyin etmək
+  content: >
+    Təyin olunması üçün <span class="doc-desc-title">sorğu filterinə</span> uyğun olmasını istədiyiniz agent və ya komanda seçin.
+  links:
+    - 
+      title: Agentləri idarə edin
+      href: /scp/staff.php
+    - 
+      title: Komandaları idarə edin
+      href: /scp/teams.php
+help_topic:
+  title: Kömək mövzusu
+  content: >
+    <span class="doc-desc-title">Sorğu filterinin</span> tətbiq olunmasını istədiyiniz uyğunluqlarının <span class="doc-desc-title">kömək mövzusunu</span> seçin.
+  links:
+    - 
+      title: Kömək mövzularını idarə et
+      href: /scp/helptopics.php
+admin_notes:
+  title: Adminin qeydləri
+  content: >
+    Bu qeydlər ancaq hesab tipi ‘<span class="doc-desc-title">admin</span>.’ olanlara görünür

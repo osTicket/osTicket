@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Systémové záznamy
+  content: >
+    Zde najdete veškeré systémové záznamy (např. chyby, varování atp.) potřebné při odstraňování problémů.
+  links:
+    - 
+      title: Nastavte jaký typ aktivit bude zaznamenáván změnou položky <br /><span class="doc-desc-title">Výchozí úroveň systémových záznamů</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Období
+  content: >
+    Vyberte počáteční a koncové data, kterými chcete omezit zobrazení <span class="doc-desc-title">systémových záznamů</span>.
+type:
+  title: Typ
+  content: >
+    Zde můžete zúžit zaměření na konkrétní typ události. <span class="doc-desc-opt">Debug</span> představuje nejnižší závažnost a <span class="doc-desc-opt">Error</span> představuje nejvyšší závažnost.
+showing_logs:
+  title: Zobrazení systémových záznamů
+  content: >
+    Nezapomeňte zkontrolovat sekci <span class="doc-desc-title">stránkování</span>, abyste se ujistil, že zde není více stránek pro zobrazení systémovými záznamů.
+log_title:
+  title: Název systémového záznamu
+  content: >
+    Klikněte v hlavičce tabulky na <span class="doc-desc-title">název systémového záznamu</span> pro seřazení výsledků dle <span class="doc-desc-title">názvu systémového záznamu</span>.
+log_type:
+  title: Typ systémového záznamu
+  content: >
+    Klikněte na <span class="doc-desc-title">typ systémového záznamu</span> v hlavičce tabulky pro seřazení výsledků dle <span class="doc-desc-title">typu systémového záznamu</span>.
+log_date:
+  title: Datum systémového záznamu
+  content: >
+    Toto je datum, kdy byl systémový záznam vygenerován programem a událostí v něm. Pokud chcete setřídit výsledky podle <span class="doc-desc-title">        data systémového záznamu</span>, jednoduše klikněte na <span class="doc-desc-title">datum systémového záznamu</span> v hlavičce tabulky. (Použijte formulář pro <span class="doc-desc-title">období</span> pro omezení rozsahu systémových záznamů.)
+ip_address:
+  title: IP adresa
+  content: >
+    Toto odkazuje na <span class="doc-desc-title">IP adresu</span> pracovníka nebo uživatele, který používal systém zákaznické podpory v době vygenerování záznamu.

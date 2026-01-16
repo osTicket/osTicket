@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Este es el mensaje inicial y banner que se muestra en la página de registro de personal. El primer campo de entrada se refiere al texto con formato rojo que aparece en la parte superior. El último cuadro de texto es el contenido del banner que debe servir como un descargo de responsabilidad.
+name: "Autenticación Requerida"
+body: ""

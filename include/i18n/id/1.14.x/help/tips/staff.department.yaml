@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Jenis
+  content: >
+    Pilih <span class="doc-desc-opt">Privat</span> Jika Anda ingin menutupi tugas kepada Departemen ini pada Portal Klien. Selain itu ketika dilabeli sebagai <span class="doc-desc-opt">Privat</span>, <span class="doc-desc-title">Signature Departemen</span> tidak akan ditampilkan pada balasan email. <br/><br/> Paling tidak satu departemen harus  <span class="doc-desc-opt">Publik</span>
+email:
+  title: Email
+  content: >
+    Alamat Email digunakan ketika jawaban dikirim kepada Pengguna ketika Agen mengirim Respon ke Tiket.
+template:
+  title: Kumpulan Template
+  content: >
+    <span class="doc-desc-title">Kumpulan Template</span> email digunakan untuk Auto-Responses and Alert &amp; Pemberitahuan untuk tiket yang diteruskan ke Departemen ini.
+  links:
+    - 
+      title: Pengaturan Template
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Persetujuan Level Layanan (SLA) untuk tiket yang diteruskan ke Departement ini.
+  links:
+    - 
+      title: Atur Perencanaan SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Pengelola Departemen
+  content: >
+    Pilih seorang <span class="doc-desc-title">Pengelola</span> untuk departemen ini. <br/><br/> Pengelola dapat dikonfigurasi untuk menerima alert khusus dan juga memiliki hak untuk melepaskan tiket.
+  links:
+    - 
+      title: Mengatur Alert &amp; Pemberitahuan
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Penerima Alert &amp; Pemberitahuan
+  content: >
+    Pilih penerima yang dikonfigurasi <span class="doc-desc-title">Alerts &amp; Pemberitahuan-nya</span>.
+  links:
+    - 
+      title: Konfigurasi Alert &amp; Pemberitahuan
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Batasan Penugasan Tiket
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Nonaktifkan Klaim Otomatis
+  content: >
+    Tandai ini untuk <strong>menonaktifkan</strong> klaim-otomatis pada saat respon/menjawab ke departemen ini. <br><br> Agen tetap dapat mengklaim tiket yang belum ditugaskan
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Seting Jawaban Otomatis
+  content: >
+    Hal mengijinkan Anda untuk menimpa pengaturan Autoresponder global untuk Departemen ini.
+new_ticket:
+  title: Respon Otomatis Tiket Baru
+  content: >
+    Anda dapat melumpuhkan pengiriman Auto-Response ke Pengguna ketika sebuah tiket dibuat dan diteruskan ke Departemen ini.
+new_message:
+  title: Pesan Auto-Response Baru
+  content: >
+    Anda dapat melumpuhkan pengirman Auto-Response ke Pengguna untuk mengkonfirmasi pesan yang baru dipos untuk tiket pada Departemen ini.
+auto_response_email:
+  title: Email Auto Response
+  content: >
+    Pilih sebuah alamat email dari mana pengiriman Auto-Responese pada Departemen ini.
+department_access:
+  title: Akses Grup
+  content: >
+    Ijinkan Agen dari Departemen lain mengakses tiket pada Departemen ini.
+department_signature:
+  title: Signature Departemen
+  content: >
+    Signature dibuat tersedia sebagai pilihan, untuk <span class="doc-desc-opt">Publik</span> Departmen, pada Tanggapan Agen.

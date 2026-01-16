@@ -1,0 +1,47 @@
+---
+#Welcome ticket template
+#When the system if first installed and the installer finishes setting up
+#the database, it creates a first ticket with a welcome message to the
+#administrator
+#---
+deptId: 1 #support
+topicId: 1 #support
+name: osTicket Support
+email: support@osticket.com
+source: Web #notrans
+subject: osTicket installeret!
+message: |
+  <p>
+  Tak for valget osTicket.
+  </p><p>
+  Sørg for at du deltage i <a
+  href = "http://osticket.com/forums"> osTicket forum </a> <a
+  href = "http://osticket.com/updates"> mailing liste </a> for at holde dig ajour
+  om de seneste nyheder, sikkerhedsadvarsler og opdateringer. osTicket forum er
+  også et godt sted at få hjælp, vejledning, tips og hjælp fra
+  andre osTicket brugere. Ud over forummet, er osTicket wiki
+  en nyttig samling af undervisningsmaterialer, dokumentation,
+  og bemærker, fra fællesskabet. Vi glæder os over deres bidrag til
+  osTicket fællesskab.
+  </p><p>
+  Hvis du er på udkig efter en større grad af støtte, giver vi
+  professionel service og kommerciel support med garanteret svar
+  tidspunkter, og adgang til kernen udviklings teamet. Vi kan også hjælpe
+  tilpasse osTicket eller endda tilføje nye funktioner til systemet for at opfylde dine
+  unikke behov.
+  </p><p>
+  Hvis tanken om at styre og opgradering af denne osTicket installation er
+  skræmmende, kan du prøve osTicket som en hosted service på <a
+  href = "http://www.supportsystem.com"> http://www.supportsystem.com/ </a> --
+  ingen installation er nødvendig, og vi kan importere dine data! med
+  SupportSystemets turnkey infrastruktur, får du osTicket på sit bedste,
+  så du kan fokusere på dine kunder uden byrden af at gøre
+  Kontrol på  at programmet er stabil, vedligeholdes, og sikker.
+  </p><p>
+  Hilsen,
+  </p><p>
+  - <br/>
+  osTicket holdet http://osticket.com/
+  </p><p>
+  <strong> PS. </strong> Gør ikke bare kunderne glade, men lav glade kunder!
+  </p>

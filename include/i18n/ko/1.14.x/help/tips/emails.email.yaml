@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: 새 티켓 문의 분류
+  content: >
+    이 이메일 주소로 생성되는 티켓에 자동으로 적용될 <span class="doc-desc-title">문의 분류</span>를 지정하세요. <br/><br/> 해당 문의 분류의 양식이 티켓에 추가되며 아무런 데이터를 가지지 않습니다.
+  links:
+    - 
+      title: 문의 분류 관리
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: 새 티켓 우선 순위
+  content: >
+    이 이메일 주소로 생성되는 티켓에 적용할 <span class="doc-desc-title">우선 순위</span>를 지정하세요.
+new_ticket_department:
+  title: 새 티켓 부서
+  content: >
+    이 이메일 주소로 생성되는 티켓이 전달될 <span class="doc-desc-title">부서</span>를 지정하세요.
+  links:
+    - 
+      title: 부서 관리
+      href: /scp/departments.php
+auto_response:
+  title: 새 티켓 자동 응답
+  content: >
+    이 이메일 주소로 생성되는 티켓에는 자동 응답을 비활성화 할 수 있습니다.
+username:
+  title: 사용자명
+  0: >
+
+password:
+  title: 비밀번호
+  0: >
+
+login_information:
+  title: 이메일 로그인 정보
+  content: >
+    IMAP/POP으로 이메일을 수신하고 SMTP를 통해 이메일을 발신하려면 <span class="doc-desc-title">계정명</span>과 <span class="doc-desc-title">비밀번호</span>가 필요합니다.
+mail_account:
+  title: 이메일을 가져오는 중
+  content: >
+    원격 IMAP 혹은 POP 메일 서버에서 메일을 가져와 고객 센터의 티켓으로 변환하세요.
+  links:
+    - 
+      title: <span class="doc-desc-title">이메일 가져오기</span> &amp; <span class="doc-desc-title">자동 Cron</span> 설정을 관리합니다.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: 원격 호스트
+  content: >
+    메일 서버의 <span class="doc-desc-title">주소</span>와 <span class="doc-desc-title">포트 번호</span>를 입력하세요. 이 정보는 사용하는 호스팅의 기술 문서 혹은 이메일 관리자를 통해 얻을 수 있습니다.
+protocol:
+  title: 메일함 프로토콜
+  content: >
+    원격 메일 서버가 지원하는 프로토콜을 선택하세요. IMAP 프로토콜을 권장하며, 사용 가능한 경우 항상 SSL을 사용하는 것이 좋습니다.
+fetch_frequency:
+  title: 가져오는 빈도
+  content: >
+    시스템이 얼마나 자주 메일을 가져올 지 분 단위로 입력하세요. <br/><br/> 이 시간은 고객이 메일을 접수한 후 자동 응답을 받기까지의 평균 지연 시간을 의미하기도 합니다.
+emails_per_fetch:
+  title: 한 번에 가져오는 메일 수
+  content: >
+    한 번에 가져올 이메일의 수를 입력하세요.
+fetched_emails:
+  title: 가져온 이메일
+  content: >
+    처리 완료된 이메일에 적용할 동작을 선택하세요: <br/><br/> <span class="doc-desc-opt"><b>폴더 이동</b></span>: 사전 지정된 폴더로 이메일을 백업합니다. 폴더가 서버에 존재하지 않는 경우 시스템이 자동으로 폴더를 생성합니다. (<b>추천</b>) <hr> <span class="doc-desc-opt"><b>이메일 삭제</b></span>: 처리 완료된 이메일을 받은 편지함에서 삭제합니다. <hr> <span class="doc-desc-opt"><b>아무것도 하지 않음</b></span>: 이메일을 받은 편지함에 그대로 둡니다. 시스템은 이메일 ID를 별도로 기록하여 이메일을 중복으로 가져오지 않도록 방지합니다. 하지만 종종 티켓이 중복으로 생성되는 문제가 발생할 가능성이 있습니다. (<em>비추천</em>)
+smtp_settings:
+  title: SMTP 설정
+  content: >
+    고객 센터에서 전송되는 이메일은 SMTP 서버를 이용하여 전달될 수 있습니다. 전송 성공 확률을 높이고 스팸 처리 확률을 낮추기 위해 가능하다면 이 방법을 사용하기 바랍니다.
+header_spoofing:
+  title: 헤더 스푸핑 허용
+  content: >
+    이 옵션을 활성화하면 <span class="doc-desc-title">이메일 주소</span> 설정에 기입한 메일 주소 중 하나를 발신자로 지정하여 메일을 송신할 수 있습니다. <br/><br/> 이는 고급 설정이며, 메일 서버의 별칭으로 이메일을 보낼 때 주로 사용됩니다.
+

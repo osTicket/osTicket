@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Søgefelt
+  0: >
+
+advanced:
+  title: Advanceret
+  content: >
+    Indsnævre dine søgeparametre. Når du har valgt dine avancerede søgekriterier og køre søgningen, kan du <span class="doc-desc-title"> eksportere</span> data i bunden af siden tickets.
+open_tickets_table:
+  title: Åbne sager tabel
+  content: >
+    Alle sager i øjeblikket åbne og kræver opmærksomhed
+ticket:
+  title: Sag
+  0: >
+
+date:
+  title: Dato
+  0: >
+
+subject:
+  title: Emne
+  0: >
+
+from:
+  title: Fra
+  0: >
+
+priority:
+  title: Prioritet
+  0: >
+
+assigned_to:
+  title: Tildelt til
+  0: >
+
+export:
+  title: Eksporter
+  content: >
+    Eksportere din data i øjeblikket i view i en CSV-fil. CSV-filer kan åbnes med regneark software (dvs., Microsoft Excel, Apple sider, OpenOffice, osv.).
+advanced_search_dialog:
+  title: Avanceret søgning
+  0: >
+
+adv_keyword:
+  title: Stikord søgning
+  content: >
+    Find hits baseret på emne og besked ligene af bestilling tråd samt alle tekstmæssige indhold forbundet med brugerdefinerede felter for brugerne og billetter.
+adv_date_range:
+  title: Søg efter datointerval
+  content: >
+    Definition her
+merge_types:
+  title: Sammensætnings typer
+  content: >
+    <b>Kombiner tråde:</b> Tråde fra alle sager vil blive vist kronologisk.</br> <b>Separate tråde:</b> Tråde fra sager vil blive vist en sag af gangen.
+reply_types:
+  title: Svar Typer
+  content: >
+    <b>Svar alle:</b> Dette svar sendes til brugeren og de samarbejdspartnere, du vælger at medtage.<br/> <b>Besvar bruger:</b>Dette svar sendes kun til brugeren, ikke Samarbejdspartnere.<br/> <b>Send ikke e-mail-svar:</b>Der sendes ingen e-mail-varsler, men Agent-svaret er synligt for<b>ALLE</b>brugere når de ser sagen.</b>.

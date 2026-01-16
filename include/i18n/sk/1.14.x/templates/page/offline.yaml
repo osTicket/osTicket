@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Stránka Offline sa zobrazí v Zákazníckom Portáli ked je Help Desk vypnutý/offline.
+name: V režime offline
+body: |
+  <div><h1>
+  <span style="font-size: medium">Heldesk systém je mimo prevádzky</span>
+  </h1>
+  <p>Ďakujeme Vám, za Váš záujem kontaktovať nás.</p>
+  <p>Na serveri momentálne prebieha údržba, skúste to neskôr prosím.</p>
+  </div>

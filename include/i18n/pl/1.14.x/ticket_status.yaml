@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Otwarte
+  state: otwarte
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Otwarte zgłoszenia.
+- 
+  id: 2
+  name: Rozwiązane
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Zgłoszenia rozwiązane
+- 
+  id: 3
+  name: Zamknięte
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Zamknięte zgłoszenia. Zgłoszenia będą nadal dostępne na panelach klienta i załogi.
+- 
+  id: 4
+  name: Zarchiwizowane
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Zgłoszenia dostępne jedynie w trybie administracyjnym, niedostępne w kolejce zgłoszeń oraz w panelu klienta.
+- 
+  id: 5
+  name: Usunięte
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Zgłoszenia przeznaczone do usunięcia.  Niedostępne w kolejce zgłoszeń.

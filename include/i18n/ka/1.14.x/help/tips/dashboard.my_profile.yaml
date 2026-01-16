@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: საკონტაქტო ინფორმაცია
+  0: >
+
+username:
+  title: მომხმარებელი
+  content: >
+    Only those Agents with Admin status may change a username. If you are an Agent with Admin privileges, you may accomplish this by selecting an Agent to edit from the <span class="doc-desc-title">Staff Members</span> table.
+  links:
+    - 
+      title: Change a username as an Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Time Zone
+  0: >
+
+daylight_saving:
+  title: Daylight Saving
+  0: >
+
+maximum_page_size:
+  title: Maximum Page Size
+  0: >
+
+auto_refresh_rate:
+  title: Auto Refresh Rate
+  0: >
+
+default_signature:
+  title: Default Signature
+  0: >
+
+default_paper_size:
+  title: Default Paper Size
+  0: >
+
+show_assigned_tickets:
+  title: Show Assigned Tickets
+  content: >
+    <p> Enabling this option will override the global setting to hide assigned tickets from the open queues. </p> <p class="info-banner"> <i class="icon-info-sign"></i> This setting is only available when assigned tickets are excluded globally. </p>
+password:
+  title: პაროლი
+  0: >
+
+current_password:
+  title: Current Password
+  0: >
+
+new_password:
+  title: New Password
+  0: >
+
+confirm_new_password:
+  title: Confirm New Password
+  0: >
+
+signature:
+  title: Signature
+  content: >
+    Create an optional <span class="doc-desc-title">Signature</span> that perhaps appears at the end of your Ticket Responses. Whether this <span class="doc-desc-title">Signature</span> appears, or not, depends on the <span class="doc-desc-title">Email Template</span> that will be used in a Ticket Response.
+  links:
+    - 
+      title: Create Emails Templates in the Admin Panel
+      href: /scp/templates.php

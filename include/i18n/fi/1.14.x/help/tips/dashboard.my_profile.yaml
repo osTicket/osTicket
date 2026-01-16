@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Yhteystiedot
+  0: >
+
+username:
+  title: Käyttäjätunnus
+  content: >
+    Vain Käsittelijät joilla on Järjestelmänvalvojan oikeudet, voivat vaihtaa käyttäjätunnusta. Jos olet Käsittelijä jolla on Järjestelmänvalvojan oikeudet, voit vaihtaa tunnusta valitsemalla Käsittelijän <span class="doc-desc-title">Henkilöstön jäsenet</span> listasta.
+  links:
+    - 
+      title: Vaihda käyttäjätunnus Järjestelmänvalvojaksi
+      href: /SCP/Staff.php
+time_zone:
+  title: Aikavyöhyke
+  0: >
+
+daylight_saving:
+  title: Kesäaika
+  0: >
+
+maximum_page_size:
+  title: Sivun enimmäiskoko
+  0: >
+
+auto_refresh_rate:
+  title: Automaattinen päivitystaajuus
+  0: >
+
+default_signature:
+  title: Oletus allekirjoitus
+  0: >
+
+default_paper_size:
+  title: Paperin oletuskoko
+  0: >
+
+show_assigned_tickets:
+  title: Näytä kohdistetut Tiketit
+  content: >
+    <p>Asetuksen valinta ohittaa yleisasetuksen, joka kätkee kohdistetut tiketit avoimien tikettien jonoissa. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Asetus on valittavissa vain, kun kohdistetut tiketit on yleisasetuksissa määritelty kätkettäviksi.</p>
+password:
+  title: Salasana
+  0: >
+
+current_password:
+  title: Nykyinen salasana
+  0: >
+
+new_password:
+  title: Uusi salasana
+  0: >
+
+confirm_new_password:
+  title: Vahvista uusi salasana
+  0: >
+
+signature:
+  title: Allekirjoitus
+  content: >
+    Luo valinnainen <span class="doc-desc-title">Allekirjoitus</span>, joka saattaa näkyä tikettisi vastauksen lopussa. Se että <span class="doc-desc-title">Allekirjoitus</span> näkyy, riippuu <span class="doc-desc-title">Sähköpostiviestipohjasta</span> jota käytetään tiketin vastauksessa.
+  links:
+    - 
+      title: Luo Sähköpostiviestipohjia Järjestelmänvalvojan sivulla
+      href: /scp/templates.php

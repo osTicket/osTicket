@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Staatus
+  content: >
+    Kui on keelatud või arhiveeritud, siis ei ole <span class="doc-desc-title">osakond</span> sisselülitatud.
+type:
+  title: Tüüp
+  content: >
+    Vali <span class="doc-desc-opt">privaatne</span>, kui soovid varjata selle osakonna ülesandeid kliendiportaalis. Lisaks sellele, kui on märgitud <span class="doc-desc-opt">privaatne</span>, siis <span class="doc-desc-title">osakonna allkirja</span> ei kuvata emaili vastustes. <br/><br/>Vähemalt üks osakond peab olema <span class="doc-desc-opt">avalik</span>
+email:
+  title: Email
+  content: >
+    Emaili aadress, millelt agent saadab kasutaja piletile vastuse.
+template:
+  title: Mallide kogum
+  content: >
+    Emaili <span class="doc-desc-title">mallide kogumik</span>, mida kasutatakse selle osakonna automaatseteks vastusteks ja hoiatuste ja teadete saatmiseks.
+  links:
+    - 
+      title: Halda malle
+      href: /scp/templates.php
+sla:
+  title: TTL
+  content: >
+    Teenustaseme leping neile piletitele, mis on suunatud sellesse osakonda.
+  links:
+    - 
+      title: Halda TTL plaane
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Osakonna juhataja
+  content: >
+    Vali selle osakonna <span class="doc-desc-title">juhataja</span>. <br/><br/>Juhatajaid saab seadistada eri hoiatusi saama ning neil on õigus tühistada pileti suunamisi.
+  links:
+    - 
+      title: Halda hoiatusi ja teateid
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Hoiatuste ja teadete saajad
+  content: >
+    Vali seadistatud <span class="doc-desc-title">hoiatuste ja teadete</span> saajad.
+  links:
+    - 
+      title: Seadista hoiatusi ja teateid
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Pileti suunamise piirangud
+  content: >
+    Tehke kindlaks, kas pileteid saab suunata kõikidele agentidele, esmase või laiendatud osakonna juurdepääsuga agentidele või ainult esmase osakonnaga juurdepääsuga agentidele.
+disable_auto_claim:
+  title: Keela automaatne hõivamine
+  content: >
+    Märgi see, et selle osakonna vastuse/vastamise automaatse hõivamise <strong>välja lülitamiseks</strong>. <br><br>Agent saab jätkuvalt käsitsi hõivata suunamata pileteid
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Automaatvastaja seaded
+  content: >
+    See lubab üle kirjutada selle osakonna süsteemiülesed automaatvastuste seaded.
+new_ticket:
+  title: Uue pileti automaatvastus
+  content: >
+    Sa võid keelata automaatvastuse, mis saadetakse kasutajale, kui uus pilet on loodud ja sellele osakonnale lahendamiseks saadetud.
+new_message:
+  title: Uue sõnumi automaatvastus
+  content: >
+    Sa võid keelata kasutajale automaatvastuse saatmise, kui selle osakonna piletile on saadetud sõnum.
+auto_response_email:
+  title: Automaatne vastus email
+  content: >
+    Vali emaili aadress, millelt selle osakonna automaatvastused saadetakse.
+department_access:
+  title: Grupi ligipääs
+  content: >
+    Luba teiste osakondade agentidele ligipääs selle osakonna piletitele.
+department_signature:
+  title: Osakonna signatuur
+  content: >
+    Allkiri on tehtud saadavaks kui võimalus, <span class="doc-desc-opt">avalike</span> osakondade agentide vastuskirjadele lisamiseks.

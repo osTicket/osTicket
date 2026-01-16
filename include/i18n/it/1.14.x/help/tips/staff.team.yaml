@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Teams
+  content: >
+    I team sono uno o più operatori che collaborato insieme ai fini dell'assegnazione del ticket. Iscrizione al team può estendersi oltre i confini del reparto.
+status:
+  title: Stato
+  content: >
+    Se <span class="doc-desc-opt"> disabilitato</span>, questo team nonpotrà assegnare ticket né ricevere avvisi &amp; comunicazioni o precedenti assegnazioni.
+lead:
+  title: Responsabile del Team
+  content: >
+    Un <span class="doc-desc-title"> Team</span> può avere un capo che può ricevere <span class="doc-desc-title"> avvisi &amp; bandi</span> separati dai membri.
+  links:
+    - 
+      title: Configurare avvisi &amp; comunicazioni
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Avviso di assegnazione
+  content: >
+    Si può disabilitare il <span class="doc-desc-title"> gli Alert di Assegnazione Ticket</span> per i ticketsi assegnatai a questo team.
+  links:
+    - 
+      title: Configurare avvisi &amp; comunicazioni
+      href: /scp/settings.php?t=alerts
+members:
+  title: Membri del Team
+  content: >
+    i membri del team sono configurati tramite il profilo operatore.
+  links:
+    - 
+      title: Gestisci il Personale
+      href: /SCP/staff.php

@@ -1,0 +1,639 @@
+@charset "utf-8";
+/* CSS Document */
+/*
+/*      SETUP INSTALLER
+*/
+	
+/* ==========================================================================
+ GLOBAL
+========================================================================== */
+body {
+	background: #f3f3f5;
+	font-size: 18px !important;
+    font-weight: 400 !important;
+    line-height: initial;
+    font-family: 'Open Sans', sans-serif !important;
+    color: #3b4450;
+}
+#container {
+    background: #29343A;
+	border-radius: 0 !important;	
+}
+	
+/* ==========================================================================
+ HEADER
+========================================================================== */
+#header {
+    background: initial;
+}
+#header-default svg {
+    fill: #fff !important;
+    margin: 10px 0;
+}
+.upgrade-page #header-default svg {
+    margin: 0;
+}
+@media screen and (max-width: 1300px) { 
+	#header-inner {
+		width: calc(100% - 4%);
+		padding: 0;
+	}
+}
+#nav-wrapper {
+    background: #6C7B85;
+}
+#nav-wrapper ul#nav li:first-child {
+    display: inline-block;
+    width: initial;
+    height: initial;
+    position: relative;
+    top: 0px;
+    margin-right: initial;
+}
+#nav li {
+    font-size: 0;
+}
+#sub_nav > li > a {
+    background-image: none!important;
+    color: var(--nav-bar-link);
+    display: inline-block;
+    width: unset;
+    height: unset;
+    line-height: unset;
+    text-align: unset;
+    padding: unset;
+    margin: 0 10px 0 0;
+    border-radius: unset;
+    background-position: unset;
+    background-repeat: unset;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+}
+#nav li a,
+#sub_nav > li > a {
+    text-decoration: none !important;
+    color: #fff !important;
+}
+#sub_nav > li > a {
+    margin: 0 25px 0 0 !important;
+}
+ul#sub_nav a.active {
+	font-weight: 400 !important;
+}
+#header .info {
+    border-bottom: initial;
+    color: initial;
+    text-align: initial;
+    float: initial;
+	max-width: calc(1300px - 2%);
+    position: relative;
+    box-shadow: initial;
+    background: initial;
+    margin: 2% auto !important;
+    padding: 0 !important;
+    overflow: hidden;
+    font-family: Montserrat, sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+}
+@media screen and (max-width: 1300px) {
+	#header .info {
+		margin: 2% !important;
+	}
+}
+@media only screen and (max-width: 600px) {
+	#header {
+		position: initial;
+	}
+}
+	
+/* ==========================================================================
+ CONTENT
+========================================================================== */
+p,
+.faq-page .thread-body.bleed,
+.main-content {
+    padding: 0;
+    margin: 0;
+    font-size: 18px; /*target important */
+    font-weight: 400;
+    line-height: initial;
+    font-family: 'Open Sans', sans-serif;
+    overflow: initial;
+}
+#wizard { /*reset stuff*/
+    background: #fff;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: initial;
+    border-right: initial;
+    border-bottom: initial;
+    overflow: initial;
+    margin-bottom: initial;
+}
+#wizard {
+    background: #f3f3f5;
+}
+#header {
+	height: initial;
+	min-height: initial;
+    margin-bottom: 0;	
+}
+#content {
+    margin-top: 0 !important;
+    margin-bottom: 3% !important;
+	max-width: calc(1264px - 6%);
+    padding: 3% !important;	
+    background: url(../svg/install-rocket.svg) !important;
+    background-repeat: no-repeat!important;
+    background-position: bottom right 30px !important;
+    background-size: 361px !important;
+    background-color: #fff !important;	
+}
+#main,
+#main.step2 {
+    width: 100% !important;
+    padding-bottom: 0;	
+}
+#content #main #intro {
+    padding-bottom: 5px;
+    margin-bottom: 25px;
+    border-bottom: initial;
+}
+#content #main #intro p {
+    line-height: 32px;
+}
+#main.step2 p {
+    font-size: 16px;
+    padding-top: 4px;
+}
+#sidebar,
+#need-help,
+.upgrade .sidebar,
+.upgrade-page .sidebar,
+.upgrade-page .sidebar.pull-right {
+    display: none !important;
+}
+#main h2,
+#upgrader h2,
+#upgrader h3,
+h1[style="color:green;"] {
+    color: #596678 !important;
+    font-size: 24px !important;
+    font-weight: 500;
+    margin: 0 0 12px !important;
+    border: initial;
+    font-family: Montserrat, sans-serif;	
+}
+.upgrade-page h1, 
+.upgrade-page h2,  
+#upgrading h4,
+#loading h1 {
+    color: #596678 !important;
+    font-size: 30px !important;
+    line-height: 34px;
+    font-weight: 500 !important;
+    margin: 0 0 27px !important;
+}
+#upgrader #main h3 {
+    font-size: 22px !important;
+	padding: 0;
+    font-weight: 400;
+    line-height: 26px;	
+}
+#main h3 {
+	font-size: 19px;
+	margin: 33px 0 13px 0;
+	padding: 0 0 4px 0;
+    color: #596678 !important;
+	font-weight: 600;
+	border-bottom: 2px solid #bec9d9;
+	max-width: 700px;
+    font-family: Montserrat, sans-serif;	
+}
+form h4.head {
+    background-color: initial !important;
+    background-position: 0px 50%;
+    border-top: initial;
+    color: #596678 !important;
+    font-size: 24px;
+    font-family: Montserrat, sans-serif;
+    font-weight: 500;
+    margin: 24px 0 0 0;
+    padding: 5px 5px 5px 28px;
+}
+form h4.system {
+background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23596678' d='M13%2C19H14A1%2C1 0 0%2C1 15%2C20H22V22H15A1%2C1 0 0%2C1 14%2C23H10A1%2C1 0 0%2C1 9%2C22H2V20H9A1%2C1 0 0%2C1 10%2C19H11V17H4A1%2C1 0 0%2C1 3%2C16V12A1%2C1 0 0%2C1 4%2C11H20A1%2C1 0 0%2C1 21%2C12V16A1%2C1 0 0%2C1 20%2C17H13V19M4%2C3H20A1%2C1 0 0%2C1 21%2C4V8A1%2C1 0 0%2C1 20%2C9H4A1%2C1 0 0%2C1 3%2C8V4A1%2C1 0 0%2C1 4%2C3M9%2C7H10V5H9V7M9%2C15H10V13H9V15M5%2C5V7H7V5H5M5%2C13V15H7V13H5Z' /%3E %3C/svg%3E");
+}
+form h4.admin {
+background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23596678' d='M12%2C1L3%2C5V11C3%2C16.55 6.84%2C21.74 12%2C23C17.16%2C21.74 21%2C16.55 21%2C11V5L12%2C1M12%2C5A3%2C3 0 0%2C1 15%2C8A3%2C3 0 0%2C1 12%2C11A3%2C3 0 0%2C1 9%2C8A3%2C3 0 0%2C1 12%2C5M17.13%2C17C15.92%2C18.85 14.11%2C20.24 12%2C20.92C9.89%2C20.24 8.08%2C18.85 6.87%2C17C6.53%2C16.5 6.24%2C16 6%2C15.47C6%2C13.82 8.71%2C12.47 12%2C12.47C15.29%2C12.47 18%2C13.79 18%2C15.47C17.76%2C16 17.47%2C16.5 17.13%2C17Z' /%3E %3C/svg%3E");
+}
+form h4.database {
+background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23596678' d='M11%2C3C15.42%2C3 19%2C4.79 19%2C7C19%2C9.21 15.42%2C11 11%2C11C6.58%2C11 3%2C9.21 3%2C7C3%2C4.79 6.58%2C3 11%2C3M19%2C12.03C17.11%2C12.24 15.57%2C13.62 15.13%2C15.43C13.92%2C15.79 12.5%2C16 11%2C16C6.58%2C16 3%2C14.21 3%2C12V9C3%2C11.21 6.58%2C13 11%2C13C15.42%2C13 19%2C11.21 19%2C9V12.03M14%2C17.71V20.71C13.07%2C20.9 12.06%2C21 11%2C21C6.58%2C21 3%2C19.21 3%2C17V14C3%2C16.21 6.58%2C18 11%2C18C12.06%2C18 13.07%2C17.9 14%2C17.71M19.5%2C14A2.5%2C2.5 0 0%2C1 22%2C16.5V17A1%2C1 0 0%2C1 23%2C18V22A1%2C1 0 0%2C1 22%2C23H17A1%2C1 0 0%2C1 16%2C22V18A1%2C1 0 0%2C1 17%2C17V16.5A2.5%2C2.5 0 0%2C1 19.5%2C14M19.5%2C15A1.5%2C1.5 0 0%2C0 18%2C16.5V17H21V16.5A1.5%2C1.5 0 0%2C0 19.5%2C15Z' /%3E %3C/svg%3E");
+}
+form span.subhead {
+    background: initial;
+    border-bottom: initial;
+    margin-bottom: 3px;
+    padding: 3px 5px 3px 24px;
+    font-style: italic;
+    font-size: 9pt;
+}
+form .row {
+	padding: 12px 0 0px 24px;
+    background: initial;
+}
+form[action="install.php"] span.ltr strong {
+	font-size: 16px;
+    font-weight: 400;
+    color: #24588c;
+}
+#bar {
+	padding-top: initial;
+	height: initial;
+    line-height: initial;
+    text-align: center;
+    border-top: initial;
+}
+#bar .btn {
+	height: initial;
+    line-height: initial;
+	font-weight: 600;
+    border: initial;
+    text-decoration: none;
+    background-image: initial;
+    background-color: #d0e9c6;
+}
+ul.progress li {
+    margin: 16px 0 0 0 !important;
+    padding: 0 0 3px 31px !important;
+}
+ul.progress li.yes {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23128DBE' d='M21%2C7L9%2C19L3.5%2C13.5L4.91%2C12.09L9%2C16.17L19.59%2C5.59L21%2C7Z' /%3E %3C/svg%3E") !important;
+}
+ul.progress li.no {
+background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23D0323B' d='M11%2C15H13V17H11V15M11%2C7H13V13H11V7M12%2C2C6.47%2C2 2%2C6.5 2%2C12A10%2C10 0 0%2C0 12%2C22A10%2C10 0 0%2C0 22%2C12A10%2C10 0 0%2C0 12%2C2M12%2C20A8%2C8 0 0%2C1 4%2C12A8%2C8 0 0%2C1 12%2C4A8%2C8 0 0%2C1 20%2C12A8%2C8 0 0%2C1 12%2C20Z' /%3E %3C/svg%3E") !important;
+}
+ul.progress li.yes small b {
+    font-weight: 400;
+}
+ul.progress li.yes small {
+    font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+    font-weight: 100;
+    font-size: 16px;
+    color: #3ead08;
+}
+#main.step2 input[type="password"] {
+    border-right: .5px solid #A5A4A4!important;
+}
+form span.subhead {
+    margin-bottom: 3px;
+    padding: 5px 5px 3px 27px;
+    font-size: 16px;
+    opacity: 0.8;
+}
+form .row label, 
+form .row span {
+    display: block;
+    line-height: 24px;
+    padding: 0 5px;
+    font-weight: 400;
+    font-size: 18px;
+}
+font.error {
+    background-color: initial;
+}
+.error {
+    color: #d62705;
+    font-size: 15px;
+    font-weight: 500;
+}
+.tip {
+    margin-right: 6px;
+    position: relative;
+    top: 2px;
+}
+#bar .btn {
+	color: #ffffff !important;
+	margin: 40px auto 0 auto;
+    left: 0;
+    right: 0;
+    bottom: 40px;
+    width: fit-content;
+    font-size: 18px;
+    text-align: center;
+    padding: 14px 44px !important;
+    display: block;
+    font-weight: bold;
+    border-radius: 5px;
+    letter-spacing: 0px;
+    background: #ff7563;
+    -webkit-box-shadow: 0 3px 0 0 #cb4a39;
+    -moz-box-shadow: 0 3px 0 0 #cb4a39;
+    box-shadow: 0 3px 0 0 #c55b4e;
+    border: initial !important;
+    font-family: sofia_proregular, sans-serif !important;
+    font-style: normal !important;
+    text-transform: initial;
+    font-weight: 700;
+    letter-spacing: 1.2px;	
+	transition: all 0.15s linear;	
+}
+#bar .btn:hover {
+    -webkit-animation-name: hvr-pop;
+    animation-name: hvr-pop;
+    -webkit-animation-duration: 0.3s;
+    animation-duration: 0.3s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: 1;
+    animation-iteration-count: 1;	
+}
+.file-unclean h1,
+.file-missing h1 {
+    margin-bottom: 40px;
+    color: #F06678 !important;
+}
+.file-unclean h1:before {
+    content: " ";
+    border: none !important;
+    background-repeat: no-repeat;
+    display: inline-block !important;
+    width: 30px !important;
+    height: 30px !important;
+    background-size: 30px !important;
+    background-position: 0px 4px;
+    margin-right: 4px;
+    position: relative;
+    top: 5px;
+	background: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23F06678' d='M8.27%2C3L3%2C8.27V15.73L8.27%2C21H15.73C17.5%2C19.24 21%2C15.73 21%2C15.73V8.27L15.73%2C3M9.1%2C5H14.9L19%2C9.1V14.9L14.9%2C19H9.1L5%2C14.9V9.1M11%2C15H13V17H11V15M11%2C7H13V13H11V7' /%3E %3C/svg%3E");
+}
+.file-unclean #intro p {
+    margin-bottom: 30px;
+}
+.install-done ul li i,
+.install-page ul li i,
+.file-missing ul li i {
+    width: 100%;
+    color: #3b4450 !important;
+}
+.install-done ul li,
+.install-page ul li,
+.file-missing ul li {
+    margin-bottom: 26px;
+}
+.file-missing b,
+.file-missing ul li i {
+	color: #4a8200 !important;
+}
+.file-missing ul li b {
+    color: #3b4450 !important;
+}
+.install-done h1 {
+    font-size: 30px !important;
+    margin-bottom: 21px !important;
+}
+.install-done #intro p {
+    line-height: 32px;
+    margin-bottom: 30px;
+}
+.install-done h2 {
+    color: #F06678 !important;
+    margin: 32px 0 17px 0 !important;
+}
+.install-done table#links {
+    margin: 40px 0;
+}
+.install-done table#links td {
+    padding: 16px 20px 16px 0;
+}
+.install-page .forslash {
+    font-weight: 400;
+}
+.install-page #intro ul li i {
+    color: #3ead08 !important;
+    font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+    font-weight: 100;
+    font-size: 18px;
+    font-style: initial;
+    background: #f3f3f5;
+    width: fit-content !important;
+    padding: 6px;
+    border-radius: 3px;
+}
+.install-page #main ul li i,
+.install-page #intro ul li i {
+    color: #3ead08 !important;
+}
+.install-page font.error:before {
+	display: none;
+}
+h1[style="color:#FF7700;"],
+h1[style="color: #FF7700;"] {
+    color: #6c7b85 !important;
+    font-weight: 500 !important;
+    margin-bottom: 20px !important;
+}
+.install-page #main h3 font[color="red"] {
+    display: none;
+}
+.install-page #main h1 ~ #intro ~ h3 ~ p i {
+    width: 100%;
+    color: #ff7563 !important;
+    font-size: 20px;
+}
+.install-page #main h1 ~ #intro ~ h3 ~ p ~ #bar {
+    padding: 40px 0 40px;
+}
+b[style="white-space:nowrap"] {
+    color: #3ead08;
+    font-weight: 400;
+}
+#landing_page span[style="font-size: medium"] {
+    font-size: 25px !important;
+    margin: 0 0 30px 6px;
+    display: inline-block;
+}
+#footer {
+    background: #6c7b85 !important;
+}
+#footer svg {
+	fill: #fff !important;
+}
+	
+/* ==========================================================================
+ UPGRADE PAGE
+========================================================================== */
+@media screen and (max-width: 1270px) { 
+	#left-logo {
+		margin: 12px 11px 12px 24px !important;
+	}
+}
+.upgrade-page #content {
+    margin-top: 3% !important;
+    max-width: calc(1264px - 6%);
+    padding: 3% !important;
+    line-height: 32px !important;
+    font-size: 18px !important;
+    font-weight: 400 !important;
+    font-family: 'Open Sans', sans-serif !important;
+    border-radius: 6px;
+}
+.upgrade-page .pull-right {
+    float: right !important;
+}
+.upgrade-page #sub_nav > li > a {
+    margin-left: 0 !important; 
+}
+.upgrade-page #pjax-container {
+    background: #f3f3f5;
+}
+.upgrade-page #msg_error, 
+.upgrade-page .error-banner {
+    margin-top: -1em;	
+    margin-bottom: 30px;
+}
+#upgrader #content h2 {
+    color: #596678 !important;
+    font-size: 26px !important;
+    font-weight: 500;
+    margin: 0 0 12px !important;
+}
+#upgrader #main h2 {
+    color: #F06678 !important;
+}
+#upgrader #main div#intro {
+    border-bottom: initial !important;
+    margin-bottom: 24px !important;
+}
+#main #intro ~ h3:first-of-type {
+    margin-top: 30px !important;
+}
+#upgrader #main h3 {
+    margin-top: 38px !important;
+}
+.upgrade-page #bar {
+    border-top: initial !important;
+    height: initial !important;
+}
+.upgrade-page #icon-compliance-outer {
+    height: 28px;
+}
+.upgrade-page ul.progress li {
+    margin: 20px 0 -15px 0 !important;
+    padding: 0 0 3px 31px !important;
+}
+.upgrade-page a[href*="/login.php"], 
+.upgrade-page a[href*="/logout.php"] {
+	border: initial;
+}
+.upgrade-page #header #nav li a {
+	color: var(--header-title-color) !important;
+    font-family: "segoe ui", "helvetica neue", arial, helvetica, sans-serif;
+	font-weight: 100;
+    font-size: 14px;
+	margin: 0;
+}
+.upgrade-page #osticket {
+    margin-bottom: 20px;
+}
+.upgrade-page #osticket, .upgrade-page #ostawesome {
+    display: none;
+}
+.upgrade-page #footer #osticket, .upgrade-page #footer #ostawesome {
+    display: inline-block;
+}
+.upgrade-page #patch-list {
+    margin: 30px 0 48px 0;
+}
+.upgrade-page #patch-list .patch {
+    border-bottom: 1px dotted #ccc;
+    padding: 0.5em 0;
+    margin-left: 1em;
+    color: #000;
+}
+.upgrade-page #patch-list .patch span {
+    margin-left: 10px;
+    color: #4c5156;
+}
+.upgrade-page #loading {
+    background: initial !important;
+}
+#upgrade-complete p {
+    line-height: initial !important;
+    margin-bottom: 26px;
+}
+.upgrade-page #upgrading,
+.install-page #content #loading {
+    border: 3px solid #596678;
+    border-radius: 10px;
+    position: fixed;
+    display: none;
+    z-index: 3000;
+    box-shadow: 0 1px 19px #000;
+    vertical-align: middle;
+    background-image: initial;
+    background-color: #fff;
+    width: 500px;
+    -webkit-box-shadow: 0px 0px 10000px 10000px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0px 0px 10000px 10000px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 10000px 10000px rgba(0,0,0,0.2);
+    top: calc(50% - 145px) !important;
+    left: calc(50% - 180px) !important;
+    width: 360px;
+    padding: 30px;
+}
+.install-page font.error {
+    background-color: initial;
+    display: inline-block;
+    margin: 10px 0 0 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+}
+.install-page font.error strong {
+    font-weight: 100;
+}
+.install-page .subhead font.error {
+    font-style: initial;
+}
+.install-page #content #loading h4 {
+    margin: 0 0 20px 0;
+    padding: 0;
+    color: #596678 !important;
+    font-size: 26px;
+    font-weight: 500;
+}
+.install-page #content.lower {
+    margin-top: 3% !important;
+}
+#upgrading > div {
+    color: #596678;
+    font-size: 18px;
+    text-align: center;
+}
+.upgrade-page #spinner-outter {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    margin: 0 0 30px 0px;
+}
+i.icon-spinner {
+    float: initial;
+    margin-bottom: 30px !important;
+}
+#upgrading #msg {
+    display: none;
+}
+.already-upgraded ul.progress li.no small {
+    color: #596678;
+    font-weight: 100 !important;
+}
+.already-upgraded ul.progress li.no {
+background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23596678' d='M11%2C15H13V17H11V15M11%2C7H13V13H11V7M12%2C2C6.47%2C2 2%2C6.5 2%2C12A10%2C10 0 0%2C0 12%2C22A10%2C10 0 0%2C0 22%2C12A10%2C10 0 0%2C0 12%2C2M12%2C20A8%2C8 0 0%2C1 4%2C12A8%2C8 0 0%2C1 12%2C4A8%2C8 0 0%2C1 20%2C12A8%2C8 0 0%2C1 12%2C20Z' /%3E %3C/svg%3E") !important;
+}
+.already-upgraded h2,
+.already-upgraded #upgrader {
+    opacity: .5;
+}

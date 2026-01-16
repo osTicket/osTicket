@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Šis šablonas apsprendžia rodomą turinį po to, kai klientai sėkmingai užsiregistruoja patvirtindami savo sąskaitą. Šis puslapis turėtų informuoti vartotoją, kad registracija yra baigta ir kad klientas dabar gali pateikti bilietą arba pasiekti esamus bilietus.
+name: "Sąskaita patvirtinta!"
+body: >
+  <div> <strong>Ačiū už užregistruotą sąskaitą.</strong>< br /> < br /> Jūs jau patvirtinote savo elektroninio pašto adresą ir sėkmingai aktivavote paskyrą. Galite tęsti atidarydami naują bilietą arba valdyti esamus bilietus.< br /> < br /> <em>Jūsų draugiškas pagalbos centras</em> < br /> %{company.name} </div>

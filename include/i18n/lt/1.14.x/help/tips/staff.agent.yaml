@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Vartotojo vardas
+  content: >
+    Pasirinkite agento<span class="doc-desc-title">vardą</span>kuris yra unikalus Jūsų<span class="doc-desc-title">pagalbos sistemoje</span>.
+email_address:
+  title: Elektroninis paštas
+  content: >
+    Įveskite agento elektroninio pašto adresą, kuris gaus<span class="doc-desc-title">Įspėjimus&amp;Pranešimus</span>iš<span class="doc-desc-title">Pagalbos sistemos</span>.
+  0: <br><br>
+  1: Darbuotojai gali prisijungti prei personalo valdymo skydo su savo vartotojo vardu arba elektroninio pašto adresu.
+welcome_email:
+  title: Pasveikinimo laiškas
+  content: >
+    Siųsti naują agento paskyros prieigos nuorodą, iš kurios agentas galės nusistatyti savo paskyros slaptažodį. Jeigu nepažymėja, Jums reikės nustatyti slaptažodį ir perduoti prisijungimo informaciją naujam darbuotojui.
+account_password:
+  title: Paskyros slaptažodis
+  content: >
+    Būdamas<span class="doc-desc-title">administratoriumi</span>, galite pakeisti agento slaptažodį.
+forced_password_change:
+  title: Priverstinis slaptažodžio keitimas
+  content: >
+    Įgalinkite šią parinktį jei norite, kad naujas agentas pakeistų savo slaptažodį kito prisijungimo metu.
+agents_signature:
+  title: Agento parašas
+  content: >
+    Sukurkite parašą agentui, kuris gali būti pasirinktas atsakant į užklausą.
+account_status:
+  title: Paskyros statusas
+  content: >
+    Jeigu agento statusas yra<span class="doc-desc-opt">Užrakintas</span>, jis negalės prisijungti prie pagalbos sistemos.
+assigned_group:
+  title: Priskirta grupė
+  content: >
+    Priklausymas <span class="doc-desc-title">Grupei</span>, su kuria pasirinkote, kad bus susietas šis agentas, nustatys kokias teises Agentas turės<span class="doc-desc-title">Pagalbos sistemoje</span>.
+  links:
+    - 
+      title: Valdyti grupes
+      href: /scp/groups.php
+primary_department:
+  title: Pagrindinis departamentas
+  content: >
+    Pasirinkite pagrindinį <span class="doc-desc-title">departamentą</span> kuriame šis agentas priklauso ir turi efektyvią <span class="doc-desc-title">rolę</span>.
+  links:
+    - 
+      title: Valdyti padalinius
+      href: /scp/departments.php
+primary_role:
+  title: Pagrindinė rolė
+  content: >
+    Pasirinkite pagrindinį<span class="doc-desc-title">departamentą</span>kuriam agentas priklauso.
+primary_role_on_assign:
+  title: Naudoti pagrindinę rolę užduotims
+  content: >
+    Įgalinus šį atsitraukima <span class="doc-desc-title">pagrindinei rolei</span> kai agentui priskiriamas bilietas už <span class="doc-desc-title">pagrindinio departamento</span> ir <span class="doc-desc-title"> praplėstos prieigos</span> departamentų. Kitaip agentai turės tik žiūrėjimo teisę.
+daylight_saving:
+  title: Vasaros laikas
+  content: >
+    Įjunkite šią funkciją, jei norite automatinio Vasaros laiko nustatymo šio Agento laiko zonai.
+limited_access:
+  title: Ribota prieiga
+  content: >
+    Jei įgalinta, agentas turės tik prieiga prie užklausų priskirtų tiesiogiai arba komandos.
+directory_listing:
+  title: Katalogų sąrašas
+  content: >
+    Įgalinkite šią parinktį jei norite įdėti į <span class="doc-desc-title">darbuotojų sąrašą</span>.
+  links:
+    - 
+      title: Įeikite į personalo katalogą
+      href: /scp/directory.php
+vacation_mode:
+  title: Atostogų rėžimas
+  content: >
+    Jei pakeisite agento būseną į<span class="doc-desc-opt">Atostogų rėžimas</span>, agentas negaus jokių<span class="doc-desc-title">Įspėjimų&amp;pranešimų</span>arba bus pasiekiamas priskiriant užklausas.
+

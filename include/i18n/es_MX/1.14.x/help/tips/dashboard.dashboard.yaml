@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Actividad de Tickets
+  content: >
+    Seleccione un rango de fecha para generar tanto el gráfico y la tabla  (Véase <span class="doc-desc-title">Estadísticas</span>) abajo para centrarse en cualquier dato correspondientes a esas fechas. El gráfico siguiente siempre reflejará un amplio resumen de datos (e.j. población). Sin embargo, puede navegar a través de la tabla de <span class="doc-desc-title">Estadísticas</span> a continuación para centrarse en un tema más concreto (e.j., Departamento, Temas, o Personal). Además, usted puede exportar cualquier dato que se muestra actualmente en la tabla de  <span class="doc-desc-title">Estadísticas.</span>
+report_timeframe:
+  title: Reporte del Período
+  content: >
+    Elija una fecha para la muestra de datos deseada usando el selector de fecha. Luego, elija la duración del tiempo a partir de esa fecha para definir el final de la muestra de datos.
+statistics:
+  title: Estadísticas
+  content: >
+    Desplácese hasta el tema de interés haciendo clic en la pestaña correspondiente para poder ver la muestra de datos específica. Dentro de la tabla, los círculos representan el tamaño de los datos nominales. Por lo tanto, cuanto mayor sea el número en una celda en particular, mayor será el círculo adyacente.
+opened:
+  title: Abierto
+  content: >
+    Tiquetes que originalmente fueron abiertos con el Departamento o Tema de Ayuda en el tiquete, o el número de tiquetes que ha abierto un agente en nombre de un usuario.
+assigned:
+  title: Asignado
+  content: >
+    Tiquetes que han sido asignados a un Agente o a un Equipo. El número refleja los tiquetes que se asignan manualmente a los agentes o equipos, los tiquetes reclamados y los tiquetes asignados desde los filtros de tiquetes u otras reglas de asignación automática.
+overdue:
+  title: Atrasado
+  content: >
+    Tiquetes que han sido marcadas como "Vencidos" por el sistema. Los tiquetes están marcados como Vencidos cuando se ha violado el plan de ANS (SLA) al que pertenecen, lo que hace que tengan un estado de "Abierto" pasada su Fecha de Vencimiento.
+closed:
+  title: Cerrado
+  content: >
+    La cantidad de tiquetes que se encuentran actualmente en estado Cerrado.
+reopened:
+  title: Reabierto
+  content: >
+    El número total de veces que se reabrió un tiquete. Los tiquetes se vuelven a abrir cuando su estado cambia de Cerrado a Abierto.
+deleted:
+  title: Eliminado
+  content: >
+    La cantidad de tiquetes que se han eliminado.
+service_time:
+  title: Tiempo de Servicio
+  content: >
+    Se refiere a la duración del tiempo que comienza cuando se abre un tiquete y termina cuando el tiquete se cierra. La columna Tiempo de servicio mide el Tiempo de servicio promedio por tiquete, en horas.
+response_time:
+  title: Tiempo de Respuesta
+  content: >
+    Muestra un tiempo de respuesta promedio de un agente, en horas, correspondiente al tiquete.

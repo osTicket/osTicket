@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Den här mallen anger hur sidan ser ut som visas för en kund när denna fyllt i registreringsformuläret. I mallen bör det framgå att systemet skickar ett e-postmeddelande till kunden med en bekräftelselänk och vad som är nästa steg i registreingsprocessen.
+name: "Kontoregistrering"
+body: >
+  <div><strong>Tack för din kontoregistrering.</strong><br/> <br /> Ett e-postmeddelande har skickats till den adress du angivit. Vänligen klicka på länken i meddelandet för att bekräfta adressen och för att få tillgång till dina ärenden. </div>

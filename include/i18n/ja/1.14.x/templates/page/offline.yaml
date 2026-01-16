@@ -1,0 +1,16 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  オフラインページは、ヘルプデスクがオフラインのときにカスタマーポータルに表示されます。
+name: オフライン
+body: |
+  <div><h1>
+  <span style="font-size: medium">サポートチケットシステム　オフライン</span>
+  </h1>
+  <p>お問い合わせ頂きましてありがとうございます。</p>
+  <p>ヘルプデスクは現在受け付けを停止しております。時間を置いて再度アクセスしてください。
+  </p>
+  </div>

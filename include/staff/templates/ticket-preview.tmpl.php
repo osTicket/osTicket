@@ -162,8 +162,8 @@ echo '</div>'; // ticket preview content.
         if ($thread && ($collabs=$thread->getCollaborators())) {?>
         <?php
             foreach($collabs as $collab) {
-                echo sprintf('<tr><td %s>%s
-                        <a href="users.php?id=%d" class="no-pjax">%s</a> <em>&lt;%s&gt;</em></td></tr>',
+                echo sprintf('<tr><td %s>%s</td><td><!--osta-->
+                        <a href="users.php?id=%d" class="no-pjax">%s</a> <em>%s</em></td></tr>',
                         ($collab->isActive()? '' : 'class="faded"'),
                         (($U = $collab->getUser()) && ($A = $U->getAvatar()))
                             ? $A->getImageTag(20) : sprintf('<i class="icon-%s"></i>',

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Encabezado de Formulario
+  content: >
+    Este texto de título se muestra en un cuadro gris por encima de los campos de formulario
+form_instructions:
+  title: Instrucciones del Formulario
+  content: >
+    Puedes añadir instrucciones adicionales que ayudarán a ubicar al usuario en el contexto de los campos del formulario y posiblemente resaltar los datos requeridos.
+field_sort:
+  title: Posición de Visualización de Campo
+  content: >
+    Haz clic en ícono con la flecha hacia arriba/abajo y arrastre la fila del campo para ordenar dentro de este formulario. Las preferencias de ordenamiento no surten efecto hasta que se guarda el formulario.
+field_label:
+  title: Etiqueta del Campo
+  content: >
+    Esta etiqueta se muestra como el nombre de este campo. Por lo general, un campo de respuesta corta quedaría como éste: <br> <strong>Etiqueta: </strong> &nbsp; <input type="text">
+field_type:
+  title: Tipo de Contenido del Campo
+  content: >
+    Esto se utiliza para definir el tipo de entrada esperada del usuario. Puedes seleccionar entre respuesta corta y larga, número de teléfono, fecha y hora, casilla de verificación, lista desplegable o una lista personalizada.
+  links:
+    - 
+      title: Listas Personalizadas
+      href: /scp/lists.php
+field_visibility:
+  title: Visibilidad del Campo
+  content: >
+    Elige si será requerido y las opciones de visibilidad para cada campo. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Configuración</th> <th>Resultado</th></tr> <tr><td>Opcional</td> <td>Agentes y Usuarios Finales pueden ver el campo, pero no se le exige que respondan a ninguno de los dos.</td></tr> <tr><td>Requerido</td> <td>Agentes y Usuarios Finales pueden ver el campo, y a ambos se les exige que lo respondan.</td></tr> <tr><td>Requerido para Usuarios Finales</td> <td>Agentes y Usuarios Finales pueden ver el campo, pero solo se les exige a los Usuarios Finales que lo respondan.</td></tr> <tr><td>Requerido para Agentes</td> <td>Agentes y Usuarios Finales pueden ver el campo, pero solo se les exige a los Agentes que respondan.</td></tr> <tr><td>Interno, Opcional</td> <td>Solo los Agentes pueden ver el campo, pero no se le exige que respondan.</td></tr> <tr><td>Interno, Requerido</td> <td>Solo los Agentes pueden ver el campo y se les exige que respondan.</td></tr> <tr><td>Para Usuarios Finales solamente</td> <td>Solo los Usuarios Finales pueden ver el campo y se les exige que lo respondan.</td></tr> </tbody></table>
+field_variable:
+  title: Automatización de Campo
+  content: >
+    Los datos de campo estará disponibles para las plantillas de email y páginas a través del nombre utilizado en esta columna. Por ejemplo, los campos en el formulario común para tickets están disponibles a través de <code>%{ticket.variable}</code>, donde la <strong>variable</strong> es el nombre usado en esta columna.<br><br><em>La Información sobre la Compañía está disponible a través de <code>%{</code> <code>company.variable}</code> y la información del usuario está disponible a través de <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Eliminar este Campo
+  content: >
+    Compruebe y guarde el formulario para eliminar un campo de este formulario.<br><br><em>Borrar un campo no hace que se retiren los datos previamente introducidos para el campo en formularios completados. Por ejemplo, si un ticket presentado previamente tiene datos para un campo, borrar el campo de esta manera no eliminará los datos en el ticket.</em>

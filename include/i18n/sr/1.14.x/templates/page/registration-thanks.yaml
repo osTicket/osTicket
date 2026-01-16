@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Овај шаблон дефинише садржај који се приказује послије успјешне регистрације клијента и потврђивање налога. Ова страна треба да информише корисника да је регистрација завршена и клијент може да пошаље тикет иили приступи постојећим тикетима.
+name: "Налог је потврђен!"
+body: >
+  <div> <strong>Хвала за отварање налога.</strong><br /> <br /> Ви сте потврдили Вашу еМаил адресу и успјешно активирали Ваш налог. Ви можете наставити отварањем нових тикета или управљањем постојећим тикетима.<br /> <br /> <em>Ваш центар за подршку корисницима </em><br /> %{company.name} </div>

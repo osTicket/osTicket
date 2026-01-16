@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Zdieľanie úlohy
+  content: >
+    <p> Zdieľanie požiadavok zákazníka umožňuje jeho užívateľom prístup k požiadavkám vlastneným inými užívateľmi tohoto zákazníka. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Spolupracovníci majú prístup k požiadavkám vždy. </p>
+email_domain:
+  title: Doména e-mailových adries
+  content: >
+    Užívatelia môžu byť automaticky pridaní k tejto organizácií na základe domény ich e-mailovej adresy. Do položky môžete zadať jednu alebo viac domén oddelených čiarkami. Napr., zadajte <code>moja-firma.sk</code> pre zákazníka, ktorého e-mailové adresy končia @moja-firma.sk
+

@@ -1,0 +1,9 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+notes: >
+  Səhifədə müştəri girişinə başlıq tərtib edir. Bu, sizin daxil olmaq və qeydiyyat qaydalarınız barədə müştərilərə məlumat vermək üçün faydalı ola bilər.
+name: "%{company.name} daxil olun"
+body: >
+  Sizə daha yaxşı xidmət göstərmək üçün biz müştərilərimizi hesab yaratmaq üçün qeydiyyatdan keçməyə həvəsləndiririk.

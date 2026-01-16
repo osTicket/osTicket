@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ausführungsreihenfolge
+  content: >
+    Geben Sie eine Zahl ein, die die Priorität des Filters steuert. Je niedriger die Zahl ist, desto höher wird die Priorität des Filters in der Ausführungsreihenfolge gegenüber einem anderen Filter sein, der möglicherweise in der Ausführungsreihenfolge höher steht.  <br><br>Wenn Sie wollen, dass dieser Filter als letztes auf einen Treffer angewendet wird, aktivieren Sie <span class="doc-desc-title">Stoppe Ausführung bei einem Treffer!</span>.
+target_channel:
+  title: Ticket-Quelle
+  content: >
+    Wählen Sie die <span class="doc-desc-title">Ticket-Quelle</span> Ihres <span class="doc-desc-title">Ticket-Filters</span>. Die <span class="doc-desc-title">Ticket-Quelle</span> ist der Ursprung des Tickets, über den das Ticket in das System gekommen ist. <br><br> Wenn Sie z.B. <span class="doc-desc-opt">Webformular</span> auswählen, wird der <span class="doc-desc-title">Ticket-Filter</span> auf die Tickets angewendet, die über das Webformular des Benutzerportal eröffnet werden.
+rules_matching_criteria:
+  title: Notwendige Regeln für Treffer
+  content: >
+    Legen Sie fest, wie flexibel die Treffer(-Regeln) Ihres <span class="doc-desc-title">Ticket-Filters</span> angewendet werden sollen. Wenn Sie wollen, dass der <span class="doc-desc-title">Ticket-Filter</span> nur auf irgendeine der Regeln zutreffen muss und dann stoppt, wählen Sie <span class="doc-desc-opt">Irgendeine Regel muss zutreffen</span>. Wenn Sie möchten, dass <em><strong>alle Regeln</strong></em> des <span class="doc-desc-title">Ticket-Filters</span> erfüllt sein müssen, dann wählen Sie <span class="doc-desc-opt">Alle Regeln müssen zutreffen</span>.
+reject_ticket:
+  title: Ticket verwerfen
+  content: >
+    Ist diese Funktion aktiviert, wird die Weiterverarbeitung bei einem Treffer gestoppt und alle anderen folgenden Aktionsmöglichkeiten werden ignoriert.
+reply_to_email:
+  title: Antwort-An E-Mail-Adresse
+  content: >
+    Aktivieren Sie diese Funktion, wenn Ihr Helpdesk den <span class="doc-desc-title">Antwort-An</span>-Header vom E-Mail-Programm des Benutzer berücksichtigen soll. Diese Feld ist nur relevant wenn bei der <span class="doc-desc-title">Ticket-Quelle</span> oben <span class="doc-desc-opt">E-Mails</span> ausgewählt wurde.
+ticket_auto_response:
+  title: Ticket Auto-Antwort deaktivieren
+  content: >
+    <em>Hinweis: Hiermit werden alle <span class="doc-desc-title">Abteilungs-</span> oder <span class="doc-desc-title">Auto-Antwort-Einstellungen</span> überschrieben.</em>
+canned_response:
+  title: Vordefinierte Auto-Antworten
+  content: >
+    Wählen Sie eine <span class="doc-desc-title">Vordefinierte Antwort</span>, die Sie an den Benutzer versenden wollen, auf den der<span class="doc-desc-title">Ticket-Filter</span> zutrifft. Die Vorlage für <span class="doc-desc-title">Auto-Antworten bei neuem Ticket</span>, die verwendet wird, ist abhängig davon, welcher <span class="doc-desc-title">Vorlagensatz</span> als Standard zugewiesen ist oder auf welche <span class="doc-desc-title">Abteilung</span> das Ticket zutrifft.
+  links:
+    - 
+      title: Vordefinierte Antworten verwalten
+      href: /scp/canned.php
+    - 
+      title: Vorlagensätze verwalten
+      href: /scp/templates.php
+    - 
+      title: Vorlage für Auto-Antworten bei neuem Ticket
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Abteilung
+  content: >
+    Wählen Sie, zu welcher <span class="doc-desc-title">Abteilung</span> das Ticket bei einem Treffer des <span class="doc-desc-title">Ticket-Filters</span> zugewiesen werden soll.
+  links:
+    - 
+      title: Abteilungen verwalten
+      href: /scp/departments.php
+priority:
+  title: Priorität
+  content: >
+    Wählen Sie eine <span class="doc-desc-title">Priorität</span> aus, die dem Ticket zugewiesen wird, wenn der <span class="doc-desc-title">Ticket-Filter</span> zutrifft.<br /><br /><em>Hinweis: Diese Einstellung überschreibt die Einstellung der <span class="doc-desc-title">Abteilung</span> oder des <span class="doc-desc-title">Hilfethemas</span>.</em>
+sla_plan:
+  title: SLA-Plan
+  content: >
+    Wählen Sie einen <span class="doc-desc-title">SLA-Plan</span> aus, der dem Ticket zugewiesen wird, wenn der <span class="doc-desc-title">Ticket-Filter</span> zutrifft.
+  links:
+    - 
+      title: SLA-Pläne verwalten
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-Zuweisung
+  content: >
+    Wählen Sie einen Agenten oder ein aus Team aus, dem das Ticket zugewiesen wird, wenn der <span class="doc-desc-title">Ticket-Filter</span> zutrifft.
+  links:
+    - 
+      title: Agenten verwalten
+      href: /scp/staff.php
+    - 
+      title: Teams verwalten
+      href: /scp/teams.php
+help_topic:
+  title: Hilfethema
+  content: >
+    Wählen Sie das <span class="doc-desc-title">Hilfethema</span> aus, das dem Ticket zugewiesen wird, wenn der <span class="doc-desc-title">Ticket-Filter</span> zutrifft.
+  links:
+    - 
+      title: Hilfethemen verwalten
+      href: /scp/helptopics.php
+admin_notes:
+  title: Administrator-Notizen
+  content: >
+    Diese Notizen sind nur für jemand sichtbar mit dem Konto-Typ ‘<span class="doc-desc-title">Administrator</span>’.

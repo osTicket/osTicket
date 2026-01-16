@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: רשימות מותאמות אישית
+  content: >
+    <span class="doc-desc-title">הרשימות המותאמות אישית</span> שלך יאפשרו לך ליצור תיבות נגללות עם העדפות מוגדרות מראש שלקוח יכול לבחור <span class="doc-desc-title">מהטפסים המותאמים אישית</span>. אם תרצה להשתמש <span class="doc-desc-title">ברשימות המותאמות אישית</span> בתור <span class="doc-desc-title">יעד</span> <span class="doc-desc-title">במסנני הכרטיס</span>, היה בטוח שהנך מוסיף את הרשימה לטופס <span class="doc-desc-title">פרטי הכרטיס</span>.
+name:
+  title: שם
+  0: >
+
+plural_name:
+  title: בלשון רבים
+  0: >
+
+sort_order:
+  title: סדר מיון
+  0: >
+
+list_s_initial_items:
+  title: פרטי רשימה ראשוניים
+  0: >
+
+value:
+  title: ערך
+  0: >
+
+extra:
+  title: תוספת
+  content: >
+    קיצורים ועוד. אם אתה מתכננן להשתמש בקודים פנימיים בשביל הפריטים ברשימה, הקודם והקיצורים יכולים להיכנס בטור זה. אם הרשימה המותאמת אישית שניתנה היא <span class="doc-desc-option"> TypeAhead</span>, הקיצורים הללו יכולים להיות משומים לחיפוש ברשימות המותאמות אישית.

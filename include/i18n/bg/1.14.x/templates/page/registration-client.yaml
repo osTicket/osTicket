@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Този шаблон определя писмото, което се изпраща до клиентите, когато техният акаунт е създаден чрез клиентския портал или от тяхно име чрез посредник. Този имейл служи за проверка на адреса за ел. поща. Моля, използвайте %{link} някъде в съдържанието на имейла.
+name: "Добре дошли в %{company.name}"
+body: >
+  <h3><strong>Здравейте %{recipient.name.first},</strong></h3> <div> Създадохме ваш профил в системата за поддръжка %{url}.<br /> <br /> Моля, последвайте връзката по-долу, за да потвърдите профила си и за да получите достъп до вашите заявки.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Вашата приятелска система за поддръжка<br /> %{company.name}</em> </div>

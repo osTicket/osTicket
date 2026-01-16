@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Pieteikuma aktivitāte
+  content: >
+    Izvēlieties datumu periodu lai gan grafiks, gan tabula (<span class = "doc-desc-titulu"> Statistika </ span>) turpmāk rīkotos ar datiem izvēlētajā laika periodā. Zemāk attēlotajā grafikā vienmēr tiks atspoguļots pilns sistēmas statuss. Jūs varat arī pārvietoties pa <span class="doc-desc-title">Statistika</span> tabulu zemāk un izvēlēties šaurāku tēmu, (piem.: departaments, tēma, darbinieki) zemāk redzamajā tabulā. Turklāt, Jūs varat eksportēt jebkādus šobrīd tabulā <span class="doc-desc-title">Statistika</span>redzamos datus.
+report_timeframe:
+  title: Ziņojiet par termiņu
+  content: >
+    Izvēlieties datu parauga sākuma datumu. Pēc tam izvēlieties laika posmu, lai definētu data parauga beigu datumu.
+statistics:
+  title: Statistika
+  content: >
+    Izvēlaties kādu no Jums interesējošiem tematiem, uzspiežot uz attiecīgās sadaļas, lai apskatītu specifiskus tās sadaļas datus. Tabulā ar punktiem tiek attēloti nomināli dati. Jo lielāks skaitlis, jo lielāks būs punkts.
+opened:
+  title: Atvērts
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Piešķirts
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Nokavēts
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Slēgts
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Atvērts no jauna
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Dzēsts
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Apkalpošanas laiks
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Atbildes laiks
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

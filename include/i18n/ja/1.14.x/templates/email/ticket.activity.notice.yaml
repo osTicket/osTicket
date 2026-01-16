@@ -1,0 +1,25 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  この通知はチケットのアクティビティなどに返信した方または協力された方に送信されます。
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>%{recipient.name.first}　様</strong></h3>
+  <div>
+  <em>%{poster.name}</em> あなたが参加しているチケットにメッセージがログとして記録されます。
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>この電子メールはこのチケットの協力者にお送りしています。 
+  <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>. To participate, simply reply to this email
+  or <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >click here</a>このチケットを完了させるためにご協力下さい。</em>
+  </div>

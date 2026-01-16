@@ -551,11 +551,11 @@ implements TemplateVariable, Searchable {
 
     function updateForms($vars, &$errors) {
         $find_disabled = function($form) use ($vars) {
-            $fields = $vars['fields'] ?: null;
+            $fields = $vars['fields'] ?: array();
             $disabled = array();
             foreach ($form->fields->values_flat('id') as $row) {
                 list($id) = $row;
-                if (is_array($fields) && (false === ($idx = array_search($id, $fields)))) {
+                if (false === ($idx = array_search($id, $fields))) {
                     $disabled[] = $id;
                 }
             }

@@ -29,31 +29,28 @@ if ($thisclient && $thisclient->isGuest()
     </div>
 
 <?php } ?>
-
-<table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
-    <tr>
-        <td colspan="2" width="100%">
-            <h1>
-                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
-                <b>
-                <?php $subject_field = TicketForm::getInstance()->getField('subject');
-                    echo $subject_field->display($ticket->getSubject()); ?>
-                </b>
-                <small>#<?php echo $ticket->getNumber(); ?></small>
+<!--osta-->
+<h1>
+    <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
+    <b>
+    <?php $subject_field = TicketForm::getInstance()->getField('subject');
+        echo $subject_field->display($ticket->getSubject()); ?>
+    </b><br /><!--osta-->
+    <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
-      <a class="action-button" href="tickets.php?a=print&id=<?php
-          echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
+        <a class="action-button" href="tickets.php?a=print&id=<?php
+            echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
 
-<?php if ($ticket->hasClientEditableFields()
-        // Only ticket owners can edit the ticket details (and other forms)
-        && $thisclient->getId() == $ticket->getUserId()) { ?>
-                <a class="action-button" href="tickets.php?a=edit&id=<?php
-                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
-<?php } ?>
-</div>
-            </h1>
-        </td>
-    </tr>
+        <?php if ($ticket->hasClientEditableFields()
+            // Only ticket owners can edit the ticket details (and other forms)
+            && $thisclient->getId() == $ticket->getUserId()) { ?>
+        <a class="action-button" href="tickets.php?a=edit&id=<?php
+            echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
+        <?php } ?>
+    </div>
+</h1>
+<!--osta-->
+<table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td width="50%">
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
@@ -139,15 +136,21 @@ echo $v;
     </td>
 </tr>
 </table>
+<!--osta-->
+<script>
+	$("#ticketInfo tr th").html(function(i, html){
+		return html.replace(":", "");
+	});	
+</script>
 <br>
   <?php
     $email = $thisclient->getUserName();
     $clientId = TicketUser::lookupByEmail($email)->getId();
 
     $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId), array(
-                    'mode' => Thread::MODE_CLIENT,
-                    'html-id' => 'ticketThread')
-                );
+                'mode' => Thread::MODE_CLIENT,
+                'html-id' => 'ticketThread')
+            );
 if ($blockReply = $ticket->isChild() && $ticket->getMergeType() != 'visual')
     $warn = sprintf(__('This Ticket is Merged into another Ticket. Please go to the %s%d%s to reply.'),
         '<a href="tickets.php?id=', $ticket->getPid(), '" style="text-decoration:underline">Parent</a>');

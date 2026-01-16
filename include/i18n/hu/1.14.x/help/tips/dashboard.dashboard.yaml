@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Hibajegy aktivitás
+  content: >
+    Válasszon ki az alábbi grafikonon és táblában egy időintervallumot (cf. <span class="doc-desc-title">Statisztika</span>), ahol összesíthet minden vonatkozó adatot a kiválasztott időpontra. Az alábbi grafikon mindig egy átfogó képet ad az egész rendszer adataira vonatkozóan (azaz sokaság). Azonban lehetőség van az alábbi <span class="doc-desc-title">Statisztika </span> táblában szűkített adatokat megtekinteni (például: Részleg, Témakör vagy Munkatárs). Továbbá a megjelenített <span class="doc-desc-title">Statisztika </span> táblából minden adatot exportálhat.
+report_timeframe:
+  title: Jelentés időkerete
+  content: >
+    Adja meg a kezdési időpontot a mintához a dátumválasztó segítségével. Ezután válassza ki az időtartamot, hogy meghatározza a minta záró dátumát.
+statistics:
+  title: Statisztika
+  content: >
+    A kívánt minta adatok megtekintéséhez, kattintson a megadott fülre. A táblában a körök jelzik a névleges adatok méretét. Ezért minél nagyobb a szám egy adott cellában, a szomszédos kör is nagyobb lesz.
+opened:
+  title: Nyitott
+  content: >
+    Azok a jegyek, amelyeket eredetileg megnyitottak a jegyzeten vagy a Súgó témakörön, vagy az Ügyfél által a Felhasználó nevében megnyitott jegyek száma.
+assigned:
+  title: Hozzárendelt
+  content: >
+    Jegyek, amelyeket egy ügynöknek vagy egy csapatnak tulajdonítottak. A szám azt a jegyet tükrözi, amelyet manuálisan hozzárendelnek az ügynökökhöz vagy a csapatokhoz, igényelt jegyeket, jegyeket a jegyszűrőktől / más automatikus hozzárendelési szabályoktól.
+overdue:
+  title: Lejárt
+  content: >
+    Jegyek, amelyeket a rendszer „késedelmes” jelzéssel jelöl. A jegyek a késedelmes jelzéssel jelennek meg, amikor megsértették az SLA-tervet, amelyhez tartoztak, és így a „Megnyitás” státuszuk meghaladta az esedékességüket.
+closed:
+  title: Lezárt
+  content: >
+    A lezárt állapotban lévő hibajegyek száma.
+reopened:
+  title: Újranyitott
+  content: >
+    A jegy újbóli megnyitásának teljes száma. A jegyek újra megnyílnak, ha állapotuk megváltozik a Zárt és a Megnyitás között.
+deleted:
+  title: Törölt
+  content: >
+    A törölt jegyek száma.
+service_time:
+  title: Támogatási idő
+  content: >
+    A jegy megnyitásától kezdődő időtartamra utal, és a jegy bezárásakor ér véget. A Szervizidő oszlop a jegyenkénti átlagos szolgáltatási időt méri.
+response_time:
+  title: Válaszidő
+  content: >
+    Átlagos válaszidőt jelenít meg egy ügynök által, órákban a jegykezeléshez.

@@ -1,0 +1,25 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Обавјештење је послато учесницима на активностима око тикета нпр. одговори или поруке.
+subject: |
+  Одговор: %{ticket.subject}
+body: |
+  <h3><strong>Поштовани %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> Забиљежена је порука везана за тикет на којем учествуејте.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Ви сте добили ову поруку јер сте учесник у активностима на тикету
+  <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  За укључивање у активности, одговорите на ову еМаил поруку
+  или <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >кликните овдје</a> за приступ компленој архиви активности на тикету.</em>
+  </div>

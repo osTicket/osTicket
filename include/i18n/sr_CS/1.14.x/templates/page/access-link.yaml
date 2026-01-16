@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Ovaj šablon definiše obaveštenja koja će klijentu biti poslata ukoliko je tiket uputio preko imejla. Broj tiketa i imejl se koriste kao veza za pristup.
+name: "Link za pristup tiketu [#%{ticket.number}]"
+body: >
+  <h3><strong>Pozdrav %{recipient.name.first},</strong></h3> <div>Pristup linku za zahtev #%{ticket.number} je podnet u Vaše ime za pomoć u %{url}.<br /> <br /> Pratite link ispod kako bi ste proverili statu Vašeg zahteva #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Ako <strong>niste</strong> Vi poslali ovaj zahtev, molimo Vas da obrišete i zanemarite ovaj imejl. Vaš nalog je i dalje siguran i nikome nije dat pristup tiketima. Moguće je da je neko greškom upisao Vaš imejl <br /> <br /> --<br /> %{company.name} </div>

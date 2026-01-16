@@ -1,0 +1,20 @@
+#
+# Default email template group for the system
+#
+# NOTE: The language field is defined for the email tempate group model, but
+#       is not considered by the installer. Whatever language the install
+#       loads data for, the same language will be used to load the email
+#       templates
+#
+# Fields:
+# isactive - (bool:0|1) true or false if the templates should be initially
+#       usable
+# name - (string) descriptive name for the template group
+# notes - Administrative notes (viewable internally only)
+#
+---
+- id: 1
+  isactive: 1
+  name: osTicket Default Template (HTML)
+  notes: |
+    Default osTicket templates

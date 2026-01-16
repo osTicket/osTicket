@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  La pàgina d'agraïment es veu al portal de clients quan un usuari envia un nou Ticket a partir del propi web.
+name: Gràcies
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Gràcies per contactar-nos.
+  <br>
+  <br>
+  S'ha creat un Ticket amb la vostra petició i, si és necessari, us respondrem tan aviat com ens sigui possible.</p>
+  <br>
+  <br>
+  Equip de Suport
+  </div>

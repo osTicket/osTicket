@@ -103,9 +103,9 @@ else
                     $sel=true;
                 ?>
             <tr id="<?php echo $row['id']; ?>">
-                <td align="center">
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>> </td>
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
+                  <?php echo $sel?'checked="checked"':''; ?>><label></label></p> </td>
                 <td>&nbsp;<a href="apikeys.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['apikey']); ?></a></td>
                 <td><?php echo $row['ipaddr']; ?></td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>

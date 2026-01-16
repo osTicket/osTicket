@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Tên
+  content: >
+    Chọn một tên miêu tả cho<span class="doc-desc-title">dự án SLA</span>phản ánh mục tiêu của dự án đó.
+grace_period:
+  title: Thời hạn ưu đãi
+  content: >
+    Quyết định số giờ sau khi một lệnh được tạp mà nó sẽ được tự động gắn mắc quá hạn.<br><br><em>Số giờ này sẽ được đếm từ lệnh tạo giờ.</em>
+transient:
+  title: Tạm thời
+  content: >
+    Dự án SLA tạm thời có thể ghi đề bởi dự án không gia hạn trên<span class="doc-desc-opt">Phòng ban</span>chuyển sang hoặc khi<span class="doc-desc-title">tiêu đề trợ giúp</span>được thay đổi.
+schedule:
+  title: Schedule
+  content: >
+    Choose the Schedule to be used by this SLA when rendering tickets Overdue. <br><br> Please note that Department settings can override this schedule.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php

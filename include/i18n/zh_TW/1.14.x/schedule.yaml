@@ -1,0 +1,175 @@
+---
+- 
+  #Initial set of schedules and entries
+  #Fields:
+  #id:
+  #flags:
+  #0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+  #sort:     Manual sort order
+  #name:     Name of the Schedule
+  #timezone:   Timezone of the Schedule
+  #description:   Description of the Schedule
+  #entries:     Schedule Entries
+  #---
+  id: 1
+  flags: 0x01
+  name: 週一至週五上午8點至下午5點（包含美國假期）
+  configuration:
+    holidays:
+      - 4
+  entries:
+    - 
+      name: 星期一
+      repeats: 每週 #notrans
+      starts_on: 2019-01-07
+      starts_at: 08:00:00
+      ends_on: 2019-01-07
+      ends_at: 17:00:00
+      day: 1
+    - 
+      name: 星期二
+      repeats: 每週 #notrans
+      starts_on: 2019-01-08
+      starts_at: 08:00:00
+      ends_on: 2019-01-08
+      ends_at: 17:00:00
+      day: 0
+    - 
+      name: 星期三
+      repeats: 每週 #notrans
+      starts_on: 2019-01-09
+      starts_at: 08:00:00
+      ends_on: 2019-01-09
+      ends_at: 17:00:00
+      day: 3
+    - 
+      name: 星期四
+      repeats: 每週 #notrans
+      starts_on: 2019-01-10
+      starts_at: 08:00:00
+      ends_on: 2019-01-10
+      ends_at: 17:00:00
+      day: 4
+    - 
+      name: 星期五
+      repeats: 每週 #notrans
+      starts_on: 2019-01-11
+      starts_at: 08:00:00
+      ends_on: 2019-01-11
+      ends_at: 17:00:00
+      day: 5
+- 
+  id: 0
+  flags: 0x01
+  name: 24/7
+  entries:
+    - 
+      name: 每日
+      repeats: 每日 #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+- 
+  id: 3
+  flags: 0x01
+  name: 24/5
+  entries:
+    - 
+      name: 工作日
+      repeats: 工作日 #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+- 
+  id: 4
+  flags: 0
+  name: 美國節假日
+  entries:
+    - 
+      name: 新年
+      repeats: 全年 #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+      day: 1
+      month: 1
+    - 
+      name: 馬丁·路德·金恩紀念日
+      repeats: 全年 #notrans
+      starts_on: 2019-01-21
+      starts_at: 00:00:00
+      ends_on: 2019-01-21
+      ends_at: 23:59:59
+      day: 1
+      week: 3
+      month: 1
+    - 
+      name: 亡兵紀念日
+      repeats: 全年 #notrans
+      starts_on: 2019-05-27
+      starts_at: 00:00:00
+      ends_on: 2019-05-27
+      ends_at: 23:59:59
+      day: 1
+      week: -1
+      month: 5
+    - 
+      name: 美國獨立日（7月4日）
+      repeats: 全年 #notrans
+      starts_on: 2019-07-04
+      starts_at: 00:00:00
+      ends_on: 2019-07-04
+      ends_at: 23:59:59
+      day: 4
+      month: 7
+    - 
+      name: 勞工節
+      repeats: 全年 #notrans
+      starts_on: 2019-09-02
+      starts_at: 00:00:00
+      ends_on: 2019-09-02
+      ends_at: 23:59:59
+      day: 1
+      week: 1
+      month: 9
+    - 
+      name: 土著人民日 (哥倫布紀念日)
+      repeats: 全年 #notrans
+      starts_on: 2019-10-14
+      starts_at: 00:00:00
+      ends_on: 2019-10-14
+      ends_at: 23:59:59
+      day: 1
+      week: 0
+      month: 10
+    - 
+      name: 退伍軍人節
+      repeats: 全年 #notrans
+      starts_on: 2019-11-11
+      starts_at: 00:00:00
+      ends_on: 2019-11-11
+      ends_at: 23:59:59
+      day: 11
+      month: 11
+    - 
+      name: 感恩節
+      repeats: 全年 #notrans
+      starts_on: 2019-11-28
+      starts_at: 00:00:00
+      ends_on: 2019-11-28
+      ends_at: 23:59:59
+      day: 4
+      week: 4
+      month: 11
+    - 
+      name: 聖誕節
+      repeats: 全年 #notrans
+      starts_on: 2019-11-25
+      starts_at: 00:00:00
+      ends_on: 2019-11-25
+      ends_at: 23:59:59
+      day: 25
+      month: 12

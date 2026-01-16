@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Meddelanden och Notifieringar
+  content: >
+    Meddelanden och Notifieringar i form av automatiserade e-postmeddelanden som skickas till personer i supportpersonalen när olika ärende-händelser inträffar.
+ticket_alert:
+  title: Nytt ärende
+  content: >
+    <p>Meddelanden som skickas ut till supportpersonal när ett nytt ärende skapas.</p><p class="info-banner"> <i class="icon-info-sign"></i> Dessa meddelanden skickas inte ut om ärendet tilldelas någon automatiskt via ett Ärendefilter eller via en Hjälp-rubrik.</p>
+  links:
+    - 
+      title: Standardmall för notifiering om nytt ärenden
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Nytt Meddelande
+  content: >
+    Notifiering som skickas till supportpersonalen när en användare lägger till information till ett befintligt ärende.
+  links:
+    - 
+      title: Standardmall för notifiering om ny information i ett ärende
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Nytt internt aktivitetsmeddelande
+  content: >
+    Skicka ut meddelande till alla agenter när en intern aktivitet så som intern notering eller en agents svar är bifogat ett ärende.
+  links:
+    - 
+      title: Standardmall för ärendehändelse
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Notifiering vid tilldelning av ärende
+  content: >
+    Notifiering som skickas till supportpersonalen vid ärendetilldelning.
+  links:
+    - 
+      title: Standardmall för notifiering vid ärendetilldelnng
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Avisera vid överföring
+  content: >
+    Notifiering som skickas till supportpersonalen när ett ärende flyttas mellan Avdelningar.
+  links:
+    - 
+      title: Standardmall för överföringsmeddelande av ärende
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Notifiering vid förfallet ärende
+  content: >
+    Notifiering som skickas ut till supportpersonalen när ett ärende förfaller baserat på SLA-regler eller baserat på förfallodatum.
+  links:
+    - 
+      title: Standardmall för notifiering vid inaktuellt ärende
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Hantera SLA-regler
+      href: /scp/slas.php
+system_alerts:
+  title: Systemnotifieringar
+  content: >
+    Viktiga systemhändelser som skicaks till Administratören (%{config.admin_email}). Beroende på inställningarna i <span class="doc-desc-title">Logg-nivån</span>, kan händelserna finnas med i <span class="doc-desc-title">Systemloggarna</span>
+  links:
+    - 
+      title: Visa systemloggarna
+      href: /scp/logs.php
+    - 
+      title: Ändra administratörens e-postadress
+      href: /scp/settings.php?t=emails

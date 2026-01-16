@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Pelaksanaan pesanan
+  content: >
+    Masukkan nombor yang mengawal keutamaan penapis. Semakin rendah nombor, keutamaan yang lebih tinggi penapis ini akan ada dalam dilaksanakan lebih daripada penapis lain yang mungkin mempunyai pelaksanaan yang lebih tinggi. <br><br> Jika anda mahu penapis ini menjadi penapis terakhir digunakan pada perlawanan, Bolehkan <span class="doc-desc-title"> Hentikan Pemprosesan Lanjut Pada Perlawanan</span>.
+target_channel:
+  title: Saluran
+  content: >
+    Pilih sasaran <span class="doc-desc-title">Saluran</span> untuk anda punya <span class="doc-desc-title">Penapis tiket</span>. <span class="doc-desc-title">Saluran</span> adalah sumber lalui yang mana tiket yang tiba ke dalam sistem. <br><br> Sebagai contoh, jika anda pilih <span class="doc-desc-opt">Borang Web</span>, anda mengatakan bahawa anda mahu gunakan <span class="doc-desc-title">Penapis tiket</span> untuk tiket mereka yang berasal dari borang web Portal Pelanggan.
+rules_matching_criteria:
+  title: Peraturan pemadanan kriteria
+  content: >
+    Pilih bagaimana elastik yang anda mahu padan <span class="doc-desc-title"> penapis tiket anda </span> untuk menjadi. Jika anda ingin <span class="doc-desc-title"> penapis tiket</span>untuk menyesuaikan kaedah-kaedah, dan kemudian berhenti, pilih <span class="doc-desc-opt">Sebarang padanan </span>. Jika anda ingin<em><strong> semua peraturan </strong></em>daripada <span class="doc-desc-title"> penapis tiket</span> untuk dipadankan, pilih <span class="doc-desc-opt">sesuai dengan semua <</span>.
+reject_ticket:
+  title: Tolak Tiket
+  content: >
+    Jika ini diaktifkan, proses selanjutnya dihentikan dan semua pilihan tindakan lain di bawah akan diabaikan pada perlawanan.
+reply_to_email:
+  title: Jawapan-kepada e-mel
+  content: >
+    Aktifkan ini jika anda mahu Meja Bantuan anda untuk menghormati aplikasi e-mel yang Pengguna ini <span class="doc-desc-title">Balas Untuk</span> tajuk laporan. Bidang ini hanya berkaitan jika <span class="doc-desc-title"> saluran </span> di atas termasuk <span class="doc-desc-opt">E-mel</span>.
+ticket_auto_response:
+  title: Melumpuhkan tiket auto-respon
+  content: >
+    <em> Nota:. Ini akan mengatasi mana-mana <span class="doc-desc-title"> Jabatan</span> atau <span class="doc-desc-title"> Tetapan Autorespond </span>.</em>
+canned_response:
+  title: Auto-balas terkumpul
+  content: >
+    Pilih <span class="doc-desc-title">Respon Terkumpul</span> yang anda mahu untuk dihantar melalui e-mel kepada pengguna pada padanan<span class="doc-desc-title">Penapis Tiket</span>. Templat <span class="doc-desc-title">Auto-Balas Tiket Baru</span> digunakan bergantung kepada apa <span class="doc-desc-title">set templat</span> yang diberikan sebagai lalai, atau kepada  padanan <span class="doc-desc-title">Jabatan</span> tiket.
+  links:
+    - 
+      title: Urus Respon Terkumpul
+      href: /scp/canned.php
+    - 
+      title: Urus set templat
+      href: /scp/templates.php
+    - 
+      title: Templat Auto-Balasan Tiket Baru
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Jabatan
+  content: >
+    Pilih apa yang <span class="doc-desc-title"> Jabatan </span> anda mahu padanan daripada <span class="doc-desc-title"> penapis Tiket </span> yang akan diberikan.
+  links:
+    - 
+      title: Urus Jabatan
+      href: /scp/departments.php
+priority:
+  title: Keutamaan
+  content: >
+    Pilih <span class="doc-desc-title"> Keutamaan </span> peringkat yang anda mahu digunakan untuk padanan daripada <span class="doc-desc-title"> Penapis Tiket </span>. <br /><br /><em> Nota: Ini akan mengatasi <span class="doc-desc-title">Jabatan</span>atau<span class="doc-desc-title"> Bantuan Topik</span> tetapan. </em>
+sla_plan:
+  title: Rancangan SLA
+  content: >
+    Pilih <span class="doc-desc-title">Rancangan SLA </span> anda mahu digunakan untuk perlawanan daripada <span class = "doc-desc-title"> penapis Tiket </span>.
+  links:
+    - 
+      title: Urus rancangan SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-Tugasan
+  content: >
+    Pilih Ejen atau Pasukan yang anda mahu perlawanan daripada <span class="doc-desc-title">penapis Tiket </span>yang akan ditugaskan.
+  links:
+    - 
+      title: Urus ejen
+      href: /scp/staff.php
+    - 
+      title: Urus Pasukan
+      href: /scp/teams.php
+help_topic:
+  title: Topik bantuan
+  content: >
+    Pilih <span class="doc-desc-title"> Bantuan Topik </span>anda mahu digunakan untuk perlawanan daripada <<span class="doc-desc-title">Penapis Tiket</span>.
+  links:
+    - 
+      title: Mengurus topik bantuan
+      href: /scp/helptopics.php
+admin_notes:
+  title: Nota Admin
+  content: >
+    Nota ini hanya boleh dilihat oleh orang-orang yang mempunyai akaun jenis <span class="doc-desc-title"> Admin </span>.'

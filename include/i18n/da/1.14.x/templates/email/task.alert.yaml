@@ -1,0 +1,37 @@
+---
+#Email template: task.alert.yaml
+#Sent to an agent when a new task is created in the system.
+#---
+notes: |
+  Sendt til en agent, når en ny opgave oprettes i systemet.
+subject: |
+  Ny opgave meddelse
+body: |
+  <h2>Hej %{recipient.name},</h2>
+  Ny opgave <a href="%{task.staff_link}">#%{task.number}</a> oprettet
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>Afdeling</strong>:
+      </td>
+      <td>
+          %{task.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{task.description}
+  <br>
+  <br>
+  <hr>
+  <div>For at se eller svare på sagen, <a
+  href="%{task.staff_link}">log venligst ind</a> på bestillingssystemet</div>
+  <em style="font-size: small">Din venlige kundesupport</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      style="width: 126px; " alt="Powered By osTicket"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

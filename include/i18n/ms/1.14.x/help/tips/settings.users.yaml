@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Nama pengguna Pemformatan
+  content: >
+    Pilih format untuk Pengguna nama sepanjang sistem. template e-mel akan menggunakannya untuk nama jika tiada format lain dinyatakan.
+#Authentication settings
+client_session_timeout:
+  title: Sesi masa tamat pengguna
+  content: >
+    Pilih masa terbiar maksimum (dalam minit) sebelum Pengguna dikehendaki untuk log masuk semula. <br><br> Jika anda ingin untuk melumpuhkan <span class="doc-desc-title">Sesi Pengguna Tamat Masa,</span> masukkan 0.
+registration_method:
+  title: Pilihan Pendaftaran
+  content: >
+    <span class="doc-desc-title"> Kaedah Pendaftaran </span> dan <span class="doc-desc-title"> Pendaftaran Diperlukan </span> digunakan bersama-sama untuk menetapkan bagaimana pengguna mendaftar dan mengakses portal web meja bantuan anda. Jadual di bawah meringkaskan bagaimana kedua-dua tetapan ditafsirkan oleh sistem. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th> Pendaftaran Diperlukan </th><th>Kaedah Pendaftaran </th><th> Keputusan </th></tr><tr><td>Tidak</td><td> Awam </td><td> Pendaftaran digalakkan tetapi tidak diperlukan untuk tiket baru. </td></tr><tr><td> Ya </td><td> Awam</td><td> Pendaftaran dan log masuk diperlukan untuk tiket baru </td></tr><tr><td> Tidak </td><td> Peribadi </td><td> Sesiapa sahaja boleh membuat tiket, tetapi hanya ejen boleh mendaftar akaun </td></tr><tr><td> Ya</td><td> Peribadi </td><td> akses Pengguna adalah melalui jemputan sahaja </td></tr><tr><td> Tidak </td><td> dilumpuhkan </td><td> Tiada siapa yang boleh mendaftar untuk akaun, tetapi sesiapa sahaja boleh membuat tiket. <em> Ini adalah bagaimana osTiket berfungsi sebelum 1.9</em></td></tr><tr><td> Ya </td><td> Dilumpuhkan </td><td> Matikan tiket baru melalui web portal </td></tr></tbody></table>
+client_verify_email:
+  title: Memerlukan pengesahan e-mel
+  content: >
+    Nyahaktifkan pilihan ini untuk memberikan pengguna anda akses segera kepada tiket melalui "Semak Status Tiket" halaman log masuk dalam portal pelanggan. Jika dibolehkan, (yang mana lalai), pengguna akan diminta untuk menerima e-mel dan mengikuti pautan dalam e-mel untuk melihat tiket. <br><br> Melumpuhkan pengesahan e-mel mungkin membenarkan pihak ketiga (contohnya tiket rakan usaha sama) untuk menyamar sebagai pemilik tiket.
+allow_auth_tokens:
+  title: Membolehkan Pengesahan Tokens
+  content: >
+    Aktifkan opsyen ini untuk membolehkan penggunaan token pengesahan kepada pengguna log masuk automatik pada pautan tiket klik.

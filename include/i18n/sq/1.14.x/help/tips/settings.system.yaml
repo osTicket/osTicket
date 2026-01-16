@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk Status
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Ky URL është baza e instalimit tuaj osTicket. Ajo përdoret në komunikimin me email për t'i drejtuar përdoruesit fundorë përsëri në ndihmën tuaj.
+helpdesk_name_title:
+  title: Helpdesk Name/Title
+  content: >
+    This is the title that appears in the browser tab. If your help desk page is bookmarked, this will be the title/name of the site page.
+default_department:
+  title: Default Department
+  content: >
+    Choose a default <span class="doc-desc-title">department</span> for tickets that are not automatically routed to a department. <br/><br/> Ticket can be routed base on help topic, incoming email and ticket filter settings.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Default Page Size
+  content: >
+    Choose the number of items shown per page in the Ticket Queues in the Staff Panel. Each Agent can also customize this number for their own account under <span class="doc-desc-title">My Preferences</span>.
+default_log_level:
+  title: Default Log Level
+  content: >
+    Determine the minimum level of issues which will be recorded in the <span class="doc-desc-title">system log</span>. <span class="doc-desc-opt">Debug</span> represents the least severity, and <span class="doc-desc-opt">Error</span> represents the greatest severity. For example, if you want to see all issues in the <span class="doc-desc-title">System Logs</span>, choose <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Purge Logs
+  content: >
+    Determine how long you would like to keep <span class="doc-desc-title">System Logs</span> before they are deleted.
+enable_richtext:
+  title: Enable Rich Text
+  content: >
+    If enabled, this will permit the use of rich text formatting between Clients and Agents.
+enable_avatars:
+  title: Akvizo ikonat pamjen e thredit
+  content: >
+    Aktivizo këtë për të shfaqur <span class="doc-desc-title">Avatarin</span> në korrespondencën e fijeve. <br><br> <span class="doc-desc-title">Burimi i avatarit</span> mund të rregullohet në faqen e parametrave të Agjentëve dhe të Përdoruesve.
+  links:
+    - 
+      title: Agents Settings
+      href: /scp/settings.php?t=agents
+    - 
+      title: Users Settings
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Agent Collision Avoidance
+  content: >
+    Shkruani periudhën kohore maksimale ku një Agjenti është i lejuar të bllokoj një skedë ose detyrë pa asnjë aktivitet.<br><br> Shtypni<span class="doc-desc-opt">0</span>për ta çaktivizuar funksionin e bllokimit.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Date &amp; Time Options
+  content: >
+    Parametrat e mëposhtëm përcaktojnë parametrat e paracaktuar për Data & amp; Cilësimet e kohës për tryezën e ndihmës. Ju mund të zgjidhni të përdorni parazgjedhjet e lokaleve për lokalin e zgjedhur ose të përdorni rregulloje formatet për të përmbushur kërkesat tuaja unike. Referojuni vargjeve të formatit ICU si referencë për personalizimin. Datat e treguara më poshtë thjesht ilustrojnë rezultatin e vlerave përkatëse të tyre.
+  links:
+    - 
+      title: Shiko ICU tabelën e formatit te datës
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: System Languages
+  content: >
+    Zgjidhni një gjuhë parësore të sistemit dhe gjuhë të mesme opsionale për ta bërë që ndërfaqja juaj të ndjehet e lokalizuar për agjentët dhe përdoruesit e fundit.
+primary_language:
+  title: Gjuha Primare e Sistemit
+  content: >
+    Përmbajtja e kësaj gjuhe u shfaqet agjentëve dhe përdoruesve të fundit nëse preferencat e tyre përkatëse gjuhësore nuk janë aktualisht të disponueshme. Kjo përfshin përmbajtjen e ndërfaqes, si dhe përmbajtje me porosi të tilla si faqet falënderuese dhe mesazhet e postës elektronike. <br/> <br/> Kjo është gjuha në të cilën duhet të shkruhen versionet jo të përkthyera të përmbajtjes suaj.
+secondary_language:
+  title: Secondary Languages
+  content: >
+    Zgjidhni opsionet e gjuhës së preferuar për agjentët tuaj dhe përdoruesit. Ndërfaqja do të jetë e disponueshme në këto gjuhë, dhe përmbajtja me porosi, të tilla si faqet e falënderimeve dhe emrat e temave të ndihmës, do të jenë të përkthyeshme në këto gjuhë.
+#Attachments
+attachments:
+  title: Cilësimet e bashkëngjitjes dhe ruajtja
+  content: >
+    Konfiguroni se si ruhen bashkëlidhjet.
+default_storage_bk:
+  title: Struktura e File Storage
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Maximum File Size
+  content: >
+    Zgjidhni një madhësi maksimale të skedarit për bashkëngjitjet e ngarkuar nga operatorët. Kjo përfshin të bashkëngjitni skedarë të ruajtuar, artikuj bazë të njohurive, dhe bashkëngjitje të çështjeve dhe detyrë përgjigjeve.
+  links:
+    - 
+      title: PHP ini parametrat
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

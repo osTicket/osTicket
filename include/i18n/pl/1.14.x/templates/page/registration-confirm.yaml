@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Te szablony definiują stronę, która pokaże się Klientom po wypełnieniu formularza rejestracyjnego. Szablon powinien zawierać informację, że system wysłał wiadomość e-mail z linkiem potwierdzającym oraz jaki jest następny krok w procesie rejestracji.
+name: "Rejestracja konta"
+body: >
+  <div><strong>Dziękujemy za rejestrację i założenie konta.</strong><br/> <br /> Właśnie wysłaliśmy do Ciebie e-mail, na podany adres. Prosimy kliknąć link w mailu w celu potwierdzenia utworzenia konta i uzyskania dostępu do swoich zgłoszeń.</div>

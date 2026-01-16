@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Team
+  content: >
+    Teams är en eller flera Agenter grupperade ihop i syfte för ärende tilldelning. Team medlemsskap kan sträcka sig över avdelningsgränser.
+status:
+  title: Status
+  content: >
+    Om <span class="doc-desc-opt">Disabled</span>, detta Team kommer inte vara tillgängligt för ärendetilldelning eller mottaga varningar &amp; för äldre tilldelningar.
+lead:
+  title: Team chef
+  content: >
+    Ett <span class="doc-desc-title">Team</span> kan ha en utsedd chef som kan ta emot <span class="doc-desc-title">varningar &amp; notifikationer</span> separat från medlemmarna.
+  links:
+    - 
+      title: Konfigurera Varningar &amp; Meddelanden
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Tilldelningsvarning
+  content: >
+    Du kan stänga av <span class="doc-desc-title">Ticket tilldelningsvarningen</span> för ärenden tilldelade till detta Team.
+  links:
+    - 
+      title: Konfigurera Varningar &amp; Meddelanden
+      href: /scp/settings.php?t=alerts
+members:
+  title: Team medlemmar
+  content: >
+    Team medlemsskap konfigureras i Agent profilen.
+  links:
+    - 
+      title: Hantera handläggare
+      href: /scp/staff.php

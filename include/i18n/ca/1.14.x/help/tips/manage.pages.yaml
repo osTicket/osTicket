@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Pàgines principals
+  content: >
+    Les pàgines principals poden servir com una mini Administració de Continguts del Simstema (ACS). Pot definir múltiples aterratges, fora de línia i pàgines d'agraïment  i configurar-los en els ajustos d'empresa i temes d'ajuda.
+  links:
+    - 
+      title: Configuració de l'empresa
+      href: /scp/settings.php?t=pages
+type:
+  title: Tipus
+  content: >
+    les pàgines <span class="doc-desc-opt"> fora de línia</span> es visualitzen al portal de client si el sistema de suport està inhabilitat. Les pàgines <span class="doc-desc-opt"> de destí</span> es mostren a la pàgina principal del seu portal de client. <span class="doc-desc-opt"> gràcies</span> pàgines es mostren després de que un usuari presente un ticket. <span class="doc-desc-opt"> altres</span> pàgines poden ser utilitzades com un simple gestor de continguts (ACS).

@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Formato Nome Utente
+  content: >
+    Scegliere un formato per i nomi degli Utenti valido per tutto il sistema. I modelli email lo useranno per i nomi se nessun altro formato verrà specificato.
+#Authentication settings
+client_session_timeout:
+  title: Timeout sessione Utente
+  content: >
+    Scegliere il tempo massimo di inattività (in minuti) prima che un utente debba nuovamente effettuare il log in. <br><br>Se si desidera disabilitare il <span class="doc-desc-title">Timeout della Sessione dell’Utente</span>, immettere 0.
+registration_method:
+  title: Opzioni di Registrazione
+  content: >
+    <span class="doc-desc-title">Metodo di Registrazione</span> e <span class="doc-desc-title">Registrazione Necessaria</span> sono utilizzati insieme per configurare il modo in cui gli utenti si registrano ed accedono al portale web dell’help desk. La seguente tabella riassume come le due impostazioni sono interpretate dal sistema. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Registrazione Necessaria</th> <th>Metodo di Registrazione</th> <th>Risultato</th></tr> <tr><td>No</td><td>Pubblico</td> <td>Registrazione consigliata ma non obbligatoria per nuovi ticket.</td></tr><tr><td>Yes</td><td>Pubblico</td> <td>La registrazione e il login sono necessari per nuovi ticket</td></tr> <tr><td>No</td><td>Privato</td> <td>Chiunque può creare un ticket, ma soltanto gli Operatori possono registrare un account</td></tr> <tr><td>Sì</td><td>Privato</td> <td>Accesso degli utenti solo tramite invito</td></tr> <tr><td>No</td><td>Disabilitato</td> <td>Nessuno può registrare un account, ma chiunque può creare un ticket.. <em>osTicket funzionava in questo modo nelle versioni precedenti alla 1.9</em></td></tr> <tr><td>Sì</td> <td>Disabilitato</td> <td>Disabilitare nuovi Tickets tramite il portale web</td></tr></tbody></table>
+client_verify_email:
+  title: Richiedi Verifica Email
+  content: >
+    Disabilitare questa opzione per fornire agli utenti un accesso immediato ai ticket tramite la pagina di login "Controllare lo Stato del Ticket" nel portale client. Se abilitato, (impostazione predefinita), gli utenti saranno tenuti a seguire un link riportato nell'email per visualizzare il ticket. <br><br>Disabilitando la verifica tramite email si potrebbe consentire a terzi (ad esempio collaboratori dei ticket) di impersonare il proprietario del ticket.
+allow_auth_tokens:
+  title: Abilitare l'autenticazione tramite Token
+  content: >
+    Abilitare quest'opzione per consentire il login automatico degli utenti tramite link.

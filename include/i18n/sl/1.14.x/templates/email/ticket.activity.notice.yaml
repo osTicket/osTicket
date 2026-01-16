@@ -1,0 +1,25 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Obvestilo poslano sodelavcem aktivnega zahtevka npr. odgovor ali obvestilo.
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Pozdravljeni %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> je dodal sporočilo k prispevku v katerem ste udeleženi tudi vi.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>To sporočilo ste prejeli, ker sodelujete 
+  pri zahtevku <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Za sodelovanje odgovorite na to e-pošto
+  ali <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >kliknite tukaj</a> za popoln arhiv informacij v zvezi s tem zahtevkom.</em>
+  </div>

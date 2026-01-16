@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Formato del Nombre del Agente
+  content: >
+    Seleccione un formato para los nombres de todo el sistema. Las plantillas de email se usarán para los nombres si no se especifica ningún otro formato en la variable.
+#Authentication settings
+client_session_timeout:
+  title: Vencimiento de la Sesión de Usuario
+  content: >
+    Seleccione el máximo tiempo de inactividad (en minutos) antes que el Usuario sea forzado a iniciar sesión nuevamente. <br><br> Si desea deshabilitar esta característica asigne 0 al <span class="doc-desc-title">Vencimiento de la Sesión de Usuario</span>.
+registration_method:
+  title: Opciones de registro
+  content: >
+    <span class="doc-desc-title"> Método de inscripción</span> y <span class="doc-desc-title"> Registro requerido</span> se utilizan juntos para configurar cómo los usuarios se registran y acceden al portal web del sistema de soporte. La siguiente tabla resume cómo las dos configuraciones son interpretadas por el sistema. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" > <tbody style="vertical-align:top;"> <tr><th>Registro requerido</th> <th>Método de registro</th> <th>Resultado</th></tr> <tr><td>No</td> <td>Público</td> <td>Se alienta el registro pero no es obligatorio para los nuevos Ticket.</td></tr> <tr><td>Sí</td> <td>Público</td> <td>Se exige registro y accesos para los nuevos Tickets</td></tr> <tr><td>No</td> <td>Privada</td>, <td>Cualquier persona puede crear un Ticket, pero solo los agentes pueden registrar cuentas</td></tr> <tr><td>Sí</td> <td>Privada</td> <td>El acceso de los usuarios es solamente por invitación</td></tr> <tr><td>No</td><td>Deshabilitado</td> <td>Nadie puede registrarse para una cuenta, pero cualquier persona puede crear un Ticket. <em>Así es como osTicket funcionaba antes de la versión 1.9</em></td></tr> <tr><td>Sí</td> <td>Deshabilitado</td> <td>Desactiva nuevos Tickets vía portal web</td></tr></tbody></table>
+client_verify_email:
+  title: Requiere verificación de correo electrónico
+  content: >
+    Desactive esta opción para ofrecer a sus usuarios acceso inmediato a Tickets a través de la página de inicio de sesión "Comprobar estado de Ticket" en el portal del cliente. Si está habilitado, (que es el valor por defecto), los usuarios deberán recibir un correo electrónico y seguir un enlace en el correo electrónico para ver el Ticket. <br><br>Deshabilitar la verificación del correo podría permitir que otros (por ejemplo colaboradores) se hagan pasar por el dueño del Ticket.
+allow_auth_tokens:
+  title: Habilitar la autenticación de clientes
+  content: >
+    Habilite esta opción para permitir el uso de "tokens" para que al hacer clic en los enlaces de tickets "auto-autentiquen" al usuario.

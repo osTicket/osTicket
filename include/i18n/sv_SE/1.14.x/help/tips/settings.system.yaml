@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk Status
+  content: >
+    Om statusen ändras till <span class="doc-desc-opt">Offline</span>, så kommer kundgränssnittet att inaktiveras.  Endast administratörer tillåts åtkomst till systemet.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Denna URL är basen i din osTicket installationen. Det används i e-post meddelanden för att skicka slutanvändare tillbaka till din supportwebbplats.
+helpdesk_name_title:
+  title: Namn/Titel på Supportsidan
+  content: >
+    Detta är titeln som syns i webbläsarens flik/titelrad. Om supportsidan läggs in som bokmärke i webbläsaren så blir detta namnet på bokmärket.
+default_department:
+  title: Standard-Avdelning
+  content: >
+    Välj standard-<span class="doc-desc-title">Avdelning</span> för ärenden som inte automatiskt tilldelas en avdelning. <br/><br/> Ärenden kan tilldelas automatiskt baserat på Hjälp-rubrik, inkommande e-post och ärendefilter-inställningar.
+default_schedule:
+  title: Standardschema
+  content: >
+    Välj det standard Schema som skall användas av SLA när ett ärende blir förfallet.
+  links:
+    - 
+      title: Hantera scheman
+      href: /scp/schedules.php
+default_page_size:
+  title: Standard-Sidstorlek
+  content: >
+    Välj antal poster som visas per sida i supportpersonalens Ärendekö. Varje person i supportpersonalen kan också själv specificera en egen siffra för denna inställning i <span class="doc-desc-title">Mina inställningar</span>.
+default_log_level:
+  title: Standardnivå för Loggning
+  content: >
+    Bestäm minimalt antal problem som ska registreras i <span class="doc-desc-title">system-loggen</span>. <span class="doc-desc-opt">Debug</span> motsvarar lägsta allvarlighetsgraden, och <span class="doc-desc-opt">Error</span> motsvarar den högsta. Vill du till exempel se alla problem som uppstått i <span class="doc-desc-title">System-Loggen</span>, välj <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Rensa Logg-filerna
+  content: >
+    Ange hur länge du vill att <span class="doc-desc-title">System-loggarna</span> sparas, innan de raderas.
+enable_richtext:
+  title: Tillåt "Rich Text"
+  content: >
+    Om detta aktiveras kommer formatering av text att tillåtas vid kommunikation mellan supportpersonal och kund.
+enable_avatars:
+  title: Tillåt Avatar i ärendetråden
+  content: >
+    Aktivera detta för att visa <span class="doc-desc-title">Avatarer</span> i tråd korespondansen. <br><br> <span class="doc-desc-title">Avatar källan</span>kan ställas in i Handläggare och Användares inställningssidor.
+  links:
+    - 
+      title: Handläggarinställningar
+      href: /scp/settings.php?t=agents
+    - 
+      title: Användarinställningar
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Undvikande av krock mellan supportpersonal
+  content: >
+    Ange hur länge en Handläggare får låsa en uppgift eller ett ärende utan att någon aktivitet förekommer. <br><br> Ange <span class="doc-desc-opt">0</span> för att avaktivera denna funktion.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Alternativ för Datum &amp; tid
+  content: >
+    Följande inställningar definierar standardinställningarna för datum "&amp;" Tidsinställningar för ärendesystemet. Du kan välja att använda standarden för den valda språket eller använd anpassa format för att möta dina unika krav. Vi hänvisar till ICU formatsträngar som en referens för anpassning. Datumet nedan illustrerar helt enkelt resultatet av deras motsvarande värden.
+  links:
+    - 
+      title: Se ICU-datumformat-tabellen
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Systemspråk
+  content: >
+    Välj systemets primärspråket och eventuellt sekundära språk för att göra gränssnittet landsanpassat för dina handläggare och slutanvändare.
+primary_language:
+  title: Systemets huvudspråk
+  content: >
+    Innehållet i detta språk visas för handläggare och slutanvändare om deras respektive språkinställningar inte är tillgängliga för tillfället. Detta inkluderar innehållet i gränssnittet, samt också, anpassat innehåll såsom tack-sidor och e-postmeddelanden. <br/><br/> Detta är det språk på vilket de oöversatta versionerna av innehållet ska skrivas.
+secondary_language:
+  title: Sekundärt språk
+  content: >
+    Välj språk inställningsalternativ för dina handläggare och slutanvändare. Gränssnittet kommer att finnas tillgänglig på dessa språk, såsom anpassat innehåll, tacksidor och hjälpämnes namn.
+#Attachments
+attachments:
+  title: Bilagors inställningar och lagring
+  content: >
+    Konfigurera hur bilagor lagras.
+default_storage_bk:
+  title: Fillagring Backend
+  content: >
+    Välj hur bilagor skall lagras. <br><br> Ytterligare lagringsmöjligheter kan läggas till genom att installera tilläggsmoduler för lagring
+max_file_size:
+  title: Maximal filstorlek
+  content: >
+    Välj en maximal filstorlek för bilagor uppladdade av Handläggare. Detta inkluderar zipade bilagor, artiklar i kunskapsbasen, och bilagor till ärenden och ärendesvar. Den övre gränsen styrs av PHP's <code>upload_max_filesize</code> inställningen.
+  links:
+    - 
+      title: PHP ini inställningar
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Kräver Inloggning
+  content: >
+    Aktivera denna inställning för att begränsa bilaga hantering för ej verifierade användare. Det betyder att användare måste logga in till systemet (både användare och handläggare), för att kunna se bilagor. <br><br> Från ett säkerhetsperspektiv, tänk på att användarnas webbläsare kan ha sparat tidigare visade filer i cachminnet. Alla fillänkar i hjälpprogrammet går ut efter ungefär 24 timmar.

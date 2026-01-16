@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Kennisbank instellingen
+  0: >
+
+knowledge_base_status:
+  title: Status van de Kennisbank
+  content: >
+    Schakel dit in om uw gebruikers toegang te geven aan de Kennisbank artikelen die publiek staan. <br><br> Kennisbank categorieën en FAQs kunnen intern gemaakt worden (alleen zichtbaar voor de Verantwoordelijken). 
+  links:
+    - 
+      title: Kennisbank beheren
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Schakel deze optie in om te voorkomen dat ongeregistreerde gebruikers toegang krijgen tot de kennisbank artikelen op de client interface.
+  links:
+    - 
+      title: Toegangscontrole instellingen
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Standaard antwoorden
+  content: >
+    Schakel dit in om de Verantwoordelijken de mogelijkheid te geven om <span class="doc-desc-title">Standaard antwoorden</span> te gebruiken wanneer ze antwoorden op tickets.
+  links:
+    - 
+      title: Standaard antwoorden beheren
+      href: /scp/canned.php

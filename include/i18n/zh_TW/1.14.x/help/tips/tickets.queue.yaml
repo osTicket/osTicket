@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: 搜索欄位
+  0: >
+
+advanced:
+  title: 進階選項
+  content: >
+    縮小您的搜索參數。一旦您選擇了您的高級的搜尋條件和運行搜索，您可以 <span class="doc-desc-title"> 匯出</span> 的資料顯示在票頁面底部。
+open_tickets_table:
+  title: 打開票務表
+  content: >
+    所有門票目前已打開、需要留心注意。
+ticket:
+  title: 票
+  0: >
+
+date:
+  title: 日期
+  0: >
+
+subject:
+  title: 主題
+  0: >
+
+from:
+  title: 從
+  0: >
+
+priority:
+  title: 優先順序
+  0: >
+
+assigned_to:
+  title: 分配給
+  0: >
+
+export:
+  title: 匯出
+  content: >
+    你在視圖中在 CSV 檔中當前的資料匯出。CSV 檔可讀取在試算軟體內（即，Microsoft Excel、Apple Pages、OpenOffice等）。
+advanced_search_dialog:
+  title: 進階搜尋
+  0: >
+
+adv_keyword:
+  title: 關鍵字搜索
+  content: >
+    尋找主旨、案件內容與相關資訊。
+adv_date_range:
+  title: 搜索按日期範圍
+  content: >
+    在這裡下定義
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Reply Types
+  content: >
+    <b>Reply All:</b> This reply is sent to the User and the Collaborators you choose to include.</br> <b>Reply to User:</b> This reply is sent to the User only, no Collaborators.</br> <b>Do Not Email Reply:</b> No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.

@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Bidali langileei tiket bat asignatzen zaienean. Ticketak automatikoki edo eskuz asignatu ahal dira beste langile bati. Erabili %{assigner} distingitzeko nork egin zuen bidalketa.
+subject: |
+  Zuri assigntatutako Ticketa
+body: |
+  <h3><strong>Kaixo %{assignee.name.first},</strong></h3>
+  <a href="%{ticket.staff_link}">#%{ticket.number}</a> asignatu zaizu %{assigner.name.short} eskuz.
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Norena</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Gaia</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Erantzuteko edo ikusteko <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> to the support ticket system</div>
+  <em style="font-size: small; ">Zure bezeroari arreta emateko lagun sistema.</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="osTicket abiatuta" width="126" height="19" style="width: 126px;">

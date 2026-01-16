@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Estat del sistema de suport
+  content: >
+    Si l'estat canvia a <span class="doc-desc-opt"> fora de línia</span>, la interfície de client s'inhabilitarà. Només els Administradors podran accedir al sistema.
+helpdesk_url:
+  title: URL del sistema de suport
+  content: >
+    Aquest URL, o sigui adreça web del sistema de suport, és la base de la vostra instal·lació d'osTicket. S'utilitza en les comunicacions per correu electrònic per dirigir els usuaris cap al sistema de suport.
+helpdesk_name_title:
+  title: Nom/títol del sistema de suport
+  content: >
+    Aquest es el títol que apareix en la pestanya del navegador. Si la página del seu sistema de suport està marcada, aquest serà el títol o nom de la pàgina.
+default_department:
+  title: Departament predeterminat
+  content: >
+    Elegeix un <span class="doc-desc-title"> Departament</span> per defecte per els Tickets que automàticament no s'encaminen a un departament. <br/> <br/> Un Ticket pot ser assignat en base d'un tema d'ajuda, del correu electrònic i de la configuració de filtres de Ticket.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Dimensions predeterminades de la pàgina
+  content: >
+    Elegeix el nombre d'articles mostrats per pàgina a les cues de Ticket en el panell de personal. Cada agent pot personalitzar-les al seu compte en: <span class="doc-desc-title"> Les meues preferències</span>.
+default_log_level:
+  title: Nivell de registre predeterminat
+  content: >
+    Determinar el nivell mínim de errors que quedaran registrades en el <span class="doc-desc-title"> registre de sistema</span>. <span class="doc-desc-opt"> depurar</span> representa la menor gravetat i <span class="doc-desc-opt"> Error</span> representa la major gravetat. Per exemple, si voleu veure tots els errors en els <span class="doc-desc-title"> Registres de sistema</span>, triar <span class="doc-desc-opt"> depurar</span>.
+purge_logs:
+  title: Purgar registres
+  content: >
+    Determinar quant temps li agradaria mantenir <span class="doc-desc-title"> Els registres del sistema</span> abans que s'eliminen.
+enable_richtext:
+  title: Habilita el text enriquit
+  content: >
+    Si està activat, es permetrà l'ús de text enriquit entre els Clients i Agents.
+enable_avatars:
+  title: Habilitar avatars en la vista del fil
+  content: >
+    Activa això per mostrar <span class="doc-desc-title">Avatars</span> en el fil de missatges. <br><br> Els <span class="doc-desc-title">Avatars Source</span> es poden establir a les pàgines de configuració d'usuaris i agents.
+  links:
+    - 
+      title: Configuració dels Agents
+      href: /scp/settings.php?t=agents
+    - 
+      title: Configuració d'usuari
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Evitació de col·lisió d'agents
+  content: >
+    Introdueix el temps màxim que un agent està autoritzat a mantenir un bloqueig sobre un tiquet o una tasca sense activitat. <br><br> Introdueix <span class="doc-desc-opt">0</span> per desabilitar la possibilitat de bloqueig.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Data &amp; opcions de temps
+  content: >
+    Les següents configuracions defineixen els ajustos predeterminats de Data i Hora per al servei d'ajuda. Pots escollir utilitzar els valors predeterminats de configuració regional o personalitzar els formats per satisfer els teus requisits. Consulta les cadenes de format de ICU com a referencia per a la personalització. Les dates que es mostren a continuació simplement il·lustren el resultat per als valors corresponents.
+  links:
+    - 
+      title: Veure la taula de formats ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Idiomes del sistema
+  content: >
+    Escull un idioma principal per al sistema i opcionalment un idioma secundari per personalitzar la interfície per als agents i usuaris finals.
+primary_language:
+  title: Idioma principal del sistema
+  content: >
+    El contingut en aquest idioma es mostra als agents i usuaris finals si les seves respectives preferencies d'idioma no estan disponibles. Això inclou el contingut de la interficie, així com, contingut personalitzat com per exemple les pàgines d'agraïment i els missatges de correu. <br/><br/> Aquest és l'idioma en el que s'haurien d'escriure les versions no traduïdes del contingut.
+secondary_language:
+  title: Idiomes secundaris
+  content: >
+    Selecciona les opcions de preferència d'idioma per als agents i usuaris finals. La interfície estarà disponible en aquests idiomes i, el contingut personalitzat, com pàgines d'agraïment i noms de temes d'ajuda, es traduirà a aquests idiomes.
+#Attachments
+attachments:
+  title: Ajustos i emmagatzemament de fitxers adjunts
+  content: >
+    Configura com s'emmagatzemen els fitxers adjunts.
+default_storage_bk:
+  title: Sistema d'emmagatzemament de fitxers
+  content: >
+    Escull com s'emmagatzemen els adjunts. <br><br>Es poden afegir sistemes d'emmagatzemament addicionals instal·lant plugins d'emmagatzemament
+max_file_size:
+  title: Mida màxima del fitxer
+  content: >
+    Escull la mida màxima de fitxer que es pot adjuntar per part dels agents. Això inclou fitxers adjunts, articles de la base de coneixement i adjunts a tiquets i tasques. El límit superior està controlat per l'ajust de PHP <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: Configuració PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

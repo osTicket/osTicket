@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Type
+  content: >
+    Selecteer <span class="doc-desc-opt">Privé</span> als u de toewijzingen van deze Afdeling wil verbergen in het Gebruikersportaal. Bovendien zal de <span class="doc-desc-title">Afdelingshandtekening</span> niet getoond worden in de e-mail antwoorden. <br/><br/> Er moet tenminste één Afdeling <span class="doc-desc-opt">Publiek</span> zijn.
+email:
+  title: Email
+  content: >
+    E-mailadressen gebruikt om antwoorden te verzenden naar Gebruikers wanneer Verantwoordelijken Reacties geven op Tickets.
+template:
+  title: Sjabloon Set
+  content: >
+    E-mail <span class="doc-desc-title">Sjabloon Set</span> worden gebruikt voor Automatische-Reactie en Waarschuwingen &amp; Mededelingen voor Tickets die doorgestuurd worden naar deze Afdeling.
+  links:
+    - 
+      title: Sjablonen beheren
+      href: /scp/templates.php
+sla:
+  title: Service Level
+  content: >
+    Service Level voor Tickets doorgestuurd naar deze Afdeling.
+  links:
+    - 
+      title: Service plannen beheren
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Afdelingsbeheerder
+  content: >
+    Selecteer een <span class="doc-desc-title">Beheerder</span> voor deze afdeling. <br/><br/>Beheerders kunnen ingesteld worden om speciale waarschuwingen te ontvangen en ook rechten gegeven worden om Tickets te ontnemen.
+  links:
+    - 
+      title: Beheren van Waarschuwingen &amp; Mededelingen
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Ontvangers van Waarschuwingen &amp; Mededelingen
+  content: >
+    Selecteer de ontvangers voor de geconfigureerde <span class="doc-desc-title">Waarschuwingen &amp; Mededelingen</span>.
+  links:
+    - 
+      title: Configureer Waarschuwingen &amp; Mededelingen
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Beperkingen tot Ticket Toewijzing
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Schakel automatische toekenning uit
+  content: >
+    Vink dit aan om automatische toekenning bij beantwoording en reactie <strong>uit</strong> te schakelen.<br><br>Agenten kunnen nog altijd niet toegewezen tickets toewijzen
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Automatisch antwoord instellingen
+  content: >
+    Dit laat je toe om de globale instellingen van Automatisch antwoord te overschrijven voor deze afdeling.
+new_ticket:
+  title: Automatisch antwoord op nieuw ticket
+  content: >
+    Je kunt de Automatische Beantwoording van nieuw aangemaakte tickets in of uit schakelen.
+new_message:
+  title: Nieuw bericht automatisch antwoord
+  content: >
+    Je kunt het automatisch beantwoorden van nieuwe berichten in tickets uitschakelen voor deze afdeling.
+auto_response_email:
+  title: Auto-antwoord email
+  content: >
+    Voer het afzender-emailadres in voor automatische berichten die voor deze afdeling worden verstuurd.
+department_access:
+  title: Groep toegang
+  content: >
+    Geef agenten van andere afdeling toestemming om de tickets van deze afdeling te zien.
+department_signature:
+  title: Afdelings-handtekening
+  content: >
+    Een handtekening kan bij  <span class="doc-desc-opt">Publiekelijke</span> afdelingen door agenten optioneel gekozen worden.

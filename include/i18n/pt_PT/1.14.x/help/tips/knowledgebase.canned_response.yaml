@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Respostas pré-configuradas
+  content: >
+    Crie uma <span class="doc-desc-title"> Resposta pronta</span> que pode ser incluída numa resposta ao ticket. De facto, pode incluir tantas <span class="doc-desc-title"> Respostas prontas</span> quantas quiser numa resposta ao ticket. Pode também ser incluído na configuração da <span class="doc-desc-title"> Resposta automática de ticket</span> por um <span class="doc-desc-title"> Filtro de Ticket</span>.
+  links:
+    - 
+      title: Configurar um Filtro de Ticket
+      href: /scp/filters.php
+canned_attachments:
+  title: Anexos Prontos
+  content: >
+    Anexe um arquivo que gostaria de ser incluído automaticamente na resposta de um ticket que utilize a nova <span class="doc-desc-title"> Resposta Pronta</span>.

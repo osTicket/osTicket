@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Súgó téma információ
+  content: >
+    A <span class="doc-desc-title">Súgó témák</span> vezérlik milyen információk legyenek a Felhasználóktól begyűjtve és hova legyenek a hibajegyek irányítva vagy besorolva.
+topic:
+  title: Téma neve
+  content: >
+    Egyedi súgó téma név.
+status:
+  title: Állapot
+  content: >
+    Ha letiltott vagy archivált, ez a <span class = "doc-desc-title"> Súgó téma </span> nem érhető el.
+type:
+  title: Típus
+  content: >
+    Ha egy <span class="doc-desc-title">Témakört</span> privátnak jelölnek, akkor csak a kezelők tudják kiválasztani, amikor megnyitnak egy új hibajegyet a dolgozói panelen.
+parent_topic:
+  title: Szülő téma
+  content: >
+    Válassza ki azt a szülő témakört, ami alá ez a <span class="doc-desc-title">Témakör</span> tartozik. A szülő témakör fog elsőként megjelenni a listában alatta ezzel a <span class="doc-desc-title">Témakörrel</span>.
+custom_form:
+  title: Saját űrlap
+  content: >
+    A saját űrlapok segítenek részletesebb információkat bekérni a felhasználóktól ezzel a <span class="doc-desc-title">Súgó témával</span> kapcsolatban.
+  links:
+    - 
+      title: Saját űrlapok kezelése
+      href: /scp/forms.php
+priority:
+  title: Fontosság
+  content: >
+    Válassza ki az új jegyekhez rendelt prioritást ezen a <span class="doc-desc-title">Súgó témán</span> belül.<br><br> A Hibajegy szűrők felül tudják írni az új hibajegyek prioritását.
+department:
+  title: Részleg
+  content: >
+    Válassza ki a Részleget, amelyikhez az ebben a Súgó témában készített Hibajegyeket irányítani fogja.
+  links:
+    - 
+      title: Részlegek kezelése
+      href: /scp/departments.php
+sla_plan:
+  title: SLA terv
+  content: >
+    Válassza ki a <span class="doc-desc-title">Súgó témához</span> használni kívánt Szolgáltatási színvonal tervezetet. <br><br> Ez a parancs felül fog írni minden, a Részlegekben meghatározott Szolgáltatási színvonal tervezetet
+  links:
+    - 
+      title: SLA terv szerkesztése
+      href: /scp/slas.php
+thank_you_page:
+  title: Köszönjük oldal
+  content: >
+    Válassza ki azt a köszönet oldalt, amelyikhez az ebben a <span class="doc-desc-title">Súgó témában</span>, hibajegyeket megnyitó felhasználókat irányítani szeretné.
+  links:
+    - 
+      title: Köszönjük oldalak kezelése
+      href: /scp/pages.php
+auto_assign_to:
+  title: Hibajegyek automatikus hozzárendelése
+  content: >
+    Itt megadhat egy kezelőt vagy csoportot, aki(k)hez az ebben a <span class="doc-desc-title">Súgó témában</span> megnyitott jegyeket automatikusan hozzárendeli. <br><br> A Hibajegy szűrők felülírhatják ezt a hozzárendelést.
+  links:
+    - 
+      title: Dolgozók és Csapatok kezelése
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Hibajegy automatikus válasz
+  content: >
+    Engedélyezés esetén ez a beállítás letiltja az új hibajegy létrehozására küldött automatikus válaszüzeneteket ebben a <span class="doc-desc-title">Súgó témában</span>.  <br><br> Ez felülírja az automatikus válaszok beállításait mind a <span class="doc-desc-title">Részleg</span> mind a teljes <span class="doc-desc-title">Automatikus válaszüzenetek beállításait</span> beleértve.
+  links:
+    - 
+      title: Automatikus válasz beállítások
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Egyedi hibajegy azonosítók
+  content: >
+    Válasszon a "Saját" opciót, hogy felülírja a rendszer alapvető hibajegy sorszámozási formátumát az ebben a súgó témában készített hibajegyeknél. Több információért tekintse meg a Beállítások/Hibajegyek oldalt.

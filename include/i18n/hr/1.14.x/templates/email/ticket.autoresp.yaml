@@ -1,0 +1,26 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Obavijest poslana korisniku kada se otvori nova kartica
+subject: |
+  Otvorena kartica za podršku [#%{ticket.number}]
+body: |
+  <h3><strong>Poštovani %{recipient.name.first},</strong></h3>
+  <p>
+  Zahtjev za tehničkom podrškom je kreiran i dodjeljen #%{ticket.number}.
+  Djelatnik centra za tehničku podršku će Vam se javiti u najkraćem mogućem roku. Vi možete pratiti razvoj kartice putem ovog linka
+  <a href="%{recipient.ticket_link}"></a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Vaša %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Ukoliko želite
+  pružiti dodatne komentare ili informacije, odgovorite na ovaj e-mail
+  ili se <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >prijavite u Vaš korisnički račun</span></a> za kompletnu arhivu svih dosadašnjih kartica.</em></div>

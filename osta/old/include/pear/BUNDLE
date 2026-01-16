@@ -1,0 +1,19 @@
+Log of pear packages bundled with osTicket
+
+* osTicket v1.9.13, v1.10 *
+===========================================================
+Mail_Mime-1.10.0
+Mail_mimeDecode-1.5.5
+Net_SMTP-1.7.1
+
+* osTicket v1.7.*
+===========================================================
+ PEAR-1.9.4 - core class
+ Mail-1.2.0
+ Mail_Mime-1.8.5 
+ Net_SMTP-1.6.1
+ Net_Socket-1.0.10
+ Auth_SASL-1.0.6
+
+-------- Changes ----------
+* Add connect() function to Mail/smtp.php

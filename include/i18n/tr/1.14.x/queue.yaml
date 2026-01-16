@@ -1,0 +1,784 @@
+---
+- 
+  #Basic queues for the initial ticket system. Queues installed for
+  #- Open / All
+  #- Open / Unassigned
+  #- Open / Overdue
+  #- Answered / All
+  #- My Tickets / All
+  #- Closed / All
+  #Fields:
+  #id:
+  #parent_id:
+  #flags:
+  #0x01:   FLAG_PUBLIC
+  #0x02:   FLAG_QUEUE (should be set for everything here)
+  #0x04:   FLAG_DISABLED
+  #0x08:   FLAG_INHERIT (inherit criteria from parent)
+  #0x10:   FLAG_INHERIT_COLUMNS
+  #0x20:   FLAG_INHERIT_SORTING
+  #staff_id: User owner of the queue
+  #sort:     Manual sort order
+  #title:    Display name of the queue
+  #config:   Criteria configuration
+  #filter:   Quick filter field
+  #root:     Object type of the queue listing
+  #'T':    Tickets
+  #'A':    Tasks
+  #---
+  id: 1
+  title: Aç
+  parent_id: 1
+  flags: 0x03
+  sort: 1
+  sort_id: 1
+  root: T
+  config: '[["status__state","includes",{"open":"Açık"}]]'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Son Güncelleme
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Atanmış
+  sorts:
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 2
+  title: Aç
+  parent_id: 1
+  flags: 43
+  root: T
+  sort: 1
+  sort_id: 4
+  config: '{"criteria":[["isanswered","nset",null]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Son Güncelleme
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Atanmış
+- 
+  id: 3
+  title: Cevaplanmış
+  parent_id: 1
+  flags: 43
+  root: T
+  sort: 2
+  sort_id: 4
+  config: '{"criteria":[["isanswered","set",null]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Son Güncelleme
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Atanmış
+- 
+  id: 4
+  title: Süresi Aşmış
+  parent_id: 1
+  flags: 43
+  root: T
+  sort: 3
+  sort_id: 4
+  config: '{"criteria":[["isoverdue","set",null]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 9
+      bits: 1
+      sort: 9
+      width: 150
+      heading: Bitiş Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Atanmış
+- 
+  id: 5
+  title: Kayıtlarım
+  parent_id: 1
+  flags: 0x03
+  root: T
+  sort: 3
+  sort_id: 3
+  config: '{"criteria":[["assignee","includes",{"M":"Bana","T":"Takımlarımdan biri"}],["status__state","includes",{"open":"Açık"}]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Son Güncelleme
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 11
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Bölüm
+  sorts:
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 6
+  title: Bana Atanan
+  parent_id: 5
+  flags: 43
+  root: T
+  sort: 1
+  config: '{"criteria":[["assignee","includes",{"M":"Bana"}]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Son Güncelleme
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 11
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Bölüm
+  sorts:
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 7
+  title: Takımlara Atandı
+  parent_id: 5
+  flags: 43
+  root: T
+  sort: 2
+  config: '{"criteria":[["assignee","!includes",{"M":"Bana"}]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Son Güncelleme
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Öncelik
+    - 
+      column_id: 14
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Takım
+  sorts:
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 16
+  parent_id: 1
+  title: Kapalı
+  flags: 0x03
+  sort: 4
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["status__state","includes",{"closed":"Kapalı"}]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 9
+  parent_id: 16
+  title: Bugün
+  flags: 43
+  sort: 1
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","td"]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 10
+  parent_id: 16
+  title: Dün
+  flags: 43
+  sort: 2
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","yd"]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 11
+  parent_id: 16
+  title: Bu Hafta
+  flags: 43
+  sort: 3
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","tw"]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 12
+  parent_id: 16
+  title: Bu Yıl
+  flags: 43
+  sort: 4
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","tm"]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 13
+  parent_id: 16
+  title: Bu Çeyrek
+  flags: 43
+  sort: 5
+  root: T
+  sort_id: 6
+  config: '{"criteria":[["closed","period","tq"]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7
+- 
+  id: 14
+  parent_id: 16
+  title: Bu Yıl
+  flags: 43
+  sort: 6
+  root: T
+  sort_id: 7
+  config: '{"criteria":[["closed","period","ty"]],"conditions":[]}'
+  columns:
+    - 
+      column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Talep
+    - 
+      column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Kapatılma Tarihi
+    - 
+      column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Konu
+    - 
+      column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: Kimden
+    - 
+      column_id: 16
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Kapalı
+  sorts:
+    - 
+      sort_id: 5
+    - 
+      sort_id: 1
+    - 
+      sort_id: 2
+    - 
+      sort_id: 3
+    - 
+      sort_id: 4
+    - 
+      sort_id: 6
+    - 
+      sort_id: 7

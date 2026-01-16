@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Kasutajanime vorming
+  content: >
+    Vali süsteemiülene kasutaja nimede vorming. Emaili mall kasutab seda, kui mõnda teist vormingut pole määratud.
+#Authentication settings
+client_session_timeout:
+  title: Kasutaja sessioon aegus
+  content: >
+    Vali maksimaalne jõudeoleku aeg (minutites), pärast mida kasutaja peab uuesti sisse logima.<br><br> Kui soovid <span class="doc-desc-title">kasutaja sessiooni pikkuse</span> määramata jätta, siis sisesta 0.
+registration_method:
+  title: Registreerimisvalikud
+  content: >
+    <span class="doc-desc-title">Registreerimise meetod</span> koos <span class="doc-desc-title">registreerimise kohustusega</span> määravad, kuidas kasutajad registreeruvad ning kasutavad kasutajatoe veebiportaali. Allolev tabel võtab kokku, kuidas süsteem neid kahte seadet tõlgendab.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th>Registreerimine on kohustuslik</th><th>Registreerimismeetod</th><th>Tulemus</th></tr><tr><td>Ei</td><td>Avalik</td><td>Registreerimine on soovituslik, kuid mitte kohustuslik uutele piletitele.</td></tr><tr><td>Jah</td> <td>Avalik</td><td>Registreerimine ja sisselogimine on kohustuslik uutele piletitele</td></tr><tr><td>Ei</td><td>Isiklik</td><td>Kõik võivad registreerida pileti, kuid vaid agendid saavad luua konto</td></tr><tr><td>Jah</td><td>Isiklik</td><td>Sisenemine on vaid kutsetega</td></tr><tr><td>Ei</td><td>Keelatud</td><td>Keegi ei saa registreerida kontot, kuid kõik saavad registreerida piletit.<em>Nii oli osTicket varasemas kuni 1.9 versioonini</em></td></tr><tr><td>Jah</td><td>Keelatud</td><td>Veebiportaalis ei saa pileteid registreerida</td></tr></tbody></table>
+client_verify_email:
+  title: Nõua emaili kinnitust
+  content: >
+    Keela see valik, kui soovid, et kasutajad saavad piletitele otseligipääsu "Kontrolli pileti staatust" lehe kaudu kliendi portaalis. Kui lubatud (mis on vaikimisi väärtus), peavad kasutajad minema emailis olevale lingile, et piletit vaadata. <br><br>Emaili kinnituse keelamine võimaldab kolmandatel pooltel (nt pileti kaastöötajatel) esineda pileti omanikuna.
+allow_auth_tokens:
+  title: Aktiveeri autentimise tunnused
+  content: >
+    Luba see võimalus, et kasutada autentimise tunnuseid pileti lingi kaudu automaatsel sisselogimisel.

@@ -1,0 +1,24 @@
+---
+notes: |
+  
+subject: |
+  تذكرة # %{ticket.number} تم نقلها للقسم - %{ticket.dept.name}
+body: |2
+  <h3>مرحباً %{recipient.name},</h3>
+  التذكرة <a href="%{ticket.staff_link}">#%{ticket.number}</a>
+  تم نقلها إلى قسم  %{ticket.dept.name} بواسطة
+  <strong>%{staff.name.short}</strong>
+  <br>
+  <br>
+  <blockquote>
+  %{comments}
+  </blockquote>
+  <hr>
+  <div> للإستعراض أو الرد على هذه التذكرة، الرجاء <a<br>
+  href="%{ticket.staff_link}">تسجيل الدخول</a> إلى نظام تذاكر الدعم الفني.
+  </div>
+  <em style="font-size: small; ">نظام العناية بالعملاء</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"<br>
+      alt="Powered By osTicket" style="width: 126px;"<br>
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Línia de signatura del personal
+  content: |
+    Crear signatura del personal per a Tickets de resposta. Aquesta signatura apareixerà com una opció en el fons d'un Ticket de resposta
+type:
+  title: Tipus de compte
+  content: |
+    Els administradors tenen el privilegi d'accedir al panell d'administració. El personal només té accés a gestionar Tickets i la base de coneixements
+group:
+  title: Grup assignat
+  content: |
+    Pertinença a un grup defineix el paper del personal en el sistema. Visita la pàgina de gestió de grup per definir quin accés té el personal al sistema de suport
+notes:
+  title: Notes internes
+  content: |
+    El lloc de notes interns respecte a personal; Les notes només són visibles al personal  que és el tipus de compte d'Admintrador

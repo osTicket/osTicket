@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Diese Vorlage definiert die Seite, die den Benutzern nach dem Ausfüllen des Konto-Registrierungs-Formular angezeigt wird. Diese Seite sollte beinhalten, dass das System den Benutzern eine E-Mail-Nachricht mit einem Link zur Bestätigung des Kontos an die Benutzer versendet und was der nächste Schritt im Registrierungs-Prozess ist.
+name: "Konto-Registrierung"
+body: >
+  <div><strong>Danke für die Konto-Registrierung.</strong><br/> <br /> Wir haben Ihnen gerade eine E-Mail-Nachricht an die Adresse gesendet, die Sie eingegeben haben. Bitte folgen Sie dem Link in der Nachricht, um Ihr Konto zu bestätigen und Zugang zu Ihren Tickets zu erhalten. </div>

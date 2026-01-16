@@ -1,0 +1,45 @@
+---
+#Email template: ticket.alert.yaml
+#Sent to a staff member when a new ticket is created in the system. This
+#applies to tickets created via email, the web portal, or the api.
+#---
+notes: |
+  Відправляється співробітникові служби підтримки, коли в системі створюється нова заявка. Це відноситься до заявки створеним через електронну пошту, веб-портал або API.
+subject: |
+  Оповіщення про нову заявку
+body: |
+  <h2>Вітаємо, %{recipient.name}!</h2>
+  Заявка №%{ticket.number} створена
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>Від</strong>:
+      </td>
+      <td>
+          %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <strong>Відділ</strong>:
+      </td>
+      <td>
+          %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Для перегляду або відповіді на заявку, будь ласка <a href="%{ticket.staff_link}">увійдіть</a>в систему підтримки</div>
+  <em style="font-size: small">Служба підтримки</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"
+      style="width: 126px; " alt="Powered By osTicket"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

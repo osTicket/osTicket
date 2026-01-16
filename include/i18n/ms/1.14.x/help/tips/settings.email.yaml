@@ -1,0 +1,97 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Set templat e-mel lalai
+  content: >
+    Pilih <span class="doc-desc-title"> Set Templat E-mel</span> digunakan untuk menghantar <span class="doc-desc-title"> Auto-Respon</span> dan <span class="doc-desc-title">Amaran</span> untuk pelbagai tindakan yang boleh berlaku semasa hayat Tiket. <br><br> Jabatan boleh diberikan Set Templat E-mel tertentu.
+  links:
+    - 
+      title: Urus set templat e-mel
+      href: /scp/templates.php
+default_system_email:
+  title: E-mel keluar lalai
+  content: >
+    Pilih alamat e-mel dari yang mana e-mel keluar dihantar. <br><br> <span class="doc-desc-title">Jabatan</span> boleh menetapkan dia punya sendiri <span class="doc-desc-title">alamat e-mel</span> yang mana akan mengatasi apa yang ditetapkan di sini.
+  links:
+    - 
+      title: Urus Alamat-alamat Email
+      href: /scp/emails.php
+default_alert_email:
+  title: E-mel amaran lalai
+  content: >
+    Pilih alamat e-mel daripada yang mana <span class="doc-desc-title">Amaran &amp; Notis</span> dihantar pada ejen.
+  links:
+    - 
+      title: Urus Alamat-alamat Email
+      href: /scp/emails.php
+admins_email_address:
+  title: Alamat Emel Admin
+  content: >
+    Masukkan alamat e-mel pentadbir ke yang mana <span class="doc-desc-title">Ralat Sistem</span> dan <span class="doc-desc-title">Amaran Tiket Baru</span> (jika dibolehkan) dihantar.
+  links:
+    - 
+      title: Urus notis & amaran
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Semasa Mengambil E-mel
+  content: >
+    Benarkan IMAP / POP pengundian bagi dikonfigurasikan dan diaktifkan <span class="doc-desc-title"> peti surat </span>.
+  links:
+    - 
+      title: Urus peti surat
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Kumpulkan E-mel menggunakan Auto-kron
+  content: >
+    Membolehkan e-mel berkala semasa mengambil menggunakan pengurus tugas dalaman dicetuskan oleh Ejen aktiviti. <br><br> Sila ambil perhatian bahawa e-mel tidak akan diambil jika tiada siapa yang log masuk kepada Panel Kawalan Kakitangan. tugas Luar penjadual amat disyorkan untuk jangka masa yang boleh dijangka untuk mengambil.
+  links:
+    - 
+      title: Menggunakan Penjadual Tugas Luaran
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Balasan Petikan Jalur
+  content: >
+    Jika didayakan, ini akan mengeluarkan surat-menyurat sebelumnya antara komunikasi e-mel. <br><br> 
+    Ciri ini pada hubungnya bergantung kepada <span class="doc-desc-title"> Tag Pemisah Balasan</span> di bawah.
+reply_separator_tag:
+  title: Balas pemisah tag
+  content: >
+    Ini adalah tanda yang menunjukkan kepada Pengguna untuk membalas garis diatas. <br><br><strong> Nota: <</strong> ini hanya relevan jika <span class="doc-desc-title"> jalur balas yang dipetik </span>dibolehkan diatas.
+emailed_tickets_priority:
+  title: Keutamaan Tiket yang Diemel
+  content: >
+    Pilih sama ada anda mahu pilihan keutamaan / kepentingan e-mel Pengguna (contohnya, pandangan) untuk menentukan keutamaan tiket yang baru<br><br> Tetapan ini boleh diatasi oleh <span class="doc-desc-title">penapis tiket</span>.
+  links:
+    - 
+      title: Cipta &amp; Urus Penapis Tiket
+      href: /scp/filters.php
+accept_all_emails:
+  title: Terima Semua Emel
+  content: >
+    Terima e-mel daripada pengguna yang tidak diketahui. <br><br> tidak tanda semak tetapan ini akan menyebabkan tiket ditolak.
+accept_email_collaborators:
+  title: Terima kolaborator Email
+  content: >
+    Tambah e-mel peserta termasuk dalam <code><strong> Untuk </strong></code> dan <code><strong> CC</strong></code> bidang seperti rakan usaha sama tiket. <br/><br/><em> Rakan usaha sama sentiasa boleh ditambah secara manual oleh Ejen apabila melihat tiket. </em>
+default_mta:
+  title: MTA lalai
+  content: >
+    <span class="doc-desc-title">MTA lalai</span> menjaga proses penghantaran e-mel untuk e-mel keluar tanpa tetapan SMTP.
+ticket_response_files:
+  title: Fail respon tiket
+  content: >
+    Jika dihidupkan, sebarang lampiran Ejen boleh dilampirkan kepada tindak balas tiket akan juga dimasukkan dalam e-mel kepada Pengguna.
+verify_email_addrs:
+  title: Sahkan alamat e-mel
+  content: >
+    Aktifkan opsyen ini untuk menyemak jika alamat e-mel yang mempunyai penukar mel ( MX) dalam DNS domain ini. Ini berguna untuk mengesan alamat e-mel tidak betul ditaip. Ini perfomed di samping memeriksa wellformedness alamat e-mel.

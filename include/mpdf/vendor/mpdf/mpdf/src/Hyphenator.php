@@ -44,11 +44,7 @@ class Hyphenator
 	{
 		// Do everything inside this function in utf-8
 		// Don't hyphenate web addresses
-		if (preg_match('/^(http:|https:|www\.)/', $word)) {
-			return -1;
-		}
-		// Don't hyphenate email addresses
-		if (preg_match('/^[a-zA-Z0-9-_.+]+@[a-zA-Z0-9-_.]+/', $word)) {
+		if (preg_match('/^(http:|www\.)/', $word)) {
 			return -1;
 		}
 

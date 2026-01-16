@@ -41,7 +41,7 @@ $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 if (strpos($_SERVER['REQUEST_URI'], 'orgs.php') !== false)
     $pageNav->setURL('orgs.php?id='.$org->getId().'&amp;', $qs);
 else
-    $pageNav->setURL('users.php', $qs);
+$pageNav->setURL('users.php', $qs);
 //Ok..lets roll...create the actual query
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 

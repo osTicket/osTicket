@@ -1,0 +1,10 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Sendt til en bruker når det opprettes en ny sak
+subject: |
+  Sak åpnet [#%{ticket.number}]
+body: |
+  <h3><strong>Kjære %{recipient.name.first},</strong></h3> <p>Din forespørsel om støtte er opprettet og tilordnet #%{ticket.number}. En representant vil svare deg så snart som mulig. Du kan <a href="%{recipient.ticket_link}"> se denne saksgangen via nettet</a>. </p> <br><div style="color: rgb(127, 127, 127)"> %{company.name} Team <br>%{signature}</div> <hr><div style="color: rgb(127, 127, 127); font-size: small;"> <em>Hvis du ønsker å gi ytterligere kommentarer eller informasjon angående problemet, vennligst svare på denne e-posten eller <a href="%{recipient.ticket_link}"> <span style="color: rgb(84, 141, 212);" > Logg på kontoen</span></a> for en komplett oversikt over dine saker.</em></div>

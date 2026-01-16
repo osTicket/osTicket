@@ -1,0 +1,32 @@
+---
+#Email template: task.overdue.alert.yaml
+#Sent to agents when a tasks transitions to overdue in the system.
+#Overdue tasks occur based on set due-date.
+#---
+notes: |
+  Enviar para os agentes quando uma tarefa tornar-se atrasada no sistema.
+  As tarefas passam a atrasadas baseado na data de vencimento.
+subject: |
+  Alerta de tempo de Tarefa
+body: |
+  <h3><strong>Hi %{recipient.name}</strong>,</h3>
+  Uma tarefa, <a href="%{task.staff_link}">#%{task.number}</a> está 
+  muito atrasada.
+  <br>
+  <br>
+  Devemos nos empenhar em garantir que todas as tarefas
+  estão sendo abordadas em tempo hábil.
+  <br>
+  <br>
+  Signed,<br>
+  %{task.dept.manager.name}
+  <hr>
+  <div>Para ver ou responder nesta tarefa, favor <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logar-se</span></a> no sistema de suporte. Você está recebendo 
+  notificação pois esta tarefa está atribuída diretamente à você ou 
+  para uma equipe ou departamente do qual é membro.</div>
+  <em style="font-size: small">Seu Sistema de Suporte ao Cliente <span style="font-size: smaller"
+  >(apesar da pouca paciência)</span> Amigável</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Movido a osTicket" width="126" style="width: 126px;">

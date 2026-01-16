@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Gửi tới người dùng khi người dùng đăng một thông báo mới tới một lệnh. Điều này có thể xảy ra nếu người dùng phản hồi một email tới hệ thống hoặc ghé thăm website và đăng một thông báo mới ở đó.
+subject: |
+  Xác nhận tin nhắn
+body: |
+  <h3><strong>Xin chào%{recipient.name.first},</strong></h3>
+  Lời phản hồi của bạn  <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> đã được lưu lại
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Nhóm hỗ trợ %{company.name} ,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Bạn có thể theo dõi tiến trình hỗ trợ<a
+  href="%{recipient.ticket_link}">tại đây</a></em>
+  </div>

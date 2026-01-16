@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  ໜ້າແບບ Offline ຈະປາກົດຢູ່ໜ້າຈໍຜູ້ໃຊ້ເມື່ອລະບົບ Offline
+name: ໂໝດອອບລາຍ
+body: |
+  <div><h1>
+  <span style="font-size: medium">ระบบทิคเก็ตสนับสนุนออฟไลน์</span>
+  </h1>
+  <p>ขอบคุณสำหรับความสนใจของคุณในการติดต่อเรา</p>
+  <p>ขณะนี้ระบบการช่วยเหลือกำลังอยู่ในโหมดออฟไลน์ชั่วคราว กรุณาเข้ามาตรวจสอบอีกทีในครั้งต่อไป</p>
+  </div>

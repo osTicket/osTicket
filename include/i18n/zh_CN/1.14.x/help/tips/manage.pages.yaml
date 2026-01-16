@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: 网站页
+  content: >
+    网站页可用作为一个迷你型内容管理系统 (CMS)。您可定义多个登陆、离线和感谢页，并在公司设置和帮助主题中进行配置。
+  links:
+    - 
+      title: 公司设置
+      href: /scp/settings.php?t=pages
+type:
+  title: 类型
+  content: >
+    <span class="doc-desc-opt">离线</span>页在帮助中心被禁用后，显示于客户入口。<span class="doc-desc-opt">登陆</span>页显示于客户入口的首页。<span class="doc-desc-opt">感谢</span>页则出现在用户提交咨询后。<span class="doc-desc-opt">其他</span>页可用作为一个简单的内容管理系统 (CMS)。

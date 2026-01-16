@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Status Helpdesk
+  content: >
+    Jika status berubah menjadi <span class="doc-desc-opt"> Offline</span>, antarmuka klien akan dinonaktifkan.  Hanya Admin yang bisa mengakses sistem.
+helpdesk_url:
+  title: Alamat Helpdesk
+  content: >
+    URL ini adalah dasar instalasi osTicket Anda. Hal ini digunakan dalam komunikasi email untuk mengarahkan pengguna akhir kembali ke staf dukungan.
+helpdesk_name_title:
+  title: Helpdesk nama/tajuk
+  content: >
+    Ini adalah judul yang muncul di browser tab. Jika halaman Meja bantuan Anda bookmarked, ini akan menjadi judul/nama halaman situs.
+default_department:
+  title: Departemen default
+  content: >
+    Pilih default <span class="doc-desc-title"> departemen</span> tiket yang tidak akan secara otomatis diteruskan ke sebuah departemen. <br/> <br/> Tiket dapat routed dasar pada topik bantuan, email masuk dan setelan penyaring Tiket.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Ukuran halaman default
+  content: >
+    Pilih jumlah item yang ditampilkan per halaman dalam antrian tiket di Panel Staf. Setiap agen juga dapat menyesuaikan jumlah ini untuk account mereka sendiri dalam <span class="doc-desc-title"> My Preferences</span>.
+default_log_level:
+  title: Level Log standar
+  content: >
+    Menentukan tingkat minimum dari isu-isu yang akan dicatat dalam <span class="doc-desc-title"> log sistem</span>. <span class="doc-desc-opt"> debug</span> mewakili keparahan setidaknya, dan <span class="doc-desc-opt"> kesalahan</span> mewakili keparahan terbesar. Misalnya, jika Anda ingin melihat semua masalah di <span class="doc-desc-title"> Log sistem</span>, memilih <span class="doc-desc-opt"> Debug</span>.
+purge_logs:
+  title: Bersihkan Log
+  content: >
+    Menentukan berapa lama Anda ingin menyimpan <span class="doc-desc-title"> Log sistem</span> sebelum dihapus.
+enable_richtext:
+  title: Aktifkan Rich Text (RTF)
+  content: >
+    Jika diaktifkan, hal ini akan mengijinkan penggunaan format rich text antara Klien dan Agen.
+enable_avatars:
+  title: Aktifkan Avatar di Tampilan Thread
+  content: >
+    Aktifkan ini untuk menampilkan <span class="doc-desc-title">Avatar</span> pada korespondensi thread. <br><br><span class="doc-desc-title">Sumber Avatar</span> dapat diset di halaman pengaturan 'Agen dan Pengguna'.
+  links:
+    - 
+      title: Pengaturan Agen
+      href: /scp/settings.php?t=agents
+    - 
+      title: Pengaturan Pengguna
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Penghindaran Kolision Agen
+  content: >
+    Masukkan panjang maksimum waktu Agen yang diijinkan untuk menahan kuncian pada sebuah tiket tanpa aktivitas. <br><br> Masukkan <span class="doc-desc-opt">0</span> untuk melumpuhkan fitur kuncian.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Tanggal &amp; waktu pilihan
+  content: >
+    Pengaturan berikut mendefinisikan pengaturan standar untuk pengaturan Tanggal &amp; Waktu untuk petugas staf. Anda dapat memilih standar locale untuk locale yang terpilih atau menggunakan pengaturan format yang sesuai dengan kebutuhan unik Anda. Harap mengacu kepada format string ICU sebagai referensi untuk pengkostumisasian.  Tanggal yang ditampilkan di bawah hanya mencontohkan hasil dari nilai yang terkait.
+  links:
+    - 
+      title: Lihat Tabel Format Tanggal ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Bahasa Sistem
+  content: >
+    Pilih bahasa utama sistem dan bahasa kedua (tidak wajib) menggunakan bahasa antarmuka yang sesuai dengan lokal Agen dan Pengguna Akhir.
+primary_language:
+  title: Bahasa Utama Sistem
+  content: >
+    Isi dari bahasa ini ditampilkan ke Agen dan Pengguna Akhir jika pilihan bahasa mereka masing-masing tidak tersedia. Ini menyertakan isi dari antarmuka, sama seperti, konten kostum seperti halaman terima kasih dan pesan email.<br/><br/>Ini adalah bahasa versi yang belum diterjemahkan dari konten yang seharusnya ditulis.
+secondary_language:
+  title: Bahasa Sekunder
+  content: >
+    Pilih bahasa untuk Agen dan Pengguna Akhir Anda. Antarmuka akan tersedia dalam bahasa ini, dan konten kostum, seperti halaman terima kasih dan nama topik bantuan, akan diterjemahkan ke bahasa ini.
+#Attachments
+attachments:
+  title: Pengaturan Lampiran dan Penyimpanan
+  content: >
+    Mengatur bagaimana lampiran disimpan.
+default_storage_bk:
+  title: Penyimpanan Berkas di Belakang
+  content: >
+    Pilih bagaimana lampiran disimpan. <br><br>Penyimpanan tambahan dapat ditambahkan dengan menginstal plugin penyimpanan
+max_file_size:
+  title: Ukuran File Maksimum
+  content: >
+    Pilih ukuran maksimum berkas untuk lampiran yang diunggah oleh Agen. Ini termasuk lampiran yang dikemas, artikel pengetahuan dasar, dan lampiran untuk tiket dan balasan. Batas atas dikendalikan oleh pengaturan PHP yang bernama <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: Pengaturan PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Harus Login
+  content: >
+    Aktifkan pengaturan ini untuk melarang lampiran pada pengguna yang belum login. Pengguna harus login dulu (baik Pengguna maupun Agen) untuk bisa melihat lampiran. <br><br> Dari prespektif keamanan, mohon diingat bahwa browser pengguna mungkin bisa melihat berkas yang pernah dibukanya dari cachr. Selain itu, semua tautan berkas dalam helpdesk akan otomatis kadaluarsa setelah 24 jam.

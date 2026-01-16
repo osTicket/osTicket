@@ -1,0 +1,16 @@
+*~
+.DS_Store
+.DS_Store*
+ehthumbs.db
+Thumbs.db
+*.log
+/node_modules/
+/bower_components/
+/nbproject/
+/gh-pages/
+.idea
+/package-lock.json
+gulpfile.js_*
+/build
+/dist/LICENSE
+/dist/README.md

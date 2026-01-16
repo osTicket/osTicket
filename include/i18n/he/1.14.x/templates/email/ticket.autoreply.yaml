@@ -1,0 +1,32 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  נשלח למשתמש כאשר תגובה אוטומטית מפורסמת לקריאה
+  כאשר היא נוצרת.
+
+  משתנים זמינים להחלפה: %{ticket.*}, %{response}
+subject: |
+  השב: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>היקר %{recipient.name.first},</strong></h3>
+  קריאת שירות נפתחה <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> עם התגובה האוטומטית הבאה
+  <br>
+  <br>
+  נושא: <strong>%{ticket.topic.name}</strong>
+  <br>
+  כותרת: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">בברכה צוות התמיכה %{company.name}, <br>%{signature}</div><hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>We hope
+  אם תרצה לשאול או להוסיף משהו אנא השב למייל זה או
+  or <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >התחבר לאתרינו</span></a> for
+  על מנת לראות ארכיון מלא של קריאתך.</em></div>

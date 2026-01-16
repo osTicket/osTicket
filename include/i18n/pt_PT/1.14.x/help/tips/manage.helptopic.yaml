@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informações de Tópico de Ajuda
+  content: >
+    <span class="doc-desc-title"> Tópicos de Ajuda</span> guiam que informações são colectadas de utilizadores e como os tickets são encaminhados ou atribuídos.
+topic:
+  title: Nome do tópico
+  content: >
+    Nome de Tópico de Ajuda único.
+status:
+  title: Estado
+  content: >
+    Se desativado ou arquivado, este <span class="doc-desc-title"> Tópico de Ajuda</span> não estará disponível.
+type:
+  title: Tipo
+  content: >
+    Se um <span class="doc-desc-title">Tópico de Ajuda</span> é designado como Privado, este só estará disponível para os Agentes escolherem quando um Agente abre um novo Pedido no Painel de Funcionários.
+parent_topic:
+  title: Tópico superior
+  content: >
+    Selecione o Tópico pai ao qual pertencerá este <span class="doc-desc-title"> Tópico de Ajuda</span>. O Tópico pai aparecerá primeiro na listagem com este <span class="doc-desc-title"> Tópico de Ajuda</span> listado atrás do pai.
+custom_form:
+  title: Formulário personalizado
+  content: >
+    Formulários Personalizados irão ajudá-lo a adquirir informações mais específicas de utilizadores que são relevantes para este <span class="doc-desc-title"> Tópico de Ajuda</span>.
+  links:
+    - 
+      title: Gerir formulários personalizados
+      href: /scp/forms.php
+priority:
+  title: Prioridade
+  content: >
+    Selecione a Prioridade atribuída aos novos tickets relacionados com este <span class="doc-desc-title"> Tópico de Ajuda</span>. <br><br>Filtros de Ticket podem substituir a nova Prioridade.
+department:
+  title: Departamento
+  content: >
+    Escolha o Departamento ao qual serão encaminhados os novos Tickets sob este Tópico de Ajuda.
+  links:
+    - 
+      title: Gerir departamentos
+      href: /scp/departments.php
+sla_plan:
+  title: Plano de SLA
+  content: >
+    Escolha o plano de SLA associado a este <span class="doc-desc-title"> Tópico de Ajuda</span>. <br><br>Esta selecção irá substituir qualquer plano de SLA do departamento selecionado
+  links:
+    - 
+      title: Gerir planos de SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Página de agradecimento
+  content: >
+    Escolha a Página de Agradecimento para a qual um utilizador é redirecionado após abrir um Ticket sob este <span class="doc-desc-title"> Tópico de Ajuda</span>.
+  links:
+    - 
+      title: Gerir páginas de agradecimento
+      href: /scp/pages.php
+auto_assign_to:
+  title: Auto-atribuir novos pedidos
+  content: >
+    Opcionalmente, escolha um Agente ou Equipa para atribuir automaticamente os tickets abertos com este <span class="doc-desc-title"> Tópico de Ajuda</span> <br><br>Filtros de Tickets podem substituir a atribuição.
+  links:
+    - 
+      title: Gerir staff e equipas
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Resposta automática a pedido
+  content: >
+    Se marcado, a configuração irá desativar as respostas automáticas para novos tickets para este <span class="doc-desc-title"> Tópico de Ajuda</span>. <br><br>Isto substitui a configuração do <span class="doc-desc-title"> Departamento</span>, bem como as <span class="doc-desc-title"> configurações de resposta automática</span> globais.
+  links:
+    - 
+      title: Configuração da resposta automática
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Números de pedido personalizados
+  content: >
+    Escolha "Personalizar" aqui para substituir o formato de numeração padrão do sistema de pedidos criados neste tópico de ajuda. Veja as dicas de ajuda na página de Configurações / Pedidos para obter mais detalhes sobre as configurações.

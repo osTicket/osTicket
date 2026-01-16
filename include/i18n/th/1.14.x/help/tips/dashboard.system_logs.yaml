@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: ล็อกของระบบ
+  content: >
+    นี่คือที่ที่คุณสามารถค้นหารายการปัญหาต่างๆ ที่เกี่ยวกับล็อกของระบบ (เช่น ข้อผิดพลาด คำเตือน หรือข้อบกพร่อง)
+  links:
+    - 
+      title: ปรับแต่งชนิดของล็อกที่ถูกบันทึกไว้โดยการเปลี่ยน <br /><span class="doc-desc-title">ระดับล็อกเริ่มต้น</span>
+      href: /scp/settings.php?t=system
+date_span:
+  title: ช่วงวันที่
+  content: >
+    เลือกช่วงปฏิทินที่คุณต้องการดูข้อมูล<span class="doc-desc-title">ล็อกของระบบ</span>
+type:
+  title: ประเภท
+  content: >
+    เลือกตัวเลือกชนิดใดชนิดหนึ่งเพื่อที่จะจำกัดประเภทของข้อมูลให้แคบลง <span class="doc-desc-opt">ตรวจจุดบกพร่อง</span> แสดงให้เห็นถึงความรุนแรงน้อยที่สุด และ <span class="doc-desc-opt">ข้อผิดพลาด</span> แสดงให้เห็นถึงความรุนแรงมากที่สุด
+showing_logs:
+  title: แสดง &hellip; ล็อก
+  content: >
+    ต้องแน่ใจว่าการตรวจสอบส่วน <span class="doc-desc-title">หน้า</span> ด้านล่างเพื่อให้แน่ใจว่าจะไม่แสดงหน้าเพิ่มเติมของล็อกระบบที่มีอยู่
+log_title:
+  title: หัวข้อล็อก
+  content: >
+    คลิกที่ส่วนหัวของตาราง <span class="doc-desc-title">หัวข้อล็อก</span> ถ้าคุณต้องการที่จะเรียงลำดับผลการค้นหาตาม <span class="doc-desc-title">หัวข้อล็อก</span>.
+log_type:
+  title: ชนิดล็อก
+  content: >
+    คลิกที่หัวตาราง<span class="doc-desc-title">ชนิดล็อก</span>ถ้าคุณต้องการเรียงลำดับผลลัพธ์ตาม<span class="doc-desc-title">ชนิดล็อก</span>
+log_date:
+  title: วันที่ล็อก
+  content: >
+    นี่คือวันที่ล็อกที่ถูกสร้างขึ้นโดยซอฟแวร์ หากคุณต้องการที่จะเรียงลำดับผลการค้นหาตาม <span class="doc-desc-title">วันที่ล็อก</span>เพียงแค่คลิกหัวตาราง <span class="doc-desc-title">วันที่ล็อก</span> (ใช้ <span class="doc-desc-title">ช่วงวันที่</span> จากด้านบนให้จำกัดช่วงปฏิทินของล็อก)
+ip_address:
+  title: IP Address
+  content: >
+    นี่มายถึง <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Address</span> ของทั้งเจ้าหน้าที่หรือลูกค้าที่ใช้ osTicket ในเวลาที่ล็อกถูกสร้างขึ้น

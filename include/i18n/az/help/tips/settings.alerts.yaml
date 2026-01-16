@@ -1,0 +1,77 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+page_title:
+  title: Siqnallar və xəbərdarlıqlar
+  content: >
+    Müxtəlif sorğu tədbirləri işə düşəndə siqnallar və xəbərdalıqlar e-poçt bildirişlərini avtomatlaşdırıb agentlərə göndərir.
+ticket_alert:
+  title: Yeni sorğu siqnalı
+  content: >
+    <p> Yeni sorğu yaradılanda agentlərə siqnal göndərilir. </p><p class="info-banner"> <i class="icon-info-sign"></i> Sorğu filteri və ya kömək mövzusu vasitəsilə sorğu avtomatik təyin olunanda bu siqnal göndərilmir.</p>
+  links:
+    - 
+      title: Cari yeni sorğu siqnalı şablonu
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: 'Siqnal: yeni mesaj'
+  content: >
+    Mövcud sorğuya istifadəçi tərəfindən yeni mesaj əlavə olunanda agentə siqnal göndərilir.
+  links:
+    - 
+      title: Cari yeni mesaj siqnalı şablonu
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Yeni daxili fəaliyyət siqnalı
+  content: >
+    Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.
+  links:
+    - 
+      title: Cari sorğu fəaliyyəti şablonu
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Sorğu tapşırığı siqnalı
+  content: >
+    Siqnal sorğu tapşırığında agentlərə göndərilir.
+  links:
+    - 
+      title: Cari sorğu tapşırığı siqnalı şablonu
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Sorğu transferi siqnalı
+  content: >
+    Siqnal şöbələr arası sorğu transferində agentlərə göndərilir.
+  links:
+    - 
+      title: Cari sorğu transfer siqnalı şablonu
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Gecikmiş sorğu siqnalı
+  content: >
+    SLA və ya tarix əsasında sorğunun vaxtı keçəndə agentlərə siqnal göndərilir.
+  links:
+    - 
+      title: Cari köhnə sorğu siqnalı şablonu
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: SLAləri idarə edin
+      href: /scp/slas.php
+system_alerts:
+  title: Sistem siqnalları
+  content: >
+    Administratora göndərilən əhəmiyyətli sistem  tədbirləri %{config.admin_email}. Konfiqurasiyalaşdırılmış <span class="doc-desc-title">giriş səviyyəsindən</span> asılı olaraq tədbirlər həmçinin <span class="doc-desc-title">sistem girişlərində</span> mövcuddur.
+  links:
+    - 
+      title: Sistemə girişləri görün
+      href: /scp/logs.php
+    - 
+      title: Admin e-poçtunu dəyişin
+      href: /scp/settings.php?t=emails

@@ -1,0 +1,30 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Saadetakse kasutajale, kui pilet on registreeritud ja sellele on lisatud ettevalmistatud vastus.
+
+  Asendamiseks saadaolevad muutujad: %{ticket.*}, %{response}
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Tere %{recipient.name.first}</strong></h3>
+  Tehnilise toe päring on loodud ja talle on määratud number<a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> järgmise automaatse vastusega
+  <br>
+  <br>
+  Pealkiri: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Teema: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">Teie  %{company.name} meeskond<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Loodame, et see vastab Teie küsimusele. Kui soovite lisada kommentaare või anda täiendavat infot, siis palun vastake sellele emailile või <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >logige sisse oma kontole</span></a>, et näha kõiki oma tehnilise toe päringuid.</em></div>

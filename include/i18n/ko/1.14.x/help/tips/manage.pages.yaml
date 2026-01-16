@@ -1,0 +1,25 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: 사이트 페이지
+  content: >
+    사이트 페이지는 미니 콘텐츠 관리 시스템 (CMS)로 사용할 수 있습니다. 여러가지 랜딩 페이지, 오프라인 및 감사 페이지를 정의할 수 있습니다. 회사 설정 및 도움말 항목에서 이에 대한 설정을 할 수 있습니다.
+
+  links:
+    - 
+      title: 회사 설정
+      href: /scp/settings.php?t=pages
+type:
+  title: Type
+  content: >
+    헬프 데스크가 비활성화되어 있는 경우 <span class = "doc-desc-opt">오프라인</span> 페이지가 표시됩니다. <span class = "doc-desc-opt">랜딩</span> 페이지는 클라이언트 포털 홈페이지에 표시됩니다. 사용자가 티켓을 전송 한 후에는 <span class = "doc-desc-opt">감사</span> 페이지가 표시됩니다. <span class = "doc-desc-opt">기타</span> 페이지는 간단한 콘텐츠 관리 시스템 (CMS)로 사용할 수 있습니다.

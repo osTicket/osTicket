@@ -1,0 +1,15 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  เทมเพลตนี้สำหรับกำหนดข้อมูลใน email ที่แสดงหลังจากผู้ใช้งานยืนยันตัวตนผ่าน email สำเร็จแล้ว
+name: "ຢືນຢັນບັນຊີ!"
+body: >
+  <div> <strong>ยินดีด้วย ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว</strong>
+  <br /> 
+  <br /> คุณสามารถสร้าง Ticket ใหม่ หรือจัดการข้อมูลได้ทันที <br /> 
+  <br /> 
+  <em>Support Center</em><br /> %{company.name} </div>

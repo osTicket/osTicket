@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Questo è il messaggio iniziale e banner sulla pagina personale di autenticazione. Il primo campo di inserimento si riferisce al testo formattato in rosso che appare nella parte superiore. L'ultima area di testo è per il contenuto del banner che dovrebbe servire come avviso.
+name: "Autenticazione richiesta"
+body: ""

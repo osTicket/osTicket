@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Táto šablóna definuje ako bude vyzerať stránka, ktorá sa zobrazí klientovi po dokončení registrácie. Šablóna by mala spomínať, že systém zašle klientovi email, v ktorom potvrdí pravosť svojho emailu a aký je ďalší krok v registračnom procese.
+name: "Registrácia účtu"
+body: >
+  <div><strong>Ďakujeme za registráciu.</strong><br/> <br /> Zaslali sme Vám e-mail na uvedenú adresu. Kliknutím na odkaz v odoslanom e-maile verifikujete svoj účet a budete môcť spravovať svoje tickety. </div>

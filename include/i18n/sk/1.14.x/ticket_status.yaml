@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Otvorené
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Otvorené tikety.
+- 
+  id: 2
+  name: Vyriešené
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Vyriešené tikety
+- 
+  id: 3
+  name: Uzavreté
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Uzavreté tikety. Tikety však budú stále dostupné cez panel Klienta alebo Agenta.
+- 
+  id: 4
+  name: Archivované
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Tikety sú dostupné iba administratívne ale už nie sú zobrazované v zoznamoch tiketov ani na klientskom paneli.
+- 
+  id: 5
+  name: Vymazané
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Tikety čakajúce na zmazanie. Už nie sú zobrazované v zozname tiketov.

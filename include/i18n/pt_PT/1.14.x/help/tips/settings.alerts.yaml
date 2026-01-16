@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Alertas e avisos
+  content: >
+    Alertas e avisos são notificações de e-mail automático enviadas para Agentes quando vários eventos de tickets são acionados.
+ticket_alert:
+  title: Alerta de Novo Pedido de Assistência
+  content: >
+    <p>Alerta enviado para Agentes quando é criado um novo ticket.</p><p class="info-banner"> <i class="icon-info-sign"></i> Este alerta não é enviado se o ticket for atribuído automaticamente através de um Filtro de Ticket ou Tópico de Ajuda.</p>
+  links:
+    - 
+      title: Modelo de Alerta de Novo Pedido Predefinido
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Alerta de nova mensagem
+  content: >
+    Alerta enviado para Agentes quando uma nova mensagem do utilizador é acrescentada um ticket existente.
+  links:
+    - 
+      title: Modelo predefinido de alerta de nova mensagem
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Novo Alerta de Atividade Interna
+  content: >
+    Alerta enviado aos agentes quando actividade interna, tal como uma nota interna ou uma resposta de um agente é adicionada ao ticket.
+  links:
+    - 
+      title: Modelo predefinido para atividade no pedido
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Aviso de atribuição de pedido
+  content: >
+    Alerta enviado para agentes na atribuição de um pedido.
+  links:
+    - 
+      title: Modelo por omissão de Alerta de Atribuição de Ticket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Alerta de transferência
+  content: >
+    Alerta enviado para os agentes na transferência de pedidos entre departamentos.
+  links:
+    - 
+      title: Modelo por defeito de alerta de transferencia de pedido
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Alerta de pedidos em atraso
+  content: >
+    Alerta enviado para Agentes quando um ticket passa do prazo com base no SLA ou data de vencimento.
+  links:
+    - 
+      title: Modelo de Alerta padrão para Tickets antigos
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Gerir SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: Alertas de sistema
+  content: >
+    Eventos do sistema significativos que são enviados para o Administrador (%{config.admin_email}). Dependendo do <span class="doc-desc-title"> Nível de Log</span> configurado, os eventos também são disponibilizados nos <span class="doc-desc-title"> Logs do sistema</span>
+  links:
+    - 
+      title: Ver logs de sistema
+      href: /scp/logs.php
+    - 
+      title: Alterar e-mail de Admin
+      href: /scp/settings.php?t=emails

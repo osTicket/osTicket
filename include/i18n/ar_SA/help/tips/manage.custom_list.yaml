@@ -1,0 +1,29 @@
+---
+custom_lists:
+  title: قوائم مخصصة
+  content: >
+    <span class="doc-desc-title"> القوائم المخصصة</span> الخاصة بك سوف تسمح لك بإنشاء مربعات القائمة المنسدلة مع الخيارات المحددة مسبقاً التي يمكن أن يختار منها العميل في <span class="doc-desc-title"> النماذج المخصصة</span> الخاصة بك. إذا كنت ترغب في استخدام هذه <span class="doc-desc-title"> القوائم المخصصة</span> <span class="doc-desc-title"> كهدف</span> في عامل <span class="doc-desc-title"> ترشيح التذاكر</span>، تأكد من إضافة هذه القائمة إلى نموذج <span class="doc-desc-title"> تفاصيل التذاكر</span>.
+name:
+  title: الإسم
+  content: >
+    
+plural_name:
+  title: اسم الجمع
+  content: >
+    
+sort_order:
+  title: ترتيب الفرز
+  content: >
+    
+list_s_initial_items:
+  title: العناصر الأولية للقائمة
+  content: >
+    
+value:
+  title: القيمة
+  content: >
+    
+extra:
+  title: إضافية
+  content: >
+    الاختصارات وما شابهها. إذا كنت تستخدم الأكواد الداخلية للعناصر الموجودة في هذه القائمة، يمكن إدخال هذه الرموز والاختصارات في هذا العمود. إذا كانت القائمة المخصصة تُعرض كـ <span class="doc-desc-option"> TypeAhead</span>، فيمكن استخدام هذه الاختصارات للبحث عن عناصر قائمة مخصصة.

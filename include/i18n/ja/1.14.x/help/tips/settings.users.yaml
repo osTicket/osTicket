@@ -1,0 +1,35 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: ユーザー名形式
+  content: >
+    システムで表示するユーザー名形式を選択します。メールテンプレートは他の形式の指定がなければ、この指定を利用します。
+#Authentication settings
+client_session_timeout:
+  title: ユーザーセッションのタイムアウト
+  content: >
+    ユーザーが再度ログインする必要があるまでの最大アイドル時間を分で選択します。 <br><br><span class="doc-desc-title">ユーザーセッションのタイムアウト</span>を無効にするには、0を入力します。
+registration_method:
+  title: 登録オプション
+  content: >
+    <span class="doc-desc-title">登録方法</span>と<span class="doc-desc-title">登録が必要</span>は、ユーザーが貴社のヘルプデスクのwebポータルにどのように登録してアクセスするかを設定するために共に使用されます。以下のテーブルは、システムが2つの設定をどのように解釈するかを要約します。<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>登録が必要</th> <th>登録方法</th> <th>結果</th></tr> <tr><td>いいえ</td><td>パブリック</td> <td>登録を推奨しますが、新しいチケットには、登録は必要ではありません。</td></tr> <tr><td>はい</td><td>パブリック</td> <td>新しいチケットには、登録とログインが必要です</td></tr> <tr><td>いいえ
+    </td><td>プライベート</td> <td>誰でもチケットを作成できますが、エージェントのみがアカウントを登録できます</td></tr> <tr><td>はい</td><td>プライベート</td> <td>ユーザーは招待された場合のみアクセス</td></tr> <tr><td>いいえ</td><td>無効</td> <td>誰もアカウントに登録できませんが、誰でもチケットを作成できます。<em>これは、1.9 より前のバージョンでのosTicketの稼働方法です。</em></td></tr> <tr><td>はい</td><td>無効</td> <td>webポータルを通じて新しいチケットを無効にします</td></tr> </tbody></table>
+client_verify_email:
+  title: メールの検証が必要
+  content: >
+    このオプションを無効にすると、クライアントポータルの「チケットのステータスを確認」ログインページを通じて、ユーザーがチケットにただちにアクセスできます。有効になっている場合(デフォルト)、ユーザーはメールを受信して、そのメールに記載されているリンクにアクセスしてチケットを表示する必要があります。<br><br> メールの検証を無効にすると、第三者 (たとえば、チケットの協力者) がチケットの所有者を装うことが可能になることがあります。
+allow_auth_tokens:
+  title: 認証トークン有効
+  content: >
+    このオプションはユーザーがチケットリンクをクリックした際に自動ログインする認証トークンを使用することを有効にします。

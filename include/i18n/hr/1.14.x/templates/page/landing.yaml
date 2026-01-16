@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Odredišna stranica se odnosi na inicijalni sadržaj korisničke stranice. Predložak mijenja sadržaj koji se vidi iznad dva linka <strong>Otvorite novu karticu</strong> i <strong>Provjeri status kartice</strong>.
+name: Odredišna stranica
+body: >
+  <h1>Dobro došli u centar korisničke podrške</h1> <p> Radi djelotvornijeg pružanja korisničke podrške i općenito pružanja bolje usluge, koristimo sustav za podršku putem kartica. Svakom zahtjevu za podršku dodjeljuje se jedinstveni broj kartice te ga možete koristiti za online praćenje napretka i odgovora. Za vas spremamo, arhiviramo i čuvamo sve zahtjeve za podrškom, te ih po potrebi možete vidjeti online. Potrebna vam je valjana email adresa za podnošenje kartice za korisničkom podrškom. </p>

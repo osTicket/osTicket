@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: E-post maler
+  content: >
+    E-post maler brukes til Auto-svar og varsler for ulike handlinger som kan skje under en saks levetid.
+template_to_clone:
+  title: Mal som skal kopieres
+  content: >
+    Velg et tema å klone eller bare begynn med standard e-post maler.
+language:
+  title: Språk
+  content: >
+    Velg ønsket språk for <span class="doc-desc-opt"> Standard</span> <span class="doc-desc-title"> E-post mal sett</span>. Språkpakker er tilgjengelige på osTicket.com.
+  links:
+    - 
+      title: osTicket språkpakker
+      href: https://osticket.com/download
+status:
+  title: Status
+  content: >
+    <span class="doc-desc-opt"> aktivert</span> Mal sett er tilgjengelig for å tilknyttes avdelinger og satt til systemstandard.  Malsett som for tiden er i bruk kan ikke <span class="doc-desc-opt"> deaktiveres</span>.

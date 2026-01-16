@@ -11,7 +11,7 @@ $data_form = $data_form ?: $column->getDataConfigForm($_POST);
 ?>
 <ul class="tabs">
   <li class="active"><a href="#data"><?php echo __('Data'); ?></a></li>
-  <li><a href="#annotations"><?php echo __('Annotations'); ?></a></li>
+  <!--osta--><li class="annotations"><a href="#annotations"><?php echo __('Annotations'); ?></a></li>
   <li><a href="#conditions"><?php echo __('Conditions'); ?></a></li>
 </ul>
 

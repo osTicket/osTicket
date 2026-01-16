@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Strona docelowa odnosi się do zawartości widoku początkowego portalu klienta. Szablon zmienia zawartość widoczną powyżej dwóch łączy, <strong>Otwórz nowe zgłoszenie</strong> i <strong>Sprawdź Status zgłoszenia</strong>.
+name: Docelowa
+body: >
+  <h1>Witamy w Centrum Obsługi</h1>
+  <p>
+  W celu usprawnienia obsługi zgłoszeń serwisowych i lepszej pomocy, prowadzimy system biletów wsparcia. Każdemu zgłoszeniu przydzielany jest unikalny numer, dzięki któremu można śledzić postęp w udzielaniu wsparcia oraz odpowiedzi online. Dla Państwa wygody oferujemy pełne archiwum i historię wszystkich zgłoszeń. Aby przesłać numer zgłoszenia, niezbędny jest aktywny adres e-mail.
+  </p>

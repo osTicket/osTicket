@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Цей шаблон визначає текст електронної пошти, що відправляється клієнтам, коли їх обліковий запис було створено в системі. Це лист служить перевіркою адреси електронної пошти. Будь ласка, використовуйте %{link} де небудь в тілі повідомлення.
+name: "Ласкаво просимо в %{company.name}"
+body: >
+  <h3> <strong> Доброго дня %{recipient.name.first}! </strong> </h3> <div> Ми створили ваш обліковий запис в нашій системі підтримки, яка знаходиться за адресою: %{url}. <br /> <br /> Будь-ласка, перейдіть за посиланням нижче, щоб підтвердити свій обліковий запис і отримати доступ до ваших заявок. <br /> <br /> <a href="%{link}">%{link}</a> <br /> <br /> <em style="font-size: small;"> Служба підтримки <br />%{company.name}</em> </div>

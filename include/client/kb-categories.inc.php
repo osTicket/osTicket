@@ -1,3 +1,4 @@
+<div><h1><?php echo __('Click on the category to browse FAQs.'); ?></h1></div>
 <div class="row">
 <div class="span8">
 <?php
@@ -5,7 +6,7 @@
         ->exclude(Q::any(array(
             'ispublic'=>Category::VISIBILITY_PRIVATE,
             Q::all(array(
-                    'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+            'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
                     'children__ispublic' => Category::VISIBILITY_PRIVATE,
                     'children__faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
                     ))
@@ -26,7 +27,7 @@
 
        // ->filter(array('faq_count__gt' => 0));
     if ($categories->exists(true)) { ?>
-        <div><?php echo __('Click on the category to browse FAQs.'); ?></div>
+        <!--osta-->
         <ul id="kb">
 <?php
         foreach ($categories as $C) {
@@ -81,6 +82,12 @@
 </div>
 <div class="span4">
     <div class="sidebar">
+    <!--osta-->
+    <div class="content">
+        <section>
+            <div class="header"><?php echo __('Other Resources'); ?></div>
+        </section>
+    </div>
     <div class="searchbar">
         <form method="get" action="faq.php">
         <input type="hidden" name="a" value="search"/>
@@ -98,12 +105,7 @@ foreach ($topics as $T) { ?>
         </select>
         </form>
     </div>
-    <br/>
-    <div class="content">
-        <section>
-            <div class="header"><?php echo __('Other Resources'); ?></div>
-        </section>
-    </div>
+    <!--osta-->	
     </div>
 </div>
 </div>

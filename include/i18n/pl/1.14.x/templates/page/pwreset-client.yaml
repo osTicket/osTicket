@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Ten szablon definiuje wiadomości e-mail wysyłane do klientów, którzy wybiorą link <strong>Zapominałem moje hasło</strong> na stronie klienta.
+name: "%{company.name} dostęp do pomocy"
+body: >
+  <h3><strong>Witaj %{user.name.first},</strong></h3> <div>Otrzymaliśmy prośbę o zresetowanie Twojego hasła w systemie %{url}.<br /> <br /> Jeżeli zostało to zrobione przez pomyłkę, skasuj lub zignoruj tą wiadomość. Twoje konto jest nadal bezpieczne i nikomu nie został do niego udzielony dostęp. Nie zostało zablokowane, a hasło nie zostało zresetowane. Ktoś mógł przez pomyłkę wpisać Twój adres e-mail.<br /> <br /> Kliknij na link poniżej, aby zalogować się i zmienić swoje hasło.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Twój przyjazny system Obsługi Klienta<br /> %{company.name}</em> </div>

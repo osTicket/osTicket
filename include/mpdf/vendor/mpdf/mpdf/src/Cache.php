@@ -28,6 +28,10 @@ class Cache
 	protected function createBasePath($basePath)
 	{
 		if (!file_exists($basePath)) {
+			if (!$this->createBasePath(dirname($basePath))) {
+				return false;
+			}
+
 			if (!$this->createDirectory($basePath)) {
 				return false;
 			}
@@ -42,33 +46,15 @@ class Cache
 
 	protected function createDirectory($basePath)
 	{
-		$permissions = $this->getPermission($this->getExistingParentDirectory($basePath));
-		if (! mkdir($basePath, $permissions, true)) {
+		if (!mkdir($basePath)) {
+			return false;
+		}
+
+		if (!chmod($basePath, 0777)) {
 			return false;
 		}
 
 		return true;
-	}
-
-	protected function getExistingParentDirectory($basePath)
-	{
-		$targetParent = dirname($basePath);
-		while ($targetParent !== '.' && ! is_dir($targetParent) && dirname($targetParent) !== $targetParent) {
-			$targetParent = dirname($targetParent);
-		}
-
-		return realpath($targetParent);
-	}
-
-	protected function getPermission($basePath, $fallbackPermission = 0777)
-	{
-		if (! is_dir($basePath)) {
-			return $fallbackPermission;
-		}
-
-		$result = fileperms($basePath);
-
-		return $result ? $result & 0007777 : $fallbackPermission;
 	}
 
 	public function tempFilename($filename)

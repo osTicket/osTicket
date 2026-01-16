@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Diese Vorlage definiert den Inhalt, der auf Ihrer Dankeschön-Seite angezeigt wird, nachdem ein Benutzer ein neues Ticket über das Benutzerportal eröffnet hat.
+name: Dankeschön
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Vielen Dank für Ihre Kontaktaufnahme.
+  <br>
+  <br>
+  Ein Ticket wurde eröffnet und ein Support-Mitarbeiter wird sich, falls nötig, in Kürze bei Ihnen melden.</p>
+  <br>
+  <br>
+  Ihr Support-Team
+  </div>

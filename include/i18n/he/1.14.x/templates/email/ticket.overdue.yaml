@@ -1,0 +1,25 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  נשלח לחברי הצוות כאשר זמן הטיפול חרג מהמוגדר.
+  קריאות שזמן הטיפול שלהם חרג יעוברו לתיקייה נפרדת בהתאם למה שהוגדר ב"אמנת הלקוח" בעת פתיחת הקריאה.
+subject: |
+  התראת כרטיס מיושן
+body: |
+  <h3><strong>שלום %{recipient.name}</strong>,</h3>
+  זמן הטיפול בקריאה עבר את המצופה, <a href="%{ticket.staff_link}">#%{ticket.number}</a> is
+  <br>
+  <br>
+  אנו צריכים לעבוד קשה יותר על מנת להבטיח שהלקוח יקבל מענה בזמן
+  <br>
+  <br>
+  Signed,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>על מנת לראות על איזה קריאה מדובר או לתת טיפול אנא <ahref="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);">התחבר</span></a> למערכת הקריאות. אתה מקבל אתה ההודעה הזאת מכייון שהקריאה מופנת ספציפית אלייך או לצוות שלך.</div>
+  <em style="font-size: small">לשירותך <span style="font-size: smaller">(although with limited patience)</span> מערכת הקריאות</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"    alt="Powered by osTicket" width="126" style="width: 126px;">

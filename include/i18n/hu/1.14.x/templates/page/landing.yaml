@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  A nyitóoldal az ügyfél portál kezdeti nézetének tartalmát jelenti. A sablon módosítja a fent látható tartalmat, mely a következő két hivatkozás felett jelenik meg: <strong>Új hibajegy nyitása</strong> és <strong>Hibajegy állapotának ellenőrzése</strong>.
+name: Nyitóoldal
+body: >
+  <h1>Üdvözöljük a támogatási központunkban</h1> <p> A támogatási kérelmek korszerűsítése és a jobb kiszolgálás érdekében, egy támogatási hibajegy kezelő rendszert használunk. Minden támogatási kérelem egy egyedi hibajegyszámot kap, mellyel nyomon követheti a folyamatot és online válaszolhat. A támogatási kérelmek előzményeiből teljes archívumot tárolunk. Hibajegy beküldéséhez érvényes email cím szükséges. </p>

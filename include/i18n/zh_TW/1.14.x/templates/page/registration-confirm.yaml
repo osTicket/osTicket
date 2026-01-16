@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  這個範本會在使用者完成註冊後顯示。這個範本功能是在告知使用者系統將會發送一封電子信箱確認信函，需要使用者點選確認信函，帳號才可被啟用及使用者應該完成的下一個步驟。
+name: "帳號註冊"
+body: >
+  <div><strong>感謝您的註冊</strong><br/> <br /> 我們已經寄發帳號啟用信函。煩請您到您的電子信箱點選確認連結才可啟用您的帳號。 </div>

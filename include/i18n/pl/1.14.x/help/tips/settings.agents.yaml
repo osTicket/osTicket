@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formatowanie nazwy przedstawiciela
+  content: >
+    Wybierz format nazw Przedstawicieli w całym systemie. Szablony e-mail będą go wykorzystywać jako nazwę, jeżeli nie zostanie zdefiniowany inny format.
+staff_identity_masking:
+  title: Maskowanie tożsamości personelu
+  content: >
+    Jeżeli ta opcja jest włączona, to w trakcie komunikacji z klientami nazwisko przedstawiciela będzie nie widoczne dla klienta.
+#Authentication settings
+password_reset:
+  title: Polityka wygasania haseł
+  content: >
+    Definiuje jak często (w miesiącu) przedstawiciele będą musieli zmieniać swoje hasło. Jeżeli wyłączymy (ustawimy na "bez wygasania") hasła nie będą wygasać.
+password_expiration_policy:
+  title: Polityka wygasania haseł
+  content: >
+    Wybierz jak często przedstawiciele będą musieli zmienić hasło. Jeżeli wyłączone (czyli, <span class="doc-desc-opt">Nie wygasa</span>), hasło nie wygaśnie.
+allow_password_resets:
+  title: Zezwalaj resetować hasło
+  content: >
+    Włącz tą funkcjonalność jeżeli chcesz wyświetlić link <span class="doc-desc-title">Zapomniałem hasła</span> na <span class="doc-desc-title">Stronie logowania personelu</span> po nieudanej próbie logowania.
+reset_token_expiration:
+  title: Okna resetowania hasła
+  content: >
+    Wybierz czas aktywności (w minutach)przez jaki <span class="doc-desc-title"> Token Resetowania Hasła</span> będzie aktywny. Gdy przedstawiciel poprosi o <span class="doc-desc-title">Resetowanie Hasła</span>, zostanie wysłany e-mail z kodem do resetowania.
+staff_session_timeout:
+  title: Czas wygasania sesji przedstawiciela
+  content: >
+    Wybierz maksymalny czas bezczynności (w minutach) zanim przedstawiciel będzie musiał się ponownie zalogować. <br><br> Jeżeli chcesz wyłączyć wprowadź 0 w <span class="doc-desc-title">Czasie wygaśnięcia sesji przedstawiciela</span>.
+bind_staff_session_to_ip:
+  title: Powiąż sesję z IP przedstawiciela
+  content: >
+    Włącz tą opcje jeżeli chcesz aby przedstawiciele byli zapamiętywani na postawie adresu IP podczas logowania. <br><br> Nie jest to zalecane dla użytkowników o zmiennym adresie IP.

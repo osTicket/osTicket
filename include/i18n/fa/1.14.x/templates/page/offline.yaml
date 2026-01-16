@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  صفحه آف‌لاین در پورتال مشتری زمانی ظاهر می‌شود که "میز کمک" آفلاین باشد.
+name: آفلاین
+body: |
+  <div><h1>
+  <span style="font-size: medium">سیستم پشتیبانی درخواست ها غیر فعال است.</span>
+  </h1>
+  <p>با تشکر از تمایل شما برای ارتباط با ما</p>
+  <p>سیستم پشتیبانی ما در حال حاضر غیر فعال است، لطفا زمانی دیگر دوباره سر بزنید.</p>
+  </div>

@@ -8,13 +8,13 @@ $gmtime = Misc::gmtime();
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
+    <!-- osta -->
         <tr>
             <th colspan="2">
                 <em><b><?php echo __('General Settings'); ?></b></em>
             </th>
         </tr>
-    </thead>
+    <!-- osta -->
     <tbody>
 
         <tr>
@@ -32,14 +32,14 @@ $gmtime = Misc::gmtime();
             <td width="220" class="required"><?php echo __('Helpdesk URL');?>:</td>
             <td>
                 <input type="text" size="40" name="helpdesk_url" value="<?php echo $config['helpdesk_url']; ?>">
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_url']; ?></font>
+                &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['helpdesk_url']; ?></font>
                 <i class="help-tip icon-question-sign" href="#helpdesk_url"></i>
         </td>
         </tr>
         <tr>
             <td width="220" class="required"><?php echo __('Helpdesk Name/Title');?>:</td>
             <td><input type="text" size="40" name="helpdesk_title" value="<?php echo $config['helpdesk_title']; ?>">
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_title']; ?></font>
+                &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['helpdesk_title']; ?></font>
                 <i class="help-tip icon-question-sign" href="#helpdesk_name_title"></i>
             </td>
         </tr>
@@ -57,7 +57,7 @@ $gmtime = Misc::gmtime();
                         }
                     } ?>
                     <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
-                </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
+                </select>&nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['default_dept_id']; ?></font>
                 <i class="help-tip icon-question-sign" href="#default_department"></i>
             </td>
         </tr>
@@ -65,7 +65,7 @@ $gmtime = Misc::gmtime();
             <td><?php echo __('Force HTTPS'); ?>:</td>
             <td>
                 <input type="checkbox" name="force_https" <?php
-                echo ($config['force_https'] == "on") ? 'checked="checked"' : ''; ?>>
+                echo $config['force_https'] ? 'checked="checked"' : ''; ?>>
                 <?php echo __('Force all requests through HTTPS.'); ?>
                 <font class="error"><?php echo $errors['force_https']; ?></font>
                 <i class="help-tip icon-question-sign" href="#force_https"></i>
@@ -245,7 +245,7 @@ $gmtime = Misc::gmtime();
             <td width="220" class="indented required"><?php echo __('Time Format');?>:</td>
             <td>
                 <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>" class="date-format-preview">
-                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
+                    &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['time_format']; ?></font>
                     <em><?php echo Format::time(null, false); ?></em>
                 <span class="faded date-format-preview" data-for="time_format">
                     <?php echo Format::time('now'); ?>
@@ -254,7 +254,7 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr><td width="220" class="indented required"><?php echo __('Date Format');?>:</td>
             <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>" class="date-format-preview">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
+                        &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['date_format']; ?></font>
                         <em><?php echo Format::date(null, false); ?></em>
                 <span class="faded date-format-preview" data-for="date_format">
                     <?php echo Format::date('now'); ?>
@@ -263,7 +263,7 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr><td width="220" class="indented required"><?php echo __('Date and Time Format');?>:</td>
             <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>" class="date-format-preview">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
+                        &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['datetime_format']; ?></font>
                         <em><?php echo Format::datetime(null, false); ?></em>
                 <span class="faded date-format-preview" data-for="datetime_format">
                     <?php echo Format::datetime('now'); ?>
@@ -272,7 +272,7 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr><td width="220" class="indented required"><?php echo __('Day, Date and Time Format');?>:</td>
             <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>" class="date-format-preview">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
+                        &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
                         <em><?php echo Format::daydatetime(null, false); ?></em>
                 <span class="faded date-format-preview" data-for="daydatetime_format">
                     <?php echo Format::daydatetime('now'); ?>
@@ -331,21 +331,31 @@ $gmtime = Misc::gmtime();
             <td><div id="secondary_langs" style="width: 300px"><?php
             foreach ($cfg->getSecondaryLanguages() as $lang) {
                 $info = Internationalization::getLanguageInfo($lang); ?>
+			<!--osta-->
             <div class="secondary_lang" style="cursor:move">
-            <i class="icon-sort"></i>&nbsp;
-            <span class="flag flag-<?php echo $info['flag']; ?>"></span>&nbsp;
-            <?php echo Internationalization::getLanguageDescription($lang); ?>
-            <input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
-            <div class="pull-right">
-            <a href="#<?php echo $lang; ?>" onclick="javascript:
-                if (confirm('<?php echo __('You sure?'); ?>')) {
-                    $(this).closest('.secondary_lang')
-                        .find('input').remove();
-                    $(this).closest('.secondary_lang').slideUp();
-                }
-                return false;
-                "><i class="icon-trash"></i></a>
-            </div>
+				<div class="secondary-lang-sort">
+					<i class="icon-sort"></i>
+				</div>
+				
+				<div class="secondary-lang-flag">
+					<span class="flag flag-<?php echo $info['flag']; ?>"></span>&nbsp;
+				</div>
+				
+				<div class="secondary-lang-text">
+				<?php echo Internationalization::getLanguageDescription($lang); ?>
+				<input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
+				</div>
+				
+				<div class="secondary-lang-trash">
+				<a href="#<?php echo $lang; ?>" onclick="javascript:
+					if (confirm('<?php echo __('You sure?'); ?>')) {
+						$(this).closest('.secondary_lang')
+							.find('input').remove();
+						$(this).closest('.secondary_lang').slideUp();
+					}
+					return false;
+					"><i class="icon-trash"></i></a>
+				</div>
             </div>
 <?php   } ?>
             <script type="text/javascript">
@@ -388,7 +398,7 @@ $gmtime = Misc::gmtime();
                          __('Select Storage Backend'));
                 }?>
                 </select>
-                &nbsp;<font class="error">*&nbsp;<?php echo
+                &nbsp;<font class="error"><!--osta-->&nbsp;<?php echo
                 $errors['default_storage_bk']; ?></font>
                 <i class="help-tip icon-question-sign"
                 href="#default_storage_bk"></i>

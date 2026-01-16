@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Search Field
+  0: >
+
+advanced:
+  title: Advanced
+  content: >
+    Narrow down your search parameters. Once you have selected your advanced search criteria and run the search, you can <span class="doc-desc-title">Export </span> the data at the bottom of the tickets page.
+open_tickets_table:
+  title: Open Tickets Table
+  content: >
+    All tickets currently opened and requiring attention
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Date
+  0: >
+
+subject:
+  title: Subject
+  0: >
+
+from:
+  title: From
+  0: >
+
+priority:
+  title: Priority
+  0: >
+
+assigned_to:
+  title: Assigned To
+  0: >
+
+export:
+  title: Export
+  content: >
+    Export your data currently in view in a CSV file. CSV files may be opened with any spreadsheet software (i.e., Microsoft Excel, Apple Pages, OpenOffice, etc.).
+advanced_search_dialog:
+  title: Advanced Search
+  0: >
+
+adv_keyword:
+  title: Keyword Search
+  content: >
+    Find hits based on the subject and message bodies of the ticket thread as well as all textual content associated with custom fields for the users and the tickets.
+adv_date_range:
+  title: Search by Date Range
+  content: >
+    Definition here
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Erantzin Tipoak
+  content: >
+    <b>Erantzun guztiei</b> Erantzuna Erabiltzailea eta zuk aukeratutako Korlaboratzaileei bidaliko da.<br><b>Etantzun Erabiltzaileari:</b>Erantzun ha Erabiltzaileari bidaliko da, ez Kolaboratzaileei.<br><b>Ez erantzun Emailari:</b>Ez dira email alertarik bidaliko, hala ere, erantzuna ikusgarria izango da  Ticketak ikusten ari diren Erabiltze <b>GUZTIENTZAT</b>. 

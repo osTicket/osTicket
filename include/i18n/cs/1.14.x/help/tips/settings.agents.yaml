@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Styl zobrazení jména pracovníka
+  content: >
+    Vyberte styl zobrazení jmen pracovníků pro celý systém. Šablony e-mailů toto nastavení použijí, pokud není specifikován jiný formát.
+staff_identity_masking:
+  title: Skrytí identity zaměstnance
+  content: >
+    Volba pro skrytí jména pracovníka během komunikace.
+#Authentication settings
+password_reset:
+  title: Zásady pro vypršení platnosti hesla
+  content: >
+    Nastavuje, jak často (v měsících) budou pracovníci povinni změnit své heslo. Pokud je toto vypnuto (nastaveno "Bez časového omezení"), tak hesla nikdy nevyprší.
+password_expiration_policy:
+  title: Zásady pro vypršení platnosti hesla
+  content: >
+    Nastavuje, jak často (v měsících) budou pracovníci povinni změnit své heslo. Pokud je toto vypnuto (nastaveno "Bez časového omezení"), tak hesla nikdy nevyprší.
+allow_password_resets:
+  title: Povolit obnovení hesla
+  content: >
+    Tato volba povolí zobrazení odkazu <span class="doc-desc-title">Obnova zapomenutého hesla</span> na <span class="doc-desc-title">přihlašovací stránce pracovníků</span> po tom, co se nepodaří přihlásit.
+reset_token_expiration:
+  title: Lhůta obnovy hesla
+  content: >
+    Vyberte délku (v minutách), za jak dlouho bude <span class="doc-desc-title"> odkaz na obnovu hesla</span> zneplatněn. Když pracovník požádá o <span class="doc-desc-title">obnovu hesla</span>, je mu zaslán e-mail s odkazem, který mu umožní změnu hesla provést.
+staff_session_timeout:
+  title: Maximální délka nečinnosti pracovníka
+  content: >
+    Vyberte maximální délku (v minutách) nečinnosti pracovníka, než bude vyžadováno, aby se pracovník znovu přihlásil. <br><br> Pokud chcete <span class="doc-desc-title">maximální dobu nečinnosti pracovníka</span> vypnout, zadejte 0.
+bind_staff_session_to_ip:
+  title: Spárovat relaci pracovníka s IP adresou
+  content: >
+    Tato volba povolí pamatování si přihlášení pracovníka pomocí jeho IP adresy.<br><br>Není doporučena pro uživatele, kteří mají dynamicky přidělované IP adresy.

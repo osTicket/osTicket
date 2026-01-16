@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: osTicket은 무엇인가요? (샘플)
+  response: |
+    osTicket은 널리 사용되는 오픈소스 서포트 티켓 시스템입니다. 비용이 많이 들고 복잡한 고객 지원 시스템에 대한 매력적인 대안으로서 간단하고, 가볍고, 신뢰할 수 있는 웹 기반의 오픈소스로 설치와 사용이 편리합니다.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Canned Attachments Rock!
+- 
+  isenabled: 1
+  title: 샘플(변수 포함)
+  response: |
+    안녕하세요 %{ticket.name.first},
+    <br>
+    <br>
+    당신이%{ticket.create_date}에 생성한 티켓 #%{ticket.number}이 %{ticket.dept.name} 부서에 할당됩니다.
+  0: |
+

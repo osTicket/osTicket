@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Vyhľadanie
+  0: >
+
+advanced:
+  title: Rozšírené
+  content: >
+    Tu môžete upraviť parametre hľadania. Ak vyberiete pokročilé hľadanie a spustíte ho, získané údaje môžete <span class="doc-desc-title">exportovať </span> pomocou odkazu v spodnej časti stránky.
+open_tickets_table:
+  title: Zoznam otvorených ticketov
+  content: >
+    Všetky tickety, ktorý je nutné sa venovať
+ticket:
+  title: Tiket
+  0: >
+
+date:
+  title: Dátum
+  0: >
+
+subject:
+  title: Predmet
+  0: >
+
+from:
+  title: Od
+  0: >
+
+priority:
+  title: Priorita
+  0: >
+
+assigned_to:
+  title: Pridelené
+  0: >
+
+export:
+  title: Exportovať
+  content: >
+    Exportovať aktuálne zobrazené dáta do CSV súboru. CSV je možné otvoriť v akomkoľvek tabuľkovom editore (napr. MS Excel, OpenOffice ....).
+advanced_search_dialog:
+  title: Pokročilé hľadanie
+  0: >
+
+adv_keyword:
+  title: Hľadanie pomocou kľúčových slov
+  content: >
+    Nájsť zhody v predmete a tele správy vlákna ticketu rovnako ako v celom textovom obsahu spojeného s vlastnými poľami pre používateľa.
+adv_date_range:
+  title: Vyhľadanie podľa zadaného rozsahu dátumov
+  content: >
+    Definujte tu
+merge_types:
+  title: Zlúčiť typy
+  content: >
+    <b>Zlúčiť vlákna:</b> Vlákna všetkých tiketov sa zobrazujú chronologicky.</br> <b>Oddeliť vlákna:</b> Vlákna tiketov sa zobrazujú pre každý tiket zvlášť.
+reply_types:
+  title: Typy odpovedí
+  content: >
+    <b>Odpovedať všetkým:</b> Táto odpoveď sa odošle používateľovi a všetkým spolupracovníkom, ktorých sa rozhodnete zahrnúť.</br> <b>Odpovedať používateľovi:</b> Táto odpoveď sa odosiela iba používateľovi, nie spolupracovníkom.</br> <b>Neodpovedať e-mailom:</b> Nie sú odoslané žiadne e-mailové upozornenia, odpoveď agenta je však viditeľná pre <b>VŠETKÝCH</b> užívateľov pri prezeraní Ticketu.

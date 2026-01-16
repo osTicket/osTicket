@@ -1,0 +1,30 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Отправляется пользователю, когда заготовленный ответ автоматически отправлен в заявку при ее создании.
+
+  Переменные доступные для замены: %{ticket.*}, %{response}
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Уважаемый(ая), %{recipient.name.first},</strong></h3>
+  Запрос на поддержку был создан и привязан к заявке <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> со следующим автоответом
+  <br>
+  <br>
+  Раздел: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Тема: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">Ваша команда %{company.name},<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Мы надеемся, что мы ответили на ваши вопросы. Если вы хотите предоставить дополнительные комментарии или информацию, пожалуйста, ответьте на это письмо или <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >войдите в свою учетную запись</span></a> для перехода к полному архиву ваших запросов на поддержку.</em></div>

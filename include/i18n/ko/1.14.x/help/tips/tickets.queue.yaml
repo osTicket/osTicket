@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: 검색 필드
+  0: >
+
+advanced:
+  title: 고급
+  content: >
+    검색 조건을 좁히세요. 고급 검색 조건을 선택하고 조회하면, 티켓 페이지 하단의  <span class="doc-desc-title">내보내기</span>를 통해 데이터를 받을 수 있습니다.
+open_tickets_table:
+  title: 티켓 테이블 열기
+  content: >
+    현재 모든 티켓이 오픈되어 있으며 주의가 요구됩니다.
+ticket:
+  title: 티켓
+  0: >
+
+date:
+  title: 날짜
+  0: >
+
+subject:
+  title: 제목
+  0: >
+
+from:
+  title: 발신자
+  0: >
+
+priority:
+  title: 우선순위
+  0: >
+
+assigned_to:
+  title: 할당
+  0: >
+
+export:
+  title: 내보내기
+  content: >
+    현재 보이는 데이터를 CSV 파일로 내보내세요. CSV 파일은 스프레드시트 소프트웨어(마이크로소프트 엑셀, 애플 페이지, 오픈오피스 등)로 열 수 있습니다.
+advanced_search_dialog:
+  title: 고급 검색
+  0: >
+
+adv_keyword:
+  title: 키워드 검색
+  content: >
+    티켓 스레드 제목과 메시지 본문 및 사용자와 티켓의 사용자 정의 필드와 연결된 모든 텍스트와 일치하는 것을 검색합니다.
+adv_date_range:
+  title: 기간으로 검색
+  content: >
+    여기에 정의
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: 답장 유형
+  content: >
+    <b>전체 회신:</b> 이 회신은 포함하도록 선택한 사용자 및 공동 작업자에게 발송됩니다.</br><b>사용자에게 회신:</b>이 회신은, 공동 작업자가 아닌 사용자에게만 보냅니다.</br> <b> 전자 메일 회신 안 함: </b> 이메일 알림은 전송되지 않지만 담당자 응답은 다음 위치에 표시됩니다.<b>모든</b> 사용자가 티켓을 볼 때 담당자 응답을 볼 수 있습니다.

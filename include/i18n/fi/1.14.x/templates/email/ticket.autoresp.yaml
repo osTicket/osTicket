@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Lähetetään käyttäjälle, kun uusi tiketti luodaan
+subject: |
+  Uusi tiketti luotu [#%{ticket.number}]
+body: |
+  <h3><strong>Hyvä %{recipient.name.first},</strong></h3>
+  <p>
+  Viestisi on vastaanotettu ja uusi tiketti luotu #%{ticket.number}.
+  Asiakaspalvelumme palaa tähän viestiin pikimmiten. Voit
+  <a href="%{recipient.ticket_link}">katsoa tiketin tilaa</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Terveisin %{company.name} Tiimi,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Jos haluat lisätä kommentteja tai lisätä tietoja aiheeseen liittyen, vastaa tähän viestiin tai <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >kirjaudu asiakastilillesi</span></a> josta löydät täydellisen arkiston viesteistäsi.</em></div>

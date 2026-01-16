@@ -1,0 +1,67 @@
+---
+page_title:
+  title: التنبيهات والإشعارات
+  content: >
+    التنبيهات والإشعارات يتم إرسالها تلقائياً إلى الوكلاء عبر البريد الإلكتروني عند وقوع مختلف الأحداث.
+ticket_alert:
+  title: تنبيه إنشاء تذكرة جديدة
+  content: >
+    <p>إرسال تنبيه إلى الوكلاء عندما يتم إنشاء تذكرة جديدة.</p><p class="info-banner"> <i class="icon-info-sign"></i>لن يتم إرسال هذا التنبيه إذا كانت التذكرة مسنده تلقائياً عبر مرشح التذاكر أو موضوع المساعدة</p>
+  links:
+    - 
+      title: القالب الإفتراضي لتنبيه إنشاء تذكرة جديدة
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: تنبيه رسالة جديدة
+  content: >
+    إرسال تنبيه إلى الوكلاء عند إضافة رد جديد من المستخدم إلى التذكرة الحالية.
+  links:
+    - 
+      title: قالب التنبيه الإفتراضي لرسالة جديدة
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: تنبيه نشاط داخلي جديد
+  content: >
+    أُرسِل تنبيهٌ إلى الوكلاء في حال وجود نشاط داخلي مثل مذكرةداخلية أو في حال قيام رد وكيل بالتعديل على تذكرة.
+  links:
+    - 
+      title: قالب نشاطات التذكرة الإفتراضي
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: تنبيه إسناد التذكرة
+  content: >
+    إرسال تنبيه إلى الوكلاء عند إسناد تذكرة.
+  links:
+    - 
+      title: قالب تنبيه إسناد التذكرة الافتراضي
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: إشعار بتحويل تذكرة
+  content: >
+    إرسال تنبيه إلى الوكلاء عند نقل تذكرة بين الأقسام.
+  links:
+    - 
+      title: قالب التنبيه الإفتراضي عند تحويل التذكرة
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: تنبيه التذاكر المتأخرة
+  content: >
+    إرسال تنبيه إلى الوكلاء عندما تصبح التذكرة متأخرة بناءاً على اتفاقية مستوى الخدمة أو تاريخ الاستحقاق.
+  links:
+    - 
+      title: القالب الإفتراضي للتنبيه بالتذاكر القديمة
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: إدارة اتفاقيات مستوى الخدمة
+      href: /scp/slas.php
+system_alerts:
+  title: تنبيهات النظام
+  content: >
+    أحداث النظام الهامة التي تُرسل إلى (%{config.admin_email}) المدير. اعتماداً على ضبط<span class="doc-desc-title"> مستوى السجل</span>، فإن الأحداث متاحة أيضاً في <span class="doc-desc-title"> سجلات النظام</span>
+  links:
+    - 
+      title: عرض سجلات النظام
+      href: /scp/logs.php
+    - 
+      title: تغيير بريد المدير الإلكتروني
+      href: /scp/settings.php?t=emails

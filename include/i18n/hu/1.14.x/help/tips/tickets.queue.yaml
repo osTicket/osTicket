@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Kereső sáv
+  0: >
+
+advanced:
+  title: Bővített
+  content: >
+    Szűkítse a keresési feltételeket. Miután kiválasztotta a bővített keresési feltételeket és futtatta a keresést, akkor lehetősége van <span class = "doc-desc-title"> Exportálni </ span> az adatait a hibajegy oldal alján.
+open_tickets_table:
+  title: Hibajegy táblázat megnyitása
+  content: >
+    Jelenleg minden hibajegy nyitott és figyelmet igényel
+ticket:
+  title: Hibajegy
+  0: >
+
+date:
+  title: Dátum
+  0: >
+
+subject:
+  title: Tárgy
+  0: >
+
+from:
+  title: Feladó
+  0: >
+
+priority:
+  title: Fontosság
+  0: >
+
+assigned_to:
+  title: Hozzárendelt
+  0: >
+
+export:
+  title: Export
+  content: >
+    Exportálja az adatokat, amiket jelenleg lát egy CSV fájlba. A CSV fájlokat meg lehet nyitni bármely táblázatkezelő szoftverrel (Microsoft Excel, Apple Pages, OpenOffice, stb.)
+advanced_search_dialog:
+  title: Bővített keresés
+  0: >
+
+adv_keyword:
+  title: Kulcsszóra keresés
+  content: >
+    Találatait alapozhatja a hibajegyek szövegezése és megadott tárgya alapján, vagy akár a hibajegy vagy felhasználó szabad szavas keresőjén keresztül.
+adv_date_range:
+  title: Keresés dátum alapján
+  content: >
+    A magyarázat itt található
+merge_types:
+  title: Egyesítési típusok
+  content: >
+    <b> Szálak kombinálása: </b> Az összes jegy szálai időrendben jelennek meg. </br> <b> Külön szálak: </b> A jegyek szálai egyszerre csak egy jegyet jelenítenek meg.
+reply_types:
+  title: Válasz típusa
+  content: >
+    <b> Válasz mindenkinek: </b> Ezt a választ a felhasználónak és a közreműködő együttműködőknek küldi el. <br> <b> Válasz a felhasználónak: </b> Ezt a választ csak a felhasználónak küldi el, az Együttműködőknek nem. <br> <b> Ne válaszoljon e-mailben: </b> Nem küld e-mail figyelmeztetést, ám a Munkatárs válasza <b> MINDEN </b> Felhasználó számára látható a jegy megtekintésekor.

@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Хэрэглэгч шинээр бүртгүүлэх эсвэл бүртгэхэд илгээх имэйлийн загвар. Имэйл хаягийг баталгаажуулах зорилготой. Имэйлийн их биеийн хаа нэгтээ %{link} холбоосыг ашиглаарай.
+name: "%{company.name}-д тавтай морилно уу"
+body: >
+  <h3><strong>Сайн байна уу, %{recipient.name.first}?</strong></h3> <div> Тусламжийн систем %{url} дахь Таны хэрэглэгчийн бүртгэлийг бид үүсгэчлээ.<br /> <br /> Дараах холбоосоор дамжиж бүртгэлээ баталгаажуулан гаргасан хүсэлтүүддээ хандана уу.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Тусламж үйлчилгээний систем<br /> %{company.name}</em> </div>

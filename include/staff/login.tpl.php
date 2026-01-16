@@ -1,7 +1,9 @@
 <?php
 include_once(INCLUDE_DIR.'staff/login.header.php');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
-
+// osta
+require_once $_SERVER['DOCUMENT_ROOT'] . ROOT_PATH . "/osta/php/functions.php"; 
+$opt = get_config();
 
 if ($thisstaff && $thisstaff->is2FAPending())
     $msg = "2FA Pending";
@@ -12,11 +14,31 @@ if ($thisstaff && $thisstaff->is2FAPending())
     <div id="blur">
         <div id="background"></div>
     </div>
-    <h1 id="logo"><a href="index.php">
-        <span class="valign-helper"></span>
-        <img src="logo.php?login" alt="osTicket :: <?php echo __('Staff Control Panel');?>" />
-    </a></h1>
-    <h3 id="login-message"><?php echo Format::htmlchars($msg); ?></h3>
+<!--osta-->
+	<a id="header-logo" href="<?php echo ROOT_PATH; ?>scp/">
+	<div id="login-title">
+
+		<div id="header-text">
+			<div id="header-title">
+				<?php echo $opt["title"]; ?>     
+			</div>
+		</div>
+		
+            <div id="header-image">
+				<img src="<?php echo get_logo( $opt, "staff" )?>?<?php echo strtotime($cfg->lastModified('staff_logo_id')); ?>" alt="osTicket &mdash; <?php echo __('Customer Support System'); ?>"/> 
+            </div>	
+
+		<div id="header-default">
+			<?php				
+			$file_name = ROOT_DIR ."osta/inc/default-logo.html";
+			echo file_get_contents($file_name);
+			?>		
+		</div>			
+
+	</div>
+	</a>
+	
+    <h3><?php echo Format::htmlchars($msg); ?></h3>
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
     <div id="loading" style="display:none;" class="dialog">
         <h1><i class="icon-spinner icon-spin icon-large"></i>
@@ -42,17 +64,18 @@ if ($thisstaff && $thisstaff->is2FAPending())
         } else { ?>
             <input type="hidden" name="do" value="scplogin">
             <fieldset>
-            <input type="text" name="userid" id="name" value="<?php
-                echo $info['userid'] ?? null; ?>" placeholder="<?php echo __('Email or Username'); ?>"
-                autofocus autocorrect="off" autocapitalize="off">
-            <input type="password" name="passwd" id="pass" maxlength="128" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
-                <h3 style="display:inline"><a id="reset-link" class="<?php
-                    if (!$show_reset || !$cfg->allowPasswordReset()) echo 'hidden';
-                    ?>" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
+<!--osta-->			
+        <div id="login-userid"></div><input type="text" name="userid" id="name" value="<?php
+            echo $info['userid']; ?>" placeholder="<?php echo __('Email or Username'); ?>"
+            autofocus autocorrect="off" autocapitalize="off">
+        <div id="login-password"></div><input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
                 <button class="submit button pull-right" type="submit"
                     name="submit"><i class="icon-signin"></i>
                     <?php echo __('Log In'); ?>
-                </button>
+                </button>		
+            <div id="pw-reset"><h3><a id="reset-link" class="<?php
+                if (!$show_reset || !$cfg->allowPasswordReset()) echo 'hidden';
+                ?>" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3></div>		
             </fieldset>
         <?php
         } ?>
@@ -167,6 +190,8 @@ if (($bks=StaffAuthenticationBackend::getExternal())) { ?>
         #loginBox:after { background-color: white !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.13.2.custom.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.13.2.custom.min.js?0375576"></script>
+<?php include ROOT_DIR . 'osta/inc/back-button.html'; ?> 
+<?php include ROOT_DIR . 'osta/inc/database-reset-warning.html'; ?> 
 </body>
 </html>

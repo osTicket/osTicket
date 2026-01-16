@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Agento vardo formatas
+  content: >
+    Pasirinkitę agento vardo formatą kuris bus naudojamas sistemoje. Elektronio pašto juodraščiuose jis bus naudojamas automatiškai, jei nėra nurodytas joks kitas formatas.
+staff_identity_masking:
+  title: Personalo tapatybės maskavimas
+  content: >
+    Jei įgalinta, bus slepiamas Agento vardas nuo kliento esant bet kokiai komunikacijai.
+#Authentication settings
+password_reset:
+  title: Slaptažodžio galiojimo laiko politika
+  content: >
+    Nurodo, kaip dažnai (mėnesiais) darbuotojų bus reikalaujama pakeisti slaptažodį. Jei ši parinktis išjungta (nustatyta "Galioja neribotai"), slaptažodžio keisti nereikės.
+password_expiration_policy:
+  title: Slaptažodžio galiojimo laiko politika
+  content: >
+    Pasirinkite kaip dažnai agentų bus reikalaujama pakeisti slaptažodį. Jei išjungta (t.y.<span class="doc-desc-opt">Galioja neribotai</span>), slaptažodžiai nebaigs galioti.
+allow_password_resets:
+  title: Leisti slaptažodžio nustatymą iš naujo
+  content: >
+    Įgalinkite šią funkciją jei norėtumėte rodyti<span class="doc-desc-title">Pamiršau savo slaptažodį</span>nuorodą<span class="doc-desc-title">Darbuotojų prisijungimo lange</span>po nesėkmingo bandymo prisijungti.
+reset_token_expiration:
+  title: Slaptažodžio nustatymo iš naujo langas
+  content: >
+    Pasirinkite trukmę (minutėmis) kiek bus galiojantys<span class="doc-desc-title">Slaptažodžio nustatymo iš naujo kodas</span>. Kai agentas pareikalauja<span class="doc-desc-title">Slaptažodžio nustatymo iš naujo</span>, bus siunčiamas kodas elektroniniu paštu, kuris leis nustatyti iš naujo slaptažodį.
+staff_session_timeout:
+  title: Agento sesijos laikas
+  content: >
+    Nustatytkite maksimalų neaktyvumo laiką (minutėmis) kuriam praėjus Agento bus reikalaujama prisjungti iš naujo.<br><br>Jei norite išjungti<span class="doc-desc-title">Darbuotojų sesijos laikus</span>, įveskite 0.
+bind_staff_session_to_ip:
+  title: Surišti agento sesiją su IP
+  content: >
+    Įjunkite šią parinktį, jei norite, kad Agentas būtų prisimenamas pagal esamą IP po prisijungimo.<br><br>Šis nustatymas yra nerekomenduojamas vartotojams, kuriems IP adresai priskiriami dinamiškai.

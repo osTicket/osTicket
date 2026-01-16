@@ -1,0 +1,29 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  اسٹاف کے ممبروں کو بھیجا جاتا ہے جب ایک ٹکٹ سسٹم میں زائد المیعاد میں تبدیل ہوتا ہے۔ زائد المیعاد ٹکٹیں، ان کی آخری تاریخ کے ساتھ ساتھ سپورٹ لائسنس کے معاہدے کی بنا پر بھی نظر آتے ہیں۔
+subject: |
+  قدیم ٹکٹ کا انتباہ
+body: |
+  <h3><strong>سلام %{recipient.name}</strong>,</h3>
+  ایک ٹکٹ, <a href="%{ticket.staff_link}">#%{ticket.number}</a> سنجیدہ طور پر زائدالمیعاد ہو گیا ہے.
+  <br>
+  <br>
+  ہم سب کو سخت محنت کرنی چاہیئے تاکہ اس بات کو یقینی بنایا جاسکے کہ تمام ٹکٹیں بروقت حل ہو سکیں۔
+  <br>
+  <br>
+  دستخط,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>ٹکٹ کو دیکھنے یا جواب دینے کے لئے، براہ مہربانی اپنے سپورٹ سسٹم میں <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >لاگ ان کریں۔</span></a>آپ اس کو اس لیے موصول کر رہے ہیں کیونکہ یہ ٹکٹ براہ راست آپ سے تفویض کیا گیا ہے یا پھر اس ٹیم یا ادارے سے تفویض کیا گیا ہے جس کے آپ ممبر ہیں۔</div>
+  <em style="font-size: small">آپ کا دوستانہ <span style="font-size: smaller"
+  >(اگرچہ محدود صبر کے ساتھ)</span> سپورٹ 
+  سسٹم</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

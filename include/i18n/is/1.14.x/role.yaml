@@ -1,0 +1,79 @@
+---
+- 
+  #Default roles defined for the system
+  #Fields:
+  #id - Primary id for the role
+  #flags - (bit mask) role flags
+  #name - (string) descriptive name for the role
+  #notes - (string) internal notes
+  #permissions: (list<keys>)
+  #NOTE: ------------------------------------
+  #---
+  id: 1
+  flags: 1
+  name: Allir aðgangar
+  notes: |
+    Hlutverk með fullum heimildum
+  permissions:
+    - ticket.create
+    - ticket.edit
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply
+    - ticket.close
+    - ticket.delete
+    - task.create
+    - task.edit
+    - task.assign
+    - task.transfer
+    - task.reply
+    - task.close
+    - task.delete
+    - canned.manage
+    - thread.edit
+- 
+  id: 2
+  flags: 1
+  name: Aukinn aðgangur
+  notes: |
+    Hlutverk með aukinn aðgang
+  permissions:
+    - ticket.create
+    - ticket.edit
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply
+    - ticket.close
+    - task.create
+    - task.edit
+    - task.assign
+    - task.transfer
+    - task.reply
+    - task.close
+    - canned.manage
+- 
+  id: 3
+  flags: 1
+  name: Takmarkaður aðgangur
+  notes: |
+    Hlutverk með skertum heimildum
+  permissions:
+    - ticket.create
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply task.create
+    - task.assign
+    - task.transfer
+    - task.reply
+- 
+  id: 4
+  flags: 1
+  name: Les heimild
+  notes: Einfalt hlutverk með engum heimildum
+  permissions: [ ]

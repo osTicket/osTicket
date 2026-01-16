@@ -1,0 +1,41 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: 知識庫設定
+  0: >
+
+knowledge_base_status:
+  title: 知識庫狀態
+  content: >
+    設定能夠允許你的使用者對公共知識庫文章的自定性存取,
+    <br><br>知識庫種類及問答集能夠做成內部用途(代理商僅能擁有瀏覽功能)。
+  links:
+    - 
+      title: 管理知識庫
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    啟用此設定，以防止未註冊的使用者存取知識庫
+  links:
+    - 
+      title: 存取控制設置
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: 罐頭式應答
+  content: >
+    設定能夠允許代理商, 當在回覆 tickets 時使用<span class="doc-desc-title">罐頭式應答</span>
+  links:
+    - 
+      title: 管理罐頭應答
+      href: /scp/canned.php

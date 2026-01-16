@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Šis šablonas apsprendžia turinį, rodomą padėkos puslapyje po to, kai klientas pateikia naują bilietą kliento portale.
+name: Ačiū
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Dėkojame, kad susisiekėte su mumis.
+  <br>
+  <br>
+  Jūsų  užklausa registruota. Artimiausiu metu su Jumis susisieks mūsų darbuotojas.</p>
+  <br>
+  <br>
+  Palaikymo komanda
+  </div>

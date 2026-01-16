@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: 电子邮件模板
+  content: >
+    电子邮件模板集用于在工单的生命周期内，对可能发生的动作进行自动回复和提示的发送。
+template_to_clone:
+  title: 复制到模板
+  content: >
+    选择从一个模板集进行复制并开始，或直接从自带的电子邮件模板开始。
+language:
+  title: 语言
+  content: >
+    选择希望应用到<span class="doc-desc-opt">自带</span><span class="doc-desc-title">电子邮件模板集</span>的语言，语言包可以从 osTicket.com 下载。
+  links:
+    - 
+      title: osTicket 语言包
+      href: https://osticket.com/download
+status:
+  title: 状态
+  content: >
+    <span class="doc-desc-opt">已启用的</span>模板集可以用于和部门关联，并应用到系统默认设置。当前正在使用的模板集无法被<span class="doc-desc-opt">禁用</span>。

@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Táto šablóna zobrazuje informácie po úspešnom potvrdení registrácie. Môže napr. informovať používateľov o dokončení registrácie a že klient už môže zadávať tikety alebo pristupovať k existujúcim požiadavkám.
+name: "Účet bol potvrdený!"
+body: >
+  <div> <strong>Ďakujeme Vám za registráciu.</strong><br /> <br /> Potvrdenie Vášho e-mailu prebehlo úspešne a aktivácia účtu bola dokončená. Môžete pokračovať vytvorením nového tiketu alebo si pozrieť už existujúci.<br /> <br /> <em>Váš tím zákazníckej podpory zo spoločnosti</em><br /> %{company.name} </div>

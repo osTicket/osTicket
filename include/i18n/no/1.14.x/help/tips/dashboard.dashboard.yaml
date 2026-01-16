@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Saks aktivitet
+  content: >
+    Velg et datointervall til både diagrammet og tabellen (jfr <span class="doc-desc-title"> statistikk</span>) for å fokusere på tilsvarende data for disse datoene. Grafen nedenfor gjenspeiler alltid en bred oversikt over hele systemets data (feks. befolkning). Imidlertid kan du navigere gjennom tabellen <span class="doc-desc-title"> statistikk</span> nedenfor for å fokusere på et smalere tema (f.eks avdeling, emner eller ansatte). I tillegg kan du eksportere data som vises i <span class="doc-desc-title"> statistikktabellen</span>.
+report_timeframe:
+  title: Rapporter tidsramme
+  content: >
+    Velg en startdato for ønsket data ved hjelp av datovelgeren. Velg deretter tidsrom fra denne datoen til å definere sluttdatoen for data.
+statistics:
+  title: Statistikk
+  content: >
+    Gå til gjenstand for interesse ved å klikke på den aktuelle fanen for å vise de bestemte utvalget av data. I tabellen representerer sirkler størrelsen på den nominelle. Derfor, jo større tallet i en bestemt celle, større tilstøtende sirkelen blir.
+opened:
+  title: Åpnet
+  content: >
+    Billetter som opprinnelig ble åpnet med avdelings- eller hjelpeemnet på billetten, eller antall billetter en agent har åpnet på vegne av en bruker.
+assigned:
+  title: Tildelt
+  content: >
+    Billetter som er blitt tildelt enten en agent eller et lag. Antallet gjenspeiler billetter som er tilordnet manuelt til agenter eller lag, hevdet billetter og billetter tildelt fra billettfilter/andre regler for automatisk tildeling.
+overdue:
+  title: Forfalt
+  content: >
+    Billetter som har blitt merket ‘Forfalt’ av systemet. Billetter er merket Forfalte når de har brutt SLA-planen de tilhørte, noe som får dem til å ha status som 'Åpen' forbi forfallsdato.
+closed:
+  title: Stengt
+  content: >
+    Antall billetter som akkurat nå er i Avsluttet tilstand.
+reopened:
+  title: Gjenåpnet
+  content: >
+    Det totale antall ganger en billett ble åpnet på nytt. Billetter åpnes igjen når statusen deres endres fra Lukket til Åpent.
+deleted:
+  title: Slettet
+  content: >
+    Antall billetter som er blitt slettet.
+service_time:
+  title: Servicetid
+  content: >
+    Henviser til varigheten av tiden som begynner ved åpningen av en billett og slutter når billetten er stengt. Kolonnen Servicetid måler gjennomsnittlig servicetid per billett, i timer.
+response_time:
+  title: Responstid
+  content: >
+    Viser en gjennomsnittlig responstid av en agent i timer på billettkorrespondanse.

@@ -1,0 +1,29 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Munkatársaknak küldve, mikor egy hibajegy lejárt a rendszerben.
+  Lejárt hibajegyeket a hibajegy határidejének lejárata valamint az SLA határozza meg.
+subject: |
+  Lejárt hibajegy riasztás
+body: |
+  <h3><strong>Kedves %{recipient.name}</strong>,</h3>
+  A <a href="%{ticket.staff_link}">#%{ticket.number}</a> számú hibajegy lejárt.
+  <br>
+  <br>
+  Keményen dolgozunk, hogy garantáljuk, minden hibajegy időben megoldódjon.
+  <br>
+  <br>
+  Signed,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Hibajegy megtekintéséhez vagy válasz küldéséhez, kérjük, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >jelentkezzen be</span></a> a hibajegy kezelő rendszerbe. Azért kapta ezt az értesítést, mert a hibajegyet Önhöz vagy részlegéhez rendelték hozzá.</div>
+  <em style="font-size: small">Az Ön <span style="font-size: smaller"
+  >(bár korlátozott türelmű)</span> ügyfélszolgálata</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

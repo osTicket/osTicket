@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Ta predloga določa e-sporočilo poslano osebju, ki je izbralo <strong>pozabljeno geslo</strong> povezavo na prijavni strani nadzorne plošče osebja.
+name: "Ponastavitev gesla osebja osTicket"
+body: >
+  <h3><strong>Pozdravljeni %{staff.name.first},</strong></h3> <div> Zahtevek za ponastavitev gesla je bil posredovan v vašem imenu na mizo pomoči %{url}.<br /> <br /> Če smatrate, da je bilo to storjeno pomotoma, to e-sporočilo izbrišite in ga smatrajte brezpredmetnim. Vaš račun je še vedno varen in nihče ni dobil dostopa do njega. Vaš račun ni zaklenjen in vaše geslo ni bilo ponastavljeno. Nekdo je pomotoma vnesel vaš naslov e-sporočila.<br /> <br /> Sledite povezavi spodaj za prijavo v mizo pomoči in spremenite svoje geslo.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša prijazna tehnična podpora</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

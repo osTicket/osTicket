@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+notes: |
+  Sorğu heyət üzvləri üçün təyin olunanda onlara göndərin. Sorğular sistem və ya başqa heyət üzvü tərəfindən avtomatik təyin oluna bilər. Tapşırığı düzəldənin kim olduğunu ayırd etmək üçün %{assigner} istifadə edin.
+subject: |
+  Sizə təyin olunmuş sorğu
+body: |
+  <h3><strong>Salam %{assignee.name.first},</strong></h3>
+  Sorğu <a href="%{ticket.staff_link}">#%{ticket.number}</a> sizə
+  təyin olunub %{assigner.name.short} tərəfindən
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Kimdən</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Mövzu</strong>:
+      </td>
+  <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Sorğuya cavab vermək/görmək üçün xahiş edirik, sorğu dəstək sisteminə <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >daxil olun</span></a> </div>
+  <em style="font-size: small; ">Sizin dost müştəri dəstək
+  sisteminiz</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

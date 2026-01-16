@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: សំបុត្រថ្មី Help Topic
+  content: >
+    ជ្រើស <span class="doc-desc-title">Help Topic</span> នឹងត្រូវបានភ្ជាប់ដោយស្វ័យប្រវត្តិជាមួយនឹងការលក់សំបុត្រដែលបានបង្កើតតាមរយៈអាសយដ្ឋានអ៊ីមែលនេះ។ <br/><br/> Forms ផ្សារភ្ជាប់ជាមួយនឹងជំនួយប្រធានបទ help topic នឹងត្រូវបានបន្ថែមទៅក្នុងសំបុត្រនេះ ប៉ុន្តែនឹងមិនមានទិន្នន័យណាមួយ។
+  links:
+    - 
+      title: គ្រប់គ្រង Help Topics
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: អាទិភាពសំបុត្រថ្មី
+  content: >
+    ជ្រើស <span class="doc-desc-title">priority</span> សំបុត្រថ្មីដែលបានបង្កើតតាមរយៈអាសយដ្ឋានអ៊ីមែលនេះ។
+new_ticket_department:
+  title: នាយកដ្ឋានសំបុត្រថ្មី
+  content: >
+    ជ្រើស <span class="doc-desc-title">Department</span>ដែលសំបុត្រថ្មី បានបង្កើតតាមរយៈអាសយដ្ឋានអ៊ីមែលនេះនឹងត្រូវបានបញ្ជួន។
+  links:
+    - 
+      title: គ្រប់គ្រង Departments
+      href: /scp/departments.php
+auto_response:
+  title: សំបុត្រថ្មី ឆ្លើយតបដោយស្វ័យប្រវត្តិ
+  content: >
+    អ្នកអាចបិទដោយស្វ័យប្រវត្តិឆ្លើយតប-បានផ្ញើទៅឱ្យអ្នកប្រើនៅពេលសំបុត្រថ្មីត្រូវបានបង្កើតឡើងតាមរយៈអាសយដ្ឋានអ៊ីមែលនេះ។
+username:
+  title: Username
+  0: >
+
+password:
+  title: ពាក្យសម្ងាត់
+  0: >
+
+login_information:
+  title: អ៊ីម៉ែលចូល Info
+  content: >
+    <span class="doc-desc-title">Username</span> និង <span class="doc-desc-title">Password</span> ត្រូវបានទាមទារដើម្បីទៅយកអ៊ីមែលពីប្រអប់សំបុត្រ IMAP / POP ដូចជាការផ្ញើអ៊ីម៉ែលតាមរយៈការរបស់ SMTP ។
+mail_account:
+  title: កំពុងទៅប្រមូលយកអ៊ីម៉ែល
+  content: >
+    ទៅយកអ៊ីមែលពី IMAP ឬ POP ប្រអប់សំបុត្រពីចម្ងាយនិងបម្លែងពួកវាទៅជាការលក់សំបុត្រនៅក្នុងhelp desk របស់អ្នក។
+  links:
+    - 
+      title: គ្រប់គ្រង <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> settings.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Remote Host
+  content: >
+    បញ្ចូល <span class="doc-desc-title">hostname</span> និង <span class="doc-desc-title">port</span> សម្រាប់ mail server របស់អ្នក។ នេះប្រហែលជាមាននៅក្នុងឯកសារសម្រាប់គណនីបង្ហោះរបស់អ្នកឬពីការគ្រប់គ្រងអ៊ីមែលរបស់អ្នក។
+protocol:
+  title: ពិធីការប្រអប់សំបុត្រ
+  content: >
+    ជ្រើសពិធីការប្រអប់សំបុត្រដែលបានគាំទ្រដោយម៉ាស៊ីនបម្រើសំបុត្ររបស់អ្នកពីចម្ងាយ។ IMAP ដែលត្រូវបានផ្ដល់អនុសាសន៍និង SSL ត្រូវបានលើកទឹកចិត្តបើអាចធ្វើបានទាំងអស់។
+fetch_frequency:
+  title: Fetch Frequency
+  content: >
+    បញ្ចូលរបៀបជាញឹកញាប់នៅក្នុងនាទី, ប្រព័ន្ធនេះនឹងជ្រើសប្រអប់សំបុត្រ។ <br/> <br/> នេះនឹងកំណត់ការពន្យារពេលជាមធ្យមនៅក្នុងការទទួលបានការឆ្លើយតបដោយស្វ័យប្រវត្តិបន្ទាប់ពីអ្នកប្រើម្នាក់ផ្ញើអ៊ីមែលទៅប្រអប់សំបុត្រនេះ។
+emails_per_fetch:
+  title: Emails Per Fetch
+  content: >
+    បញ្ចូលចំនួនអ៊ីម៉ែលដែលបានដំណើរការក្នុងមួយពេល។
+fetched_emails:
+  title: Fetched Emails
+  content: >
+    សម្រេចចិត្តនូវអ្វីដែលត្រូវធ្វើជាមួយអ៊ីម៉ែលដំណើរការ: <br/><br/> <span class="doc-desc-opt"><b>Move to Folder</b></span>: នេះនឹងធ្វើការbackup អ៊ីមែលរបស់អ្នកពីប្រអប់សំបុត្រទៅ folder ដែលអ្នកបានកំណត់។បើ folder នេះមិនទាន់មានទេនៅលើម៉ាស៊ីនបម្រើ server, ប្រព័ន្ធនេះនឹងព្យាយាមដើម្បីបង្កើតវាដោយស្វ័យប្រវត្តិ។(<b>Recommended</b>) <hr> <span class="doc-desc-opt"><b>Delete Emails</b></span>: នេះនឹងលុបអ៊ីមែលរបស់អ្នកពីប្រអប់ទទួលពេលដែលវាត្រូវបានដំណើរការ។ <hr> <span class="doc-desc-opt"><b>Do Nothing</b></span>: ការនេះនឹងរក្សាអ៊ីម៉ែលនៅក្នុងប្រអប់សំបុត្ររបស់អ្នក។ប្រព័ន្ធនេះនឹងត្រូវកត់ត្រាលេខសម្គាល់សារនៃអ៊ីមែលរបស់អ្នកហើយព្យាយាមមិនទៅយកវាម្ដងទៀត។ទោះជាយ៉ាងណា, ជម្រើសអាចបង្កឱ្យមានការលក់សំបុត្រស្ទួននេះនឹងត្រូវបានបង្កើត។ (<em>Not Recommended</em>)
+smtp_settings:
+  title: ការកំណត់របស់ SMTP
+  content: >
+    អ៊ីម៉ែលដែលផ្ញើពី help deskអាចត្រូវបានផ្ញើតាមរយៈម៉ាស៊ីនបម្រើ SMTP ។ នេះត្រូវបានផ្ដល់អនុសាសន៍, ប្រសិនបើអាចធ្វើទៅបានព្រោះវានឹងបង្កើនលទ្ធភាពនៃការផ្តល់អ៊ីម៉ែល email delivery ហើយនឹងធ្វើឱ្យអ៊ីម៉ែលដែលទំនងជាតិចជាងត្រូវបានសម្គាល់ថាជាសារឥតបានការ spam ។
+header_spoofing:
+  title: Allow Header Spoofing
+  content: >
+    បើកជម្រើសនេះដើម្បីអនុញ្ញាតឱ្យផ្ញើអ៊ីម៉ែលតាមរយៈប្រអប់សំបុត្រនេះពីអាសយដ្ឋានផ្សេងទៀតដែលបានផ្ដល់ឱ្យក្នុង <span class="doc-desc-title">Email Address</span> ការកំណត់ខាងលើ។ <br/><br/> ការកំណត់កម្រិតខ្ពស់នេះត្រូវបានប្រើជាទូទៅនៅពេលដែលផ្ញើសំបុត្រពីឈ្មោះក្លែងក្លាយ aliases នៃប្រអប់សំបុត្រនេះ។
+

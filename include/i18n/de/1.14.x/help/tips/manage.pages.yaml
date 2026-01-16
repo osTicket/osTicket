@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Seiten
+  content: >
+    Seiten können als Mini-Content-Management-System (CMS) dienen. Sie können verschiedene Startseiten, Offline-Seiten und Dankeschön-Seiten festlegen und diese in den Helpdesk-Einstellungen und den Hilfethemen konfigurieren.
+  links:
+    - 
+      title: Helpdesk-Einstellungen
+      href: /scp/settings.php?t=pages
+type:
+  title: Typ
+  content: >
+    <span class="doc-desc-opt">Offline</span>-Seiten werden im Benutzerportal angezeigt, wenn Ihr Helpdesk deaktiviert ist. <span class="doc-desc-opt">Start</span>-Seiten werden als erstes im Benutzerportal angezeigt. <span class="doc-desc-opt">Dankeschön</span>-Seiten werden angezeigt, nachdem ein Benutzer ein Ticket übermittelt. <span class="doc-desc-opt">Andere</span>-Seiten können als einfaches Content-Management-System (CMS) verwendet werden.

@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Templat ini menentukan notifikasi kepada Pengguna bahawa satu akses pautan telah dihantar ke email. Akses pautan tercipta dengan adanya nombor tiket dan emel.
+name: "Tiket [#%{ticket.number}] Pautan Akses"
+body: >
+  <h3><strong> Hi %{recipient.name.first},</strong></h3><div> Satu permintaan pautan akses untuk tiket #%{ticket.number}telah dikemukakan bagi pihak anda untuk meja bantuan di %{url}. <br /><br /> Ikuti pautan di bawah untuk menyemak status tiket #%{ticket.number}. <br /><br /><a href="<a href="<a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Jika anda <strong> tidak </strong> membuat permintaan itu, sila memadam dan tidak mengambil kira e-mel ini. akaun anda masih selamat dan tidak ada yang telah akses kepada tiket yang diberikan. Seseorang boleh tersilap memasukkan alamat e-mel anda <br /><br />-- <br /> %{company.name}</div>

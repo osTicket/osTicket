@@ -1,0 +1,23 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+groups:
+  title: Qruplar
+  content: >
+    Qruplar agentlərin help deskdə icazələrinin təyin edilməsi üçün istifadə olunur. Qruplar həmçinin şöbələrə girişə təkan verir.
+status:
+  title: Vəziyyət
+  content: >
+    Əgər <span class="doc-desc-opt">deaktivdirsə</span>, bu qrupa təyin olunmuş agentlər daxil ola bilməz və şöbədən siqnallar &amp; qeydlər qəbul edə bilməyəcək.
+department_access:
+  title: Şöbəyə giriş
+  content: >
+    Girişə icazələri olan qrup üzvlərinin bütün şöbələrini yoxlayın.

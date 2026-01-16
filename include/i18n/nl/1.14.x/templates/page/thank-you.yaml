@@ -1,0 +1,10 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  De bedankpagina wordt zichtbaar in het klantenportaal wanneer een gebruiker een nieuw ticket heeft aangemaakt.
+name: Bedankt
+body: |
+  <div>% {ticket.name}, <br><br>Bedankt dat u contact met ons heeft opgenomen.<br><br>Een contactverzoek is aangemaakt en indien nodig zal een medewerker binnenkort contact met u op nemen.</p> <br><br>Met vriendelijke groet, <br><br>het Supportteam</div>

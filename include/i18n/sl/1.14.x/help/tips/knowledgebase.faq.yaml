@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: Vrsta sortiranja
+  content: >
+    Označite <span class="doc-desc-opt">Javno (objavljeno)</span>, če želite ta <span class="doc-desc-title"> FAQ</span> objavljen v javni bazi znanja. Pogoj je, da je tudi nadrejena skupina javno objavljena.
+  links:
+    - 
+      title: Omogoči javno bazo znanja na portalu za stranke
+      href: /scp/settings.php?t=kb

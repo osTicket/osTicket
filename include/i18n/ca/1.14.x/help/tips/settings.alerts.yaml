@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Alertes i avisos
+  content: >
+    Les Alertes i els avisos son notificacions de email enviades als agents automàticament quan s'activen diversos Tickets.
+ticket_alert:
+  title: Alerta de nou Ticket
+  content: >
+    <p>Avís enviat als Agents quan es crea un nou Ticket.</p><p class="info-banner"> <i class="icon-info-sign"></i> no s'enviara aquesta alerta si el Ticket és auto-assignat mitjançant un filtre de Tickets o un tema ajuda.</p>
+  links:
+    - 
+      title: Plantilla predeterminada per a una Alerta de un nou Ticket
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Alerta de nou missatge
+  content: >
+    Avís enviat als Agents quan l'usuari afegeix un missatge a un Ticket existent.
+  links:
+    - 
+      title: Plantilla per defecte per a un Avís de nou missatge
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Alerta de nova activitat interna
+  content: >
+    L'alerta es enviada als agents quan una activitat interna com una nota interna o la resposta d'un agent és afegida al Ticket.
+  links:
+    - 
+      title: Plantilla per defecte  d'activitat de Ticket
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: alerta de assignació del Ticket
+  content: >
+    Avís enviat als Agents en l'assignació de Ticket.
+  links:
+    - 
+      title: Plantilla per defecte d'Alerta d'assignació de Ticket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Alerta de trasllat
+  content: >
+    Avís enviat als Agents de la transferència de Ticket entre departaments.
+  links:
+    - 
+      title: Plantilla predeterminada d'Alerta de trasllat
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Alerta endarrerida de Ticket
+  content: >
+    Avís enviat als Agents quan un Ticket esdevé endarrerit basat en SLA o venciment de la data.
+  links:
+    - 
+      title: Plantilla predeterminada per a una Alerta de Ticket caducat
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Administrar SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: Alertes del sitema
+  content: >
+    Els esdeveniments significatius de sistema que s'envien a l'administrador (%{config.admin_email}). Depenent de la configuració del <span class="doc-desc-title"> Nivell de registre</span>, els actes es fan també disponibles en el <span class="doc-desc-title"> Sistema de registres</span>
+  links:
+    - 
+      title: Visualitza els registres de sistema
+      href: /scp/logs.php
+    - 
+      title: Canviar l'email de l'administrador
+      href: /scp/settings.php?t=emails

@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Πεδίο Αναζήτησης
+  0: >
+
+advanced:
+  title: Σύνθετα
+  content: >
+    Περιορίστε τις παραμέτρους αναζήτησης. Μόλις επιλέξετε τα σύνθετα κριτήρια αναζήτησης και εκτελέσετε την αναζήτηση, μπορείτε να <span class="doc-desc-title">Εξαγάγετε</span> τα δεδομένα στο κάτω μέρος της σελίδας των δελτίων.
+open_tickets_table:
+  title: Άνοιγμα Πίνακα Δελτίων
+  content: >
+    Όλα τα δελτία που τώρα είναι ανοικτά και που απαιτούν προσοχή
+ticket:
+  title: Δελτίο
+  0: >
+
+date:
+  title: Ημερομηνία
+  0: >
+
+subject:
+  title: Θέμα
+  0: >
+
+from:
+  title: Από
+  0: >
+
+priority:
+  title: Προτεραιότητα
+  0: >
+
+assigned_to:
+  title: Ανατέθηκε Στον
+  0: >
+
+export:
+  title: Εξαγωγή
+  content: >
+    Εξαγωγή των δεδομένων που εμφανίζονται αυτή τη στιγμή σε αρχείο CSV. Τα αρχεία CSV μπορούν να ανοιχτούν με οποιοδήποτε λογισμικό υπολογιστικών φύλλων (π.χ., Microsoft Excel, Apple Pages, OpenOffice, κτλ.).
+advanced_search_dialog:
+  title: Σύνθετη Αναζήτηση
+  0: >
+
+adv_keyword:
+  title: Αναζήτηση λέξεων-κλειδιών
+  content: >
+    Εντοπίστε αποτελέσματα με βάση το θέμα και τα σώματα μηνυμάτων στο νήμα δελτίων, όπως επίσης κάθε περιεχόμενο κειμένου που συνδέεται με ειδικά πεδία για τους χρήστες και τα δελτία.
+adv_date_range:
+  title: Αναζήτηση με βάση Χρονικό Διάστημα
+  content: >
+    Ορισμός εδώ
+merge_types:
+  title: Τύποι Συγχωνεύσεων
+  content: >
+    <b>Συγχώνευση Νημάτων:</b> Νήματα από όλα τα αιτήματα θα εμφανίζονται με χρονολογική σειρά.</br><b>Ξεχωριστά Νήματα:</b> Νήματα από τα αιτήματα θα εμφανίζουν ένα αίτημα τη φορά.
+reply_types:
+  title: Τύποι Αποκρίσεων
+  content: >
+    <b>Απόκριση σε Όλους:</b> Η απόκριση αποστέλλεται στο χρήστη και τους συνεργάτες που επιλέγετε να συμπεριλάβετε.</br><b>Απόκριση στο Χρήστη:</b> Η απόκριση αποστέλλεται μόνο στο Χρήστη, όχι τους Συνεργάτες.</br><b>Χωρίς απόκριση με Email:</b> Δεν αποστέλλονται ειδοποιήσεις με email, ωστόσο, η απόκριση του Εκπροσώπου είναι ορατή σε <b>Όλους</b> τους Χρήστες κατά την εμφάνιση του δελτίου.

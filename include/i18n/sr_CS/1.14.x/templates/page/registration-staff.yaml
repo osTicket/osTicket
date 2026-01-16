@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Ovaj šablon definiše početni imejl (opciono) poslat agentima kada je nalog otvoren u njihovo ime.
+name: "Dobro došli u osTicket"
+body: >
+  <h3><strong>Pozdrav %{recipient.name.first},</strong></h3> <div> Kreirali smo Vam korisnički nalog u našoj tehničkoj podršci na %{url}.<br /> <br /> Molimo Vas da kliknete na link kako biste potvrdili svoj nalog i dobili pristup svojim tiketima.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška<br /> %{company.name}</em> </div>

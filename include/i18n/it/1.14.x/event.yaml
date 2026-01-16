@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: creato
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: riaperto
+  description:
+- 
+  id: 4
+  name: assegnato
+  description:
+- 
+  id: 5
+  name: rilasciato
+  description:
+- 
+  id: 6
+  name: trasferito
+  description:
+- 
+  id: 7
+  name: consultato
+  description:
+- 
+  id: 0
+  name: scaduto
+  description:
+- 
+  id: 9
+  name: modificato
+  description:
+- 
+  id: 10
+  name: visualizzato
+  description:
+- 
+  id: 11
+  name: errore
+  description:
+- 
+  id: 12
+  name: collab
+  description:
+- 
+  id: 13
+  name: rinviare
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: fuso
+  description:
+- 
+  id: 16
+  name: non collegato
+  description:
+- 
+  id: 17
+  name: collegato
+  description:

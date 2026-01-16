@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  La pàgina d'inici es refereix al contingut visual del Portal del client. La plantilla modifica el contingut vist a dalt dels dos enllaços, <strong>obriu un nou Ticket</strong> i <strong>Comprovar l'estat del Ticket</strong>.
+name: Pàgina d'arribada
+body: >
+  <h1>Benvinguts al Centre de Suport</h1>
+  <p>
+  Amb la finalitat d'agilitzar les tasques d'atenció al client, utilitzem un sistema de suport per tiquets. A cada incidència se li assigna un número unívoc de tiquet que podeu utilitzar per rastrejar el progrés de les nostres respostes en línia. Per a la vostra informació us mostrem tot l'historial de cadascuna de les vostres incidències. Cal que tingueu una adreça real de correu electrònic per obrir un nou tiquet.
+  </p>

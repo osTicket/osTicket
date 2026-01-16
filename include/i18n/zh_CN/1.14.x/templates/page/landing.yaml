@@ -1,0 +1,12 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  登陆页即客户入口初始印象的内容。此模板修改了上述内容，两处链接如下<strong>打开新咨询</strong>和<strong>检查咨询状态</strong>。
+name: 着陆中
+body: >
+  <h1>欢迎来到支持中心</h1>
+  <p>为了简化支援请求，也为更好地为您服务，我们使用了此支援咨询系统。每一条支援的请求都会被分配一个唯一的咨询号码，您可以用该咨询号码追踪进度或在线反馈。供您参考，我们还提供一个完整的存档以保留您所有的支援请求历史记录。如要提交一个咨询，您必须拥有一个有效的电子邮件地址。
+  </p>

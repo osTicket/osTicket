@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Phản hồi trước
+  content: >
+    Tạo một<span class="doc-desc-title">Phản hồi trước</span>có thể bao gồm trong lệnh phản hồi. Nó có thể được sử dụng như một<span class="doc-desc-title">Phản hồi tự động cho lệnh</span>cài đặt bởi<span class="doc-desc-title">Bộ lọc lệnh</span>.
+  links:
+    - 
+      title: Cài đặt bộ lọc lệnh
+      href: /scp/filters.php
+canned_attachments:
+  title: Thư mục đính kèm trước
+  content: >
+    Đính kèm một thư mục bạn muốn tự động có trong phần phản hồi lệnh, sử dụng<span class="doc-desc-title">Phản hồi trước mới</span>.

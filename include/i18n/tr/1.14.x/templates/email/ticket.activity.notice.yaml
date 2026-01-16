@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Bilete cevap veren veya mesaj gönderen katılımcılara bilgi gönderildi.
+subject: |
+  Ynt: %{ticket.subject}
+body: |
+  <h3><strong>Sayın %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em>,  sizin dahil olduğunuz bir bilete mesaj ekledi.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Bu epostayı almanızın sebebi ilgili bilet üzerinde çalışıyor görünmenizdir.<a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Bilet ile ilgili işlem yapmak için bu epostaya cevap verin veya Bilet ile ilgili bütün detaylar için <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >burayı tıklayın</a> .</em>
+  </div>

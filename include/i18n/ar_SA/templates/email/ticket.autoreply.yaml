@@ -1,0 +1,26 @@
+---
+notes: |
+  ترسل للمستخدم في حال إضافة رد نسبق بشمل تلقائي للتذكرة حال إنشائها.
+  
+  المتغيرات المتاحة للاستبدال: %{ticket.*}, %{response}
+subject: |
+  إعادة إرسال: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Dear %{recipient.name.first},</strong></h3>
+  طلب الدعم تم إنشاؤه وإسناد تذكرة <a<br>
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> مع الرد التلقائي الآتي
+  <br>
+  <br>
+  العنوان: <strong>%{ticket.topic.name}</strong>
+  <br>
+  الموضوع: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">فريق عمل %{company.name} ,<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>نرجوا أن تجد في هذا الرد إجابة كاملة عن أسئلتك. إذا كنت ترغب في إضافة تعليقات أو معلومات أخرى، الرجاء الرد على هذا البريد الإلكتروني أو  <a href="%{recipient.ticket_link}"><span<br>
+  style="color: rgb(84, 141, 212);" >تسجيل الدخول إلى حسابك</span></a> لتصفح كامل أرشيف طلبات الدعم الخاص بك. </em></div>

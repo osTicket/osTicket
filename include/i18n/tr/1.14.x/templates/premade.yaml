@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: osTicket nedir? (Örnek)
+  response: |
+    osTicket çokça kullanılan açık kaynak kodlu destek talep sistemidir. Yüksek maliyetli, kamaşık müşteri destek sistemlerine cazip bir alternatif olup basit, hafif, güvenilir, açık kaynak kodlu, web tabanlı ve kurulumu ve kullanımı kolaydır.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Önceden Hazırlanmış Ekler!
+- 
+  isenabled: 1
+  title: Örnek (değişkenler ile birlikte)
+  response: |
+    Merhaba %{ticket.name.first},
+    <br>
+    <br>
+    %{ticket.create_date} tarihinde oluşturulan #%{ticket.number} numaralı talebiniz %{ticket.dept.name} bölümündedir.
+  0: |
+

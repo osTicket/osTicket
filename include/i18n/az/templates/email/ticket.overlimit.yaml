@@ -1,0 +1,17 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+notes: |
+  İstifadəçilər maksimum sorğu açma limitini keçəndə göndərin. Limit admin paneldə konfiqurasiya olunandır və xüsusi e-poçt ünvanı tərəfindən açılan sorğuların sayı ilə müəyyən olunur.
+subject: |
+  Sorğu açma limiti başa çatdı
+body: |
+  <h3><strong>Əziz %{ticket.name.first},</strong></h3>
+  Siz maksimum sorğu açma limitini keçmisiniz. Başqa sorğu açmaq üçün göndərilən sorğulardan birini bağlamalısınız. Açılmış sorğunu yeniləmək və ya şərh əlavə etmək üçün <a
+  href="%{url}/tickets.php?e=%{ticket.email}">bizim helpdeskə daxil olun</a>.
+  <br>
+  <br>
+  Çox sağ olun,<br/>
+  Sorğu dəstək sistemi

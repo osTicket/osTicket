@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nov zahtevek
+  content: >
+    Omogoči, da se ob kreiranju zahtevka avtomatsko pošlje obvestilo pošiljatelju.
+  links:
+    - 
+      title: Predloga avtomatskega odgovora na novi zahtevek
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nov zahtevek osebja podpore
+  content: >
+    Obvestino je poslano ko agent ustveri nov zahtevek v imenu uporabnika. <em>Agent lahko zaobide to ko ustvarja nov zahtevek.</em>
+  links:
+    - 
+      title: Predloga obvestila za nov zahtevek
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Potrdilo o novem sporočilu
+  content: >
+    Potrditveno obvestilo je poslano, ko je novo sporočilo pripeto obstoječemu zahtevku.
+  links:
+    - 
+      title: Predloga za potrdilo novega sporočila
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Obvestilo o novem sporočilu
+  content: >
+    Sporočila prejeta od prijavitelja vsem drugim sodelujočim na zahtevku.
+  links:
+    - 
+      title: Predloga za novo aktivnost
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Obvestilo o doseženem limitu
+  content: >
+    Obvestilo o zavrnjenem zahtevku poslano uporabniku zaradi napake <span class="doc-desc-title">Maksimalno število odprtih zahtevkov</span>.
+  links:
+    - 
+      title: Predloga za obvestilo o preseženem limitu
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Nastavi <em>maximalno število odprtih zahtevkov</em>
+      href: /scp/settings.php?t=tickets

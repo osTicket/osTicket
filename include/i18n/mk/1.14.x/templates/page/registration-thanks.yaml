@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Овој шаблон дефинира содржина која ќе биде прикажана на клиентеите откако ќе го потврдат нивниот акаунт. Оваа страна треба да го информира корисникот  дека регистрацијата е завршена и дека сега корисникот може да поднесува тикет или да пристапува на постоечки тикети.
+name: "Корисничката сметка е потврдена!"
+body: >
+  <div> <strong>Ви благодариме што креиравте кориснички акаунт.</strong><br /> <br />Ја потврдивте вашата меил адреса и успешно го активиравте вашиот акаунт. Сега можете да отворите нов тикет или да управувате со постоечки тикети.<br /> <br /> <em>Вашиот центар за техничка поддршка</em><br /> %{company.name} </div>

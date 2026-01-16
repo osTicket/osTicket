@@ -115,9 +115,9 @@ $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
                     $default = '<small><em>(Default)</em></small>';
                 ?>
             <tr id="<?php echo $id; ?>">
-                <td align="center">
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $id; ?>"
-                    <?php echo $sel ? 'checked="checked"' :'' ; ?>>
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $id; ?>"
+                    <?php echo $sel ? 'checked="checked"' :'' ; ?>><label></label></p>
                 </td>
                 <td>&nbsp;<a href="slas.php?id=<?php echo $id;
                     ?>"><?php echo Format::htmlchars($sla->getName());

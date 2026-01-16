@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  これは、スタッフのログインページに表示される最初のメッセージとバナーです。最初の入力フィールドは、上部に表示される赤でフォーマットされたテキストを示します。後者のテキスト領域は、免責事項となるバナーコンテンツ用です。
+name: "認証が必要です。"
+body: ""

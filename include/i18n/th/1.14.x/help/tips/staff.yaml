@@ -1,0 +1,25 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: บรรทัดลายเซ็นของพนักงาน
+  content: |
+    สร้างลายเซ็นเจ้าหน้าที่สำหรับการตอบกลับ Ticket โดยลายเซ็นนี้จะปรากฏเป็นตัวเลือกในส่วนท้ายของการตอบกลับ Ticket
+type:
+  title: บทบาท
+  content: |
+    ผู้ดูแลระบบจะมีสิทธิ์ในการเข้าถึงแผงควบคุมผู้ดูแลระบบ และเจ้าหน้าที่เท่านั้นที่จะเข้าถึงการจัดการ Ticket และฐานความรู้
+group:
+  title: กำหนดสังกัด (กลุ่ม)
+  content: |
+    สมาชิกกลุ่มจะกำหนดหน้าที่ของเจ้าหน้าที่ในระบบ เข้าหน้าการจัดการกลุ่มเพื่อกำหนดว่าอะไรบ้างที่เจ้าหน้าที่จะช่วยเหลือ
+notes:
+  title: บันทึกภายใน
+  content: |
+    Place internal notes regarding staff; notes are only visible to
+    staff whose account type is Admin

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nový požadavek
+  content: >
+    Nastavením povolíte odeslání automatické odpovědi zadavateli nového požadaavku.
+  links:
+    - 
+      title: Šablona automatické odpovědi při zadání nového požadavku
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nový požadavek vytvořený pracovníkem
+  content: >
+    Oznámení uživateli, že za něj byl pracovníkem zadán požadavek. <em> Pracovník může toto nastavení přepsat při zadání požadavku.</em>
+  links:
+    - 
+      title: Šablona upozornění na nový požadavek
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Potvrzení nové zprávy
+  content: >
+    Potvrzovací oznámení, že k existujícímu požadavku byla zaslána nová zpráva.
+  links:
+    - 
+      title: Šablona potvrzení nové zprávy
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Upozornění na novou zprávu
+  content: >
+    Oznámení uživateli a ostatním pracovníkům, že byla zadána nová zpráva k existujícímu požadavku.
+  links:
+    - 
+      title: Šablona pro zprávu o nové události
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Oznámení o překročení limitu
+  content: >
+    Oznámení zaslané uživateli při odmítnutí požadavku z důvodu překročení <span class="doc-desc-title">maxima otevřených požadavků</span>.
+  links:
+    - 
+      title: Šablona oznámení o překročení limitu
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Nastavení <em>maxima otevřených požadavků</em>
+      href: /scp/settings.php?t=tickets

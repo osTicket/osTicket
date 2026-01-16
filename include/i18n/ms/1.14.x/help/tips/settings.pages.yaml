@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Maklumat syarikat
+  content: >
+    Hal ini merujuk kepada syarikat atau organisasi yang akan mendapat manfaat daripada perisian osTicket dan kakitangan sokongannya. Maklumat di sini akan muncul dalam tandatangan e-mel (iaitu, pengaki) apabila tiket diberi maklum balas oleh ejen.
+  links:
+    - 
+      title: Borang maklumat syarikat
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Halaman Utama
+  content: >
+    <span class="doc-desc-title">Halaman Utama</span> dipaparkan di muka depan laman web sokongan anda.
+offline_page:
+  title: Halaman talian tutup
+  content: >
+    <span class="doc-desc-title">Halaman Luar Talian</span> dipaparkan di dalam laman web sokongan apabila meja bantuan di luar talian, lihat Status Panel Admin -&gt; Tetapan -&gt; Sistem -&gt; Mejabantuan.
+default_thank_you_page:
+  title: Halaman Terima-Kasih lalai
+  content: >
+    <span class="doc-desc-title">halaman terima- kasih </span> dipaparkan kepada pelanggan apabila <span class="doc-desc-title"> Pelanggan </span> menyerahkan tiket baru. <br/><br/><span class="doc-desc-title">Terima kasih </span>halaman boleh dikaitkan dengan topik bantuan.
+logos:
+  title: Logo
+  content: >
+    Anda boleh menyesuaikan <span class="doc-desc-title">Logo</span> yang akan dipaparkan kepada Pelanggan dalam Portal Pelanggan (iaitu, Tapak Sokongan anda).
+upload_a_new_logo:
+  title: Memuat naik logo baru
+  content: >
+    Pilih imej dalam .gif , .jpg atau .png format. Kami akan berkadaran mengubah saiz paparan imej anda. Kami tidak akan, bagaimanapun , mengubah saiz data imej. Oleh itu, untuk masa beban kelajuan, ia adalah disyorkan anda menyimpan imej berhampiran dengan saiz imej lalai (817px &times; 170px).
+backdrops:
+  title: Latar belakang
+  content: >
+    Anda boleh menyesuaikan <span class="doc-desc-title">Backdrop</span> yang akan dipaparkan pada halaman login kakitangan.
+upload_a_new_backdrop:
+  title: Muat naik Backdrop baru
+  content: >
+    Pilih imej dalam .gif itu, .jpg atau .png format. Kami berkadaran akan mengubah saiz paparan imej anda. Kami tidak akan, bagaimanapun , mengubah saiz data imej. Oleh itu, untuk kali beban kelajuan, ia adalah disyorkan bahawa anda menyimpan imej anda agak kecil (di bawah megabait a). Perhatikan juga bahawa tetapan muat naik PHP max dikenakan.

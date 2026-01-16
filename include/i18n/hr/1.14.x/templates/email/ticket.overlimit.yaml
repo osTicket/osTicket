@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Obavijest poslana korisnicima kada prevrše maksimalan broj otvorenih kartica. Limit se može konfigurirati u administratorskom sučelju, a određuje ga broj otvorenih kartica od strane pojedinačnog korisnika.
+subject: |
+  Dostignut limit otvorenih kartica
+body: |
+  <h3><strong>Poštovanje %{ticket.name.first},</strong></h3>
+  Dostigli ste maksimalan dopušten broj otvorenih kartica. Kako biste mogli otvoriti novu karticu ,najmanje jedna od vaših otvorenih kartica mora biti zatvorena. Kako biste uredili ili komentirali na kartici jednostavno se prijavite u centar za podršku na <a
+  href="%{url}/tickets.php?e=%{ticket.email}"></a>.
+  <br>
+  <br>
+  Hvala Vam,<br/>
+  Vaša tehnička podrška

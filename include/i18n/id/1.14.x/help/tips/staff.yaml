@@ -1,0 +1,29 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Baris Tandatangan Staf
+  content: |
+    Buat tanda tangan staf untuk menanggapi tiket. Tandatangan ini
+    akan muncul sebagai pilihan di bawah respon tiket
+type:
+  title: Jenis akun
+  content: |
+    Admin memiliki hak istimewa untuk mengakses Panel Admin. Staf hanya
+    memiliki akses untuk mengelola tiket dan basis pengetahuan
+group:
+  title: Group Ditugaskan
+  content: |
+    Keanggotaan kelompok mendefinisikan peran staf dalam sistem. Kunjungi
+    Halaman manajemen kelompok untuk menentukan apa akses staf ini harus dengan
+    help desk
+notes:
+  title: Catatan Internal
+  content: |
+    Tempatkan catatan internal tentang staf; Catatan hanya dapat dilihat oleh
+    Staf yang tipe akunnya Admin

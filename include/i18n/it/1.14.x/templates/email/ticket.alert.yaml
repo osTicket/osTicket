@@ -1,0 +1,46 @@
+---
+#Email template: ticket.alert.yaml
+#Sent to a staff member when a new ticket is created in the system. This
+#applies to tickets created via email, the web portal, or the api.
+#---
+notes: |
+  Inviato a un membro dello staff quando viene creato un nuovo ticket nel sistema. Questo vale per i ticket creati tramite l'api, il portale web o e-mail.
+subject: |
+  Avviso nuovo ticket
+body: |
+  <h2>Ciao %{recipient.name},</h2>
+  E' stato creato un nuovo ticket #%{ticket.number}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>Da</strong>:
+      </td>
+      <td>
+          %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <strong>Reparto</strong>:
+      </td>
+      <td>
+          %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Per visualizzare o rispondere al ticket, <a
+  href="%{ticket.staff_link}">collegati</a> al sistema di supporto.</div>
+  <em style="font-size: small">Il tuo Team di Supporto</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"
+      style="width: 126px; " alt="Powered By osTicket"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

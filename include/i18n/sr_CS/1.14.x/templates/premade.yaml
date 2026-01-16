@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Šta je osTicket (primer)?
+  response: |
+    osTicket je sistem za klijentsku podršku koji je otvorenog koda i široke upotrebe, interesantna alternativa skupim i komplikovanim sistemima za podršku - jednostavan, ne opterećuje resurse, pouzdan, veb-orijentisan i lak za instalaciju i upotrebu.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Unapred pripremlјeni prilozi su fenomenalni!
+- 
+  isenabled: 1
+  title: Primer (sa promenlјivama/varijablama)
+  response: |
+    Pozdrav %{ticket.name.first},
+    <br>
+    <br>
+    Vaš tiket #%{ticket.number} kreiran dana %{ticket.create_date} je u %{ticket.dept.name} odeljenju.
+  0: |
+

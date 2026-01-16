@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Ez a kezdeti üzenet és banner jelenik meg a munkatárs bejelentkezési oldalon. Az első beviteli mezőben lehet megadni a pirosan formázott, az oldal tetején megjelenő szöveget. A későbbi szövegmezőben a megjegyzésként szolgáló banner tartalmát lehet megadni.
+name: "Hitelesítés szükséges"
+body: ""

@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    Hvis deaktiveret eller arkiveret, er denne <span class="doc-desc-title">Afdeling</span> ikke tilgængeligt.
+type:
+  title: Type
+  content: >
+    Vælg <span class="doc-desc-opt"> privat</span>, hvis du ønsker at maske tildelinger til denne afdeling i portalen klient.  Derudover når mærket som <span class="doc-desc-opt"> privat</span>, vises <span class="doc-desc-title"> Afdeling signaturen</span> ikke i Email-svar. <br/> <br/> Mindst én afdeling skal være <span class="doc-desc-opt"> offentlig</span>
+email:
+  title: Email
+  content: >
+    Email adressen der bruges når svar sendes til brugerne, når agenter sende svar til sager.
+template:
+  title: Skabelon sæt
+  content: >
+    Email <span class="doc-desc-title"> Skabelon sæt</span> bruges til Auto-svar og påmindelser &amp; bekendtgørelser for sager sendes til denne afdeling.
+  links:
+    - 
+      title: Administrer Skabeloner
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Service Level Agreement for sager sendes til denne afdeling.
+  links:
+    - 
+      title: Administrere SLA planer
+      href: /scp/slas.php
+schedule:
+  title: Tidsplan
+  content: >
+    Tidsplanen der benyttes af SLA til at bestemme om sager sendt til denne afdeling er forfaldne.<br><br> Denne indstilling prioriteres over systemets og SLA's tidsplans indstillinger.
+  links:
+    - 
+      title: Administrer tidsplaner
+      href: /scp/schedules.php
+manager:
+  title: Afdelingsleder
+  content: >
+    Vælg en <span class="doc-desc-title"> leder</span> for denne afdeling. <br/> <br/> Ledere kan konfigureres til at modtage særlige advarsler og også har ret til at fjerne tildelingen af sager.
+  links:
+    - 
+      title: Administrere påmindelser &amp; Meddelelser
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Påmindelser &amp; Meddelelser modtagere
+  content: >
+    Vælg modtagere af konfigurerede <span class="doc-desc-title"> påmindelser &amp; Meddelelser</span>.
+  links:
+    - 
+      title: Konfigurer påmindelser &amp; Meddelelser
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Sags tildeling restriktioner
+  content: >
+    Bestem, om sager kan tildeles alle agenter, agenter med adgang til primær eller udvidet afdeling eller kun agenter med adgang til primærafdelingen.
+disable_auto_claim:
+  title: Deaktiver auto ejerskab
+  content: >
+    Check dette for at <strong>deaktivere</strong> auto ejerskab på svar fra denne afdeling. <br><br> Agenter kan stadig manuelt tage ejerskab til ikke tildelte sager
+disable_reopen_auto_assign:
+  title: Deaktiver auto tildeling ved genåbning
+  content: >
+    Check denne for at <strong>deaktivere</strong> auto-tildeling af genåbnet sager for denne afdeling. <br><br> ellers, vil sagen blive auto tildelt til den sidste agent der svarede
+auto_response_settings:
+  title: Autosvar Indstillinger
+  content: >
+    Dette gør det muligt at tilsidesætte indstillingerne for global Autosvar for denne afdeling.
+new_ticket:
+  title: Nye sags autosvar
+  content: >
+    Du kan deaktivere Auto-svar sendt til brugeren, når en ny sag er oprettet og distribueres til denne afdeling.
+new_message:
+  title: Ny besked Autosvar
+  content: >
+    Du kan deaktivere Auto-svar sendt til brugeren for bekræfte en ny besked for sag i denne afdeling.
+auto_response_email:
+  title: Autosvar Email
+  content: >
+    Vælg en email adresse, hvorfra Autosvar sendes til denne Afdeling.
+department_access:
+  title: Gruppe adgang
+  content: >
+    Giver mulighed for ansatte i andre afdelinger får adgang til denne afdelings sager.
+department_signature:
+  title: Afdelingens Signatur
+  content: >
+    Signaturen er gjort tilgængeligt som et valg, for <span class="doc-desc-opt">Offentlige</span> afdelinger, på medarbejder svar.

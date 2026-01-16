@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Овај шаблон дефинише страну која се приказује клијентима после комплетирања регистрационе форме. Шаблон треба да помене да им је систем послао еМаил поруку са линком за потврду и наредне кораке у регистрационом процесу.
+name: "Регистрација налога"
+body: >
+  <div><strong>Хвала Вам што сте регистровали налог.</strong><br/> <br /> Ми ћемо Вам послати еМаил поруку на адресу коју сте унијели. Пратите линк који смо Вам послали у еМаил поруци да би потврдили Ваш налог и омогућили приступ Вашим тикетима. </div>

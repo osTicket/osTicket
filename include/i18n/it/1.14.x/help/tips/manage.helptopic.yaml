@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informazioni sull' Argomento di Aiuto
+  content: >
+    <span class="doc-desc-title">Categorie di Aiuto</span> aiutano a capire quale tipo di necessità l'Utente ha, e guidano il modo in cui il ticket viene indirizzato o assigned.
+topic:
+  title: Nome Categoria
+  content: >
+    Nome unico della Categoria di Aiuto.
+status:
+  title: Stato
+  content: >
+    Se disabilitata o archiviata, questa <span class="doc-desc-title">Categoria di Aiuto</span> non sarà disponibile.
+type:
+  title: TIPO
+  content: >
+    Se un <span class="doc-desc-title"> Categoria di Aiuto</span> è etichettato come privato, sarà disponibile soltanto tra le opzioni degli Agenti nel momento in cui apriranno un nuovo Ticket tramite il pannello personale.
+parent_topic:
+  title: Argomento principale
+  content: >
+    Selezionare l'argomento principale a cui apparterrà questo <span class="doc-desc-title"> argomento della guida</span>. L'argomento principale apparirà per primo nell'elenco con questo <span class="doc-desc-title"> argomento della guida</span> elencato dietro subito dopo il padre.
+custom_form:
+  title: Form Personalizzato
+  content: >
+    Moduli personalizzati vi aiuterà ad acquisire informazioni più specifiche da parte degli utenti che sono rilevanti per questo <span class="doc-desc-title"> argomento della guida</span>.
+  links:
+    - 
+      title: Gestisci Form Personalizzati
+      href: /scp/forms.php
+priority:
+  title: Priorità
+  content: >
+    Seleziona la priorità assegnata ai nuovi Ticket relativi a questa <span class="doc-desc-title">Categoria di Aiuto</span>. <br><br>I filtri dei Ticket possono sovrascrivere una nuova prorità del Ticket.
+department:
+  title: Reparto
+  content: >
+    Scegliere il reparto a cui verranno indirizzati i nuovi ticket sotto questo argomento della guida.
+  links:
+    - 
+      title: Gestisci i reparti
+      href: /scp/departments.php
+sla_plan:
+  title: SLA
+  content: >
+    Scegliere il piano di SLA collegato con questo <span class="doc-desc-title"> argomento della guida</span>. <br><br>Questa selezione sovrascriverà qualsiasi selezionato piano SLA del reparto
+  links:
+    - 
+      title: Gestire i piani di SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Pagina di Ringraziamento
+  content: >
+    Scegli la pagina di ringraziamento a cui l'Utente è indirizzato dopo l'apertura del Ticket sotto questa <span class="doc-desc-title"> Categoria di Aiuto </span>.
+  links:
+    - 
+      title: Gestisci le Pagine di Ringraziamento
+      href: /scp/pages.php
+auto_assign_to:
+  title: Autoassegnamento di Nuovi Tickets
+  content: >
+    Facoltativamente, si può scegliere un agente o Team a cui auto-assegnare i ticket aperti con questo <span class="doc-desc-title"> argomento della guida</span> <br><br> I filtri del Ticket possono sovrascrivere l'assegnazione.
+  links:
+    - 
+      title: Gestisci lo Staff e i Team
+      href: /SCP/staff.php
+ticket_auto_response:
+  title: Auto-risposta ai Ticket
+  content: >
+    Se selezionata, l'impostazione disattiverà l'auto-risposte al nuovo ticket per questo <span class="doc-desc-title"> argomento della guida</span>. <br><br>Ciò scavalca l'impostazione per il <span class="doc-desc-title"> reparto</span> così come quella globale dell'<span class="doc-desc-title"> Autorisponditore</span>.
+  links:
+    - 
+      title: Impostazioni di autorisponditore
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Numeri di ticket personalizzato
+  content: >
+    Scegliere "Custom" qui per ignorare il ticket predefinito di sistema numerazione formato per ticket creati in questo argomento della guida.  Vedere i suggerimenti di aiuto alle impostazioni / ticket pagina per maggiori dettagli sulle impostazioni.

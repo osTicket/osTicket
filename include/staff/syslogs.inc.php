@@ -150,9 +150,9 @@ else
                     $sel=true;
                 ?>
             <tr id="<?php echo $row['log_id']; ?>">
-                <td align="center" nowrap>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>> </td>
+                <td align="center" nowrap><!--osta-->
+                  <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>"
+                            <?php echo $sel?'checked="checked"':''; ?>><label></label></p></td>
                 <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
                 <td>&nbsp;<?php echo Format::daydatetime($row['created']); ?></td>
@@ -208,3 +208,6 @@ endif;
      </p>
     <div class="clear"></div>
 </div>
+<script><!--osta-->
+$( "#msg_warning,#msg_error,#msg_notice,#msg_alert" ).insertBefore( $( "form[name=\"logs\"]" ) );
+</script>

@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Täitmise järjekord
+  content: >
+    Sisestage number, mis kontrollib filtri prioriteeti. Mida väiksem on number, seda suurem on prioriteet, mida see filter täidab teise filtri vastu, millel võib olla kõrgem prioriteet.<br><br>Kui soovid, et see filter oleks viimane, mida vastavuse korral rakendatakse, siis aktiveeri <span class="doc-desc-title">lõpeta vastavuse korral edasine töötlemine</span>.
+target_channel:
+  title: Kanal
+  content: >
+    Vali <span class="doc-desc-title">kanal</span> oma <span class="doc-desc-title">piletite filtrile</span>. <span class="doc-desc-title">Kanal</span> on allikaks, mille kaudu pilet süsteemi jõuab. <br><br>Näiteks, kui valid <span class="doc-desc-opt">veebi vorm</span> ning soovid rakendada<span class="doc-desc-title">piletite filtrit</span> neile piletitele, mis on pärit veebivormilt kliendi portaalist.
+rules_matching_criteria:
+  title: Reeglite sobitamise kriteeriumid
+  content: >
+    Vali, kui paindlike <span class="doc-desc-title">pileti filtri</span> vasted soovid. Kui soovid, et <span class="doc-desc-title">pileti filter</span> vastaks vähemalt ühele tingimusele ja siis peatuks, vali <span class="doc-desc-opt">vähemalt üks sobiv</span>. Kui aga soovid, et <span class="doc-desc-title">pileti filtri</span> <em><strong>kõik tingimused</strong></em> oleksid täidetud, vali <span class="doc-desc-opt">kõik peavad sobima</span>.
+reject_ticket:
+  title: Lükka pilet tagasi
+  content: >
+    Kui see on lubatud, siis edasine töötlemine lõpetatakse ja kõiki teisi allpool olevaid tegevusi ignoreeritakse.
+reply_to_email:
+  title: Vasta emailile
+  content: >
+    Luba see, kui tahad oma kasutajatoel lisada emaili kliendil<span class="doc-desc-title">Vastus kellele</span> päis. See väli on asjakohane vaid siis, kui <span class="doc-desc-title">kanal</span> ülalpool sisaldab <span class="doc-desc-opt">emaili</span>.
+ticket_auto_response:
+  title: Keela piletite automaatvastaja
+  content: >
+    <em>Pea meeles: See kirjutab üle mistahes <span class="doc-desc-title">osakonna</span> või <span class="doc-desc-title">automaatvastuse seaded</span>.</em>
+canned_response:
+  title: Ettevalmistatud automaatvastus
+  content: >
+    Vali <span class="doc-desc-title">ettevalmistatud vastus</span>, mille soovid saata <span class="doc-desc-title">pileti filtri</span> rakendumise korral. <span class="doc-desc-title">Uue pileti automaatvastuse</span> mall sõltub sellest, milline <span class="doc-desc-title">mallide kogum</span> on vaikimisi määratud või, mis <span class="doc-desc-title">osakonnale</span> suunatud.
+  links:
+    - 
+      title: Halda ettevalmistatud vastuseid
+      href: /scp/canned.php
+    - 
+      title: Halda mallide kogumeid
+      href: /scp/templates.php
+    - 
+      title: Uue pileti automaatvastuse mall
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Osakond
+  content: >
+    Vali, millisele <span class="doc-desc-title">osakonnale</span> sa tahad, et see suunatakse vastavalt rakenduvale <span class="doc-desc-title">piletite filtrile</span>.
+  links:
+    - 
+      title: Halda osakondi
+      href: /scp/departments.php
+priority:
+  title: Tähtsus
+  content: >
+    Vali <span class="doc-desc-title">prioriteedi</span> tase, mida soovid sobitada <span class="doc-desc-title">pileti filtri</span> vastetele. <br /><br /><em>Pea meeles: see kirjutab üle <span class="doc-desc-title">osakonna</span> ja <span class="doc-desc-title">abiteema</span> seaded.</em>
+sla_plan:
+  title: TTL plaan
+  content: >
+    Vali <span class="doc-desc-title">TTL plaan</span>, mida soovid rakendada <span class="doc-desc-title">piletite filtri</span> tulemustele.
+  links:
+    - 
+      title: Halda TTL plaane
+      href: /scp/slas.php
+auto_assign:
+  title: Automaatne suunamine
+  content: >
+    Vali agent või meeskond, kellele vastavalt <span class="doc-desc-title">piletite filtrile</span> see lahendamiseks suunatakse.
+  links:
+    - 
+      title: Halda agente
+      href: /scp/staff.php
+    - 
+      title: Halda meeskondi
+      href: /scp/teams.php
+help_topic:
+  title: Abiteema
+  content: >
+    Vali <span class="doc-desc-title">abiteema</span>, mida seostatakse sellega vastavalt <span class="doc-desc-title">piletite filtrile</span>.
+  links:
+    - 
+      title: Halda abiteemasid
+      href: /scp/helptopics.php
+admin_notes:
+  title: Administraatori märkmed
+  content: >
+    Need märkmed on nähtavad ainult neile, kelle konto tüübiks on ‘<span class="doc-desc-title">administraator</span>.’

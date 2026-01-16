@@ -1,0 +1,36 @@
+---
+#Email template: task.alert.yaml
+#Sent to an agent when a new task is created in the system.
+#---
+notes: |
+  Wird an einen Agenten versendet, wenn eine neue Aufgabe im System erstellt wird.
+subject: |
+  Benachrichtigung bei neuer Aufgabe
+body: |
+  <h2>Hallo %{recipient.name},</h2>
+  eine neue Aufgabe <a href="%{task.staff_link}">#%{task.number}</a> wurde erstellt
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+   <td>
+   <strong>Abteilung</strong>:
+   </td>
+   <td>
+   %{task.dept.name}
+   </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{task.description}
+  <br>
+  <br>
+  <hr>
+  <div>Um das Ticket zu betrachten/beantworten, bitte am Support-Ticket-System <a href="%{task.staff_link}">anmelden</a></div>
+  <em style="font-size: small">Ihr freundliches Support-Ticket-System</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      style="width: 126px; " alt="Powered By osTicket"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

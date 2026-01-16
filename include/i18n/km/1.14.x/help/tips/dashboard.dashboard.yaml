@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: សកម្មភាព លិខិត
+  content: >
+    ជ្រើសចន្លោះ កាលបរិច្ឆេទ សម្រាប់ Graph និង Table (cf. <span class="doc-desc-title">Statistics</span>) ខាងក្រោមដើម្បីផ្តោតទៅលើ ទិន្នន័យដែលត្រូវគ្នាណាមួយ។ Graph ខាងក្រោមនេះនឹងឆ្លុះបញ្ចាំងពីទិដ្ឋភាពទូទៅ នៃទិន្នន័យរបស់ប្រព័ន្ធទាំងមូល (i.e., population) ។ ទោះជាយ៉ាងណា, អ្នកអាចរុករកតាមរយៈ <span class="doc-desc-title">Statistics </span>តារាងខាងក្រោមផ្តោតទៅលើប្រធានបទ ដែលអ្នកមានចំណាប់អារម្មណ៍ (e.g., Department, Topics, ឬ Staff). លើសពីនេះទៀត, អ្នកអាចទាញចេញទិន្នន័យណាមួយដែលបានបង្ហាញនៅក្នុងតារាង <span class="doc-desc-title">Statistics </span>.
+report_timeframe:
+  title: របាយការណ៍ពេលវេលា
+  content: >
+    ជ្រើសរើសកាលបរិច្ឆេទចាប់ផ្តើម សំរាប់ទិន្នន័យគំរូដែលអ្នកពេញចិត្តដោយប្រើប្រាស់ Date Picker។ បន្ទាប់មក ជ្រើសរើសរយះពេលពីកាលបរិច្ឆេទដែលបានជ្រើសរើស ដើម្បីកំណត់កាលបរិច្ឆេទចុងក្រោយសំរាប់ទិន្នន័យគំរូរបស់អ្នក។
+statistics:
+  title: ស្ថិតិ
+  content: >
+    ចូលទៅកាន់ប្រធានបទនៃការចាប់អារម្មណ៍ ដោយចុចលើផ្ទាំងដែលសមរម្យនៅក្នុងគោលបំណងដើម្បីមើលគំរូទិន្នន័យជាក់លាក់ណាមួយ។ នៅក្នុងតារាង រង្វង់តំណាងឱ្យទំហំនៃទិន្នន័យបន្ទាប់បន្សំ។ ដូច្នេះ បើតួលេខកាន់តែធំនៅក្នុងក្រឡាជាក់លាក់ណាមួយ  រង្វង់នៅជាប់នឹងកាន់តែធំ។
+opened:
+  title: បើករួច
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: ចាត់តាំង
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: ហួស​កាល​កំណត់
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: បិទរួចរាល់
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: បើកឡើងវិញរួចរាល់
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: លុប
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: ពេលវេលាសេវាកម្ម
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: ពេលពេលឆ្លើយតប
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

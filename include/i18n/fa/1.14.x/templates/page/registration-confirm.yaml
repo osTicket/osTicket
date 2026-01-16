@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  این قالب تعریف صفحه به مشتریان پس از تکمیل فرم ثبت نام نشان داده است. قالب ذکر است که سیستم لینک تایید ایمیل و چه گام بعدی در فرایند ثبت نام ارسال آنها است.
+name: "ثبت نام حساب کاربری"
+body: >
+  <div><strong>با تشکر از ثبت‌نام شما.</strong><br/><br />یک ایمیل یه آدرسی که وارده کرده‌اید فرستاده شد.لطفا برای تایید حساب کاربری جهت دسترسی به سیستم پشتیبانی از آدرسی که به ایمیل شما فرستاده شده استفاده کنید.</div>

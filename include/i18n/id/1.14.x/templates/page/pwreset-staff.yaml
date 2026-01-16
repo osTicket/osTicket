@@ -1,0 +1,31 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Template ini mendefinisikan email yang dikirim kepada staf yang pilih link <strong>Lupa Password saya</strong> pada halaman staf Control Panel Log In.
+name: "Reset Kata Sandi Staf osTicket"
+body: >
+  <h3><strong>Halo %{staff.name.first},</strong></h3>
+  Sebuah permintaan kata sandi telah dikirim atas nama Anda untuk 
+  petugas pada %{url}.
+  <br>
+  <br>
+  Jika Anda rasa bahwa ini dilakukan secara salah, hapus dan abaikan
+  email ini. Akun Anda tetap aman dan tidak ada yang diberikan akses 
+  kepadanya. Akun ini tidak dikunci dan kata sandi Anda tidak direset.
+  Seseorang bisa saja tidak sengaja memasukkan alamat email Anda.
+  <br>
+  <br>
+  Ikuti tautan di bawah ini untuk login ke sistem dan mengganti kata
+  sandi Anda.
+  <br>
+  <br>
+  <a href="%{link}">%{link}</a>
+  <br>
+  <br>
+  <em style="font-size: small">Salam</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
+  width="126" height="19" style="width: 126px;">

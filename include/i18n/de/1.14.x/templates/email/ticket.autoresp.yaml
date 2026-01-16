@@ -1,0 +1,25 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Wird an den Benutzer gesendet, wenn ein neues Ticket eröffnet wird
+subject: |
+  Support-Ticket geöffnet [#%{ticket.number}]
+body: |
+  <h3><strong>Hallo %{recipient.name},</strong></h3>
+  <p>
+  Ihre Anfrage nach Support wurde eröffnet und hat die Ticketnummer #%{ticket.number}.
+  Ein Support-Mitarbeiter wird sich so schnell wie möglich mit Ihnen in Verbindung setzen. Sie können
+  <a href="%{recipient.ticket_link}">den Verlauf Ihres Tickets online abrufen</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Ihr %{company.name} Team,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>
+  Wenn Sie uns zusätzliche Kommentare oder Informationen zu Ihrem Anliegen mitteilen wollen, antworten Sie bitte einfach auf diese E-Mail oder <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >melden Sie sich an</span></a> für ein komplettes Archiv Ihrer Support-Anfragen.</em></div>

@@ -1,0 +1,38 @@
+---
+#Upgrade completed ticket
+#This ticket is added to the system after the completion of an upgrade. It
+#might include information specific to the release, perhaps with some new
+#feature highlights, etc.
+#---
+source: Web #notrans
+name: osTicket Support
+email: support@osticket.com
+subject: osTicket er opgraderet!
+message: |
+  <p>
+  osTicket opgraderet med succes! Se venligst udgivelsesnoterne
+  (https://docs.osticket.com/da/latest/Developer%20Documentation/Changelog.html?highlight=notes) for mere information om
+  ændringer og nye funktioner.
+  </p><p>
+  Sørg for at tilmelde dig <a href="http://osticket.com/forums"> osTicket
+  fora </a> og vores <a href="http://osticket.com/updates"> mailing
+  liste </a> for at holde dig opdateret om meddelelser, sikkerhedsopdateringer og
+  advarsler! Dit bidrag til osTicket-fællesskabet vil blive værdsat!
+  </p><p>
+  OsTicket-holdet er forpligtet til at yde støtte til alle brugere gennem
+  vores gratis online ressourcer og et komplet udvalg af kommerciel support
+  pakker og tjenester. For mere information eller for at diskutere dine behov,
+  kontakt os i dag på http://osticket.com/support/. Noget feedback
+  vil blive værdsat!
+  </p><p>
+  Hvis styring og opgradering af denne osTicket-installation er skræmmende, er du
+  kan prøve osTicket som hosted service på http://www.supportsystem.com/ -
+  ingen opgradering nogensinde, og vi kan importere dine data! Med SupportSystems
+  nøglefærdig infrastruktur, du får osTicket i bedste fald og giver dig fri
+  at fokusere på dine kunder uden byrden at sørge for
+  applikationen er stabil, vedligeholdt og sikker.
+  </p><p>
+  - <br/>
+  osTicket Holdet <br/>
+  http://osticket.com/
+  </p>

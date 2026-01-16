@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: 実行順
+  content: >
+    フィルターの優先順位を制御する数値を入力します。この数値が少ないほど、実行の優先順位が高い可能性のある他のフィルターに対して、このフィルターの優先順位が高くなります。<br><br> このフィルターを一致で最後に適用するフィルターにしたい場合は、 <span class="doc-desc-title">一致で処理を停止</span>を有効にします。
+target_channel:
+  title: チャネル
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>に対するターゲット<span class="doc-desc-title">チャネル</span>を選択します。<span class="doc-desc-title">チャネル</span>は、チケットがシステムに配信されるソースです。<br><br> たとえば、 <<span class="doc-desc-title">span class="doc-desc-opt">Webフォーム</span>を選択すると、クライアントポータルのWebフォームから送信されるチケットに<span class="doc-desc-title">チケットフィルター</span>が適用されます。　　
+rules_matching_criteria:
+  title: ルールの一致条件
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致の順応性を選択します。<span class="doc-desc-title">チケットフィルター</span>をいずれかのルールに一致させてから停止 するには、<span class="doc-desc-opt">どれにでも一致</span>を選択します。 <span class="doc-desc-title">チケットフィルター</span>の<em><strong>すべてのルール</strong></em>に一致させるには、 <span class="doc-desc-opt">すべて一致</span>を選択します。
+reject_ticket:
+  title: チケットを拒否
+  content: >
+    これが有効になっている場合、これ以上の処理は停止され、一致で以下のアクションの他のすべての選択が無視されます。
+reply_to_email:
+  title: 返信メールアドレス
+  content: >
+    ヘルプデスクがユーザーのメールアドレスアプリケーションの <span class="doc-desc-title">返信</span>ヘッダーを使用して返信するようにするには、これを有効にします。このフィールドは、上の<span class="doc-desc-title">チャネル</span>が<span class="doc-desc-opt">メール</span>を含む場合のみ該当します。
+ticket_auto_response:
+  title: チケット自動返信を無効にする
+  content: >
+    <em>注: これは、すべての <span class="doc-desc-title">部門</span>または<span class="doc-desc-title">自動返信設定</span>を上書きします。</em>
+canned_response:
+  title: Canned自動返信
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致でユーザーにメールを送信するには、<span class="doc-desc-title">Canned Response</span>を選択します。 <span class="doc-desc-title">テンプレートセット</span>に従って使用する<span class="doc-desc-title">新しいチケット自動返信</span>テンプレートはデフォルトで割り当てられるか、一致するチケットの<span class="doc-desc-title">部門t</span>に割り当てられます。
+  links:
+    - 
+      title: Canned Responsesの管理
+      href: /scp/canned.php
+    - 
+      title: テンプレートセットの管理
+      href: /scp/templates.php
+    - 
+      title: 新しいチケット自動返信テンプレート
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: 部門
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致を割り当てる<span class="doc-desc-title">部門</span>を選択します。
+  links:
+    - 
+      title: 担当部門の管理
+      href: /scp/departments.php
+priority:
+  title: 優先順位
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致に適用する<span class="doc-desc-title">優先順位</span>レベルを選択します。 <br /> <br /> <em>注: これは、<span class="doc-desc-title">部門</span>または<span class="doc-desc-title">ヘルプトピック</span>の設定を上書きします。</em>
+sla_plan:
+  title: SLAプラン
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致に適用する<span class="doc-desc-title">SLAプラン</span>を選択します。
+  links:
+    - 
+      title: SLAプランの管理
+      href: /scp/slas.php
+auto_assign:
+  title: 自動割当
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致を割り当てるエージェントまたはチームを選択します。
+  links:
+    - 
+      title: エージェントの管理
+      href: /scp/staff.php
+    - 
+      title: チームの管理
+      href: /scp/teams.php
+help_topic:
+  title: ヘルプトピック
+  content: >
+    <span class="doc-desc-title">チケットフィルター</span>の一致に適用する<span class="doc-desc-title">ヘルプトピック</span>を選択します。
+  links:
+    - 
+      title: ヘルプ トピックを管理します。
+      href: /scp/helptopics.php
+admin_notes:
+  title: 管理者のメモ
+  content: >
+    これらのメモは、<span class="doc-desc-title">管理者</span>のアカウントタイプにのみ表示されます。

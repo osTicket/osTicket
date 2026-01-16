@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Zoekveld
+  0: >
+
+advanced:
+  title: Geavanceerd zoeken
+  content: >
+    Geavanceerde zoekopties. Zodra u uw geavanceerde zoekcriteria hebt geselecteerd en de zoekopdracht is uitgevoerd, kunt u deze <span class="doc-desc-title">exporteren</span> aan de onderkant van deze pagina.
+open_tickets_table:
+  title: Open Tickets Tabel
+  content: >
+    Alle tickets zijn momenteel geopend en vragen attentie
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Datum
+  0: >
+
+subject:
+  title: Onderwerp
+  0: >
+
+from:
+  title: Van
+  0: >
+
+priority:
+  title: Prioriteit
+  0: >
+
+assigned_to:
+  title: Toegewezen aan
+  0: >
+
+export:
+  title: Exporteer
+  content: >
+    Exporteer uw data in een CSV bestand. CSV bestanden moeten geopend worden met een spreadsheet programma (bv. Microsoft Excel, Apple Numbers, OpenOffice, enz.)
+advanced_search_dialog:
+  title: Uitgebreid zoeken
+  0: >
+
+adv_keyword:
+  title: Zoeken op trefwoord
+  content: >
+    Zoek hits op basis van het onderwerp en bericht van het tickets. Ook alle tekstuele inhoud in verband met aangepaste velden voor de gebruikers en de tickets.
+adv_date_range:
+  title: Zoeken op datumbereik
+  content: >
+    Definitie hier
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Type antwoorden
+  content: >
+    <b>Reply All:</b> This reply is sent to the User and the Collaborators you choose to include.</br> <b>Reply to User:</b> This reply is sent to the User only, no Collaborators.</br> <b>Do Not Email Reply:</b> No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.

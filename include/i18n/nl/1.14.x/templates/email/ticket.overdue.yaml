@@ -1,0 +1,12 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Wordt naar een medewerkers  verzonden wanneer een ticket is vervallen in het systeem. Vervallen tickets ontstaan op basis van de vervaldatum van het ticket of door de SLA die gedefinieërd is voor het ticket.
+subject: |
+  Vervallen Ticket Melding
+body: |
+  <h3><strong>Beste %{recipient}</strong>,</h3> Een ticket, <a href="%{ticket.staff_link}"> #%{ticket.number}</a> is te laat afgehandeld. <br><br>Wij zouden allemaal hard moeten werken om te garanderen dat alle tickets tijdig zijn afgehandeld. <br><br>Ondertekend, <br>%{ticket.dept.manager.name} <hr><div>Om het ticket te bekijken of om er op te reageren, kunt u <a href="%{ticket.staff_link}"> <span style="color: rgb(84, 141, 212);" > inloggen</span></a> in het Support Ticket systeem. U ontvangt dit bericht omdat het ticket  rechtstreeks aan u is toegewezen of aan een team of afdeling waarvan u lid bent.</div> <em style="font-size: small"> Uw vriendelijke <span style="font-size: smaller" > (hoewel met beperkt geduld)</span> Support Ticket systeem</em><br><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19" alt="Powered by osTicket" width="126" style="width: 126px;">

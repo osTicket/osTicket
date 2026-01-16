@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: お問い合わせ情報
+  0: >
+
+username:
+  title: ユーザー名
+  content: >
+    Admin権限があるエージェントのみ、ユーザー名の変更が可能です。権限を持つエージェントの場合は、<span class="doc-desc-title"> スタッフのメンバー</span> テーブルから編集するエージェントを選択してユーザー名を変更して下さい。
+  links:
+    - 
+      title: 管理者として、ユーザー名を変更します。
+      href: /scp/staff.php
+time_zone:
+  title: タイム ゾーン
+  0: >
+
+daylight_saving:
+  title: 夏時間
+  0: >
+
+maximum_page_size:
+  title: 最大ページ サイズ
+  0: >
+
+auto_refresh_rate:
+  title: 自動リフレッシュ レート
+  0: >
+
+default_signature:
+  title: 既定の署名
+  0: >
+
+default_paper_size:
+  title: 既定の用紙サイズ
+  0: >
+
+show_assigned_tickets:
+  title: 割り当てられたチケットを見る
+  content: >
+    <p> このオプションを有効にするとオープンキューからアサインされたチケットを隠す全体設定上書きします。</p> <p class="info-banner"> <i class="icon-info-sign"></i> この設定はアサインされたチケットがグローバル外の場合にのみ有効です。 </p>
+password:
+  title: パスワード
+  0: >
+
+current_password:
+  title: 現在のパスワード
+  0: >
+
+new_password:
+  title: 新しいパスワード
+  0: >
+
+confirm_new_password:
+  title: 新しいパスワードの確認
+  0: >
+
+signature:
+  title: 署名
+  content: >
+    返信チケットの末尾に表示される省略可能な <span class="doc-desc-title"> 署名</span> を作成します。 <span class="doc-desc-title"> 署名</span> が表示されるかどうかはチケットの <span class="doc-desc-title"> 電子メール テンプレート</span> に依存します。
+  links:
+    - 
+      title: 管理者パネルで電子メール テンプレートを作成します。
+      href: /scp/templates.php

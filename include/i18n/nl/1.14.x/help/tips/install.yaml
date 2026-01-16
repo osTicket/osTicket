@@ -1,0 +1,70 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Helpdesk naam
+  content: |
+    <p>De naam van uw support systeem, bijvoorbeeld [Bedrijfsnaam] Support</p>
+system_email:
+  title: Standaard systeem e-mail
+  content: |
+    <p>Standaard e-mailadres bijvoorbeeld support@uwbedrijf.nl - u kunt er later meer toevoegen!</p>
+default_lang:
+  title: Standaard systeemtaal
+  content: |
+    <p>Standaard data voor deze taal zal geïnstalleerd worden in de database.
+    Bijvoorbeeld e-mail sjablonen en standaard systeem pagina's
+    zullen voor deze taal geïnstalleerd worden.</p>
+  links:
+    - 
+      title: osTicket taalpakketten
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Voornaam
+  content: |
+    <p>Voornaam van administrator</p>
+last_name:
+  title: Achternaam
+  content: |
+    <p>Achternaam van administrator</p>
+email:
+  title: E-mailadres
+  content: |
+    <p>Persoonlijk e-mailadres van de administrator. Dit e-mailadres moet anders zijn dan het standaard systeem e-mailadres.</p>
+username:
+  title: Gebruikersnaam
+  content: |
+    <p>Inlognaam voor de administrator. Moet uit tenminste drie (3) tekens bestaan.</p>
+password:
+  title: Wachtwoord
+  content: |
+    <p>Wachtwoord van de administrator. Moet minimaal vijf (5) tekens bevatten.</p>
+password2:
+  title: Bevestig wachtwoord
+  content: |
+    <p>Wachtwoord van administrator nogmaals ingeven.</p>
+db_prefix:
+  title: MySQL tabel voorvoegsel
+  content: |
+    <p>osTicket vereist een tabel voorvoegsel om mogelijke conflicten met andere tabellen in een gedeelde database te voorkomen.</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>De meeste webhosters gebruiken 'localhost' als hostnaam voor een lokale database. Neem contact op met uw webhoster als deze hostnaam niet werkt. </p> <p>De standaardpoort zoals ingesteld in php.ini wordt gebruikt. Wordt er een ander poortnummer gebruikt dan kan deze worden opgegeven als <code>hostname:port</code></p>
+db_schema:
+  title: MySQL Database
+  content: |
+    <p>Naam van de osTicket database.</p>
+db_user:
+  title: MySQL Gebruikersnaam
+  content: |
+    <p>De MySQL gebruiker moet volledige rechten hebben op de database.</p>
+db_password:
+  title: MySQL Wachtwoord
+  content: |
+    <p>MySQL wachtwoord gekoppeld aan de hierboven ingegeven gebruiker.</p>

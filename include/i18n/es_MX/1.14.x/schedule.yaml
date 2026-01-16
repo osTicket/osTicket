@@ -1,0 +1,175 @@
+---
+- 
+  #Initial set of schedules and entries
+  #Fields:
+  #id:
+  #flags:
+  #0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+  #sort:     Manual sort order
+  #name:     Name of the Schedule
+  #timezone:   Timezone of the Schedule
+  #description:   Description of the Schedule
+  #entries:     Schedule Entries
+  #---
+  id: 1
+  flags: 0x01
+  name: Lunes - Viernes 8am - 5pm con vacaciones de EE.UU
+  configuration:
+    holidays:
+      - 4
+  entries:
+    - 
+      name: Lunes
+      repeats: semanal #notrans
+      starts_on: 07-01-2019
+      starts_at: 08:00:00
+      ends_on: 07-01-2019
+      ends_at: 17:00:00
+      day: 1
+    - 
+      name: Martes
+      repeats: semanal #notrans
+      starts_on: 08-01-2019
+      starts_at: 08:00:00
+      ends_on: 08-01-2019
+      ends_at: 17:00:00
+      day: 2
+    - 
+      name: Miércoles
+      repeats: semanal #notrans
+      starts_on: 09-01-2019
+      starts_at: 08:00:00
+      ends_on: 09-01-2019
+      ends_at: 17:00:00
+      day: 3
+    - 
+      name: Jueves
+      repeats: semanal #notrans
+      starts_on: 10-01-2019
+      starts_at: 08:00:00
+      ends_on: 10-01-2019
+      ends_at: 17:00:00
+      day: 4
+    - 
+      name: Viernes
+      repeats: semanal #notrans
+      starts_on: 11-01-2019
+      starts_at: 08:00:00
+      ends_on: 11-01-2019
+      ends_at: 17:00:00
+      day: 5
+- 
+  id: 2
+  flags: 0x01
+  name: 24/7
+  entries:
+    - 
+      name: Diario
+      repeats: diario #notrans
+      starts_on: 01-01-2019
+      starts_at: 00:00:00
+      ends_on: 01-01-2019
+      ends_at: 23:59:59
+- 
+  id: 3
+  flags: 0x01
+  name: 24/5
+  entries:
+    - 
+      name: Días laborables
+      repeats: días laborables #notrans
+      starts_on: 01-01-2019
+      starts_at: 00:00:00
+      ends_on: 01-01-2019
+      ends_at: 23:59:59
+- 
+  id: 4
+  flags: 0
+  name: Vacaciones de EE.UU.
+  entries:
+    - 
+      name: Día de Año Nuevo
+      repeats: anual #notrans
+      starts_on: 01-01-2019
+      starts_at: 00:00:00
+      ends_on: 01-01-2019
+      ends_at: 23:59:59
+      day: 1
+      month: 1
+    - 
+      name: Día de Martin Luther King
+      repeats: anual #notrans
+      starts_on: 21-01-2019
+      starts_at: 00:00:00
+      ends_on: 21-01-2019
+      ends_at: 23:59:59
+      day: 1
+      week: 3
+      month: 1
+    - 
+      name: Día de los Caídos
+      repeats: anual #notrans
+      starts_on: 27-05-2019
+      starts_at: 00:00:00
+      ends_on: 27-05-2019
+      ends_at: 23:59:59
+      day: 1
+      week: -1
+      month: 5
+    - 
+      name: Día de la Independencia (4 de Julio)
+      repeats: anual #notrans
+      starts_on: 04-07-2019
+      starts_at: 00:00:00
+      ends_on: 04-07-2019
+      ends_at: 23:59:59
+      day: 4
+      month: 7
+    - 
+      name: Día del Trabajador
+      repeats: anual #notrans
+      starts_on: 02-09-2019
+      starts_at: 00:00:00
+      ends_on: 02-09-2019
+      ends_at: 23:59:59
+      day: 1
+      week: 1
+      month: 9
+    - 
+      name: Día de los Pueblos Indígenas (Whodat Columbus)
+      repeats: anual #notrans
+      starts_on: 14-10-2019
+      starts_at: 00:00:00
+      ends_on: 14-10-2019
+      ends_at: 23:59:59
+      day: 1
+      week: 2
+      month: 10
+    - 
+      name: Día de los Veteranos
+      repeats: anual #notrans
+      starts_on: 11-11-2019
+      starts_at: 00:00:00
+      ends_on: 11-11-2019
+      ends_at: 23:59:59
+      day: 11
+      month: 11
+    - 
+      name: Día de Acción de Gracias
+      repeats: anual #notrans
+      starts_on: 28-11-2019
+      starts_at: 00:00:00
+      ends_on: 28-11-2019
+      ends_at: 23:59:59
+      day: 4
+      week: 4
+      month: 11
+    - 
+      name: Navidad
+      repeats: anual #notrans
+      starts_on: 25-11-2019
+      starts_at: 00:00:00
+      ends_on: 25-11-2019
+      ends_at: 23:59:59
+      day: 25
+      month: 12

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: エージェント名形式
+  content: >
+    システムで表示するエージェント名形式を選択します。メールテンプレートは他の形式の指定がなければ、この指定を利用します。
+staff_identity_masking:
+  title: スタッフの識別情報を非表示
+  content: >
+    有効にすると、あらゆる通信中にクライアントからエージェントの名前を非表示にします。
+#Authentication settings
+password_reset:
+  title: パスワードの有効期限ポリシー
+  content: >
+    エージェントがパスワードを変更する必要のある頻度を (月で) 設定します。無効になっている場合 (「期限切れ」に設定されている) 、パスワードの有効期限は切れません。
+password_expiration_policy:
+  title: パスワードの有効期限ポリシー
+  content: >
+    エージェントがパスワードを変更する必要のある頻度を設定します。無効になっている場合  (すなわち、 <span class="doc-desc-opt">期限切れ</span>)、パスワードの有効期限は切れません。
+allow_password_resets:
+  title: パスワードのリセットを許可
+  content: >
+    ログインに失敗した場合、 <span class="doc-desc-title">スタッフログインパネル</span>で<span class="doc-desc-title">私のパスワードを忘れてしまった</span>リンクを表示する場合、この機能を有効にします。
+reset_token_expiration:
+  title: パスワードのリセットウィンドウ
+  content: >
+    <span class="doc-desc-title"> パスワードリセットトークン</span> が有効な持続時間を分で選択します。エージェントが<span class="doc-desc-title">パスワード のリセット</span>を必要とする場合、リセットの実行を許可するトークンがメールでエージェントに送信されます。
+staff_session_timeout:
+  title: エージェントセッションのタイムアウト
+  content: >
+    エージェントが再度ログインする必要があるまでの最大アイドル時間を (分で) 選択します。 <br><br><span class="doc-desc-title">スタッフセッションのタイムアウト</span>を無効にするには、0を入力します。
+bind_staff_session_to_ip:
+  title: エージェントセッションをIPにバインド
+  content: >
+    ログイン時にエージェントの現在のIPを記憶するには、俺を有効にします。 <br><br> 動的にIPアドレスが割り当てられたユーザーには、この設定は推奨されません。

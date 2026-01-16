@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Odprt
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Odprti zahtevki.
+- 
+  id: 2
+  name: Rešeno
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Rešeni zahtevki
+- 
+  id: 3
+  name: Zaprto
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Zaprti zahtevki. Zahtevki bodo še naprej na voljo na nadzorni plošči klientom in osebju.
+- 
+  id: 4
+  name: Arhivirano
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Samo administrativno dosegljivi zahtevki, v čakalni vrsti in nadzorni plošči klientov niso več dosegljivi.
+- 
+  id: 5
+  name: Izbrisano
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Zahtevki v čakalni vrsti za izbris. Niso dostopni v čakalni vrsti.

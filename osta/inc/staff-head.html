@@ -1,0 +1,26 @@
+<meta http-equiv="resources" content="o<?php $ostv = sprintf("%s", THIS_VERSION); echo str_replace('v', '', $ostv); ?>.<?php echo GIT_VERSION; ?>-a<?php $themev = file_get_contents(ROOT_DIR ."osta/version"); echo str_replace('osTicket-', '', str_replace('Awesome-', '', $themev)); ?>-p<?php echo phpversion(); ?>-m<?php echo db_version(); ?>-<?php $soft = $_SERVER['SERVER_SOFTWARE'];echo strtolower (substr($soft,0,-3));?>">	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<script src="../osta/js/jquery.sidr.min.js"></script>	
+	<link href="https://fonts.googleapis.com/css?family=Product+Sans|Montserrat:400|Open+Sans:300,400,600" rel="stylesheet" type="text/css">	
+		
+	<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>osta/css/staff-desktop.css"/>	
+	<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>osta/css/staff-mobile.css"/>
+	<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>osta/css/svg.css"/>		
+	<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>osta/css/sidr.css">
+	
+	<?php 
+		require_once "../osta/php/functions.php"; 
+		echo get_theme_css();
+	?>
+	
+	<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>osta/css/hamburger.css">
+	<script type="text/javascript" src="../osta/js/osta-staff.js"></script>	
+	<script type="text/javascript" language="javascript" src="../osta/js/jfontsize/jstorage.js"></script>
+	<script type="text/javascript" language="javascript" src="../osta/js/jfontsize/jquery.jfontsize-2.0.js"></script>	
+
+
+	
+	
+	
+
+

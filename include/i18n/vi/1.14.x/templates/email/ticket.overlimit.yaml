@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Được gửi tới người dùng khi vượt quá mức giới hạn lệnh mở tối đa. Mức giới hạn này được cấu hình trong kênh Admin, và được xác nhận bởi số lượng lệnh mở bởi một địa chỉ email cụ thể.
+subject: |
+  Giới hạn lệnh mở
+body: |
+  <h3><strong>Gửi%{ticket.name.first},</strong></h3>
+  Bạn đã đạt mức lệnh mới tối đa cho phép. Để mở được một lệnh khác, một trong những lệnh chưa được xử lý khác phải được đóng. Để cập nhật hoặc thêm bình luận cho một lệnh mở <a
+  href="%{url}/tickets.php?e=%{ticket.email}">đăng nhập vào phần hỗ trợ</a>.
+  <br>
+  <br>
+  Cảm ơn,<br/>
+  Hệ thống hỗ trợ lệnh 

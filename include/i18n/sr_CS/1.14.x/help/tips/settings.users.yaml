@@ -1,0 +1,35 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Formatiranje Korisničkog Imena
+  content: >
+    Izaberite format za korisnička imena u celom sistemu. Email šabloni će ga koristiti za imena ako nijedan drugi format nije naveden.
+#Authentication settings
+client_session_timeout:
+  title: Kraj sesije korisnika
+  content: >
+    Izaberite maksimalno vreme mirovanja (u minutima) pre nego što je potrebno da se korisnik ponovo uloguje. <br><br> Ako biste želeli da onemogućite <span class="doc-desc-title">kraj sesije korisnika</span>, unesite 0.
+registration_method:
+  title: Opcije prilikom registrovanja
+  content: >
+    <span class="doc-desc-title">Način registracije</span> i <span class="doc-desc-title">Obaveza registracije</span> koriste se zajedno za konfigurisanje kako se korisnici registruju i pristupaju Vašem tiketing sistemu. Tabela ispod sumira kako su ova dva podešavanja predstavljena od strane sistema.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Registracija obavezna</th> <th> Način registracije</th> <th>Rezultat</th></tr>
+    <tr><td>Ne</td><td>Javno</td> <td>Registracija je poželjna ali ne i obavezna za nove tilete.</td></tr> <tr><td>Da</td><td>Javno</td> <td> Registracija i prijava su obavezni za nove tikete</td></tr> <tr><td>Ne</td><td>Javno</td> <td>Bilo ko može da kreira tiket, ali samo agent može da registruje nalog</td></tr> <tr><td>Da</td><td>Privatno</td> <td>Pristup korisnika je isključivo preko pozivnice</td></tr> <tr><td>Ne</td><td>Onemogućeno</td> <td><em>Ovako je osTicket funkcionisao pre verzije 1.9</em></td></tr> <tr><td>Da</td><td>Onemogućeno</td> <td>Onemogući nove tikete kroz veb portal</td></tr> </tbody></table>
+client_verify_email:
+  title: Zahtevanje verifikacije imejla
+  content: >
+    Onesposobite ovu opciju da biste dali svom korisniku neposredan pristup tiketima putem "Proveti status tiketa" stranice za prijavu na klijentskom portalu. Ako je omogućena opcija, (što je podrazumevana opcija), korisnici će morati da prime imejl i da potom slede link u imejlu da bi videli tiket. <br><br> Onemogućavanje imejl verifikacije može dozvoliti trećim licima (na primer saradnicima) da se predstave kao vlasnik tiketa.
+allow_auth_tokens:
+  title: Omogućiti Overavanje Tokena
+  content: >
+    Omogućiti ovu opciju kako biste dozvolili upotrebu overavanja tokena korisnicima sa automatskim prijavama klikom na link zadatka.

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nom d'utilisateur
+  content: >
+    Veuillez choisir <span class="doc-desc-title">nom d'utilisateur</span> unique à votre <span class="doc-desc-title"> Help Desk</span> pour votre Agent.
+email_address:
+  title: Adresse email
+  content: >
+    Entrez l'adresse de courriel de l'agent qui va recevoir <span class="doc-desc-title">les alertes &amp; avis</span> du <span class="doc-desc-title">système de support</span>.
+  0: <br><br>
+  1: Le personnel peut se connecter dans le panneau de contrôle personnel avec son nom d'utilisateur ou son adresse e-mail.
+welcome_email:
+  title: Courriel de bienvenue
+  content: >
+    Envoyer le nouvel Agent de liaison d'accès à un compte dont l'Agent sera en mesure de définir leur propre mot de passe. Si non coché, vous devrez définir mot de passe et de communiquer les informations de connexion au nouveau personnel.
+account_password:
+  title: Mot de passe de compte
+  content: >
+    En tant qu'<span class="doc-desc-title">administrateur</span>, vous pouvez changer le mot de passe de l'Agent.
+forced_password_change:
+  title: Changement de mot de passe forcé
+  content: >
+    Activer cette option si vous voulez forcer le nouvel Agent à changer son mot de passe à sa prochaine connexion.
+agents_signature:
+  title: Signature de l'agent
+  content: >
+    Créer une signature pour l'Agent qui peut être sélectionnée lorsque vous répondez à un ticket.
+account_status:
+  title: État du compte
+  content: >
+    Si le statut de l'Agent est <span class="doc-desc-opt">verrouillé</span>, il ne pourra pas se connecter au support.
+assigned_group:
+  title: Groupe assigné
+  content: >
+    Le <span class="doc-desc-title">groupe</span> que vous choisissez pour cet Agent détermine quelles autorisations il a dans le <span class="doc-desc-title"> support</span>.
+  links:
+    - 
+      title: Gérer les groupes
+      href: /scp/groups.php
+primary_department:
+  title: Service principal
+  content: >
+    Choisissez le <span class="doc-desc-title">service</span> principal auquel l'agent est affecté et un <span class="doc-desc-title">rôle</span> effectif.
+  links:
+    - 
+      title: Gérer les services
+      href: /scp/departments.php
+primary_role:
+  title: Rôle initial
+  content: >
+    Choisissez le <span class="doc-desc-title">rôle</span> principal auquel appartient cet agent.
+primary_role_on_assign:
+  title: Rôle principal pour les attributions
+  content: >
+    Activer cette option pour la solution pour le <span class="doc-desc-title">rôle principal</span> de cet agent sur les billets et tâches attribuées en dehors du <span class="doc-desc-title">service principal</span> et des <span class="doc-desc-title">accès supplémentaire</span> du service. Sinon, l'agent n'aura que l'accès en visualisation.
+daylight_saving:
+  title: Heure d'été
+  content: >
+    Activez cette fonctionnalité si vous souhaitez que l'heure d'été entre automatiquement en jeu pour le fuseau horaire de l'Agent.
+limited_access:
+  title: Accès limité
+  content: >
+    Si activé, l'Agent aura seulement accès aux tickets attribué directement ou par l'intermédiaire de l'équipe.
+directory_listing:
+  title: Liste des répertoires
+  content: >
+    Activer cette option si vous souhaitez faire figurer cet Agent dans le <span class="doc-desc-title">Répertoire du personnel</span>.
+  links:
+    - 
+      title: Visitez l'annuaire du personnel
+      href: /scp/directory.php
+vacation_mode:
+  title: Mode vacances
+  content: >
+    Si vous modifiez le statut de l'Agent en <span class="doc-desc-opt">Mode vacances</span>, l'Agent ne recevra pas les <span class="doc-desc-title">alertes &amp; avis</span> et ne sera pas disponible pour l'assignation des tickets.
+

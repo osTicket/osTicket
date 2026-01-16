@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Podatki o podjetju
+  content: >
+    To se nanaša na podjetje ali organizacijo ki bo imela koristi od rešitve osTicket in podpornega osebja. Ti podatki se bodo pojavili v podpisih (npr. v nogi) ko agenti odgovoarjajo na zahtevke.
+  links:
+    - 
+      title: Podatki o podjetju
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Vstopna stran
+  content: >
+    <span class="doc-desc-title">Vstopna stran</span> je prikazana kot prva stran vašega podpornega sistema.
+offline_page:
+  title: Stran nedoseglijva
+  content: >
+    <span class="doc-desc-title">Stran nedosegljiva</span> je prikazana kadar je sistem nedosegljiv, več: Admin Panel -&gt; Setting -&gt; System -&gt; Helpdesk Status.
+default_thank_you_page:
+  title: Privzeta stran za zahvalo
+  content: >
+    <span class="doc-desc-title">Stran za zahvalo</span> je prikazana uporabniku ko <span class="doc-desc-title">Uporabnik</span> vloži nov zahtevek. <br/><br/> <span class="doc-desc-title">Strani za zahvalo</span> so lahko povezane z posameznimi temami.
+logos:
+  title: Logotipi
+  content: >
+    Prilagaodite si lahko <span class="doc-desc-title">Logo</span> ki bo prikazan na strani za zahtevke.
+upload_a_new_logo:
+  title: Naloži nov logotip
+  content: >
+    Izberite sliko v .gif, .jpg ali .png formatu. Velikost slika se bo proporcionalno prilagodila. V prid hitrejšega nalaganja priporočamo, da pred nalaganjem sliko preuredite na privzeto velikost (817px &times; 170px).
+backdrops:
+  title: V ozadju
+  content: >
+    Lahko prilagodiš <span class="doc-desc-title">ozadje</span>, ki se bo prikazovalo na prijavni strani za osebje.
+upload_a_new_backdrop:
+  title: Naloži novo ozadje
+  content: >
+    Izberi sliko v formatu .gif, .jpg ali .png. velikost ozadja se bo proporcionalno spremenila, ne pa tudi velikost datoteke z ozadjem. Priporočeno je, da je datoteka z sliko relativno majhna (pod 1MB), s tem se čas nalaganja zmanjša. Bodi pozoren tudi na PHP max upload settings.

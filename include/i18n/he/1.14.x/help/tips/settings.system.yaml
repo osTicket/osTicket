@@ -1,0 +1,124 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: מצב התמיכה
+  content: >
+    אם הסטטוס משתנה ל <span class="doc-desc-opt">לא פעיל</span>, ממשק המשתמש יהפוך ללא פעיל, רק למנהלי מערכת תשאר הגישה.
+helpdesk_url:
+  title: כתובת אתר התמיכה
+  content: >
+    כתובת ה URLהיא כתובת הבסיס של המערכת, כתובת זו תופיע במיילים לצורך הפניית המשתמש למערכת התמיכה.
+helpdesk_name_title:
+  title: שם \ כותרת אתר התמיכה
+  content: >
+    זו הכותרת שתופיע בטאב של הדפדפן. במידה ושמרתם את הדף כסימניה, זה יהיה שם הסימניה.
+default_department:
+  title: מחלקת ברירת המחדל
+  content: >
+    בחר <span class="doc-desc-title">מחלקת ברירת מחדל</span> עבור כרטיס שאינו משוייך אוטומטית למחלקה. <br/><br/> כרטיס יכול להיות מנותב לפי כותרת, כתובת אימייל והגדרות פילטור נוספות.
+default_schedule:
+  title: לוח הזמנים של ברירת המחדל
+  content: >
+    בחר את לוח הזמנים המוגדר כברירת מחדל שישמש את SLA בעת הצגת כרטיסים באיחור.
+  links:
+    - 
+      title: נהל לוח זמנים
+      href: /scp/schedules.php
+default_page_size:
+  title: גודל ברירת מחדל לדף
+  content: >
+    בחר את מספר הפריטים שיוצגו בכל עמוד בתורי הקריאות בפאנל העובדים. כל סוכן יכול להתאים אישית את המספר בהגדרות החשבון שלו תחת <span class="doc-desc-title">ההגדרות שלי</span>.
+default_log_level:
+  title: רמת יומן המהווה ברירת מחדל
+  content: >
+    קבע את הרמה המינימלית של ההודעות שירשמו ב <span class="doc-desc-title">יומן המערכת</span>. <span class="doc-desc-opt">איתור שגיאות</span>מייצגת את הרמה הנמוכה ביותר ו<span class="doc-desc-opt">תקלה</span> מייצג את הרמה הגבוהה ביותר. לדוגמא, במידה ותרצו לראות את כל הארועים ב<span class="doc-desc-title">יומן המערכת</span>, בחרו <span class="doc-desc-opt">איתור שגיאות</span>.
+purge_logs:
+  title: נקה יומני רישום
+  content: >
+    קבע לכמה זמן ישמרו <span class="doc-desc-title">יומני המערכת</span> עד שימחקו.
+enable_richtext:
+  title: אפשר טקסט עשיר
+  content: >
+    אם מאופשר, זה יאפשר לשימוש בעיצוב טקסט עשיר בין לקוחות וסוכנים.
+enable_avatars:
+  title: אפשר תמונות פרופיל בתצוגת אשכול
+  content: >
+    אפשר זאת כדי להראות </span> אווטרים<span class="doc-desc-title"> באשכול התכתבות. 
+    <br><br> ה </span> מקור האווטר <span class="doc-desc-title"> ניתן להגדיר בדפי הגדרות של סוכנים 'ומשתמשים'.
+  links:
+    - 
+      title: הגדרות סוכן
+      href: /scp/settings.php?t=agents
+    - 
+      title: הגדרות משתמשים
+      href: /scp/settings.php?t=משתמשים
+collision_avoidance:
+  title: מניעת התנגשות סוכן
+  content: >
+    הכנס את הזמן המירבי בו סוכן יכול לנעול קריאת שירות ללא טיפול.<br><br> Enter <span class="doc-desc-opt">0</span>לביטול הנעילה.
+allow_iframes:
+  title: הרשה iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: מידע על סינטקס (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: אפשרויות תאריך ושעה
+  content: >
+    ההגדרות הבאות קובעות את הגדרות ברירת המחדל עבור תאריך וזמן למחלקת התמיכה. 
+    אתה יכול לבחור להשתמש בברירות מחדל האזור עבור המקום הנבחר או להשתמש בפורמטים בהתאמה אישית כדי לעמוד בדרישות הייחודיות שלך.
+    עיין במחרוזות בפורמט ICU כהפניה עבור התאמה אישית. מועדי המוצג להלן פשוט ממחישים את התוצאה של הערכים המתאימים.
+  links:
+    - 
+      title: ראה טבלת פורמט תאריכים ב-ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: שפות המערכת
+  content: >
+    בחר את השפה הראשית של המערכת ובמידת הצורך שפה משנית על מנת לאפשר לממשק שלך התאמה מירבית לשפה של התומכים ומשתמשי הקצה.
+primary_language:
+  title: שפה ראשית במערכת
+  content: >
+    התוכן בשפה זו מוצג לנציגים ולקוחות הקצה אם השפה המוגדרת להם כרגע אינה זמינה. זה כולל את התוכן של הממשק, וכן, תוכן מותאם כמו עמוד תודה והודעות דואר אלקטרוני. <br/><br/> זו השפה שבה הגרסאות הלא מתורגמות של התוכן שלך ייכתבו בה.
+secondary_language:
+  title: שפות נוספות
+  content: >
+    בחר את הגדרת השפה המועדפת עבור התומכים שלך ומשתמשי הקצה. הממשק יהיה זמין בשפות אלו, כך תוכן מותאם כגון דפי תודה ושמות נושא העזרה יהיו ניתנים לתרגום בשפות אלו.
+#Attachments
+attachments:
+  title: הגדרת צרופות ואיחסון
+  content: >
+    הגדר כיצד יאוחסנו צרופות.
+default_storage_bk:
+  title: קובץ איחסון
+  content: >
+    בחר כיצד יישמרו קבצים מצורפים. <br><br> ניתן להרחיב את איחסון השרת על ידי התקנת תוספי איחסון
+max_file_size:
+  title: גודל הקובץ המרבי
+  content: >
+    בחר את גודל הקובץ המקסימלי עבור צרופות שיועלו על ידי התומכים. זה כולל מסמכים סרוקים, מאמרי בסיס מידע וגם צרופות לתגובות לכרטיס או משימה. המגבלה המירבית נשלטת באמצעות הגדרת <code>upload_max_filesize</code> ב PHP.
+  links:
+    - 
+      title: הגדרות PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: נדרשת התחברות
+  content: >
+    הפעלת הגדרה זו מונעת הצגת קבצים מצורפים למשתמשים לא מורשים. כלומר משתמשים חייבים להתחבר (לקוחות וסוכנים כאחד), בשביל לצפות בקבצים המצורפים. <br><br> מבחינה אבטחתית, חשוב לדעת שהדפדפן של המשתמש יכול לשמור קבצים שנצפו בעבר בזכרון מטמון שלו. בנוסף כל הקישורים לקבצים אוטמטית פגי תוקף לאחר 24 שעות.

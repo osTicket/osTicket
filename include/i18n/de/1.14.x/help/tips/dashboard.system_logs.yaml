@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: System-Logs
+  content: >
+    Hier finden Sie alle mit der Fehlersuche zusammenhängenden Log-Aktivitäten (z.B. Fehler, Warnungen oder Bugs).
+  links:
+    - 
+      title: Typ der protokollierten Aktivitäten anpassen durch Änderung des <br /><span class="doc-desc-title">Standard-Log-Level</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Zeitraum
+  content: >
+    Wählen Sie den Kalenderzeitraum, für den Sie die <span class="doc-desc-title">System-Logs</span> betrachten wollen.
+type:
+  title: Typ
+  content: >
+    Wählen Sie eine Option aus, um Ihren Blick auf einen bestimmten Typ von Aktivität (Log-Level) zu richten. <span class="doc-desc-opt">Debug</span> stellt den geringsten Schweregrad und <span class="doc-desc-opt">Fehler</span> den größten Schweregrad dar.
+showing_logs:
+  title: Zeigt &hellip; Logs
+  content: >
+    Achten Sie darauf, unten auf der <span class="doc-desc-title">Seite</span> nachzuschauen, um sicherzugehen, dass Sie nicht weitere Seiten mit Log-Einträgen übersehen.
+log_title:
+  title: Log-Titel
+  content: >
+    Klicken Sie auf <span class="doc-desc-title">Log-Titel</span> in der Tabellenüberschrift, wenn Sie die Ergebnisse nach dem entsprechenden<span class="doc-desc-title">Log-Titel</span> sortieren möchten.
+log_type:
+  title: Log-Level
+  content: >
+    Klicken Sie einfach auf <span class="doc-desc-title">Log-Level</span> in der Tabellenüberschrift, wenn Sie die Ergebnisse nach dem <span class="doc-desc-title">Log-Level</span> sortieren möchten.
+log_date:
+  title: Log-Datum
+  content: >
+    Das ist der Zeitpunkt, zu dem das Log von der Software erzeugt wurde. Wenn Sie die Ergebnisse nach dem <span class="doc-desc-title">Log-Datum</span> sortieren möchten, klicken Sie einfach auf <span class="doc-desc-title">Log-Datum</span> in der Tabellenüberschrift. (Grenzen Sie den <span class="doc-desc-title">Zeitraum</span>, den Sie betrachten möchten, über den Kalender ein.)
+ip_address:
+  title: IP-Adresse
+  content: >
+    Dies ist entweder die <span class="doc-desc-title">IP-Adresse</span> des Agenten oder des Benutzers, der osTicket zu der Zeit verwendet hat, als das Log erstellt wurde.

@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nombre de usuario
+  content: >
+    Por favor, elija un agente <span class="doc-desc-title"> nombre de usuario</span> el cual es único para su <span class="doc-desc-title"> sistema de soporte</span>.
+email_address:
+  title: Correo Electrónico
+  content: >
+    Introduzca el correo del agente que recibirá <span class="doc-desc-title">Alertas y Noticias</span> del <span class="doc-desc-title">Sistema de Soporte</span>.
+  0: <br><br>
+  1: El staff puede ingresar al Panel de Control utilizando su nombre de usuario o correo electrónico
+welcome_email:
+  title: Email de bienvenida
+  content: >
+    Enviar al nuevo Agente una liga de acceso en la que el Agente puede ingresar su propia contraseña.
+    Si lo desmarcas, necesitará poner una contraseña y comunicarle la información al nuevo agente.
+account_password:
+  title: Contraseña de la cuenta
+  content: >
+    Como <span class="doc-desc-title">administrador</span>, puede cambiar contraseñas de Agentes.
+forced_password_change:
+  title: Cambio de contraseña forzada
+  content: >
+    Marque esto si desea forzar el nuevo agente para cambiar su propia contraseña al registro siguiente.
+agents_signature:
+  title: Firma del agente
+  content: >
+    Crear una firma para el agente que puede seleccionarse al responder un ticket.
+account_status:
+  title: Estado de cuenta
+  content: >
+    Si el estado del agente es <span class="doc-desc-opt">Bloqueado</span>, no podrá iniciar session en el sistema de soporte.
+assigned_group:
+  title: Grupo asignado
+  content: >
+    El <span class="doc-desc-title"> Grupo</span> que usted elija para que este agente determinará qué permisos tendrá dentro del  <span class="doc-desc-title"> sistema de soporte</span>.
+  links:
+    - 
+      title: Gestionar grupos
+      href: /SCP/groups.php
+primary_department:
+  title: Departamento primario
+  content: >
+    Escoge el <span class="doc-desc-title">departamento</span>principal al que pertenece un Agente junto a su <span class="doc-desc-title">Rol</span>.
+  links:
+    - 
+      title: Gestionar departamentos
+      href: /scp/departments.php
+primary_role:
+  title: Rol Principal
+  content: >
+    Elija el principal <span class="doc-desc-title"> Departamento</span> al que pertenece este agente.
+primary_role_on_assign:
+  title: Usar Rol Principal Para Asignaciones
+  content: >
+    Active esta opción para derivar al  <span class="doc-desc-title">rol principal</span> cuando a este agente se le asigne un ticket que esté fuera de su <span class="doc-desc-title">departamento principal</span> y los departamentos de  <span class="doc-desc-title">acceso extendido</span>. De otro modo, el agente solo tendrá acceso de lectura.
+daylight_saving:
+  title: Horario de Verano
+  content: >
+    Activar esta function si desea utilizer automáticamente el horario de verano para la zona horaria del agente.
+limited_access:
+  title: Acceso limitado
+  content: >
+    Si está habilitado, el agente sólo tendrá acceso a los Ticket asignados directamente o a través del grupo.
+directory_listing:
+  title: Listado en el directorio
+  content: >
+    Marquelo si desea enlistar a este agente en el <span class="doc-desc-title"> Directorio del Staff</span>.
+  links:
+    - 
+      title: Visite el directorio del Staff
+      href: /SCP/Directory.php
+vacation_mode:
+  title: Modo de vacaciones
+  content: >
+    Si cambia el esado del agente a <span class="doc-desc-opt"> Modo de vacaciones</span>, el agente no recibirá <span class="doc-desc-title"> alertas ni avisos</span> ni estará disponible para la asignación de Tickets.
+

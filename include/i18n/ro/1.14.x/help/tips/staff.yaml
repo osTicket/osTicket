@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Semnatura angajat
+  content: |
+    Creeaza semnatura angajatului pentru raspunsuri la tichete. Aceasta semnatura va aparea ca optiune la baza raspunsului pentru tichete
+type:
+  title: Tip de cont
+  content: |
+    Doar administratorii pot accesa panoul de admin. Angajatii pot doar sa administreze tichetele si baza de cunostinte
+group:
+  title: Grup Alocat
+  content: |
+    Apartenenta la Grup defineste rolul angajatului in sistem. Vizualizati pagina de administrare grupuri pentru a defini care angajati au acces la platforma de suport
+notes:
+  title: Note interne
+  content: |
+    Introduceti notele interne legate de angajati; Notele sunt vizibile doar persoanelor de tip administrator

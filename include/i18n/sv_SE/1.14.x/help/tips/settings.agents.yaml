@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formatering för handläggarnamn
+  content: >
+    Välj format för handläggares namn i systemet. E-postmallar använder dessa format för handläggares namn om inget annat format är angivet för variabeln.
+staff_identity_masking:
+  title: Dölja identitet på supportpersonalen
+  content: >
+    Om detta aktiveras kommer supportpersonens namn att vara dolt för kunden vid varje form av kommunikation.
+#Authentication settings
+password_reset:
+  title: Princip för lösenords gilltighet
+  content: >
+    Bestämmer hur ofta (i månader) handläggare måste byta sitt lösenord. Om funktionen är avstängd (satt till "Ingen utgång"), kommer lösenord inte att löpa ut.
+password_expiration_policy:
+  title: Princip för lösenords gilltighet
+  content: >
+    Välj hur ofta Agenter måste byta sitt lösenord. Om funktionen är avstängd (satt till <span class="doc-desc-opt">Ingen utgångstid</span>), kommer lösenord inte att löpa ut.
+allow_password_resets:
+  title: Tillåt lösenordåterställning
+  content: >
+    Aktivera denna funktion för att visa <span class="doc-desc-title">Glömt ditt lösenord</span>-länken i <span class="doc-desc-title">Login-panelen för handläggare</span> vid felaktigt inloggningsförsök.
+reset_token_expiration:
+  title: Fönster för lösenordsåterställning
+  content: >
+    Välj hur länge (i minuter) som <span class="doc-desc-title">lösenordsåterställningen</span> ska vara giltig. När en person i supportpersonalen begär en <span class="doc-desc-title">lösenordsåterställning</span>, skickas en länk per e-post som kan användas för att återställa lösenordet.
+staff_session_timeout:
+  title: Handläggare Session timeout
+  content: >
+    Välj maximal tid av inaktivitet (i minuter) innan en handläggare loggas ut. <br><br>Om du önskar inaktivera <span class="doc-desc-title">Automatisk utloggning vid inaktivitet av handläggare</span>, anger du värdet 0.
+bind_staff_session_to_ip:
+  title: Knyt handläggarens session till IP
+  content: >
+    Aktivera detta om du vill att systemet ska minnas inlogg av handläggare, efter deras IP-nummer. <br><br>Detta rekommenderas inte för dem som tilldelas IP-adress dynamiskt.

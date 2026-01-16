@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: E-Mail-Vorlagen
+  content: >
+    E-Mail-Vorlagensätze werden verwendet, um Auto-Antworten und Benachrichtigungen für verschiedene Aktionen, die während der Ticketlebensdauer erfolgen können, zu versenden.
+template_to_clone:
+  title: Vorlage duplizieren
+  content: >
+    Wählen Sie einen Vorlagensatz aus, den Sie kopieren wollen oder starten Sie einfach mit den mitgelieferten Vorlagen.
+language:
+  title: Sprache
+  content: >
+    Wählen Sie die gewünschte Sprache für den <span class="doc-desc-opt">mitgelieferten</span> <span class="doc-desc-title">E-Mail-Vorlagensatz</span> aus. Sprachpakete sind auf osTicket.com verfügbar.
+  links:
+    - 
+      title: osTicket Sprachpakete
+      href: https://osticket.com/download
+status:
+  title: Status
+  content: >
+    <span class="doc-desc-opt">Aktivierte</span> Vorlagensätze können den Abteilungen zugeordnet und als System-Standard gesetzt werden. Vorlagensätze, die in Benutzung sind, können nicht <span class="doc-desc-opt">deaktiviert</span> werden.

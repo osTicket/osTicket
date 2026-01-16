@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: กลุ่มเจ้าหน้าที่
+  content: >
+    ตารางต่อไปนี้แสดงผลของการกรองจากด้านบน ถ้าไม่มีการเลือกค่าการกรอง <span class="doc-desc-title">กลุ่มเจ้าหน้าที่ </span> ทั้งหมดจะถูกแสดงและจะถูกล้างด้วยหน้า โปรดดูที่ส่วนหน้าด้านล่างเพื่อแสดงผลการค้นหาเพิ่มเติม
+apply_filtering_criteria:
+  title: ใช้เกณฑ์การกรอง
+  content: >
+    เลือก <span class="doc-desc-title">แผนก</span> ที่เกี่ยวข้องกับความสนใจของคุณในขณะนี้ คุณอาจทำการค้นหาโดยการระบุเจ้าหน้าที่

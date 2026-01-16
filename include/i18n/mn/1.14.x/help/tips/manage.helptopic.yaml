@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Тусламжийн сэдвийн тухай мэдээлэл
+  content: >
+    <span class="doc-desc-title">Тусламжийн сэдэв</span> нь хүсэлт хэрхэн ангилагдах, хуваарилагдах, хэрэглэгчээс ямар мэдээлэл авахад туслана.
+topic:
+  title: Сэдвийн нэр
+  content: >
+    Тусламжийн сэдвийн давтагдашгүй нэр.
+status:
+  title: Төлөв
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Төрөл
+  content: >
+    Хэрвээ <span class="doc-desc-title">Тусламжийн сэдэв</span> нь дотоод бол зөвхөн ажилтан шинэ хүсэлт үүсгэх үедээ тохируулна.
+parent_topic:
+  title: Эх сэдэв
+  content: >
+    Энэ <span class="doc-desc-title">Тусламжийн сэдвийн</span> үндсэн сэдвийг сонгоно уу. Үндсэн сэдэв дотор энэ <span class="doc-desc-title">Тусламжийн сэдэв</span> харагдана.
+custom_form:
+  title: Нэмэлт форм
+  content: >
+    Нэмэлт формуудыг ашигласнаар тухайн <span class="doc-desc-title">Тусламжийн сэдэвтэй</span> холбоотой илүү тодорхой мэдээллийг хэрэглэгчээс авч болно.
+  links:
+    - 
+      title: Нэмэлт формуудыг зохицуулах
+      href: /scp/forms.php
+priority:
+  title: Зэрэглэл
+  content: >
+    Тухайн <span class="doc-desc-title">Тусламжийн сэдэвт</span> хамаарах хүсэлтийн түвшинг сонгоно. <br><br> Шинэ хүсэлтийн түвшинг шүүлтүүрээс өөрчлөх боломжтой.
+department:
+  title: Алба
+  content: >
+    Энэ тусламжийн төрлөөр үүсгэсэн хүсэлтийг хариуцах Албыг сонгоно уу.
+  links:
+    - 
+      title: Алба зохицуулах
+      href: /scp/departments.php
+sla_plan:
+  title: Үйлчилгээний стандартын төлөвлөгөө
+  content: >
+    Энэхүү <span class="doc-desc-title">Тусламжийн сэдэвт</span> хамаарах SLA-г сонгоно уу. <br><br> Ингэснээр Албаны SLA нь хамаагүй болохыг анхаараарай
+  links:
+    - 
+      title: Үйлчилгээний стандартын төлөвлөгөөг зохицуулах
+      href: /scp/slas.php
+thank_you_page:
+  title: Талархлын хуудас
+  content: >
+    Энэ <span class="doc-desc-title">Тусламжийн сэдэвт</span> үүссэн хүсэлтийг шилжүүлэх "Баярлалаа" хуудсыг сонгоно.
+  links:
+    - 
+      title: Талархлын хуудсыг зохицуулах
+      href: /scp/pages.php
+auto_assign_to:
+  title: Шинэ хүсэлтүүдийг автоматаар оноож өгөх
+  content: >
+    Тухайн <span class="doc-desc-title">Тусламжийн сэдэвт</span> нээгдсэн хүсэлтүүдийг автоматаар ажилтан, багт шилжүүлж болно<br><br>Хүсэлтийн шүүлтүүр давуу эрхтэй ажиллана.
+  links:
+    - 
+      title: Багууд болон ажилтнуудыг зохицуулах
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Хүсэлтийн автомат хариу
+  content: >
+    Идэвхижүүлсэн бол энэ <span class="doc-desc-title">Тусламжийн сэдэвт</span> автомат хариу илгээхгүй байна. <br><br> Энэ тохиргоо нь <span class="doc-desc-title">Албаны</span> болон үндсэн <span class="doc-desc-title">Автомат хариулагчийн тохиргооноос</span> давуу эрхтэй.
+  links:
+    - 
+      title: Автомат хариулагчийн тохиргоо
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Хүсэлтийн тусгай дугаар
+  content: >
+    Уг тусламжийн сэдэвт хамаарах хүсэлтийн дугаарыг "Тусгай" гэж сонгосноор өөр дугаарлалт өгөх боломжтой.

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Questo è il template della email che verrà inviata agli Utenti che selezionano il link <strong>Ho dimenticato la Password</strong> nella pagina di accesso.
+name: "Accesso a Help Desk %{company.name}"
+body: >
+  <h3><strong>Ciao %{user.name.first},</strong></h3> <div>E' stato richiesto un ripristino della password del tuo account help desk all'indirizzo %{url}<br /> <br /> Se pensi che sia stato fatto per errore, elimina e ignora questa email. Il tuo account non è stato violato o modificato. Non è bloccato e la password non è stata reimpostata. Qualcuno potrebbe erroneamente aver digitato il tuo indirizzo email. <br /> <br /> Se vuoi cambiare la password, clicca sul link sottostante. <br /> <br /><a href="%{link}">%{link}</a><br /> <br /><em style="font-size: small">Help desk <br /> %{company.name}</em></div>

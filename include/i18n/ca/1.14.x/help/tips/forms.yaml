@@ -1,0 +1,86 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Formulari del titular
+  content: >
+    Aquest text es mostrat en un quadre gris damunt els camps de formulari
+form_instructions:
+  title: Instruccions del formulari
+  content: >
+    Podeu afegir les instruccions addicionals que ajudaran a guiar l'usuari en el context de la camps de formulari i possiblement destaquen dades requerides.
+field_sort:
+  title: Posició d'exhibició de camp
+  content: >
+    Fes clic a la icona de fletxes amunt i avall i arrossegue el camp de la fila per a ordenar dins d'aquest formulari. Preferència d'ordenació no tindran efecte fins que es guarde el formulari.
+field_label:
+  title: Etiqueta del camp
+  content: >
+    Aquesta etiqueta és mostrada com l'indicador per a aquest camp. Típicament, un camp de resposta breu pot ser renovats com aquesta: <br><strong>etiqueta:</strong> <input type="text">
+field_type:
+  title: Tipus de contingut de camp
+  content: >
+    Això s'utilitza per definir el tipus d'entrada a l'espera de l'usuari. Pot seleccionar  resposta  curta i llarga, número de telèfon, data i hora, checkbox, llista desplegable o una selecció de llista personalitzada.
+  links:
+    - 
+      title: Llista personalitzada
+      href: /scp/lists.php
+field_visibility:
+  title: Visibilitat de camps
+  content: >
+    <p>Trieu una opci&oacute; de visibilitat i requisit per a aquest camp.</p>
+
+    <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px">
+    	<tbody style="vertical-align:top;">
+    		<tr>
+    			<th>Configuraci&oacute;</th>
+    			<th>Resultat</th>
+    		</tr>
+    		<tr>
+    			<td>Opcional</td>
+    			<td>Agents i usuaris finals poden veure el camp, per&ograve; no &eacute;s necess&agrave;ria resposta.</td>
+    		</tr>
+    		<tr>
+    			<td>Necessari</td>
+    			<td>Agents i usuaris finals poden veure el camp i tots dos necessiten respondre.</td>
+    		</tr>
+    		<tr>
+    			<td>Necessari per usuaris finals</td>
+    			<td>Agents i usuaris finals poden veure el camp, nom&eacute;s els usuaris finals necessiten respondre</td>
+    		</tr>
+    		<tr>
+    			<td>Necessari per Agents</td>
+    			<td>Agents i usuaris finals poden veure el camp, nom&eacute;s els Agents necessiten respondre</td>
+    		</tr>
+    		<tr>
+    			<td>Intern, Opcional</td>
+    			<td>Nom&eacute;s els Agents poden veure el camp, per&ograve; la resposta &eacute;s opcional.</td>
+    		</tr>
+    		<tr>
+    			<td>Intern, Necessari</td>
+    			<td>Nom&eacute;s els Agents poden veure el camp, &eacute;s necess&agrave;ria resposta.</td>
+    		</tr>
+    		<tr>
+    			<td>Nom&eacute;s per usuaris finals</td>
+    			<td>Nom&eacute;s usuaris finals poden veure el camp, &eacute;s necess&agrave;ria resposta.</td>
+    		</tr>
+    	</tbody>
+    </table>
+
+field_variable:
+  title: Automatització de camp
+  content: >
+    Les dades del camp estaràn disponibles a les plantilles de correu electrònic i la pàgina mitjançant el nom utilitzat en aquesta columna. Per exemple, camps al formulari de Ticket estan disponibles a través <code>%{ticket.variable}</code>, on la <strong>variable</strong> és el nom utilitzat en aquesta columna.<br><br><em>La informació de empresa està disponible a través de <code>%{</code> <code>company.variable}</code> i informació d'usuari està disponible  a través de <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Suprimr aquest camp
+  content: >
+    Comprovar i guardar el formulari per treure un camp d'aquest formulari.<br><br><em>Eliminar un camp fa no traure les dades  prèviament introduïdes  per a l'apartat de formularis completats. Per exemple, si un Ticket prèviament enviat té dades per a un camp, suprimint l'àmbit d'aquest formulari no traurà les dades del Ticket.</em>

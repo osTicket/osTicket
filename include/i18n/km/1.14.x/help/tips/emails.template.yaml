@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: ទំព័រគំរូអ៊ីម៉ែល
+  content: >
+    ទំព័រគំរូអ៊ីម៉ែលត្រូវបានប្រើដើម្បីផ្ញើការឆ្លើយតបដោយស្វ័យប្រវត្តិនិងការជូនដំណឹងសម្រាប់សកម្មភាពនានាដែលមានក្នុងជីវិតសំបុត្រមួយ។
+template_to_clone:
+  title: ទំព័រគំរូកំណត់ដើម្បីក្លូន
+  content: >
+    ជ្រើសទំព័រគំរូកំណត់ដើម្បីក្លូនឬគ្រាន់តែចាប់ផ្តើមជាមួយពុម្ពអ៊ីម៉ែលភាគហ៊ុន។
+language:
+  title: ភាសា
+  content: >
+    ជ្រើសភាសាចង់សម្រាប់ <span class="doc-desc-opt">stock</span> <span class="doc-desc-title">Email Template Set</span>. កញ្ចប់ភាសាដែលអាចប្រើបាននៅលើ osTicket.com ។
+  links:
+    - 
+      title: កញ្ចប់ភាសា
+      href: https://osticket.com/download
+status:
+  title: ស្ថានភាព
+  content: >
+    <span class="doc-desc-opt">Enabled</span> កំណត់ពុម្ពអាចរកបាននឹងត្រូវបានផ្សារភ្ជាប់ជាមួយនឹង Department និងកំណត់ទៅជាលំនាំដើមរបស់ប្រព័ន្ធ system default។  កំណត់ពុម្ពនៅក្នុងការប្រើប្រាស់មិនអាចជា <span class="doc-desc-opt">Disabled</span>.

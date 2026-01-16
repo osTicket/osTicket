@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informacje Kontaktowe
+  0: >
+
+username:
+  title: Nazwa użytkownika
+  content: >
+    Tylko przedstawiciele ze statusem Administrator mogą zmienić nazwę użytkownika. Jeżeli jesteś Przedstawicielem z uprawnieniami administratora, można tego dokonać wybierając użytkownika do edycji z tabeli <span class="doc-desc-title">Członkowie personelu</span>.
+  links:
+    - 
+      title: Zmień nazwę użytkownika jako Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Strefa czasowa
+  0: >
+
+daylight_saving:
+  title: Czas letni
+  0: >
+
+maximum_page_size:
+  title: Maksymalny rozmiar strony
+  0: >
+
+auto_refresh_rate:
+  title: Automatyczna częstotliwość odświeżania
+  0: >
+
+default_signature:
+  title: Domyślny podpis
+  0: >
+
+default_paper_size:
+  title: Domyślny rozmiar papieru
+  0: >
+
+show_assigned_tickets:
+  title: Pokaż przypisane zgłoszenia
+  content: >
+    <p>Włączenie tej opcji nadpisze globalne ustawienia ukrywania przypisanych zgłoszeń z listy otwartych zgłoszeń. </p> <p class="info-banner"><i class="icon-info-sign"></i>To ustawienie jest dostępne tylko, gdy przypisywanie zgłoszenia jest wyłączone globalnie. </p>
+password:
+  title: Hasło
+  0: >
+
+current_password:
+  title: Aktualne hasło
+  0: >
+
+new_password:
+  title: Nowe hasło
+  0: >
+
+confirm_new_password:
+  title: Potwierdź nowe hasło
+  0: >
+
+signature:
+  title: Podpis
+  content: >
+    Stwórz opcjonalny <span class="doc-desc-title">Podpis</span>, który może pojawiać się na końcu twoich Odpowiedzi na zgłoszenie. Czy <span class="doc-desc-title">Podpis</span> pojawi się, czy nie zależy od <span class="doc-desc-title">Szablonu e-mail</span>, który zostanie użyty w Odpowiedzi na zgłoszenie.
+  links:
+    - 
+      title: Stwórz szablon wiadomości e-mail w Panelu Administracyjnym
+      href: /scp/templates.php

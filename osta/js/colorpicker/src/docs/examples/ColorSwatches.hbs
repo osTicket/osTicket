@@ -1,0 +1,45 @@
+{{#extend "example-group"}}
+  {{#content "body"}}
+    {{#extend "example"}}
+      {{#content "title"}} Aliased color swatches {{/content}}
+
+      {{#content "description"}}
+        <p>
+          This example shows how to define a list of preset color swatches (or color palette)
+          and use their aliases as input values. W3C named colors are also supported.
+        </p>
+      {{/content}}
+
+      {{#content "code"}}
+        <div id="cp1" data-color="primary">
+          <input type="text" class="form-control" style="width:auto"/> <br>
+        </div>
+        <script>
+          $(function () {
+            $('#cp1').colorpicker({
+              inline: true,
+              container: true,
+              extensions: [
+                {
+                  name: 'swatches',
+                  colors: {
+                    'black': '#000000',
+                    'white': '#ffffff',
+                    'red': '#FF0000',
+                    'default': '#777777',
+                    'primary': '#337ab7',
+                    'success': '#5cb85c',
+                    'info': '#5bc0de',
+                    'warning': '#f0ad4e',
+                    'danger': '#d9534f'
+                  },
+                  namesAsValues: true
+                }
+              ]
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+  {{/content}}
+{{/extend}}

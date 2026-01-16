@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Stav
+  content: >
+    Je-li <span class="doc-desc-title">téma podpory</span> vypnuto, nebo archivováno, nebude vůbec k dispozici.
+type:
+  title: Typ
+  content: >
+    Zvolte <span class="doc-desc-opt">soukromé</span>, pokud si přejete skrýt přiřazení požadavků tomuto oddělení na zákaznickém portále. Navíc, je-li označeno jako <span class="doc-desc-opt">soukromé</span>, nebude <span class="doc-desc-title">podpis oddělení</span> přidán do e-mailových oznámení o odpovědích na požadavky.<br/><br/> Nejméně jedno oddělení musí být označeno jako <span class="doc-desc-opt">veřejné</span>.
+email:
+  title: Email
+  content: >
+    E-mailová adresa použitá při zasílání odpovědí pracovníků na požadavky uživatelům.
+template:
+  title: Sada šablon
+  content: >
+    <span class="doc-desc-title">Sada šablon</span> e-mailů použitá pro automatické odpovědi, upozornění a oznámení požadavků přiřazených tomuto oddělení.
+  links:
+    - 
+      title: Správa šablon
+      href: /scp/templates.php
+sla:
+  title: Plán SLA
+  content: >
+    Plán SLA pro požadavky přiřazených tomuto oddělení.
+  links:
+    - 
+      title: Správa plánů SLA
+      href: /scp/slas.php
+schedule:
+  title: Plán
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Spravovat plány
+      href: /scp/schedules.php
+manager:
+  title: Vedoucí oddělení
+  content: >
+    Vyberte pracovníka jako <span class="doc-desc-title">vedoucího</span> tohoto oddělení. <br/><br/> Vedoucí oddělení může dostávat zvláštní upozornění a taky má právo zrušit přiřazení požadavků.
+  links:
+    - 
+      title: Správa upozornění a oznámení
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Příjemci upozornění a oznámení
+  content: >
+    Vyberte příjemce nastavených <span class="doc-desc-title">upozornění a oznámení</span>.
+  links:
+    - 
+      title: Nastavení upozornění o oznámení
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Omezení přiřazení požadavků
+  content: >
+    Určete, zda mohou být tikety přiřazeny všem agentům, agentům se základním nebo rozšířeným přístupem, nebo pouze agentům se základním přístupem.
+disable_auto_claim:
+  title: Vypnout přiřazení si požadavku
+  content: >
+    Tato volba <strong>vypne</strong> možnosti přiřazení si požadavku při odpovědi na něj pro toto oddělení. <br><br> Pracovníci si však mohou stále ručně přiřadit nepřiřazené požadavky.
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Nastavení systému automatických odpovědí
+  content: >
+    Povoluje potlačit globální nastavení systému automatických odpovědí pro toto oddělení.
+new_ticket:
+  title: Automatická odpověď na nový požadavek
+  content: >
+    Můžete zakázat zaslání automatické odpovědi, pokud je požadavek vytvořen a přiřazen tomuto oddělení.
+new_message:
+  title: Automatická odpověď na novou zprávu
+  content: >
+    Můžete zakázat zasílání automatických odpovědí, pokud je vytvořena nová odpověď na požadavku tohoto oddělení.
+auto_response_email:
+  title: E-mailová adresa automatické odpovědi
+  content: >
+    Vyberte e-mailovou adresu, ze které jsou posílany automatické odpovědi tohoto oddělení.
+department_access:
+  title: Přístup skupiny
+  content: >
+    Povolte pracovníkům jiných oddělení přístup k požadavkům přiřazeným tomuto oddělení.
+department_signature:
+  title: Podpis oddělení
+  content: >
+    Podpis je možné zvolit při odpovědi na požadavek, který je přiřazen oddělení označenému jako <span class="doc-desc-opt">veřejné</span>.

@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Saadetakse töötajale, kui pileti lahendamiseks määratud aeg on möödas. Aegunud tähtajaga piletid tekivad, kui pileti tähtaja kuupäev saabub või kui TTL poolt seatud aeg läbi saab.
+subject: |
+  Aegunud pileti hoiatus
+body: |
+  <h3><strong>Tere %{recipient.name}</strong>!</h3>
+  Pileti <a href="%{ticket.staff_link}">#%{ticket.number}</a> tähtaeg on möödunud.
+  <br>
+  <br>
+  Me kõik peaksime kõvasti tööd tegema, et garanteerida kõikide piletite tähtaegne lahendamine.
+  <br>
+  <br>
+  Tervitades<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Pileti vaatamiseks või sellele vastamiseks, palun<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logi sisse</span></a> piletite haldussüsteemi. Sa said selle märkuse, sest see pilet on määratud sulle või sinu meeskonnale või -osakonnale lahendamiseks.</div>
+  <em style="font-size: small">Sinu sõbralik <span style="font-size: smaller"
+  >(kuigi piiratud kannatlikkusega)</span> kasutajatugi </em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

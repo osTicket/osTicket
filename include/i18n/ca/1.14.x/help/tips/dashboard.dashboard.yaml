@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Activitat dels Tickets
+  content: >
+    Seleccione un interval per causar tant el gràfic com la taula (CF. <span class="doc-desc-title"> estadístiques</span>) de baix per centrar-se en les dades corresponents per a aquestes dates. El gràfic següent sempre reflectirà una àmplia visió sobre les dades del sistema sencer (és a dir, població). No obstant això, vostè pot navegar a través de la taula <span class="doc-desc-title"> d'estadístiques</span>de baix per centrar-se en un objecte més estret d'interès (per exemple, Departament, temes o personal). Addicionalment, pot exportar les dades que actualment es mostren en la taula <span class="doc-desc-title"> d'estadístiques</span>.
+report_timeframe:
+  title: Informe d'un interval de temps
+  content: >
+    Tria una data d'inici per a la mostra de dades desitjat utilitzant el selector de data. A continuació, trie la durada del temps d'aquesta data per definir la data de finalització per a la seva Mostra de dades.
+statistics:
+  title: Estadístiques
+  content: >
+    Navega per el tema d'interès fent clic a la pestanya corresponent per veure la Mostra de dades específica. Dins de la taula, els cercles representen la mida de les dades nominals. Per tant, el més gran el nombre en una cel·la en particular, la més gran serà el cercle adjacent.
+opened:
+  title: Obert
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Assignat
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Endarrerit
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Tancat
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Reobert
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Eliminat
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Temps de servei
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Temps de resposta
+  content: >
+    Mostra un temps de resposta promig d'un agent, en hores, per emetre la correspondència.

@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Emaili mallid
+  content: >
+    Emaili vaikemalle kasutatakse automaatsete vastuste ja teadete saatmiseks pileti eluea jooksul.
+template_to_clone:
+  title: Mall kloonimiseks
+  content: >
+    Vali mallide kogum kloonimiseks või lihtsalt alusta standartsete emaili mallide laost.
+language:
+  title: Keel
+  content: >
+    Vali sobiv keel <span class="doc-desc-opt">lao jaoks</span> <span class="doc-desc-title">Emaili mallide kogumile</span>. Keelepaketid on saadaval osTicket.com lehel.
+  links:
+    - 
+      title: osTicketi keelepaketid
+      href: https://osticket.com/download
+status:
+  title: Staatus
+  content: >
+    <span class="doc-desc-opt">Lubatud</span> mallide kogum on kättesaadav, et siduda osakondadega ja määrata süsteemi vaikimisi kasutuseks. Kasutusel olevat mallide kogumit ei saa <span class="doc-desc-opt">keelata</span>.

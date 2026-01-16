@@ -1,0 +1,15 @@
+---
+- 
+  #Initial teams defined for the system.
+  #Fields:
+  #flags - (int)
+  #- isenabled - (0x01) true or false if the team should be initially
+  #enabled
+  #- noalerts - (0x02)
+  #name - Descriptive name for the team
+  #notes - Administrative notes (viewable internal only)
+  #---
+  flags: 0x01
+  name: درجہ 1 کی مدد
+  notes: |
+    ٹائر 1 سپورٹ، گاہکوں کے ساتھ ابتدائی بات چیت کے ذمہ دار

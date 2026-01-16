@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Tiketin Numerointimalli
+  content: >
+    Tätä asetusta käytetään tikettien numeroiden luomisessa. Käytä ruutumerkkiä (`#`) mihin numerot tulee laittaa. Mitä tahansa muuta tekstiä numeromuodossa tulee välttää. <span class="doc-desc-title">Ohjeotsikoissa</span> voidaan määrittää muokattuja numeromuotoja. <br/><br/> Esimerkiksi, 6-numeroinen muoto, käytä <code>######</code>.
+sequence_id:
+  title: Tikettinumerointijakso
+  content: >
+    Määritä jakso mistä aloitetaan uudet tikettinumerot. Järjestelmässä on kasvava järjestys ja satunnainen järjestys oletuksena. Voit luoda niin monia järjestyksiä kuin haluat. Käytä Ohjeotsikoihin useita järjestyksiä <span class="doc-desc-title">Tikettinumeron muotojen</span> asetuksissa.
+queue_bucket_counts:
+  title: Ylätason tikettien määrä
+  content: >
+    Tätä asetusta käytetään piilottamaan tai näyttämään tikettien määrä ylätason jonoissa.
+default_ticket_status:
+  title: Uusien Tikettien Oletustila
+  content: >
+    Valitse oletustila uusille tiketeille. Tämä voidaan määrittää haluttaessa jokaiselle ohjeotsikolle. Tämä voidaan myös ohittaa tikettisuodattimessa.
+  links:
+    - 
+      title: Hallinnoi Tikettien Tilaa
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: Oletus SLA (Palvelutasosopimus)
+  content: >
+    Valitse oletus Palvelutaso, jonka perusteella määritetään kuinka kauan tiketti voi olla avoin ennen kuin se merkitään myöhässä olevaksi.
+  links:
+    - 
+      title: Luo lisää Palvelutasosopimuksia
+      href: /scp/slas.php
+default_priority:
+  title: Oletus Prioriteetti
+  content: >
+    Valitse oletus <span class="doc-desc-title">prioriteetti</span> tiketeille, joille ei ole automaattisesti määritetty prioriteettia. <br/><br/> Prioriteetti voidaan määrittää Ohjeotsikon, osaston tai tikettisuodattimen asetuksissa.
+maximum_open_tickets:
+  title: Maksimi määrä avoimia tikettejä
+  content: >
+    Syötä maksimi <em>määrä</em> tikettejä, joita Asiakkaalla voi olla <strong>avoinna</strong> tukisivustossa. <br><br> Syötä <span class="doc-desc-opt">0 </span> jos haluat poistaa tämän rajoituksen.
+email_ticket_priority:
+  title: Sähköpostitikettien Prioriteetti
+  content: >
+    Käytä lähettäjän sähköpostipalvelun sähköpostin prioriteettiä
+show_related_tickets:
+  title: Näytä Liittyvät Tiketit
+  content: >
+    Näytä kaikki liittyvät tiketit asiakkaan kirjautuessa - Muutoin näkymä rajoitetaan yksittäiseen tikettiin
+human_verification:
+  title: Ihmisen todentaminen
+  content: >
+    Aktivoi CAPTCHA Asiakasportaalissa vahvistaaksesi että luotu tiketti on ihmisen tekemä. <br><br> Vaatii GDLib kirjaston
+claim_tickets:
+  title: Lunasta tiketit itsellesi vastauksen yhteydessä
+  content: >
+    Enable this to auto-assign unassigned tickets to the responding Agent. <br><br> Reopened tickets are always assigned to the last respondent unless auto assign on reopen is disabled on the Department level.
+collaborator_ticket_visibility:
+  title: Yhteistyökumppanin tikettien näkyvyys
+  content: >
+    Jos käytössä, käyttäjät näkevät KAIKKI tiketit, joissa ovat osallisina kirjautuessaan sisään portaaliin. <br><br> Jos poistettu käytöstä, käyttäjät voivat nähdä omat tikettinsä kirjautuessaan sisään portaaliin.
+require_topic_to_close:
+  title: Vaatii ohjeaiheen sulkemisen
+  content: >
+    Jos käytössä, tiketillä on oltava ohjeaihe, jotta käsittelijä voi sulkea sen
+assigned_tickets:
+  title: Osoitetut tiketit
+  content: >
+    Aktivoi tämä ominaisuus jotta kohdistetut tiketit poistetaan <span class="doc-desc-title">Avoimien tikettien listasta</span>.
+answered_tickets:
+  title: Vastatut tiketit
+  content: >
+    Aktivoi tämä jotta vastatut tiketit näytetään <span class="doc-desc-title">Vastattujen tikettien listassa</span>. Muutoin, nämä sisältyvät <span class="doc-desc-title">Avoimien tikettien listaan</span>.
+ticket_attachment_settings:
+  title: Tikettien Liitteet
+  content: >
+    Määritä asetukset liitetiedostoille <span class="doc-desc-title">Aiheen tiedot</span> kentässä. Nämä asetukset ovat käytössä kaikissa uusissa tiketeissä ja viesteissä riippumatta kanavasta (Verkkosivusto, Sähköposti, API, jne.).

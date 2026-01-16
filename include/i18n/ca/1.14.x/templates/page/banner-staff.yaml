@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Aquest és el missatge inicial i banners mostrats a la pàgina d'autenticació del Personal. El primer camp d'entrada es refereix al text amb format vermell que apareix a la part superior. L'últim cuadre de text és pel contingut del banner que ha de servir com una renúncia.
+name: "Autenticació requerida"
+body: ""

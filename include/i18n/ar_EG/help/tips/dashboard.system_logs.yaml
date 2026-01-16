@@ -1,0 +1,38 @@
+---
+system_logs:
+  title: سجلات النظام
+  content: >
+    هنا تجد سجل بالأنشطة المتعلقة بإكتشاف المشاكل (مثل الأخطاء، التحذيرات أو الأعطاب).
+  links:
+    - 
+      title: خصّص نوع النشاط المراد تسجيله بواسطة تغيير <br /><span class="doc-desc-title">مستوى السجل الافتراضي</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: نطاق التاريخ
+  content: >
+    حدد نطاق التقويم الخاص بك الذي ترغب في عرضه في <span class="doc-desc-title"> سجلات النظام</span>.
+type:
+  title: النوع
+  content: >
+    اختر خياراً لتضييق التركيز على نوع معين من النشاط. يمثل <span class="doc-desc-opt"> التصحيح</span> الأقل صرامة، ويمثل  <span class="doc-desc-opt"> الخطأ</span> الأكثر صرامة .
+showing_logs:
+  title: عرض&hellip;السجلات
+  content: >
+    تأكد من التحقق من قسم<span class="doc-desc-title"> الصفحة</span> أدناه للتأكد من أنه لا توجد المزيد من الصفحات التي تعرض سجلات النظام المتوفرة.
+log_title:
+  title: عنوان السجل
+  content: >
+    إذا كنت ترغب في فرز النتائج حسب <span class="doc-desc-title">عنوان السجل</span> فقم بالنقر على <span class="doc-desc-title"> عنوان السجل</span> في رأس الجدول.
+log_type:
+  title: نوع السجل
+  content: >
+    إذا كنت ترغب في فرز النتائج حسب <span class="doc-desc-title">نوع السجل</span> فقم بالنقر على <span class="doc-desc-title">نوع السجل</span> في رأس الجدول.
+log_date:
+  title: تاريخ السجل
+  content: >
+    هذا هو تاريخ إنشاء السجل من قبل البرنامج. إذا كنت ترغب في فرز النتائج حسب <span class="doc-desc-title"> تاريخ السجل</span>، فانقر ببساطة على <span class="doc-desc-title"> تاريخ السجل</span> في رأس الجدول. 
+    (استخدم نموذج <span class="doc-desc-title">نطاق التاريخ</span> الذي في الأعلى لتضييق مدى التقويم للسجلات.)
+ip_address:
+  title: عنوان IP
+  content: >
+    هذا يشير إلى <span class="doc-desc-title">عنوان</span> <span class="doc-desc-title">IP</span> إما للوكيل أو العميل الذي كان يستخدم التذكرة في الوقت الذي تم إنشاء السجل فيه.

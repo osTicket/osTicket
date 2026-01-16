@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Open
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Ticket irekiak.
+- 
+  id: 2
+  name: Erresolbituak
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Amaitutako ticket-ak
+- 
+  id: 3
+  name: Itxia
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Itxitako ticket-ak. Erabiltzaileen eta staff-eko consolan eskuragarri jarraituko dute.
+- 
+  id: 4
+  name: Artxibatuta
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Tickets only adminstratively available but no longer accessible on ticket queues and client panel.
+- 
+  id: 5
+  name: Ezabatua
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Ticketak ezabatze ilaran. Ezin dira atzitu ticket zerrendan.

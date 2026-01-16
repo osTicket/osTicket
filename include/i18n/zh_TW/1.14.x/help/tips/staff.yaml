@@ -1,0 +1,25 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: 工作人員 簽名列
+  content: |
+    建立工作人員的簽名檔是為了回應票單時使用。
+    這個簽名檔將會選擇性的出現在回應票單的底部
+type:
+  title: 帳戶類型
+  content: |
+    最大管理者擁有存取管理員版面的權限。專員只有管理案件和知識庫的權限。
+group:
+  title: 分配群組
+  content: |
+    群組成員定義系統工作人員規則。請拜訪群組管理頁面設定工作人員權限。
+notes:
+  title: 內部備註
+  content: |
+    發佈內部通知給工作人員；這個通知只有管理員帳戶的的工作人員可以看到

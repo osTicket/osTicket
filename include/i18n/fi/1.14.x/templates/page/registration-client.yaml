@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Tämä pohja määrittelee sähköpostin joka lähetetään asiakkaalle, kun tili on luotu. Tämä viesti toimii sähköpostiosoitteen varmistuksena. Käytä %{link} muuttujaa jossain kohtaa viestissäsi.
+name: "Tervetuloa %{company.name}"
+body: >
+  <h3><strong>Hei %{recipient.name.first},</strong></h3> <div> Olemme luoneet sinulle tilin tukijärjestelmäämme osoitteessa %{url}.<br /> <br /> Ole hyvä, ja seuraa linkkiä vahvistaaksesi tilisi ja päästäksesi hallinnoimaan tikettejä. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ystävällisin terveisin, tukitiimi<br /> %{company.name}</em> </div>

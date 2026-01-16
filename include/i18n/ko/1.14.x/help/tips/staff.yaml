@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: 스태프 서명 라인
+  content: |
+    티켓 요청에 대한 회신에 사용될 스태프의 서명을 생성합니다.  이 서명은 티켓 회신의 가장 아래에 선택적으로 표시될 수 있습니다.
+type:
+  title: 계정 유형
+  content: |
+    관리자는 관리자 패널 접근 권한을 갖습니다. 스태프는 티켓 및 지식 관리에만 접근할 수 있습니다.
+group:
+  title: 할당된 그룹
+  content: |
+    그룹은 시스템에서 스태프의 역할을 정의합니다. 헬프데스크에서 스태프가 접근할 수 있는 역할을 정의하기 위해서는 그룹 관리 페이지를 이용하기 바랍니다.
+notes:
+  title: 내부 노트
+  content: |
+    스태프에 관한 내부 노트 지정; 노트는 관리자 권한을 가진 스태프에게만 보입니다.

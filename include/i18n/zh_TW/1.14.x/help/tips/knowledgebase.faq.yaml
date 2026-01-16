@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: 清單類型
+  content: >
+    選擇 <span class="doc-desc-opt"> 公開 (發佈)</span> 如果您會喜歡這份 <span class="doc-desc-title"> FAQ</span> 如果是公共的類別、可發表在公共知識庫上。
+  links:
+    - 
+      title: 為用戶端入口網站開啟用公共知識庫
+      href: /scp/settings.php?t=kb

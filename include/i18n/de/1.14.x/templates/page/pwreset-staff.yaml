@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Diese Vorlage definiert die E-Mail, welche an die Agenten versendet wird, die den <strong>Passwort vergessen</strong>-Link der Login-Seite des Agenten-Bereichs ausgewählt haben.
+name: "osTicket Agenten-Passwort zurücksetzen"
+body: >
+  <h3><strong>Hallo %{staff.name},</strong></h3> <div> ein Link zum Zurücksetzen des Passworts wurde in Ihrem Namen vom Helpdesk %{url} angefordert. <br /> <br /> Wenn Sie diesen Vorgang irrtümlicherweise oder nicht selbst angestoßen haben, ignorieren und löschen Sie bitte diese E-Mail. Ihr Konto ist weiterhin sicher, niemandem wurde Zugang dazu gewährt. Das Konto wurde nicht gesperrt und das Passwort wurde nicht zurückgesetzt. Jemand hat wahrscheinlich Ihre E-Mail-Adresse fälschlicherweise eingegeben.<br /> <br />Folgen Sie dem Link unten, um sich anzumelden und Ihr Passwort zu ändern. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ihr freundliches Support-Ticket-System</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

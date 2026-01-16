@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Urutan Pengerjaan
+  content: >
+    Masukkan angka yang akan menentukan prioritas filter. Semakin rendah angka yang dimasukkan, semakin tinggi prioritas filter untuk dieksekusi dari filter lain yang memiliki angka lebih tinggi.<br><br> Jika filter ini ingin dijadikan filter terakhir yang akan diterapkan, aktifkan <span class="doc-desc-title">Hentikan Pemrosesan Lebih Lanjut Ketika Cocok</span>.
+target_channel:
+  title: Saluran
+  content: >
+    Pilih target <span class="doc-desc-title">Kanal</span> untuk <span class="doc-desc-title">Filter tiket</span> anda. <span class="doc-desc-title">Kanal</span> adalah sumber dimana tiket akan tiba pada sistem. <br><br> Contoh, jika anda memilih <span class="doc-desc-title">Kanal</span> <span class="doc-desc-opt">Form Web</span>, maka anda akan menerapkan <span class="doc-desc-title">Filter tiket</span> pada tiket-tiket yang berasal dari form web Portal Klien.
+rules_matching_criteria:
+  title: Kriteria Aturan Pencocokan
+  content: >
+    Pilih seberapa elastis pencocokan yang anda inginkan pada <span class="doc-desc-title">Filter tiket</span>. Jika anda ingin <span class="doc-desc-title">Filter tiket</span> untuk mencocokan pada aturan apa saja, kemudian berhenti, pilih <span class="doc-desc-opt">Pencocokan Apa Saja</span>. Jika anda ingin <span class="doc-desc-title">Filter tiket</span> melakukan pencocokan pada <em><strong>semua aturan</strong></em>, pilihan <span class="doc-desc-opt">Pencocokan Semua</span>.
+reject_ticket:
+  title: Tolak Tiket
+  content: >
+    Jika fitur ini diaktifkan, proses lebih lanjut akan dihentikan dan seluruh pilihan dibawah akan diabaikan pada saat kecocokan terjadi.
+reply_to_email:
+  title: Balas ke Email
+  content: >
+    Aktifkan fitur ini jika anda ingin Meja Bantu anda untuk tidak mengabaikan header <span class="doc-desc-title">Reply To</span> pada email User . Fitur ini hanya relevan jika <span class="doc-desc-title">Kanal</span> diatas mengikut sertakan <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: Non aktifkan Respon-Otomatis Tiket
+  content: >
+    <em>Catatan: Fitur ini akan menimpa pengaturan <span class="doc-desc-title">Departemen</span> ataupun pengaturan <span class="doc-desc-title">Pembalas Otomatis</span>.</em>
+canned_response:
+  title: Daftar Sedia Balasan-Otomatis
+  content: >
+    Pilih dari <span class="doc-desc-title">Daftar Sedia Respon</span> yang anda inginkan untuk diemail ke user ketika <span class="doc-desc-title">Filter Tiket</span> cocok. Contoh <span class="doc-desc-title">Balasan Otomatis Tiket Baru</span> yang digunakan bergantung pada <span class="doc-desc-title">kumpulan contoh</span> yang diterapkan sebagai standar, atau ketika tiket <span class="doc-desc-title">Departemen</span> cocok.
+  links:
+    - 
+      title: Atur Daftar Sedia Response
+      href: /scp/canned.php
+    - 
+      title: Mengatur Set Template
+      href: /scp/templates.php
+    - 
+      title: Template Otomatis Tiket Baru
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Departemen
+  content: >
+    Pilih <span class="doc-desc-title">Departemen</span> mana yang ingin anda tugaskan ketika pencocokan pada <span class="doc-desc-title">Filter Tiket</span> terjadi.
+  links:
+    - 
+      title: Mengelola Departemen
+      href: /scp/departments.php
+priority:
+  title: Prioritas
+  content: >
+    Pilih tingkat <span class="doc-desc-title">Prioritas</span> yang ingin anda terapkan pada pencocokan <span class="doc-desc-title">Filter Tiket</span>.<br /><br /><em>Catatan: Fitur ini akan menimpa pengaturan <span class="doc-desc-title">Departemen</span> dan pengaturan <span class="doc-desc-title">Topik Bantuan</span>.</em>
+sla_plan:
+  title: Perencanaan SLA
+  content: >
+    Pilih <span class="doc-desc-title">Perencanaan SLA</span> yang ingin anda terapkan pada pencocokan <span class="doc-desc-title">Filter Tiket</span>.
+  links:
+    - 
+      title: Atur Perencanaan SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Penugasan Otomatis
+  content: >
+    Pilih Agen atau Tim yang ingin anda terapkan pada pencocokan <span class="doc-desc-title">Filter Tiket</span>.
+  links:
+    - 
+      title: Mengatur Agen
+      href: /scp/staff.php
+    - 
+      title: Mengatur Tim
+      href: /scp/teams.php
+help_topic:
+  title: Topik Bantuan
+  content: >
+    Pilih <span class="doc-desc-title">Topik Bantuan</span> yang ingin anda terapkan pada pencocokan <span class="doc-desc-title">Filter Tiket</span>.
+  links:
+    - 
+      title: Mengelola topik bantuan
+      href: /scp/helptopics.php
+admin_notes:
+  title: Catatan Admin
+  content: >
+    Catatan ini hanya dapat dilihat oleh mereka yang jenis akunnya '<span class="doc-desc-title">Admin</span>.'

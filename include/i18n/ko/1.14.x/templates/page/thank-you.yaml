@@ -1,0 +1,15 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  이 템플릿은  포털에서 고객이 새 티켓을 제출 할 때 감사 페이지에 표시되는 내용을 정의합니다.
+name: 감사합니다.
+body: |
+  <div>%{ticket.name},<br><br>
+  저희에게 연락 주셔서 감사합니다.<br><br>
+  지원 요청이 생성되었으며, 담당자가 필요한 경우 곧 연락 드리게 됩니다.</p>
+  <br><br>
+  지원팀
+  </div>

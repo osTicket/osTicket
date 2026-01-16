@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Activité du ticket
+  content: >
+    Sélectionnez une plage de dates pour mettre en cause à la fois le graphique et la table de  (cf. <span class="doc-desc-title"> statistiques</span>) ci-dessous pour se focaliser sur toutes les données correspondantes aux mêmes dates. Le graphique ci-dessous reflétera toujours une vue large des données de l'ensemble du système (par ex, la population). Toutefois, vous pouvez vous déplacer à travers la table <span class="doc-desc-title"> statistiques</span> ci-dessous pour se concentrer sur un sujet plus restreint d'intérêt (p. ex., ministère, sujets ou personnel). En outre, vous pouvez exporter toutes les données actuellement affichées dans le tableau de <span class="doc-desc-title"> statistiques</span>.
+report_timeframe:
+  title: Période de rapport
+  content: >
+    Choisissez une date de début pour l'échantillon de données désiré en utilisant le sélecteur de dates. Puis, choisissez la durée de départ de cette date pour définir la date de fin de votre échantillon de données.
+statistics:
+  title: Statistiques
+  content: >
+    Naviguez jusqu'au sujet d'intérêt en cliquant sur l'onglet approprié pour afficher l’échantillon spécifique des données. Au sein de la table, les cercles représentent la taille des données nominales. Par conséquent, plus le nombre est grand dans une cellule particulière, plus le cercle adjacent est grand.
+opened:
+  title: Ouverts
+  content: >
+    Tickets initialement ouverts et associés au service ou à la rubrique d'aide, ou le nombre de tickets qu'un agent a ouvert au nom d'un utilisateur.
+assigned:
+  title: Assigné
+  content: >
+    Tickets qui ont été attribués à un agent ou à une équipe. Le compteur indique les tickets qui ont été attribués manuellement à des agents ou des équipes, les tickets auto-attribués et les tickets attribués automatiquement par une règle du système.
+overdue:
+  title: En retard
+  content: >
+    Tickets marqués "en retard" par le système. Ces tickets ne respectent pas le SLA qui leur est attribué, ils sont toujours ouverts alors que leur date d'échéance est dépassée.
+closed:
+  title: Fermé
+  content: >
+    Le nombre de tickets qui sont actuellement fermés.
+reopened:
+  title: Ré-ouvert
+  content: >
+    Le nombre total de fois où un ticket a été réouvert. Les tickets sont considérés comme réouverts lorsque leur état passe de "fermé" à "ouvert".
+deleted:
+  title: Supprimé
+  content: >
+    Le nombre de tickets qui ont été effacés.
+service_time:
+  title: Durée d'utilisation
+  content: >
+    Se réfère au temps passé entre l'ouverture et la fermeture d'un ticket. La colonne "Durée de traitement" mesure la durée moyenne de traitement d'un ticket, en heures.
+response_time:
+  title: Temps de réponse
+  content: >
+    Temps de réponse moyen d'un agent lors des échanges au sujet d'un ticket.

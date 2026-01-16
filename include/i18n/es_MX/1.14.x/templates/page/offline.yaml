@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  La página de desconexión aparece en el Portal del Cliente cuando el sistema de soporte está desconectado.
+name: Fuera de Línea
+body: |
+  <div><h1>
+  <span style="font-size: medium">Sistema de Soporte está Fuera de Línea</span>
+  </h1>
+  <p>Gracias por ponerse en contacto con nosotros.</p>
+  <p>Nuestro sistema de Soporte está fuera de línea en este momento, por favor, vuelva más tarde.</p>
+  </div>

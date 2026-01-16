@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Format del nom d'usuari
+  content: >
+    Escull un format per els noms d'usuari per a tot el sistema. Les plantilles de correu l'utilitzaran per els noms si no s'especifica cap altre format.
+#Authentication settings
+client_session_timeout:
+  title: Caducitat de la sessió d'usuari
+  content: >
+    Trie el màxim temps  desocupat(en minuts) abans de que es requerixca que un Agent es conecte una altra vegada. <br><br>Si vole desactivar el <span class="doc-desc-title"> Temps de venciment de sessió de personal</span>, escriu 0.
+registration_method:
+  title: Opcions de Registre
+  content: >
+    <span class="doc-desc-title"> Mètode d'inscripció</span> i <span class="doc-desc-title"> matrícula exigia</span> s'utilitzen conjuntament per configurar com els usuaris es registren i accedixen al portal web del sistema de suport. La taula següent resumeix com els dos paràmetres són interpretats pel sistema. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" > <tbody style="vertical-align:top;"> <tr><th>inscripció requereix</th> <th>mètode d'Inscripció </th> <th>resultat</th></tr> <tr><td>No</td> <td>públic</td> <td> Es recomana registre, però no es requerix per a nous Tickets.</td></tr> <tr><td>Sí</td> <td>públic</td> <td>lRegistre i autenticación són necessaris per a nous Tickets</td></tr> <tr><td>No</td> <td>privada</td> <td>qualsevol pot crear un Ticket, però només els agènts poden registrar a comptes</td></tr> <tr><td>Sí</td> <td>privat</td> <td>accés d'usuari és només per invitació</td></tr> <tr><td>Discapacitats</td> <td>No</td> <td>ningú es pot inscriure per un compte, però qualsevol pot crear un Ticket. <em>Això era com osTicket funcionava abans 1,9</em></td></tr> <tr><td>Sí</td> <td>amb Deshabilitad</td> <td>Deshabilitar nou Tickets mitjançant el portal web</td></tr></tbody></table>
+client_verify_email:
+  title: Es requerix verificació de Email
+  content: >
+    Desactive aquesta opció per donar als usuaris accés immediat a Tickets mitjançant la pàgina de connexió "Comprovar estatus d'entrada" al portal de client. Si està activat, (que està predeterminat), els usuaris hauran de rebre un e-mail i seguir un enllaç al correu electrònic per veure el Ticket. <br><br>Deshabilitar la comprovació de email podria permetre a tercers (p. ex. col·laboradors del Ticket) suplantar el propietari del Ticket.
+allow_auth_tokens:
+  title: Activar tokens d'autentificació
+  content: >
+    Activa aquesta opció per permetre l'us de tokens d'autentificació per identificar usuaris de forma automàtica quan cliquin a l'enllaç d'un ticket.

@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Ovaj šablon definiše imejl poslat zaposlenima koji kliknu na link <strong>Zaboravljena lozinka</strong> na stranici za prijavljivanje u kontrolni panel zaposlenih.
+name: "Resetovanje lozinke zaposlenog osTicketa"
+body: >
+  <h3><strong>Pozdrav %{staff.name.first},</strong></h3> <div> Zahtev za resetovanje lozinke podnet je u Vaše ime u centru za tehničku podršku na %{url}.<br /> <br /> Ukoliko niste poslali ovaj zahtev, molimo Vas da obrišete i zanemarite ovu email poruku. Vaš korisnički nalog je još uvek siguran i niko nema pristup Vašem računu osim Vas. Neko je možda greškom uneo vašu imejl adresu.<br /> <br />Pratite link ispod kako biste se prijavili na centar za tehničku podršku i promenili svoju lozinku.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

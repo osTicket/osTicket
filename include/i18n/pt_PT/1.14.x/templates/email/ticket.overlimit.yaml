@@ -1,0 +1,17 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Enviar aos utilizadores quando for excedido o limite máximo de tickets abertos. O limite pode ser configurado no painel de Administração e é definido pelo número de tickets abertos por um endereço de e-mail em particular.
+subject: |
+  Alcançado o limite de tickets abertos
+body: |
+  <h3><strong>Caro(a) %{ticket.name.first},</strong></h3>
+  Atingiu o número máximo permitido de pedidos de assistência abertos em simultâneo. Para poder abrir um novo pedido de assistência, um dos seus pedidos pendentes tem de ser fechado. Para atualizar or adicionar comentários a um pedido de assistência já aberto <a href="%{url}/tickets.php?e=%{ticket.email}">entre no sistema de suporte</a>.
+  <br>
+  <br>
+  Obrigado,<br/>
+  O Sistema de Suporte ao Cliente

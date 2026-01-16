@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Format pour le nom des agents
+  content: >
+    Choisissez un format pour le nom des agents sur l'ensemble du système. Les gabarits des messages de courriel l'utiliseront si un autre format n'est pas spécifié.
+staff_identity_masking:
+  title: Masquer l'identité du personnel
+  content: >
+    Si activée, cette option cachera les noms des agents aux clients pendant les échanges.
+#Authentication settings
+password_reset:
+  title: Stratégie d'Expiration de mot de passe
+  content: >
+    Cette option définit la durée (en mois) avant qu'un agent doive changer son mot de passe. Si elle est désactivé (réglé sur "Pas d'expiration"), le mot de passe n'expire jamais.
+password_expiration_policy:
+  title: Stratégie d'Expiration de mot de passe
+  content: >
+    Définit à quelle fréquence les agents seront tenus de changer leur mot de passe. Si cette option est désactivée (réglé sur <span class="doc-desc-opt">Pas d'expiration</span>), le mot de passe n'expire jamais.
+allow_password_resets:
+  title: Autoriser la réinitialisation de mot de passe
+  content: >
+    Activez cette option si vous souhaitez afficher le lien <span class="doc-desc-title">Mot de passe oublié</span> sur la page <span class="doc-desc-title">Authentification des agents</span> quand une tentative de connexion a échoué.
+reset_token_expiration:
+  title: Fenêtre de réinitialisation de mot de passe
+  content: >
+    Définissez la durée de validité (en minutes) des <span class="doc-desc-title">Demandes de réinitialisation des mots de passe</span>. Lorsqu'un Agent <span class="doc-desc-title">réinitialise son mot de passe</span> un email avec un lien unique lui est envoyé pour finaliser la procédure.
+staff_session_timeout:
+  title: Durée de la session
+  content: >
+    Choisissez la durée maximale d'inactivité (en minute) avant qu'un agent soit obligé de se reconnecter.<br><br> Si vous souhaitez désactiver la <span class="doc-desc-title">Durée de session du service des agents</span> entrez 0.
+bind_staff_session_to_ip:
+  title: Lier la session de l'Agent à IP
+  content: >
+    Activez cette option si vous voulez que vos agents soient mémorisés par leurs adresses IP lors de leurs connexions. <br><br> Cette option n'est pas recommandée pour les utilisateurs qui obtiennent leur adresse IP dynamiquement.

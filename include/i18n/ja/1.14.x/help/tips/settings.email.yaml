@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: デフォルトのメールテンプレートセット
+  content: >
+    チケットの作成から終了までに実行されるさまざまなアクションに<span class="doc-desc-title">自動返信</span>と<span class="doc-desc-title">アラート</span>を送信するのに使用する<span class="doc-desc-title">メールテンプレートセット</span>を選択します。<br><br>部門は特定のメールテンプレートセットにアサインできます。
+  links:
+    - 
+      title: メールテンプレートセットの管理
+      href: /scp/templates.php
+default_system_email:
+  title: デフォルトの送信メール
+  content: >
+    送信メールが送られるメールアドレスを選択します。<br><br> <span class="doc-desc-title">部門</span> は、ここで設定されたメールアドレスを上書きする独自の<span class="doc-desc-title">メールアドレス</span>を設定できます。
+  links:
+    - 
+      title: メールアドレスの管理
+      href: /scp/emails.php
+default_alert_email:
+  title: デフォルトのアラート メールアドレス
+  content: >
+    エージェントに送る<span class="doc-desc-title">アラートと通知</span>の送信元のメールアドレスを選択します。
+  links:
+    - 
+      title: メールアドレスの管理
+      href: /scp/emails.php
+admins_email_address:
+  title: 管理者のメールアドレス
+  content: >
+    <span class="doc-desc-title">システムエラー</span>と<span class="doc-desc-title">新着チケットアラート</span> (有効な場合) が送られる管理者のメールアドレスを入力します。
+  links:
+    - 
+      title: アラートと通知の管理
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: メールの取得
+  content: >
+    設定され有効になっている<span class="doc-desc-title">メールボックス</span>でIMAP/POPポーリングを許可します。
+  links:
+    - 
+      title: メールボックスの管理
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: cronを使用してのメールの取得
+  content: >
+    エージェントのアクティビティによってトリガーされた内部タスクマネジャーを使用して定期的なメールの取得を有効にします。<br><br> スタッフコントロールパネルに誰もログインしていない場合、メールは取得されないことに注意してください。予測できる取得の間隔には、外部タスクスケジューラーを使用することを大いに推奨します。
+  links:
+    - 
+      title: 外部タスクスケジューラーの使用
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: 引用された返信の削除
+  content: >
+    有効な場合、これは、このメールの通信における前のメッセージを削除します。<br><br>この機能は、以下の<span class="doc-desc-title">返信セパレータータグ</span>に相関的に依存します。
+reply_separator_tag:
+  title: 返信セパレータータグ
+  content: >
+    これは、行の上でユーザーに返信を示すトークンです。 <br><br> <strong>注:</strong> これは、上の<span class="doc-desc-title">引用された返信の削除</span>が有効になっている場合のみ該当します。
+emailed_tickets_priority:
+  title: メールされたチケットの優先順位
+  content: >
+    ユーザーのメール (たとえばOutLook) の優先順位/重要度を新しいチケットの優先順位に指示するかどうかを選択します。<br><br> この設定は、<span class="doc-desc-title">チケットフィルター</span>により上書きできます。
+  links:
+    - 
+      title: チケットフィルターの作成と管理
+      href: /scp/filters.php
+accept_all_emails:
+  title: すべてのメールを受け入れる
+  content: >
+    知らないユーザーからのメールを受け入れます。<br><br> この設定のチェックボックスをオフにすると、チケットが拒否されます。
+accept_email_collaborators:
+  title: メールの協力者を受け入れる
+  content: >
+    <code><strong>宛先</strong></code>と<code><strong>CC</strong></code>フィールドに含まれるメールの参加者をチケットの協力者として追加します。<br /><br /> <em>協力者は、常にチケットの表示時にエージェントによって手動で追加できます。</em>
+default_mta:
+  title: デフォルトのMTA
+  content: >
+    <span class="doc-desc-title">デフォルトMTA</span>は、SMTP設定なしに送信メールのメール配布処理を行います。
+ticket_response_files:
+  title: チケット返信ファイル
+  content: >
+    有効にすると、エージェントがチケットの返信に含めることができる添付ファイルがユーザー宛てのメールにも含まれます。
+verify_email_addrs:
+  title: メールアドレスのチェック
+  content: >
+    このオプションはメールアドレスがドメインのDNSにてメールエクスチェンジャー (MX) が存在するか確認する機能を有効にします。このオプションは、メールアドレスチェックのため負荷が増加します。

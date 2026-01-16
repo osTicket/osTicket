@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Ny Sags Hjælpe Emne
+  content: >
+    Vælg et <span class="doc-desc-title">Hjælpe Emne</span> til at være automatisk forbundet med sager skabt via denne Email Adresse. <br/><br/> Formularer tilknyttet med Hjælpe Emne vil blive tilføjet til sager, men vil ikke have nogen data.
+  links:
+    - 
+      title: Administrere Hjælpe Emner
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Nye Sags Prioritet
+  content: >
+    Vælg <span class="doc-desc-title">prioritet</span> for nye sager skabt via denne Email Adresse.
+new_ticket_department:
+  title: Ny Sags Afdeling
+  content: >
+    Vælg den <span class="doc-desc-title">Afdeling</span> der sendes nye sager skabt via denne Email adresse.
+  links:
+    - 
+      title: Administrere Afdelinger
+      href: /scp/departments.php
+auto_response:
+  title: Nye sags autosvar
+  content: >
+    Du kan deaktivere Autosvar der sendes til brugeren, når en ny sag er oprettet via denne Email Adresse.
+username:
+  title: Brugernavn
+  0: >
+
+password:
+  title: Adgangskode
+  0: >
+
+login_information:
+  title: Email Login oplysninger
+  content: >
+    <span class="doc-desc-title">Brugernavn</span> og <span class="doc-desc-title">Adgangskode</span> er forpligtet for at hente email fra IMAP / POP mailbokse samt at sende email via SMTP.
+mail_account:
+  title: Henter Email
+  content: >
+    Hent emails fra fjern IMAP eller POP mail boks og konvertere dem til sager i din help desk.
+  links:
+    - 
+      title: Administrere <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> indstillinger.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Fjern vært
+  content: >
+    Angiv <span class="doc-desc-title">værtsnavn</span> og <span class="doc-desc-title">port</span> nummeret fra din mail server. Dette kan være tilgængelige i dokumentationen for din hosting konto eller fra din email administrator.
+protocol:
+  title: Mail Boks Protokol
+  content: >
+    Vælg mail boks protokol understøttet af din eksterne mail server. IMAP anbefales og SSL er anbefalet, hvis er muligt.
+fetch_frequency:
+  title: Hente Frekvens
+  content: >
+    Angiv, hvor ofte, i minutter, systemet vil hente fra mail boksen. <br/><br/> Dette vil definere den gennemsnitlige forsinkelse for modtage et autosvar, efter en bruger har sendt en email til denne postkasse.
+emails_per_fetch:
+  title: Emails pr. henting
+  content: >
+    Angiv antallet af emails som skal behandles på én gang.
+fetched_emails:
+  title: Hentede Emails
+  content: >
+    Beslut hvad de skal gøre med forarbejdet emails: <br/><br/> <span class="doc-desc-opt"><b>Flyt til mappe</b></span>: Dette vil tage en backup af din emails fra INDBAKKE til en mappe, du angiver. Hvis mappen endnu ikke findes på serveren, forsøger systemet automatisk oprette den. (<b>Anbefalet</b>) <hr><span class="doc-desc-opt"><b>Slet Emails</b></span>: Dette vil slette din emails fra INDBAKKE, når det er behandlet. <hr><span class="doc-desc-opt"><b>Gør ingenting</b></span>: Dine emails vil blive i din INDBAKKE. Systemet vil optage besked ids for din email og forsøger ikke at hente det igen. Dog kan denne indstilling forårsage dublerede tickets som bliver oprettet. (<em>Anbefales ikke</em>)
+smtp_settings:
+  title: SMTP indstillinger
+  content: >
+    Email sendt fra help desk kan sendes igennem en SMTP server. Dette er anbefalet, hvis det er muligt, da det vil øge sandsynligheden for email levering og vil gøre det emails mindre tilbøjelig  at blive markeret som spam emails.
+header_spoofing:
+  title: Tillad Header Spoofing
+  content: >
+    Aktiver dette for at give mulighed for at sende emails via denne mail boks fra en anden adresse, end den som er givet i <span class="doc-desc-title">Email adresser</span>indstillinger ovenfor. <br/> <br/> Denne avancerede indstilling bruges generelt, når du sender mail fra aliaser for denne postkasse.
+

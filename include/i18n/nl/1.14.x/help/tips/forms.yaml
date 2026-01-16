@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Koptekst
+  content: >
+    Deze titeltekst wordt weergegeven in een grijze balk boven de formuliervelden
+form_instructions:
+  title: Formulier instructies
+  content: >
+    U kunt extra instructies geven die de gebruiker zal helpen de context van de formuliervelden te begrijpen en eventueel vereiste gegevens aangeven.
+field_sort:
+  title: Positie van het veld
+  content: >
+    Klik op de pijlen en sleep de rijen naar de juiste positie van het formulier. Sla het formulier op om de wijzigingen door te voeren.
+field_label:
+  title: Label
+  content: >
+    Dit label wordt weergegeven als tip voor dit veld. Normalerwijze zal een kort-antwoord veld weergegeven worden als deze: <br><strong>Label:</strong>&nbsp;<input type="text">
+field_type:
+  title: Veld Inhoudtype
+  content: >
+    Dit wordt gebruikt om het type van invoer door de gebruiker te bepalen. U kan uit kort en lang antwoord, telefoonnummer, datum en tijd, checkbox drop-down lijst of een aangepaste lijst selectie kiezen.
+  links:
+    - 
+      title: Aangepaste lijsten
+      href: /scp/lists.php
+field_visibility:
+  title: Zichtbaarheid van de velden
+  content: >
+    Kies de zichtbaarheid en vereisten van dit veld.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Instelling</th> <th>Resultaat</th></tr> <tr><td>Optioneel</td> <td>Agenten en eindgebruikers kunnen dit veld zien, echter geen van beiden is tot antwoorden verplicht.</td></tr> <tr><td>Vereist</td> <td>Agenten en eindgebruikers kunnen het veld zien en zijn beiden verplicht om het veld in te vullen.</td></tr> <tr><td>Required for EndUsers</td> <td>Agenten en eindgebruikers kunnen het veld zien, eindegebruikers zijn verplicht om het veld in te vullen.</td></tr> <tr><td>Vereist voor agenten</td> <td>Agenten en eindgebruikers kunnen het veld zien, alleen agenten zijn verplicht om het veld in te vullen</td></tr> <tr><td>Intern, Optioneel</td> <td>Alleen agenten kunnen dit veld zien, maar antwoorden is niet verplicht.</td></tr> <tr><td>Intern, Vereist</td> <td>Alleen agenten kunnen dit veld zien en antwoorden is verplicht.</td></tr> <tr><td>Alleen voor eindgebruikers</td> <td>Alleen eindgebruikers kunnen dit veld zien en antwoorden is verplicht.</td></tr> </tbody></table>
+field_variable:
+  title: Veld automatisering
+  content: >
+    De gegevens van het veld zijn beschikbaar voor e-mail en pagina sjablonen via de naam die wordt gebruikt in deze kolom. Bijvoorbeeld, Velden op het  ticket formulier zijn  beschikbaar via <code>%{ticket.variable}</code>, waarbij <strong>variabele</strong> de naam is die wordt gebruikt in deze kolom.<br><br><em>Bedrijfsinformatie is beschikbaar via <code>%{</code> <code>company.variable}</code> en gebruikersgegevens zijn beschikbaar via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Verwijder dit veld
+  content: >
+    Controleer en sla het formulier op als u een veld van dit formulier wilt verwijderen.<br><br><em>Verwijderen van een veld zal gegevens voor het veld op ingevulde formulieren niet verwijderen. Bijvoorbeeld, als een eerder ingediende ticket gegevens voor een veld heeft, zal het verwijderen van dit veld op het formulier de gegevens niet verwijderen.</em>

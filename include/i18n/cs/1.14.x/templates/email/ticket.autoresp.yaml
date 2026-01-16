@@ -1,0 +1,28 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Zasláno uživateli v momentě vytvoření nového požadavku.
+subject: |
+  Otevřen nový požadavek na podporu [č. %{ticket.number}]
+body: |
+  <h3><strong>Vážený/á %{recipient.name.first},</strong></h3>
+  <p>
+  byl vytvořen požadavek na podporu a bylo mu přiděleno č. %{ticket.number}.
+  Pracovník zákaznické podpory se s vámi spojí, jakmile to bude možné. Můžete
+  si zobrazit <a href="%{recipient.ticket_link}">postup řešení vašeho
+  požadavku</a> on-line.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Tým podpory %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Pokud chcete
+  poskytnout nějaké další informace či poznámky ohledně tohoto problému,
+  odpovězte na tento e-mail či <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >se přihlašte k vašmu účtu</span></a> pro
+  zobrazení všech vašich požadavků na podporu.</em></div>

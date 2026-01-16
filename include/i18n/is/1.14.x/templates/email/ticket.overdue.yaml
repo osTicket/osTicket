@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Sent til starfsmanns þegar beiðni er komin yfir síðasta söludag í kerfinu. Beiðnir sem skráðar hafa verið með lokadag eða tengjast SLA skráningu beiðna.
+subject: |
+  Tilkynning um gamla beiðni
+body: |
+  <h3><strong>Hæ %{recipient.name}</strong>,</h3>
+  Beiðni, <a href="%{ticket.staff_link}">#%{ticket.number}</a> er orðin of gömul.
+  <br>
+  <br>
+  Við ættum að passa uppá að gleyma engum beiðnum.
+  <br>
+  <br>
+  kveðja,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Til að skoða eða svara beiðni, skráðu þig inn <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >hér</span></a> í beiðnakerfið. Þú færð þennan póst þar sem beiðnin er skráð í afgreiðslu hjá þér.</div>
+  <em style="font-size: small">Vinalega <span style="font-size: smaller"
+  >(með takmarkaða þolinmæði)</span> þjónustukerfið</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

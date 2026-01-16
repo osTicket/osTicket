@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Тусламжийн албаны ажилтнуудад Хүсэлт хуваарилахад илгээх имэйлийн загвар. Хүсэлтийг систем автоматаар эсвэл хэн нэгэн ажилтан хуваарилж болно. Хуваарилалт хэн хийснийг ялгахын тулд %{assigner}-г ашиглаарай.
+subject: |
+  Танд Хүсэлт хуваарилагдлаа
+body: |
+  <h3><strong>Сайн байна уу %{assignee.name.first},</strong></h3>
+  %{assigner.name.short} <a href="%{ticket.staff_link}">#%{ticket.number}</a> хүсэлтийг танд хуваарилсан байна
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Хэнээс</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Гарчиг</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Та хүсэлтээ үзэх/хариу өгөх бол систем рүү <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >нэвтэрнэ үү</span></a></div>
+  <em style="font-size: small; ">Тусламж Үйлчилгээний Алба</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

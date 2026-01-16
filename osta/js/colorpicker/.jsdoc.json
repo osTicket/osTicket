@@ -1,0 +1,45 @@
+{
+  "tags": {
+    "allowUnknownTags": false,
+    "dictionaries": [
+      "jsdoc"
+    ]
+  },
+  "source": {
+    "include": [
+      "src/js/",
+      "README.md"
+    ],
+    "includePattern": ".js$"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "useLongnameInNav": false,
+    "showInheritedInNav": true,
+    "default": {
+      "tutorialsTitle": "Examples",
+      "searchBox": {
+        "enabled": true,
+        "algoliaApiKey": "2fbe42dafb0dca80b2422f5b0b2cd82c",
+        "algoliaIndexName": "farbelous_bootstrap_colorpicker"
+      }
+    }
+  },
+  "opts": {
+    "template": "./src/docs/jsdoc-template",
+    "destination": "./build/docs/",
+    "tutorials": "./build/examples/",
+    "encoding": "utf8",
+    "private": false,
+    "recurse": true,
+    "verbose": true
+  },
+  "docdash": {
+    "static": true,
+    "sort": true
+  }
+}

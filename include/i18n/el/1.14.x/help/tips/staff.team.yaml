@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Ομάδες
+  content: >
+    Ομάδες είναι ένας ή περισσότεροι Εκπρόσωποι που έχουν ομαδοποιηθεί με σκοπό την ανάθεση αιτημάτων. Τα μέλη μιας ομάδας μπορούν να ανήκουν σε διαφορετικά Τμήματα.
+status:
+  title: Κατάσταση
+  content: >
+    Αν <span class="doc-desc-opt">Απενεργοποιηθεί</span>, αυτή η ομάδα δεν θα είναι διαθέσιμη για αναθέσεις αιτημάτων ούτε θα λαμβάνει Ενημερώσεις &amp; Ενημερώσεις για προηγούμενες αναθέσεις.
+lead:
+  title: Αρχηγός Ομάδας
+  content: >
+    Μια <span class="doc-desc-title">Ομάδα</span> μπορεί να έχει ένα ορισμένο αρχηγό που μπορεί να λαμβάνει <span class="doc-desc-title">Ειδοποιήσεις &amp; Ενημερώσεις</span> ξεχωριστά από τα μέλη.
+  links:
+    - 
+      title: Διαμόρφωση Ειδοποιήσεων &amp; Ενημερώσεων
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Ειδοποίηση Ανάθεσης
+  content: >
+    Μπορείτε να απενεργοποιήσετε την <span class="doc-desc-title">Ειδοποίηση σε Ανάθεση Αιτήματος</span> για δελτία που ανατίθενται σε αυτή την Ομάδα.
+  links:
+    - 
+      title: Διαμόρφωση Ειδοποιήσεων &amp; Ενημερώσεων
+      href: /scp/settings.php?t=alerts
+members:
+  title: Μέλη Ομάδας
+  content: >
+    Η ένταξη μελών στην ομάδα ρυθμίζεται μέσω του προφίλ των Εκπροσώπων.
+  links:
+    - 
+      title: Διαχείριση Προσωπικού
+      href: /scp/staff.php

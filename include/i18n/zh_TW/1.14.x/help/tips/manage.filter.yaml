@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: 執行順序
+  content: >
+    輸入一個數字，控制篩選器的優先順序。越低的數值、 優先順序就越高。比對另一個可能更優先執行的篩選條件。<br><br>如果您想要此篩選器被應用在比賽的最後一個篩檢程式，請啓動 <span class="doc-desc-title"> 停止處理上近一步的配對功能</span>。
+target_channel:
+  title: 頻道
+  content: >
+    為您的 <span class="doc-desc-title">ticket 篩選器r</span>選擇目標 <span class="doc-desc-title">頻道</span> . 這 <span class="doc-desc-title">頻道</span> 是表示票券進入系統的來源。<br><br>為例，如果您選擇 <span class="doc-desc-opt"> Web 表單</span>，說明您想要對於那些用戶端源門戶的 web 表單上的票券適用在 <span class="doc-desc-title"> ticket 篩選器上</span>。
+rules_matching_criteria:
+  title: 規則條件
+  content: >
+    希望如何彈性的選擇 <span class="doc-desc-title"> ticket 篩選器</span> 配對。如果您想要 <span class="doc-desc-title"> ticket 篩選器</span> 配對的任何規則，和然後停止，選擇 <span class="doc-desc-opt"> 與任何匹配</span>。如果你想要 <span class="doc-desc-title"> ticket 篩選器</span> 匹配的 <em><strong>全部規則</strong></em>，請選擇 <span class="doc-desc-opt"> 全部匹配</span>。
+reject_ticket:
+  title: 退票
+  content: >
+    如果這經啟用，進一步處理都會停止、以及其他選擇都將視為忽略。
+reply_to_email:
+  title: 回復電子郵件
+  content: >
+    若是您想要服務台來啓動表彰該使用者電子郵件應用程式User's email application's <span class="doc-desc-title">回覆到</span> 表頭。此欄位儘與上述相關如 <span class="doc-desc-title">頻道</span> 包含上述 <span class="doc-desc-opt">電子郵件</span>。
+ticket_auto_response:
+  title: 禁用Ticket 自動回應
+  content: >
+    <em>注： 這將重寫任何 <span class="doc-desc-title"> 部門</span> 或 <span class="doc-desc-title"> 自動回應設置</span>。</em>
+canned_response:
+  title: 自動回覆罐裝應答
+  content: >
+    您想要發電子郵件到用戶在<span class="doc-desc-title">選擇<span class="doc-desc-title">Ticket 篩選器</span> 配對罐頭應答回覆</span>。The <span class="doc-desc-title">新 Ticket 自動回覆</span> 範本使用取決於如何 <span class="doc-desc-title">範本設定</span> 預設分配值、或是配對票券 <span class="doc-desc-title">部門</span>。
+  links:
+    - 
+      title: 管理罐頭應答
+      href: /scp/canned.php
+    - 
+      title: 管理範本集
+      href: /scp/templates.php
+    - 
+      title: 新 Ticket 自動回覆範本
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: 部門
+  content: >
+    選擇什麼<span class="doc-desc-title">部門</span> 您想要配對的 <span class="doc-desc-title">Ticket 篩選器</span> 將會為您指定.
+  links:
+    - 
+      title: 管理部門
+      href: /scp/departments.php
+priority:
+  title: 優先順序
+  content: >
+    選擇 <span class="doc-desc-title">優先順序</span> 您想要配對到的等級 <span class="doc-desc-title">Ticket 篩選器</span>。<br /> <br /> <em>注意： 這將重寫 <span class="doc-desc-title"> 部門</span> 或 <span class="doc-desc-title"> 說明主題</span> 設置。</em>
+sla_plan:
+  title: SLA計畫
+  content: >
+    選擇 <span class="doc-desc-title"> SLA 計畫</span> 到您想要配對到的 <span class="doc-desc-title"> Ticket 篩選器</span> 。
+  links:
+    - 
+      title: 管理 SLA 計畫
+      href: /scp/slas.php
+auto_assign:
+  title: 自動分配
+  content: >
+    選擇一個代理或團隊，讓您想要比賽配對的 <span class="doc-desc-title"> Ticket 篩選器</span> 將被分配。
+  links:
+    - 
+      title: 管理代理商
+      href: /scp/staff.php
+    - 
+      title: 管理團隊
+      href: /scp/teams.php
+help_topic:
+  title: 說明主題
+  content: >
+    選擇 <span class="doc-desc-title"> 說明主題 </span> 到您想要配對到的 <span class="doc-desc-title"> Ticket 篩選器</span> 。
+  links:
+    - 
+      title: 管理服務台主題
+      href: /scp/helptopics.php
+admin_notes:
+  title: 管理員筆記
+  content: >
+    這些筆記內儘可見的帳戶類型是 <span class="doc-desc-title"> Admin</span>。

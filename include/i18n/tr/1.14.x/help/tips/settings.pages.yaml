@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Şirket Bilgileri
+  content: >
+    Bu osTicket yazılımından ve onun desktek ekibinden faydalanacak şirket veya kurumu belirtir. Buradaki bilgi temsilciler talepleri cepavladığında e-posta imzalarında (sayfa sonu vs.) gözükecektir.
+  links:
+    - 
+      title: Şirket Bilgi Formu
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Açılış sayfası
+  content: >
+    <span class="doc-desc-title">Açılış Sayfası</span> desktek sitenizin baş sayfası olarak görüntülenecektir.
+offline_page:
+  title: Çevirimdışı Sayfası
+  content: >
+    <span class="doc-desc-title">Çevirimdışı Sayfası</span> desktek sayfası çevrimdışı olduğunda görüntülenecektir. Daha fazla bilgi için Yönetici Paneli -&gt; Ayarlar -&gt; System -&gt; Yardım Masası Durumuna bakın.
+default_thank_you_page:
+  title: Varsayılan "Teşekkürler" Sayfası
+  content: >
+    <span class="doc-desc-title">Teşekkür sayfası</span> <span class="doc-desc-title">Müşteri</span> yeni bir talep oluşturduğunda kullanıcay gösterilir. <br/><br/> <span class="doc-desc-title">Teşekkürler</span> sayfaları yardım konuları ile ilişkilendirilebilir.
+logos:
+  title: Logolar
+  content: >
+    İsterseniz  <span class="doc-desc-title">Logo</span> Müşteri giriş yaptığında (Desket Sitesi gibi) göreceği logoyu değiştirebilirsiniz.
+upload_a_new_logo:
+  title: Yeni Logo Yükle
+  content: >
+    Lütfen .gif, .jpg yada .png formatlarında bir resim seçiniz. Resminize ait küçük önizleme oluşturacağız. Resmin aslı olduğu gibi kalacaktır. Bu yavaş yüklemeye sebep olabilir, bu nedenle önerimiz resminizin  ortalama (817px &times; 170px) boyutlarında olmasıdır.
+backdrops:
+  title: Arka planlar
+  content: >
+    Personel sayfasından <span class="doc-desc-title">Arka planı</span> değiştirebilirsin.
+upload_a_new_backdrop:
+  title: Yeni Arka Plan Yükle
+  content: >
+    .jpg , .png veya .gif biçimlerinde resim seçin. Biz resminizin boyutunu orantılı olarak göstereceğiz. Ancak resminizi yeniden boyutlandırmayacağız. Bu nedenle , yükleme süreleri için , ( bir megabayt altında) nispeten küçük görüntüyü yüklemeniz tavsiye edilir . Bu seçenekte PHP maksimum yükleme ayarları geçerli olduğunu da unutmayın.

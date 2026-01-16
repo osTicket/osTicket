@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  当创建新问题时发送给用户
+subject: |
+  已经打开的支持工单 [#%{ticket.number}]
+body: |
+  <h3><strong>亲爱的 %{recipient.name.first},</strong></h3>
+  <p>
+  支持请求已创建，工单号为 #%{ticket.number}.
+  客服代表将尽快跟进，您可以通过
+  <a href="%{recipient.ticket_link}">在线查看工单进展</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  您的 %{company.name} 团队,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>如果您希望提供更多关于此问题的信息，您可以回复此邮件，或者<a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >登录</span></a> 查看您的支持请求详细信息。</em></div>

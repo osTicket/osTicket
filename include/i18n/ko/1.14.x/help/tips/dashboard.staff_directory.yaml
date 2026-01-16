@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: 스태프 멤버
+  content: >
+    다음의 표는 입력한 필터가 반영된 결과를 표시합니다. 필터를 설정하지 않았다면 모든 <span class="doc-desc-title">스태프 멤버</span>가 표시되며, 페이지 크기에 따라 잘려집니다. 페이지 섹션에서 더 많은 결과를 확인할 수 있습니다.
+apply_filtering_criteria:
+  title: 필터 기준 적용
+  content: >
+    내가 관심있는 <span class="doc-desc-title">부서</span>를 선택합니다. 특정 에이전트를 검색할 수도 있습니다.

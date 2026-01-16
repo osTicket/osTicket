@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Végrehajtási sorrend
+  content: >
+    Adjon meg egy számot, ami szabályozza a szűrő prioritását. Minél kisebb a szám, annál nagyobb lesz a szűrő lefutásának prioritása egy másik akár magasabb rendű szűrő elvégzésével szemben.<br><br>Ha szeretné, hogy a szűrő utolsóként fusson le a szűkítésben, engedélyezze a <span class="doc-desc-title">Ne kutasson tovább egyezésért</span> opciót.
+target_channel:
+  title: Csatorna
+  content: >
+    Válasszon egy cél<span class="doc-desc-title">csatornát</span> a <span class="doc-desc-title">Hibajegy szűrőjéhez</span>. A <span class="doc-desc-title">csatorna</span>a forrás, amin keresztül a hibajegy megérkezett a rendszerbe. <br><br> Például, ha a <span class="doc-desc-opt">Web űrlapokat</span> választja, azzal alkalmazza a <span class="doc-desc-title">Hibajegy szűrőt</span> azokra a hibajegyekre, amelyek az ügyfélportál űrlapról jönnek.
+rules_matching_criteria:
+  title: Kritériumoknak megfelelő szabályok
+  content: >
+    Válassza ki mennyire kezelje rugalmas a <span class="doc-desc-title">Hibajegy szűrő</span> a találati pontosságot. Ha azt szeretné, hogy a <span class="doc-desc-title">Hibajegy szűrő</span> a beállított szabályok bármelyikének beteljesülése után megálljon a szűrés, akkor válassza a <span class="doc-desc-opt">Bármilyen egyezés</span> pontot. Ha szeretné, hogy a <em><strong>szabályok mindegyike</strong></em> teljesüljön a <span class="doc-desc-title">Hibajegy szűrőben</span>beállítottak szerint, akkor válassza a <span class="doc-desc-opt">Teljes egyezés</span> pontot.
+reject_ticket:
+  title: Hibajegy visszautasítása
+  content: >
+    Ha ez engedélyezve van, minden további folyamat leáll és minden ezután lévő parancs figyelmen kívül lesz hagyva.
+reply_to_email:
+  title: Válasz email
+  content: >
+    Engedélyezze ezt, ha szeretné, hogy az ügyfélszolgálat felismerje az ügyfél levelezőprogramjának <span class="doc-desc-title">Válasz</span>fejlécét. Ez a mező csak akkor érvényesül, ha a fenti <span class="doc-desc-title">Csatorna</span> tartalmaz <span class="doc-desc-opt">Email</span>-t.
+ticket_auto_response:
+  title: Hibajegy automata válasz kikapcsolása
+  content: >
+    <em>Megjegyzés: Ez felülír minden <span class="doc-desc-title">Részleg</span>vagy<span class="doc-desc-title">Automata válaszadó beállítást</span></em>
+canned_response:
+  title: Tárolt automatikus válasz
+  content: >
+    Válasszon egy <span class="doc-desc-title">Sablon üzenetet</span>, amit el akar küldeni e-mailben az ügyfélnek <span class="doc-desc-title">Hibajegy szűrő</span> találat esetén. Az <span class="doc-desc-title"> Új hibajegy automata válasz</span> sablon használata attól függ, hogy melyik<span class="doc-desc-title">sablon beállítás</span> lett alapként beállítva vagy a találati eredmények alapján melyik <span class="doc-desc-title">Részleghez</span> tartozik.
+  links:
+    - 
+      title: Sablon válaszok kezelése
+      href: /scp/canned.php
+    - 
+      title: Sablonkészletek kezelése
+      href: /scp/templates.php
+    - 
+      title: Új automatikus válasz sablon
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Részleg
+  content: >
+    Válassza ki, hogy a <span class="doc-desc-title">Hibajegy szűrő</span> eredményeit melyik <span class="doc-desc-title">Részleghez</span> szeretné rendelni.
+  links:
+    - 
+      title: Részlegek kezelése
+      href: /scp/departments.php
+priority:
+  title: Fontosság
+  content: >
+    Válassza ki a <span class="doc-desc-title">Hibajegy szűrő</span> találataira alkalmazandó <span class="doc-desc-title">Prioritási</span> szintet.<br /><br /><em>Megjegyzés: Ez felülírja a <span class="doc-desc-title">Részleg</span>vagy<span class="doc-desc-title">Súgó témák</span> beállításait</em>
+sla_plan:
+  title: SLA terv
+  content: >
+    Válassza ki a <span class="doc-desc-title">Hibajegy szűrő</span> találataira alkalmazandó <span class="doc-desc-title">Szolgáltatási színvonal tervet</span>.
+  links:
+    - 
+      title: SLA terv szerkesztése
+      href: /scp/slas.php
+auto_assign:
+  title: Automatikus hozzárendelés
+  content: >
+    Válasszon egy Kezelőt vagy Csapatot aki(k)hez hozzá akarja rendelni a <span class="doc-desc-title">Hibajegy szűrő</span> találatait.
+  links:
+    - 
+      title: Ügynökük kezelése
+      href: /scp/staff.php
+    - 
+      title: Csoportok kezelése
+      href: /scp/teams.php
+help_topic:
+  title: Témakör
+  content: >
+    Válassza azt a <span class="doc-desc-title">témakört </span>, amelyet alkalmazi akar a <span class="doc-desc-title">Hibajegy szűrő</span> egyezéseire.
+  links:
+    - 
+      title: Súgótémakör kezelése
+      href: /scp/helptopics.php
+admin_notes:
+  title: Adminisztrátori megjegyzések
+  content: >
+    Ezek a feljegyzések csak az <span class="doc-desc-title">Admin</span>típusú felhasználói fiókok tulajdonosai számára lesznek láthatók.

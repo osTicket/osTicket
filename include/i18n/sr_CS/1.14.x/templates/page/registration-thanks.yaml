@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Ovaj šablon definiše sadržaj koji će biti prikazan klijentima nakon što potvrde svoj nalog klikom na link u imejlu. Šablon bi trebalo da informiše klijenta da je proces registracije korisničkog naloga završen i da korisnik sada može otvarati nove tikete ili pregledati i uređivati postojeće.
+name: "Nalog je verifikovan!"
+body: >
+  <div> <strong>Vaš nalog je kreiran.</strong><br /> <br />Uspešno ste potvrdili Vašu imejl adresu i aktivirali Vaš nalog. Možete pristupiti otvaranju tiketa ili ažuriranju postojećih.<br /> <br /> <em>Vaš centar za podršku</em><br /> %{company.name} </div>

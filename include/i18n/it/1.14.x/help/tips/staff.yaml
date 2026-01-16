@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Linea della firma dello Staff
+  content: |
+    Creare firma dello staff per rispondere ai ticket. Questa firma apparirà come opzione in fondo alla risposta ad un ticket
+type:
+  title: Tipo di account
+  content: |
+    Gli amministratori hanno il privilegio di accedere al pannello di amministrazione. Lo staff ha soltanto l'accesso alla gestione dei ticket e alle conoscenze base
+group:
+  title: Gruppo assegnato
+  content: |
+    L'appartenenza ad un gruppo definisce il ruolo dello staff nel sistema. Visita la pagina di gestione del gruppo per definire che accesso questo staff ha nel sistema di help desk
+notes:
+  title: Note interne
+  content: |
+    Inserisci note interne riguardanti lo staff; le note sono visibili solamente ai membri dello staff con account amministratore

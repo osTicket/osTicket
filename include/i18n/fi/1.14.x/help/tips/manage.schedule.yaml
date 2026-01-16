@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Aikataulutettu
+  content: >
+    <b>Nimi</b>: Aikataulun yksilöivä nimi. <hr> <b> Tyyppi</b>: Valitse aikataulun tyyppi. <span class = "doc-desc-title"> Työaika </span> määrittelee tunnit, jotka otetaan huomioon laskettaessa SLA-tunteja, missä <span class = "doc-desc-title"> loma-ajan </span> tunnit jätetään pois. <hr> <b> Aikavyöhyke</b>: Valitse aikataulun aikavyöhyke. On suositeltavaa jättää se tyhjäksi <span class = "doc-desc-title"> kelluvalle </span> aikavyöhykkeelle. <br> <br> Kelluva aikavyöhyke huomioi ajat suhteessa tosiasialliseen aikavyöhykkeeseen käyttöhetkellä.
+

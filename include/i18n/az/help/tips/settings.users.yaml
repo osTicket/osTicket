@@ -1,0 +1,37 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#General Settings
+client_name_format:
+  title: User Name Formatting
+  content: >
+    Choose a format for Users names throughout the system. Email templates will use it for names if no other format is specified.
+#Authentication settings
+client_password_policy:
+  title: Password Management Policy
+  content: >
+    Chose a <span class="doc-desc-title">Password Policy</span> for <span class="doc-desc-title">Users</span>. <br><br> Additional policies can be added by installing <span class="doc-desc-title">Password Policy</span> plugins.
+client_session_timeout:
+  title: İstifadəçi seansı vaxtının bitməsi
+  content: >
+    İstifadəçi yenidən daxil olmağı tələb etməmişdən əvvəl maksimum boş vaxt (dəqiqə) seçin. <br><br> Əgər <span class="doc-desc-title">istifadəçi sessiyası vaxtının bitməsini</span> deaktiv etmək istəyirsinizsə 0 daxil edin.
+registration_method:
+  title: Qeydiyyat variantları
+  content: >
+    <span class="doc-desc-title">Qeydiyyat üsulu</span> və <span class="doc-desc-title">qeydiyyat tələb olunur</span> yazıları istifadəçilər sizin help deskin veb portalına qeydiyyat və giriş edərkən konfiqurasiya etmək üçün birlikdə istifadə olunur. Aşağıdakı cədvəl iki tənzimləmənin sistem tərəfindən necə şərəhləndirildiyini ümumiləşdirir. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th>Qeydiyyat tələb olunur</th> <th>qeydiyyat üsulu</th> <th>nəticə</th></tr> <tr><td>ictimai</td><td>olmasın</td> <td>yeni sorğular üçün qeydiyyat dəstəklənir, tələb olunmur.</td></tr> <tr><td>İctimai</td> <td>olsun</td> <td>yeni sorğular üçün qeydiyyat və giriş tələb olunur</td></tr> <tr><td>şəxsi</td><td>olmasın</td> <td>hər bir kəs sorğu yarada bilər, amma hesabları ancaq agentlər qeydiyyatdan keçirdə bilər</td></tr> <tr><td>şəxsi</td><td>olsun</td> <td>istifadəçi girişi ancaq dəvət ilə</td></tr> <tr><td>deaktiv</td><td>olmasın</td><td>heç kim hesab üçün qeydiyyatdan keçə bilməz, amma hər kəs sorğu yarada bilər. <em>Bu, osTicketin 1.9-dan əvvəl necə fəaliyyət göstərməsi idi</em></td></tr> <tr><td>deaktiv</td><td>olsun</td> <td>yeni sorğuları veb portal vasitəsilə deaktiv edin</td></tr> </tbody></table>
+client_verify_email:
+  title: Tələb olunan e-poçtun təsdiqlənməsi
+  content: >
+    İstifadəçilərinizə müştəri portalında "sorğunun statusunu yoxla" giriş səhifəsi vasitəsilə sorğulara dərhal giriş vermək üçün bu variantı deaktiv edin. Əgər aktivdirsə, (cari olan) istifadəçilər e-poçt almağı və sorğunu görmək üçün e-poçtdakı linkə daxil olmağı tələb edəcəklər. <br><br> E-poçt təsdiqləməsini deaktiv etmək üçüncü tərəfin (məs., sorğu əməkdaşları) özlərini sorğu müəllifi kimi qələmə verməsinə yol aça bilər.
+allow_auth_tokens:
+  title: Enable Authentication Tokens
+  content: >
+    Enable this option to allow use of authentication tokens to auto-login users on ticket link click.

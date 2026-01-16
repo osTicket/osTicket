@@ -1,0 +1,28 @@
+---
+notes: |
+  ترسل إلى الموظفين الأعضاء في حال تم إسناد تذكرة لهم.  التذاكر يمكن إسناد التذاكر تلقائياً عن طريق النظام أو يدوياً من خلال موظف آخر. استخدم %{assigner} لمعرفة وتمييز من قام بالإسناد.
+subject: |
+  تم إسناد التذكرة لك
+body: |
+  <h3><strong>مرحباً %{assignee.name.first}،</strong></h3> تم إسناد تذكرة <a href="%{ticket.staff_link}">#%{ticket.number}</a> إليك عن طريق %{assigner.name.short}<br><br>
+  <table><tbody>
+  <tr>
+  <td>من:</td>
+  <strong>
+  %{ticket.name} &lt;%{ticket.email}&gt;
+  </strong>
+  </tr>
+  <tr>
+  <td>العنوان:</td>
+  <strong>%{ticket.subject}</strong>
+  </tr>
+  </tbody>
+  </table>
+  <br>%{comments}<br><br><hr>
+  <div>لعرض أو الرد على التذكرة الرجاء <a<br>
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"<br>
+  >تسجيل الدخول</span></a> إلى نظام تذاكر الدعم الفني </div>
+  <em style="font-size: small; ">نظام العناية بالعملاء</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"<br>
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

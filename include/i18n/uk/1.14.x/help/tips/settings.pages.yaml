@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Інформація про компанію
+  content: >
+    Це відноситься до компанії або організації, які виграють на програмному забезпеченні osTicket. Інформація тут буде з'являтися в підписах електронної пошти (тобто, в колонтитулі), коли співробітники відповідатимуть на заявки.
+  links:
+    - 
+      title: Форма інформації компанії
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Головна сторінка
+  content: >
+    <span class = "doc-desc-title"> Головна сторінка </span> відображається на першій сторінці Вашої системі підтримки.
+offline_page:
+  title: Оффлайн сторінка
+  content: >
+    <span class = "doc-desc-title"> Оффлайн сторінка </span> відображається системою заявок, коли ця система не доступа - див. Панель Адміністратора - &gt; Настройки - &gt; Система - &gt; Статус системи заявок.
+default_thank_you_page:
+  title: Сторінка вдячності
+  content: >
+    <span class = "doc-desc-title"> Сторінка вдячності </span> відображається клієнту, коли <span class = "doc-desc-title"> клієнт </span> відправляє нову заявку. <br/> <br/> Сторінки <span class = "doc-desc-title"> вдячності </span> можуть бути прив'язані до категорій заявок.
+logos:
+  title: Логотипи
+  content: >
+    Ви можете обрати свій <span class = "doc-desc-title"> логотип </span>, який буде показуватися користувачам на сторінках системи заявок.
+upload_a_new_logo:
+  title: Завантажити новий логотип
+  content: >
+    Виберіть зображення в форматах .gif, .jpg або .png. Розмір відображення Вашого зображення буде пропорційно змінений. Однак, розмір зображення не буде змімено. Тому, заради швидкості завантаження, рекомендується додавати зображення близьким до розміру зображення за замовчуванням (817px &times; 170px).
+backdrops:
+  title: Фон
+  content: >
+    Ви можете налаштувати <span class="doc-desc-title">Фон</span>, який буде відобрежено на сторінці авторизації персоналу.
+upload_a_new_backdrop:
+  title: Завантажити Новий Фон
+  content: >
+    Використовуйте зображення у форматах .gif, .jpg або .png. Ми пропорційно масштабуємо зображення вашої картинки. Але ми не змінюватимемо файл зображення. Тому для пришвидшення завантаження сторінок рекомендуємо використовувати порівняно невеликі зображення (менше мегабайту). Зауважимо, що використовуються обмеження PHP щодо максимально розміру завантаження.

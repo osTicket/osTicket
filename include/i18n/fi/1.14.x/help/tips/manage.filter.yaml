@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Suoritusjärjestys
+  content: >
+    Syötä numeerinen arvo joka määrittää suodattimen prioriteetin tärkeyden. Mitä pienempi numero on, sitä korkeampi prioriteetti suodattimella on suhteessa muihin suodattimiin jotka muuten voivat olla ensisijaisia. <br><br> Jos haluat tämän suodattimen olevan viimeinen joka suoritetaan, aktivoi <span class="doc-desc-title">Pysäytä prosessin eteneminen osuessa</span>.
+target_channel:
+  title: Kanava
+  content: >
+    Valitse kohde <span class="doc-desc-title">Kanava</span> sinun <span class="doc-desc-title">Tikettisuodattimelle</span>. <span class="doc-desc-title">Kanava</span> on lähde jonka kautta tiketti saapuu järjestelmään. <br><br> Esimerkiksi jos valitset <span class="doc-desc-opt">Verkkolomakkeet</span>, tarkoittaa se että aktivoit <span class="doc-desc-title">Tikettisuodattimen</span> niille tiketeille jotka luodaan asiakasnäkymän verkkolomakkeessa.
+rules_matching_criteria:
+  title: Vertailusäännöt
+  content: >
+    Valitse kuinka tiukkoja haluat sääntöjen <span class="doc-desc-title">Tikettisuodattimessa</span> olevan. Jos haluat <span class="doc-desc-title">Tikettisuodattimen</span> säännön osuvan mihin tahansa ehtoon ja sitten pysähtyvän, valitse <span class="doc-desc-opt">Mikä tahansa ehto</span>. Jos haluat <em><strong>Kaikki ehdot</strong></em>  <span class="doc-desc-title">Tikettisuodattimessa</span> pitää osua, valitse <span class="doc-desc-opt">Kaikki ehdot</span>.
+reject_ticket:
+  title: Hylkää tiketti
+  content: >
+    Jos tämä on valittu, tikettiä ei jatkokäsitellä eikä muita soveltuvia toiminteita suoriteta.
+reply_to_email:
+  title: Vastausosoite
+  content: >
+    Aktivoi tämä jos haluat Tukijärjestelmän käyttää asiakkaan sähköpostiohjelman käyttämää <span class="doc-desc-title">Vastaus</span> osoitetta. Tämä kenttä on oleellinen jos <span class="doc-desc-title">Kanava</span> ylhäällä on <span class="doc-desc-opt">Sähköposti</span>.
+ticket_auto_response:
+  title: Poista tikettien automaattivastaus
+  content: >
+    <em>Huomautus: Tämä ohittaa kaikki <span class="doc-desc-title">Osasto</span> tai <span class="doc-desc-title">Atomaattivastaus asetukset</span>.</em>
+canned_response:
+  title: Yleinen Automaattivastaus
+  content: >
+    Valitse <span class="doc-desc-title">Yleisvastaus</span> jonka haluat lähettää käyttäjälle <span class="doc-desc-title">Tikettisuodattimen</span> osuessa.  <span class="doc-desc-title">Uusi tiketin automaattivastaus</span> pohjaa käytetään riippuen siitä <span class="doc-desc-title">pohjasarjasta</span> on aktivoitu oletukseksi,  tai kohdistuu tiketin <span class="doc-desc-title">Osastoksi</span>.
+  links:
+    - 
+      title: Hallinnoi yleisiä vastauksia
+      href: /scp/canned.php
+    - 
+      title: Hallinnoi mallisarjoja
+      href: /scp/templates.php
+    - 
+      title: Uuden tiketin automaattivastauspohja
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Osasto
+  content: >
+    Valitse mihin <span class="doc-desc-title">Osastoon</span> haluat osuman kohdistaa <span class="doc-desc-title">Tikettisuodattimessa</span>.
+  links:
+    - 
+      title: Hallinnoi Osastoja
+      href: /scp/departments.php
+priority:
+  title: Prioriteetti
+  content: >
+    Valitse <span class="doc-desc-title">Prioriteetti</span> taso jota haluat käyttää <span class="doc-desc-title">Tikettisuodattimen</span> osuessa.<br /> <br /> <em>Huomautus: Tämä ohittaa <span class="doc-desc-title">Osaston</span> tai <span class="doc-desc-title">Ohjeotsikkojen</span> asetukset.</em>
+sla_plan:
+  title: Palvelutaso
+  content: >
+    Valitse <span class="doc-desc-title">Palvelutaso</span> jonka haluat aktivoida <span class="doc-desc-title">Tikettisuodattimen</span> osuessa.
+  links:
+    - 
+      title: Hallinnoi palvelutasoja
+      href: /scp/slas.php
+auto_assign:
+  title: Automaattinen kohdistus
+  content: >
+    Valitse Käsittelijä tai Tiimi jolle haluat kohdistaa <span class="doc-desc-title">Tikettisuodattimen</span> osuessa.
+  links:
+    - 
+      title: Hallinnoi käsittelijöitä
+      href: /SCP/Staff.php
+    - 
+      title: Hallinnoi tiimejä
+      href: /scp/teams.php
+help_topic:
+  title: Ohjeotsikko
+  content: >
+    Valitse <span class="doc-desc-title">Ohjeotsikko</span> jonka haluat aktivoida <span class="doc-desc-title">Tikettisuodattimen</span>osuessa.
+  links:
+    - 
+      title: Hallitse Ohjeotsikoita
+      href: /scp/helptopics.php
+admin_notes:
+  title: Järjestelmänvalvojan muistiinpanot
+  content: >
+    Nämä muistiinpanot näkyvät vain käyttäjille, jotka ovat ‘<span class="doc-desc-title">Järjestelmänvalvojia</span>.’

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: 代理名稱格式
+  content: >
+    Choose a format for Agents names throughout the system. Email templates will use it for names if no other format is specified.
+staff_identity_masking:
+  title: 專員身份隱藏
+  content: >
+    啟用此功能，將會隱藏專員的名字。
+#Authentication settings
+password_reset:
+  title: 密碼過期規定
+  content: >
+    Sets how often (in months) Agents will be required to change their password. If disabled (set to "No expiration"), passwords will not expire.
+password_expiration_policy:
+  title: 密碼過期規定
+  content: >
+    選擇如何更改代理商的密碼。如果已禁用 （即，<span class="doc-desc-opt"> 沒有過期</span>），密碼將不會過期。
+allow_password_resets:
+  title: 允許密碼重設
+  content: >
+    Enable this feature if you would like to display the <span class="doc-desc-title">Forgot My Password</span> link on the <span class="doc-desc-title">Staff Log-In Page</span> after a failed log in attempt.
+reset_token_expiration:
+  title: 密碼重設視窗
+  content: >
+    選擇的持續時間 （以分鐘為單位） <span class="doc-desc-title"> 密碼重設權杖</span> 將為有效。當代理商請求 <span class="doc-desc-title"> 密碼重設</span> 時，他們都是通過電子郵件發送一個權杖，將允許採取重置。
+staff_session_timeout:
+  title: 專員Session Timeout
+  content: >
+    Choose the maximum idle time (in minutes) before an Agent is required to log in again. <br><br> If you would like to disable <span class="doc-desc-title">Agent Session Timeouts</span>, enter 0.
+bind_staff_session_to_ip:
+  title: 將專員IP榜定Session
+  content: >
+    Enable this if you want Agent to be remembered by their current IP upon Log In. <br><br> This setting is not recommened for users assigned IP addresses dynamically.

@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Nome
+  content: >
+    Escolha um nome descritivo para este <span class="doc-desc-title"> Plano de SLA</span> que refletirá sua finalidade.
+grace_period:
+  title: Período de carência
+  content: >
+    Determine o número de horas depois que um Tiket é criado, e  será automaticamente marcado como vencido. <br><br><em>Horas são contadas a partir do Filtro de Tkets crie o tempo.</em>
+transient:
+  title: Transitório
+  content: >
+    Transientes SLAs são considerados temporários e podem ser substituídos por um SLA não transitório na transferência de <span class="doc-desc-opt"> Departamento</span>, ou quando seu <span class="doc-desc-title"> tópico de ajuda</span> é alterado.
+schedule:
+  title: Programação
+  content: >
+    Escolha a programação a ser usada por este SLA ao representar os tickets vencidos. <br> <br> Observe que as configurações do departamento podem substituir essa programação.
+  links:
+    - 
+      title: Gerenciar as Programações
+      href: /scp/schedules.php

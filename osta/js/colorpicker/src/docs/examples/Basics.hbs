@@ -1,0 +1,302 @@
+{{#extend "example-group"}}
+  {{#content "description"}}
+    <p>
+      Get started with these basic examples, showcasing the different plugin options.
+      You can also view the whole list of <a href="defaults.js.html">default options here.</a>
+    </p>
+  {{/content}}
+  {{#content "body"}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Simple usage {{/content}}
+      {{#content "description"}}
+        <p>Most simple example, with any options or color information.</p>
+      {{/content}}
+      {{#content "code"}}
+        <input id="cp1" type="text" class="form-control input-lg" value=""/>
+        <script>
+          $(function () {
+            $('#cp1').colorpicker();
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Setting the initial color {{/content}}
+      {{#content "description"}}
+        <p>
+          The initial color can be specified in 3 ways: input value, <var>data-color</var> attribute
+          and programmatically with the <var>color</var> constructor option.<br>
+          This demo is also showing how to use the input addon component to display the color.
+        </p>
+
+        <p>
+          The used initial color has this precedence order when present and not empty:
+          <var>color</var> option, input value, input <var>data-color</var> attribute,
+          colopicker element <var>data-color</var> attribute.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+
+        <div id="cp2" class="input-group colorpicker-component" title="Using input value">
+          <input type="text" class="form-control input-lg" value="#DD0F20"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+
+        <div id="cp3a" class="input-group colorpicker-component" data-color="#F18A31"
+             title="Using data-color attribute in the colorpicker element">
+          <input type="text" class="form-control input-lg"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+
+        <div id="cp3b" class="input-group colorpicker-component" title="Using data-color attribute in the input">
+          <input type="text" class="form-control input-lg" data-color="#F8EB48"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+
+        <div id="cp4" class="input-group colorpicker-component" title="Using color option">
+          <input type="text" class="form-control input-lg"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+
+        <script>
+          $(function () {
+            $('#cp2, #cp3a, #cp3b').colorpicker();
+            $('#cp4').colorpicker({"color": "#16813D"});
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Automatic format detection {{/content}}
+      {{#content "description"}}
+        <p>
+          Whenever the <code>format</code> option is <var>false</var> (default), the first parsed color format will be
+          detected and used as default, but when the option equals <var>null</var> or empty string,
+          the format is recalculated every time.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp5" class="input-group colorpicker-component" title="Using format option">
+          <input type="text" class="form-control input-lg" value="#305AA2"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp5').colorpicker({
+              format: null
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Force a format {{/content}}
+      {{#content "description"}}
+        <p>If defined, the format option forces an specific format, ignoring the original one.</p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp5b" class="input-group colorpicker-component" title="Using format option">
+          <input type="text" class="form-control input-lg" value="#305AA2"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp5b').colorpicker({
+              format: "rgba"
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Horizontal mode {{/content}}
+      {{#content "description"}}
+        <p>In this mode the hue and alpha bars are horizontal instead of vertical.</p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp6" class="input-group colorpicker-component" title="Using horizontal option">
+          <input type="text" class="form-control input-lg" value="#6D2781"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp6').colorpicker({
+              horizontal: true
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Inline containerized mode {{/content}}
+      {{#content "description"}}
+        <p>
+          In this mode the colorpicker widget is an inline element and it is also placed inside the
+          element (otherwise it is placed in the body).<br>
+          This example also shows the two ways of using the container option.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp7" style="border:1px dashed #DD0F20;">Inner inline &rightarrow;</div>
+        <hr>
+        <div id="cp8_container">
+          <span id="cp8" style="border:1px dashed #F18A31;">Sibling inline &rightarrow;</span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp7').colorpicker({
+              color: '#DD0F20',
+              inline: true,
+              container: true
+            });
+            $('#cp8').colorpicker({
+              color: '#F18A31',
+              inline: true,
+              container: '#cp8_container'
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Disable alpha channel {{/content}}
+      {{#content "description"}}
+        <p>
+          When the alpha channel is disabled with the <code>useAlpha</code> option,
+          the alpha bar will be hidden and the color object will be restricted to opaque (alpha = 1).
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp9" class="input-group colorpicker-component">
+          <input type="text" class="form-control input-lg" value="rgba(248, 235, 72, 0.5)"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp9').colorpicker({
+              useAlpha: false
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Disable hexadecimal hash {{/content}}
+      {{#content "description"}}
+        <p>
+          This example shows how to avoid the input to have the hexadecimal hash prefix,
+          using the <code>useHashPrefix</code> option.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp10" class="input-group colorpicker-component">
+          <input type="text" class="form-control input-lg" value="#16813d"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp10').colorpicker({
+              useHashPrefix: false
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} <code>transparent</code> support {{/content}}
+      {{#content "description"}}
+        <p>Example showing the <var>transparent</var> named color support.</p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp12" class="input-group colorpicker-component">
+          <input type="text" class="form-control input-lg" value="transparent"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp12').colorpicker();
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Custom fallback color {{/content}}
+      {{#content "description"}}
+        <p>
+          Use a predefined fallback color with the <code>fallbackColor</code> option,
+          whenever the given one is invalid.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp11" class="input-group colorpicker-component">
+          <input type="text" class="form-control input-lg" value="invalid color"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp11').colorpicker({
+              fallbackColor: 'rgb(48, 90, 162)'
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+    {{#extend "example"}}
+      {{#content "title"}} Invalid color auto-replacement {{/content}}
+      {{#content "description"}}
+        <p>
+          By default, the <code>autoInputFallback</code> option is enabled, meaning that
+          whenever there is an invalid color typed in the input, it will be automatically
+          replaced by a valid color or the fallback one.
+          <br>
+          You can stop this behavior by setting this option to false. Note that this only affects the input
+          value and not the internal color object.
+
+          This allows you introduce errors in the input while typing without having the input constantly replaced with
+          the fallback.
+
+          This way, the internal color object will be equal to the fallback until the input has a valid color.
+        </p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp13" class="input-group colorpicker-component">
+          <input type="text" class="form-control input-lg" value="I am an invalid color"/>
+          <span class="input-group-addon"><i></i></span>
+        </div>
+        <script>
+          $(function () {
+            $('#cp13').colorpicker({
+              autoInputFallback: false
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+
+  {{/content}}
+{{/extend}}

@@ -1,0 +1,4017 @@
+@charset "utf-8";
+/* CSS Document */
+/*
+/*      STAFF - mobile
+*/
+
+@media only screen and (max-width:760px){	
+	
+/*==========================================================================
+ ACCORDION TABLES
+========================================================================== */	
+	.mobile-ticket-list-wrapper {
+		width: 100%;
+		display: none;
+	}
+	.mobile-ticket-list-priority {
+		background: red !important;
+		width: 10px !important;
+		border-radius: 5px 0 0 5px;	
+	}
+	table.table-accordion {
+		background: #fff;
+		width: 100%;
+		height: 76px;
+		border-radius: 0 5px 5px 0;
+	}
+	.accordion-td {
+		position: relative;
+		border-radius: 0 5px 5px 0;
+	}
+	.accordion-td.name {
+		vertical-align: bottom !important;
+		border-radius: 0 5px 0 0;
+	}
+	.accordion-td.summary {
+		vertical-align: top !important;	
+	}
+	.inner-client-summary a {
+		font-size: 15px;
+		margin: 0 0 3px 10px;
+		color: #128dbe;
+		font-family: 'Open Sans', sans-serif;
+	}
+	.inner-ticket-summary {
+		margin: 2px 0 0 10px;	
+	}
+	.inner-ticket-summary.link.truncate {
+		padding: 0 0 0 20px;
+		width: calc(100% - 89px) !important;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-family: 'Open Sans', sans-serif;
+		line-height: 15px;
+	}	
+	.accordian-td.cb {
+		margin: 0 !important;
+		padding: 0;
+		/* height: 50px; */
+		/* width: 50px !important; */
+		text-align: center;
+	}
+	.details {
+		position: relative;
+    	top: 1px;
+	}
+	.details ul {
+		margin: 0;
+		padding-left: 2px;
+		list-style: none;
+		color: #0000008f;
+	}	
+	.rtl .details ul {
+	    margin: 0 0 0 4px;	
+	 	padding: 0 !important;
+	}	
+	.details li {
+		/* width: 216px; */  /* Dickens!*/
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-family: 'Open Sans', sans-serif;
+	}
+	.trigger {
+		position: absolute !important;
+		top: 19px !important;
+		right: 0;
+		border: 0;
+		background: #fff;
+		outline: 0;
+		padding: 17px;
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		/*z-index: 999;*/
+		margin: 0;
+	}
+	.glyphicon-menu-down:before {
+		content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23777777' d='M7.41%2C8.58L12%2C13.17L16.59%2C8.58L18%2C10L12%2C16L6%2C10L7.41%2C8.58Z' /%3E %3C/svg%3E") !important;
+		height: 55px !important;
+		width: 39px;
+		display: inline-block;	
+	}	
+	.glyphicon-menu-up:before {
+		content: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23777777' d='M7.41%2C15.41L12%2C10.83L16.59%2C15.41L18%2C14L12%2C8L6%2C14L7.41%2C15.41Z' /%3E %3C/svg%3E") !important;
+		height: 55px !important;
+		width: 39px;
+		display: inline-block;	
+	}	
+	form[action="tickets.php"] table.list td:nth-child(2) {
+		text-align: right;
+	}
+	#table-accordion-checkbox {
+		position: absolute;
+		top: 28px;
+		right: 50px;
+		/* border: 1px solid #7d7d7d; */
+		/* border-radius: 3px; */
+		/* outline: 0; */
+		width: 20px;
+		height: 20px;
+		/* z-index: 999; */
+	}	
+	#table-accordion-checkbox .checkbox {
+		position: relative !important;
+		cursor: pointer;
+		padding: 0 0 0 9px;
+		margin: 0;
+		top: -1px;
+	}
+	#table-accordion-checkbox .checkbox input {
+		position: absolute !important;
+		cursor: pointer;
+		opacity: 0;
+		left: -11px;
+		top: 1px;
+		width: 20px;
+		height: 20px;
+	    z-index: 9999;	
+	}
+	#table-accordion-checkbox .checkbox input + span {
+		background: white;
+		border: 1px solid #aaa;
+	  	border-radius: 2px;	
+		content: "";
+		display: inline-block;
+		margin: 0 .5em 0 0;
+		padding: 0;
+		vertical-align: middle;
+		width: 1.3em;
+		height: 1.3em;
+		-webkit-transform: translate3d(0, 0, 0);
+		-moz-transform: translate3d(0, 0, 0); 
+		transform: translate3d(0, 0, 0);
+		-webkit-backface-visibility: hidden;	
+	}
+	#table-accordion-checkbox .checkbox input + span::after {
+		content: "";
+		display: block;
+		-webkit-transform: scale(0);
+		-moz-transform: scale(0);
+			  transform: scale(0);
+		-webkit-transition: -webkit-transform .2s;
+		transition: -webkit-transform .2s;
+		transition: transform .2s;
+		transition: transform .2s, -webkit-transform .2s;
+		background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2NHB4IiBoZWlnaHQ9IjY0cHgiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNjQgNjQiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxnPjxwb2x5Z29uIHBvaW50cz0iMTMuNzA3LDMyLjI5MyAxMi4yOTMsMzMuODU0IDI0LjI5Myw0NiAyNS43MDcsNDYgNDkuNzA3LDIxLjg1NCA0OC4yOTMsMjAuMzY2IDI1LDQzLjYyMyAiLz48L2c+PC9zdmc+) no-repeat center;
+		background-size: contain;
+		width: 1.3em;
+		height: 1.2em;		
+	}
+	#table-accordion-checkbox .checkbox:hover input + span, .radio:hover input + span {
+		-webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	}	
+	#table-accordion-checkbox .checkbox input:active + span {
+		  -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+				  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	}
+	#table-accordion-checkbox .checkbox input:checked + span::after {
+		-webkit-transform: scale(1.4);
+		-moz-transform: scale(1.4);
+				transform: scale(1.4);
+    			margin: 0 0 0 1px;	
+	}
+	#table-accordion-checkbox .checkbox label, .radio label {
+		min-height: initial;
+	}
+	
+	
+	td.cursor.priority.Emergency, td.cursor.priority.High, td.cursor.priority.Normal, td.cursor.priority.Low {
+		border: 0 solid #fff !important;
+	}	
+	.details .Icon.Ticket, 
+	.details .Icon.emailTicket, 
+	.details .Icon.phoneTicket, 
+	.details .Icon.webTicket, 
+	.details .Icon.otherTicket {
+		border: unset;
+		padding: 0 2px 0 0;
+		background: #ffffff61;
+		font-size: 11px;
+		margin: 0 !important;
+		/* position: relative; */
+		/* top: 50%; */
+		/* transform: translateY(-50%); */
+		line-height: 16px;
+		font-family: 'Open Sans', sans-serif;		
+	}
+	i.small.icon-paperclip.icon-flip-horizontal {
+		margin: 0;
+	}
+	.icon-paperclip:before, .icon-paper-clip:before {
+		width: 15px;
+		top: -2px;
+	}	
+	.details .nowrap {
+		white-space: nowrap;
+		display: inline-block;
+	}
+	.details .agent {
+		float: left;
+		margin: 0 8px 0 7px;
+	}	
+	.rtl .details .agent {
+		float: right;
+		margin: 0 0 0 8px;
+	}		
+	.details .due-date {
+		float: none;
+		margin-right: 0;
+		display: inline-block;
+	}
+	.details .due-time {
+		float: none;
+		display: inline-block;
+	}
+	#table-foot-options {
+		width: 98%;
+		margin: 0 auto;
+	}
+	#resize-buttons-container {
+		display: none;
+	}
+
+/* ==========================================================================
+ HEADER
+========================================================================== */
+	#header-mobile {
+		position: fixed;
+		width: 100%;
+		height: 40px;
+		padding: 11px 0 9px 12px;
+		z-index: 999999;
+		top: 0;		
+		display: block;
+		background: var(--header-bg);
+	}
+	#header-mobile {
+		position: fixed;
+		width: 100%;
+		height: 60px!important;
+		padding: 0!important;
+		z-index: 999999;
+		top: 0;
+	}
+	#header-links {
+		display: none;
+	}
+	#mobile_right_buttom {
+		display: inline;
+	}
+	.rtl #left-logo {
+		position: absolute;
+		right: -1000px		
+	}	
+	#right_menu {
+		z-index: 999998;
+	}
+	p#info {
+		display: none!important;
+	}		
+
+/* ==========================================================================
+ NAVIGATION  
+========================================================================== */
+
+	#nav {
+		display: none;
+	}
+	#nav-right {
+		display: none;
+	}
+	div#hidden-layer {
+		display: none;
+	}
+	div#top_menu {
+		position: fixed!important;
+		top: 0!important;
+		left: 0;
+		z-index: 1000000;
+		padding: 10px;	
+	}
+	div#top_menu a i.material-icons {
+		color: #fff;
+		font-size: 40px;
+		margin-right: 60px;
+	}
+	.material-icons.md-84 {
+		color: #fff;	
+		font-size: 84px;
+		position: relative;
+		top: 5px;
+	}
+	button#mobile_right_buttom {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+	#right-buttons svg {
+		fill: var(--mobile-link-color);
+	}	
+}
+
+/* ==========================================================================
+ SEARCH ROW
+========================================================================== */
+@media only screen and (max-width: 760px) {
+	
+	form[action="tickets.php"] .attached.input {
+		position: absolute;
+    	top: 60px;
+		left: 1%;
+		border: none !important;
+		height: 36px !important;
+		margin: 0 auto;
+		width: calc(98% - 0)!important;
+	}
+	form[action="tickets.php"] .input.attached input {
+	    border-radius: 3px 0 0 3px;
+		margin: 0 !important;
+		padding: 0 0 0 8px;
+		border-right: 0;
+		font-size: 14px;
+		height: 30px;
+		float: left;
+    	width: calc(100% - 146px) !important;
+	}
+	form[action="tickets.php"] .button.attached {
+		background: var(--header-title-color);
+	    height: 30px !important;
+		margin: 0 -4px 0 0;
+		text-shadow: none;
+		padding: 0 4px !important;
+		width: 36px;
+		float: left;
+	}	
+	form[action="tickets.php"] .action-button.advanced-search.gray-light2 {
+		position: absolute;
+		top: 60px;
+		height: 24px;
+		right: 1%;
+		margin: 0;
+		padding: 0 9px !important;
+		border: unset;
+		text-shadow: none;
+		color: var(--mobile-link-color);
+		opacity: 0.3;
+	}
+	.button-text.advanced-search svg {
+		fill: var(--mobile-link-color) !important;
+		width: 16px !important;
+		height: 16px !important;
+		float: right;
+		margin: 0 0 0 4px !important;
+		padding: 0 !important;
+		opacity: .7;
+	    position: relative;
+		left: 0;
+		top: 3px !important;
+	    will-change: fill;
+    	transition: all 0.3s ease-in-out;	
+	}
+	.button-text.advanced-search:hover {
+		
+	}
+	form[action="tickets.php"] .action-button.advanced-search.gray-light2:hover {
+		border: .5px solid var(--nav-bar-bg) !important;
+		opacity: 1;
+		color: var(--mobile-link-color);
+		background: rgba(255, 255, 255, 0.21);
+	}	  
+	form[action="tickets.php"] .action-button.advanced-search.gray-light2:hover > .button-text.advanced-search svg {
+		fill: var(--mobile-link-color) !important;
+		opacity: 1;
+	}	
+	form[action="kb.php"] .attached.input, 
+	form[action="orgs.php"] .attached.input, 
+	form[action="users.php"] .attached.input, 
+	form[action="tasks.php"] .attached.input, 
+	form[action="tickets.php"] .attached.input {
+		position: absolute;
+		height: 24px !important;
+		top: 60px;
+		left: 1%;
+		margin: 0;
+		border: none !important;
+		outline: none;
+    	/*-webkit-appearance: textfield;*/ /*messses up seach boxes in mobile*/
+		-webkit-box-sizing: content-box;
+		box-sizing: content-box;		
+	}
+	form[action="kb.php"] #basic_search .input.attached input:focus,
+	form[action="orgs.php"] .input.attached input:focus,
+	form[action="users.php"] .input.attached input:focus,
+	form[action="tasks.php"] .input.attached input:focus,
+	form[action="tickets.php"] .input.attached input:focus {
+    	width: calc(100% - 156px) !important;
+	}	
+	form[action="kb.php"] .attached.input, 
+	form[action="orgs.php"] .attached.input, 
+	form[action="users.php"] .attached.input, 
+	form[action="tasks.php"] .attached.input {
+		width: calc(98% + 2px) !important;
+	}
+	form[action="kb.php"] .input.attached input, form[action="orgs.php"] .input.attached input, form[action="users.php"] .input.attached input, form[action="tasks.php"] .input.attached input, form[action="tickets.php"] .input.attached input {
+		height: 24px;
+		width: calc(100% - 156px) !important;
+	}
+	form[action="kb.php"] .button.attached, form[action="orgs.php"] .button.attached, form[action="users.php"] .button.attached, form[action="tasks.php"] .button.attached, form[action="tickets.php"] .button.attached {
+		height: 24px !important;
+	}
+	.attached.input input#query {
+		min-width: 48% !important;
+	}	
+}
+@media screen and (max-width: 734px) {	
+	.tasks .action-button.muted[data-dropdown="#sort-dropdown"] {
+		float: unset;
+		margin: 19.5px 0 0 6px;
+	}
+	.tasks .sticky.bar.opaque.fixed .pull-right.flush-right {
+	    margin: 1px -2px 6px 0;
+	}
+	.dashboard h2:first-child, .directory h2:first-child, .users h2:first-child, .orgs h2:first-child, .tasks h2:first-child, .tickets h2:first-child, .kb h2:first-child, .categories h2:first-child, .canned h2:first-child, .profile h2 {
+		margin-bottom: 0;
+	}
+}
+@media screen and (max-width: 733px) {	
+	.tasks .action-button.muted[data-dropdown="#sort-dropdown"] {
+        margin: 45.5px 0 0 6px;
+	}	
+	.tasks .sticky.bar.fixed .action-button.muted[data-dropdown="#sort-dropdown"] {
+		margin: 21px 0 0 6px;
+	}	
+}
+@media screen and (max-width: 732px) and (min-width: 648px) {	
+	.tasks .action-button.muted[data-dropdown="#sort-dropdown"] {
+        margin: 44px 0 0 6px;
+	}	
+	.tasks .sticky.bar.fixed .action-button.muted[data-dropdown="#sort-dropdown"] {
+	    margin: -35px 0 0 6px;
+	}	
+}
+@media only screen and (max-width: 647px) {
+	.tasks .sticky.bar.fixed .action-button.muted[data-dropdown="#sort-dropdown"] {
+		margin: -30px 0 4px 0;
+	}
+}
+/* ==========================================================================
+ SIDEBAR MENU
+========================================================================== */
+#right-buttons {
+    display: none;
+}
+.c-hamburger {
+    display: none;
+}
+a[attrib$="tickets.php"] {
+    width: 100%;
+    margin: 0;
+}
+li.active.hide-tickets-link,
+li.inactive.hide-tickets-link {
+    display: none;
+}
+@media only screen and (min-width: 761px) {
+	.mobile {
+		display: none;
+	}
+	#sidr-right {
+		display: none;
+	}
+}
+@media (max-width: 760px) {
+	.desktop {
+		display: none;
+	}
+	#right-buttons {
+		display: block;
+		float: right;
+	    margin-right: 52px;
+	}	
+	.c-hamburger {
+		display: block;
+	}
+}
+@media (max-width: 900px) {
+	#sub_nav li > a {
+    margin-left: 19px;
+    font-size: 13px
+	}
+}
+@media screen and (max-width: 760px) {	
+	.c-hamburger {
+		display: block;
+		overflow: hidden;
+		margin: 0;
+		padding: 0;
+		width: 60px;
+		height: 60px;
+		font-size: 0;
+		text-indent: -9999px;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		box-shadow: none;
+		border-radius: none;
+		border: none;
+		cursor: pointer;
+		-webkit-transition: background 0.3s;
+		transition: background 0.3s;
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+	button.c-hamburger.c-hamburger--htx {
+		display: inline;
+	}
+	nav#customQ_nav {
+		display: none;
+	}	
+	#nav.pull-right {
+		display: none !important;
+	}	
+	#sub_nav {
+		background: var(--nav-bar-bg);
+		border: none;
+		margin: 60px 0 0 0;
+		padding: 0 13px;
+        height: 4px;
+		line-height: 23px;
+	}	
+	.index-page #sub_nav,
+	.tickets-page #sub_nav,
+	.users-page #sub_nav,
+	.kb-page #sub_nav,
+	.orgs-page #sub_nav,
+	.tasks-page #sub_nav	
+	{
+	    height: 24px;
+	}			
+	#sub_nav li {
+		display: none;
+	}
+	/* MOBILE SEARCH BOX */
+	
+	form[action="kb.php"] .button.attached,
+	form[action="orgs.php"] .button.attached, 
+	form[action="users.php"] .button.attached, 
+	form[action="tasks.php"] .button.attached, 
+	form[action="tickets.php"] .button.attached {
+	background-color: initial;	
+	opacity: .8 !important;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%232C2C2C' d='M9.5%2C3A6.5%2C6.5 0 0%2C1 16%2C9.5C16%2C11.11 15.41%2C12.59 14.44%2C13.73L14.71%2C14H15.5L20.5%2C19L19%2C20.5L14%2C15.5V14.71L13.73%2C14.44C12.59%2C15.41 11.11%2C16 9.5%2C16A6.5%2C6.5 0 0%2C1 3%2C9.5A6.5%2C6.5 0 0%2C1 9.5%2C3M9.5%2C5C7%2C5 5%2C7 5%2C9.5C5%2C12 7%2C14 9.5%2C14C12%2C14 14%2C12 14%2C9.5C14%2C7 12%2C5 9.5%2C5Z' /%3E%3C/svg%3E");
+    background-position: right 2px center;
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-color: rgba(255, 255, 255, 0.3);
+    border: initial !important;
+    margin: 0;
+    width: 24px;	
+	}
+	form[action="tickets.php"] .input.attached .button.attached {
+		border: none !important;
+	}	
+	.sidr .truncate {
+		width: auto;
+		max-width: 100%;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		vertical-align: bottom;
+	}	
+}
+
+@media screen and (max-width: 760px) {	
+	a.test, a.Ticket, a.assignedTickets, a.overdueTickets, a.answeredTickets, a.closedTickets, a.newTicket, a.premade, a.newPremade, a.kb, a.faq-categories, a.canned, a.staff, a.user, a.userPref, a.userPasswd, a.preferences, a.attachment, a.api, a.newapi, a.ticket-settings, a.email-settings, a.kb-settings, a.alert-settings, a.email-autoresponders, a.sla, a.newsla, a.logs, a.emails, a.newEmail, a.emailTemplates, a.newEmailTemplate, a.emailFilters, a.ticketFilters, a.newTicketFilter, a.emailSettings, a.emailDiagnostic, a.banList, a.users, a.newuser, a.groups, a.teams, a.newgroup, a.helpTopics, a.newHelpTopic, a.departments, a.newDepartment, a.pages, a.newPage, a.forms, a.lists {
+		margin-left: initial;
+	}	
+	
+/* ==========================================================================
+ TICKETS
+========================================================================== */		
+	table.list th, table.list td {
+		/* font-size: 11px !important; */	/*target*/ /*probably not needed*/
+	}	
+	table.list th:first-child {
+		border-radius: 6px 0 0 0;
+	}
+	table.list th:last-child {
+		border-radius: 0 6px 0 0;
+	}	
+	table.list {
+		border: 1px solid #cfd4d6;
+		border-radius: 6px;
+		background: initial;
+		-webkit-box-shadow: initial;
+		-moz-box-shadow: initial;
+		box-shadow: initial;
+		/*margin-top: -20px;*/			
+		margin: 0 auto 2% auto;
+	}
+	.index-page table.list,
+	.tickets-page table.list {
+		width: 98% !important;
+	}		
+	.index-page table.list th,
+	.tickets-page table.list th {
+		background: #ffddba !important;
+	}	
+	.index-page table.list thead th a.asc,
+	.tickets-page table.list thead th a.asc {
+		background: url(../../osta/icons/asc.svg) 100% 50% no-repeat #eac8a4;
+		background-size: 20px;	
+		/*border: .5px solid #c4ced8ad;*/
+		border: none;
+		border-radius: inherit;	
+		height: 100%;
+	}
+	.index-page table.list thead th a.desc
+	.tickets-page table.list thead th a.desc {
+		background: url(../../osta/icons/desc.svg) 100% 50% no-repeat #eac8a4;	
+		background-size: 20px;	
+		border: .5px solid #c4ced8ad;
+		border-left: none;	
+		border-radius: 4px 6px 0 0;		
+	}
+	.index-page table.list thead th a.desc, 
+	.tickets-page table.list thead th a.desc {
+		background: url(../../osta/icons/desc.svg) 100% 50% no-repeat #e8caaa;	
+	}	
+	.index-page .list th:nth-child(2) a:hover, 
+	.index-page .list th:nth-child(3) a:hover, 
+	.index-page .list th:nth-child(4) a:hover, 
+	.index-page .list th:nth-child(5) a:hover, 
+	.index-page .list th:nth-child(6) a:hover,
+	.tickets-page .list th:nth-child(2) a:hover, 
+	.tickets-page .list th:nth-child(3) a:hover, 
+	.tickets-page .list th:nth-child(4) a:hover, 
+	.tickets-page .list th:nth-child(5) a:hover, 
+	.tickets-page .list th:nth-child(6) a:hover {
+    background: #d7ba9c url(../../osta/icons/asc-desc.svg) 100% 50% no-repeat;
+    background-size: 20px;
+	}	
+	.index-page table.list th:last-child a:hover, 
+	.index-page table.list th:last-child:hover,
+	.tickets-page table.list th:last-child a:hover, 
+	.tickets-page table.list th:last-child:hover	{
+		border-radius: 0 6px 0 0;
+		background: #d7ba9c url(../../osta/icons/asc-desc.svg) 100% 50% no-repeat;
+		background-size: 20px;
+	}	
+}
+@media screen and (min-width: 761px) {
+    .desktop-ticket-mobile {
+        display: none;
+    }
+    .desktop-ticket-desktop {
+        display: initial;
+    }
+}
+@media screen and (max-width: 760px) {
+    #footer {
+        /*display: none;*/
+    }
+	#scroll-to-top {
+		display: inline;
+	}	
+    div#desktop-ticket-list {
+        display: none;
+    }
+    #desktop-ticket-mobile {
+        display: initial;
+    }	
+	#content {
+		width: 98%;
+    	padding: 1% 1% 1% 1% !important;
+		border-radius: 0;
+	    background: #f3f3f5 !important;	
+		overflow: hidden; /* what could possibly go wrong?! */
+	}	
+	span.pull-right.faded-more {
+		display: none!important;
+	}
+	.orgs table.list th:first-child {
+		/*background-position: 1px 7px;*/
+	}
+	#basic_search {
+		padding: 0;
+	}
+	.button-text.advanced-search {
+		position: relative;
+		top: 0;
+		font-size: 13px !important;
+	}
+	.due-date {
+		margin-right: 0;
+	}
+	.rtl .due-date {
+		margin-left: 1px;
+	}	
+	.due-time {
+		display: none;
+	}
+	span.sort-button-text {
+		display: none;	
+	}
+	.sticky.bar.opaque.fixed h2,	
+	.sticky.bar.opaque.fixed h2 a {
+		display: none;
+	}
+	th[colspan="2"] em strong {
+   		display: inline !important;
+	}
+	form#note tr,
+	form#reply tr {
+		display: table;
+		width: 100%;
+	}
+	form#reply tr:not(:first-child) {
+		margin-top: 10px;
+	}	
+	form#note td[width="120"],
+	form#reply td[width="120"] {
+		width: 100%;
+		display: block;
+		display: table-row;
+	}	
+	table.form_table.fixed tr {
+		display: table;
+	}	
+	table.form_table.fixed td{
+		display:table-row; 
+	}
+	.form_table.fixed .form_table .button {
+		padding: 8px 0 8px 16px !important;
+		margin: 6px 0 13px 0;
+	}
+	#time-zone {
+		position: relative;
+		top: -19px !important;
+	}	
+	label[for="signature"],
+	form#note label {
+		font-weight: 500;
+	}	
+	form#note input[type="text"] {
+		width: 100% !important;
+	}
+	select#time {
+		width: 100px !important;
+	}	
+	input.staff-username.typeahead {
+		width: 130px !important;
+		display: table;
+	}	
+	button#change-pw-button {
+		top: -2px;
+		/*left: -8px;*/
+	}	
+	table.table.two-column input[type="email"],
+	table.table.two-column input.auto.phone {
+		width: 163px !important;
+	}	
+/*==========================================================================
+ BUTTONS
+========================================================================== */
+	.button.attached {
+		border: 1px solid #cfd4d6;
+		border-left: none !important;
+		/*background: #fff;*/  /*target*/
+		margin-bottom: 4px;
+	}
+	.pull-right.flush-right .action-button {
+		/*margin-top: 10px;*/  /*target*/
+	}
+	.action-button[data-dropdown="#sort-dropdown"] {
+		margin-left: 5px !important;
+	}	
+	input[type="reset"]	 {
+		margin-bottom: 0;
+	}
+	.tasks-page #content .pull-right .action-button.muted {
+		float: left;
+		margin: 0 5px 0 0 !important;
+	}
+	.tasks-page #basic_search .pull-right {
+		height: 0 !important;
+	}
+}
+
+/* ==========================================================================
+ POPUPS AND ALERTS
+========================================================================== */
+@media screen and (max-width: 760px) {	
+	div#alert {
+		width: 96%;
+	}
+}
+@media only screen and (max-width:650px){
+	.dialog#popup,
+	.dialog.size-normal {
+	    top: 2%!important;	
+		width: 98%!important;
+		margin: 0 auto !important;
+		/* z-index: 999999; */ /*target*/
+		padding: 10px 10px 14px 10px!important;
+		height: auto !important;
+		max-height: 96%!important;
+		max-width: 96%;
+	}
+	div#ticket-status {
+		margin: 0!important;
+	}
+}
+
+/* ==========================================================================
+ TABLES - RESPONSIVE
+========================================================================== */
+@media screen and (max-width:600px) {
+	.settings-page tr {
+		display: table;
+	}
+	.settings-page td {
+		display: table-row;
+	}	
+	table.fixed{
+		border-spacing:0;
+		width:100%;
+	}
+	table.fixed th, 
+	table.fixed td { 
+		position:relative;
+		width:100%;
+		text-align:left
+	}
+	table.fixed td:first-child {
+		width:99%; /* target if you use 100% */
+		float: left;
+		clear:both;
+	}	
+	table.fixed > thead > tr > th:not([width]), table.fixed > thead > tr > td:not([width]), table.fixed > tbody > tr > td:not([width]), table.fixed > tr > td:not([width]) {
+		width: 100%;
+	}	
+	#the-lookup-form table.fixed > tbody > tr > td + td:not([width]) { /* Open Ticket > Lookup or Create User */
+		width: 200%;
+		float: left;
+		clear: both;
+	}	
+	table.fixed #change-user-search-form input[type="search"] {
+	    width: 95%!important;
+	    padding: 0 0 0 6px!important;	
+	}
+/*	div#change-user-search-form input[type="search"],	
+	table.fixed span[style="display:inline-block;width:100%"],	
+	table.fixed input[type="text"],
+	table.fixed input[type="email"] {
+		width: calc(100% - 28px)!important;
+	    margin: 0 0 2px 0!important;
+	}	*/
+	table.fixed input[type="email"] {
+		margin: 0!important;
+	}
+	input,
+	input[type="email"],
+	input[style="width:300px"],
+	.select2.select2-container.select2-container--default,
+	.select2-container--default .select2-selection--single {
+		min-width: initial !important;
+		width: initial !important; /* should all inputs be 100% */
+	}	
+	#new-user-form input[type="text"],
+	#new-user-form input[type="email"] {
+		width: 100% !important;
+	}	
+	#new-user-form input[size="5"] {
+		width: 56px !important;
+	}	
+	.tickets .form_table.fixed {
+		width: 100% !important;
+	}	
+	.tickets .form_table {
+		width: 100% !important;
+	}	
+	.tickets .form_table .select2.select2-container.select2-container--default {
+		width: calc(100% - 10px) !important;
+		display: block;
+	}	
+	body.tickets-page div#popup,
+	input#user-search {
+		width: 100% !important;
+	}
+	.selected-signature .inner img {
+		max-width: 90%;
+		height: auto;
+	}	
+	td#signature label {
+		white-space: pre;
+	}	
+	td#signature {
+		width: 98% !important;
+	}	
+	#dynamic-form td[colspan="2"],
+	.form_table.fixed td[colspan="2"] {
+		width: 98%;
+		float: initial; /*Open a New Ticket redactor box*/
+	}	
+}
+
+@media only screen and (max-width:760px) {
+	
+/* ==========================================================================
+ USER DIRECTORY
+========================================================================== */
+	form#users-list th:nth-child(4),
+	form#orgs-list th:nth-child(4) {
+		width: 10%;
+		border-radius: 0 6px 0 0;
+	}
+	form#users-list th:nth-child(5),
+	form#users-list td:nth-child(5),
+	form#orgs-list th:nth-child(5),
+	form#orgs-list td:nth-child(5)	{
+		display: none;
+	}	
+	div#ticket-count,	
+	i.icon-fixed-width.icon-file-text-alt {
+		display: none !important;
+	}
+/* ==========================================================================
+ TASKS PAGE
+========================================================================== */
+	form#users-list th:nth-child(4),
+	form#orgs-list th:nth-child(4) {
+		width: 10%;
+		border-radius: 0 6px 0 0;
+	}
+	h2 {
+		color: #777777;
+		font-weight: 400;
+		font-size: 28px;
+		line-height: 42px;
+	}
+	h2 a {
+		font-weight: 400;
+		font-size: 28px;
+		line-height: 42px;
+	}	
+	div#add-task-mobile {
+    	display: inline-block;
+	}
+
+/* ==========================================================================
+ AGENTS
+========================================================================== */
+	#content.directory table.list td:first-child {
+		font-size: 14px;
+	}
+}
+
+/* ==========================================================================
+ PROFILE
+========================================================================== */
+@media only screen and (max-width:760px) {
+		.profile table.table.two-column button.action-button {
+		margin: 6px 0 0 0;
+	}
+}
+
+
+
+
+
+/*
+/*      OLD OLD OLD 
+*/
+
+
+
+
+
+
+@media only screen and (max-width:760px){
+	body,
+	/*form,*/
+	.content,
+	div#pjax-container {
+		width: 100%!important;
+	    background: #f3f3f5 !important;	
+	}
+	#pjax-container {
+		margin: 10px 0 0 0;
+	}	
+	.pull-right,
+	.sticky.placeholder {
+		display: none;
+	}
+	.pull-right.flush-right.page-top {
+		display: none!important;
+	}
+	.pull-left.flush-left {
+		width: 100%!important;
+	}
+	
+
+/* ==========================================================================
+ OPEN TICKET ticket-open.inc.php
+========================================================================== */
+	table#open-ticket-table {
+		width: 100%;
+	}
+	select, 
+	input.dp,  
+	.form-field, 
+	.form_table input[type=text], 
+	.form_table input[type=password], 
+	.form_table textarea,
+	table#ticket-open-table .input.attached	{
+		/* width: 90%!important; */
+	    margin: 5px 0 4px 0!important;     /* ?!? */  /* Ticket Edit */
+	}
+	.error-asterisk {
+		margin-left: -2px;
+	}
+	/* 	
+	.form_table input[type=text] {
+			margin: 0 0 0 0!important;
+		} */
+	table#ticket-open-table .attached.input {
+	    margin: 0 0 4px 0!important;
+	}
+	div#sendemail {
+		margin: 10px 0 0 0;
+	}
+	select {
+		margin: 5px 0 5px 0!important;
+	}
+	input[type="text"] {
+		margin: 0 0 5px 0!important;
+	}
+	div#sendemail {
+		padding: 10px 0;
+	}
+}
+
+
+
+
+
+@media screen and (max-width: 760px) {	
+/* ==========================================================================
+ USER VIEW
+========================================================================== */
+	#user-view-tabs {
+		/* margin-top: -6px!important; */ /*target*/
+	}		
+	.users table.ticket_info {
+		border: 1px solid #cfd4d6;
+		width: 100%;
+		float: initial;
+	}
+	.users table.ticket_info td {
+		width: 100% !important;
+		display: block;
+	}	
+	.users table.ticket_info th {
+		width: initial;
+	}	
+	
+/* ==========================================================================
+ SEARCH
+========================================================================== */
+
+	.search.well {
+		margin-top: 0;
+	}
+	#kbSearch {
+		margin-bottom: 0;
+	}
+	#basic_search {
+	    margin: 0;
+	}
+	input[type="text"] {
+		/*margin: initial!important;*/ /*target specifically*/
+	}
+	.action-button.advanced-search {
+	    margin: 3px 3px -1px 8px;
+	}
+
+/* ==========================================================================
+ ICONS
+========================================================================== */
+	.tickets svg {
+		width: 30px;
+		float: right;
+		fill: #4DB80C;
+		margin: 4px 0 0 5px;
+	}
+	
+/* ==========================================================================
+ BUTTONS
+========================================================================== */
+	form[action="tickets.php"] .attached.input {
+		/*width: calc(100% - 340px)!important;*/
+	}
+	form[action="tickets.php"] .input.attached input {
+		/*width: calc(100% - 48px)!important;*/
+	}
+}
+@media only screen and (max-width:700px) {	
+	span.action-button.muted.sort .caret {
+		display: none!important;
+	}
+	i.icon-sort-by-attributes-alt {
+		margin: 0;
+	}	
+	span.action-button.muted.sort {
+		padding: 4px 10px 4px 10px;
+		margin: 7px 5px;	
+	}	
+}
+@media only screen and (max-width:500px) {
+	#basic_search i.help-tip {
+		display: none;
+	}
+	.action-button.advanced-search {
+		min-width: 46px;
+		position: relative;
+	}
+	.pull-left.flush-left {
+		width: initial!important;
+	}	
+}	
+@media only screen and (max-width:500px){	
+	span.action-button.muted.sort {
+		display: none;
+	}	
+}	
+@media only screen and (max-width:600px){		
+	div[data-dropdown="#action-dropdown-more"] svg {
+		right: 4px;
+	}	
+	input[type="reset"] {
+		display: none;
+	}	
+}	
+
+/* ==========================================================================
+ TICKETS tickets.inc
+========================================================================== */
+@media only screen and (max-width:760px) {
+	.active.state {
+		font-weight: normal;
+	}	
+	.pull-left.flush-left {
+		width: initial!important;
+	}	
+	.pull-right,
+	.pull-left,	
+	.pull-right.flush-right.page-top {
+		display: inline-block!important;
+	    margin: 0 0 4px 0;	
+	}	
+	.sticky.bar.fixed .pull-right,
+	.sticky.bar.fixed .pull-right.page-top,
+	.sticky.bar.fixed .pull-right.flush-right .action-button {
+		margin-bottom: 0;
+	}	
+	.pull-left {
+		float: left;
+		margin: 0 0 0 0;
+	}
+	.tickets .pull-left {
+		padding-bottom: 0;
+	}	
+	.table-description span.pull-right.faded-more {
+		display: none!important;
+	}
+	.osta_subject div {
+		width: 94%;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}	
+}
+/* ==========================================================================
+ TICKET VIEW ticket-view.inc.php
+========================================================================== */
+@media only screen and (max-width:760px) {
+	div#ticket-view-buttons-row {
+		margin-top: 10px;	
+		height: 33px;
+	}
+	div#button-more,
+	div#button-status,
+	div#button-edit,
+	div#button-assign,
+	div#button-transfer,
+	div#button-print {
+		width: calc(100% / 6 - ((5 * 15px) / 6));
+		width: -webkit-calc(100% / 6 - ((5 * 15px) / 6));	
+		float: right;
+		height:33px;
+		margin-right:15px;
+	}
+	div#button-edit {
+		float: left;
+	}
+	div#button-more {
+		margin-right: 0;
+	}
+	a#ticket-transfer {
+		margin: 0!important;
+	}
+	div#ticket-view-buttons-row .action-button {
+		margin: 0!important;
+		width: 100%!important;
+	}
+/*	a#ticket-more, 
+	a#ticket-transfer, 
+	a#ticket-print, 
+	a#ticket-assign, 
+	a#ticket-edit,
+	a#ticket-status {
+		margin: 0!important;
+		width: 100%;	
+	}*/
+	div#ticket-view-buttons-row a#tickets-action {
+		width: 100%;
+	}
+	div#button-more-caret {
+		margin-right: 0;
+		width: 32px;
+	}
+	div#ticket-user-count-title {
+		margin-top: 8px;
+	}	
+	table.ticket_info.mobile {
+		margin: 0 0 10px 0;
+	}	
+	table.ticket_info.mobile td {
+		padding: 3px 8px;
+	}
+	table.ticket_info.mobile tr:first-child td {
+		padding-top: 7px;
+	}
+	table.ticket_info.mobile tr:last-child td {
+		padding-bottom: 9px !important;
+	}
+	
+/* ==========================================================================
+ STICKY	
+========================================================================== */
+	.sticky.bar.fixed .pull-right.flush-right.page-top {
+		position: relative;
+		top: unset;
+		right: unset;
+	}
+	.sticky.bar.fixed {
+		z-index: 999999;
+	}
+}	
+@media screen and (max-width: 320px) { 
+	.action-button i.icon-caret-down, .action-button.muted i.icon-caret-down {
+		padding: 0 0 0 2px;
+	}
+}
+	
+/* ==========================================================================
+ TABS
+========================================================================== */	
+@media screen and (max-width: 600px) { 
+	ul.tabs li {
+		padding: 0 4px !important;
+		min-width: initial;
+	}
+	ul.tabs {
+		padding: 4px 0 0 5px;		
+	}
+}
+
+@media screen and (max-width: 900px) { 
+	ul.tabs li {
+	    font-size: 82%;;
+	}
+}
+
+@media screen and (max-width: 830px) { 
+	ul.tabs li {
+		margin: 0;
+		min-width: 46px;
+		font-size: 0;
+	}
+	ul#trans li.empty, ul#content-trans li.empty {
+		font-size: 12px;
+	}	
+}
+
+/* ==========================================================================
+ FOOTER
+========================================================================== */
+@media screen and (max-width: 570px) { 
+	#left-logo {
+		position: absolute;
+		left: -1000px		
+	}
+	.avatar.pull-left {
+		margin-left: -60px;
+		display: inline-block;
+		width: 48px;
+		height: auto;
+	}
+	.avatar.pull-left.user-view-avatar {
+		margin: 4px 0 0 0!important;
+		width: 60px;
+	}	
+	.responsive-div.ticket_info.user-view {
+		margin: 4px 0 0 65px;
+	}	
+	div.ticket_info {
+		margin: 6px 0 0 86px;
+	}	
+	div#ticket-view-buttons .action-button {
+		margin: 0;
+		min-width: initial;
+	}
+	#button-more {
+		width: 24px;	
+	}	
+}
+
+@media only screen and (max-width:880px){	
+	div#button-print, 
+	div#button-edit {
+		width: calc(100% / 6 - ((5 * 15px) / 6) - 20px);		
+		width: -webkit-calc(100% / 6 - ((5 * 15px) / 6) - 20px);
+	}
+	div#button-more, 
+	div#button-transfer, 
+	div#button-assign, 
+	div#button-status {	
+		width: calc(100% / 6 - ((5 * 15px) / 6) + (2 * 20px / 4));		
+		width: -webkit-calc(100% / 6 - ((5 * 15px) / 6) + (2 * 20px / 4));		
+	}	
+	div#button-transfer .button-icon, 
+	div#button-transfer .button-text {
+		float: left;
+		padding-left: 6px;
+	}	
+}
+
+@media only screen and (max-width:820px){
+	div#button-edit,
+	div#button-print,
+	div#button-transfer,	
+	div#button-status,
+	div#button-assign,
+	div#button-more {
+		width: calc(100% / 6 - ((5 * 15px) / 6));
+		width: -webkit-calc(100% / 6 - ((5 * 15px) / 6));	
+	}
+	div#ticket-view-buttons-row .button-text {
+		display: none;
+	}
+	div#ticket-view-buttons-row .button-icon svg {
+		width: 23px;
+		top: 5px;	
+	}
+	.sticky.bar.opaque.fixed svg {
+		width: 23px!important;
+	}	
+	div#button-edit .button-icon,
+	div#button-print .button-icon, 
+	div#button-transfer .button-icon {
+		width: 100%;
+		padding-left: 0;
+		float: none;
+	}
+	div#button-edit .button-icon svg,
+	div#button-print .button-icon svg, 
+	div#button-transfer .button-icon svg{
+		float: none;
+		margin: 0 auto;
+	}	
+	div#button-status .button-icon,
+	div#button-assign .button-icon {
+		width: calc(100% - 33px);
+	}
+	div#button-more .button-icon {
+		width: 16px;
+	}	
+	div[data-dropdown="#action-dropdown-more"] svg {
+			right: 0;	
+	}	
+	div#button-status .button-icon svg,
+	div#button-assign .button-icon svg,
+	div#button-more .button-icon svg {
+	    float: none;	
+		margin: 0 auto;
+	}
+	#ticket-print .button-icon {
+		padding-left: 0!important;
+	}	
+}
+@media only screen and (max-width: 600px){
+	div#button-edit,
+	div#button-print,
+	div#button-transfer,	
+	div#button-status,
+	div#button-assign,
+	div#button-more {
+		margin-right: 10px;
+		width: calc(100% / 6 - ((5 * 10px) / 6));
+		width: -webkit-calc(100% / 6 - ((5 * 10px) / 6));	
+	}	
+	div#button-more {
+		margin-right: 0;
+	}	
+	.users-more .button-icon svg {
+		right: 4px;
+	}	
+	div#button-status .button-icon,
+	div#button-assign .button-icon,
+	div#button-more .button-icon {
+		width: 60%;
+	}	
+	div#button-more-caret {
+		margin-right: 0;
+		width: 38%;
+	}
+	.caret {
+		left: 0%;
+	}
+	input[type="reset"],
+	button[name="reset"] {
+		/*display: none!important;*/ /*target*/
+	}	
+	.theme input[name="reset"] {
+		display: none;
+	}	
+}
+@media only screen and (max-width: 355px){
+	div#button-edit,
+	div#button-print,
+	div#button-transfer,	
+	div#button-status,
+	div#button-assign,
+	div#button-more {
+		margin-right: 8px;
+		width: calc(100% / 6 - ((5 * 8px) / 6));
+		width: -webkit-calc(100% / 6 - ((5 * 8px) / 6));	
+	}	
+	div#button-more {
+		margin-right: 0;
+	}		
+	div#button-more-caret {
+		display: none;
+	}
+	div#button-status .button-icon,	
+	div#button-assign .button-icon, 	
+	div#button-more .button-icon {
+		width: 100%;
+	}
+	.users-more .button-icon svg {
+		right: 0;
+	}	
+}
+
+
+@media screen and (max-width:600px) {
+	table.form_table{
+		/* border-spacing:0; */
+		width:100%;
+	}
+	.form_table th, 
+	.form_table td { 
+		position:relative;
+		width:100%;
+		text-align:left
+	}
+	.form_table td:first-child {
+		width:100%;
+		float: left;
+		clear:both;
+	}
+	.form_table td:nth-child(2) {
+		float: left;
+		clear:both;
+	}
+	.form_table td:not(:empty) {
+		height: initial;
+	}
+	th strong {
+		display: block;
+	}	
+	select, 
+	textarea, 
+	input#query, 
+	input[type="text"], 
+	input[type="search"], 
+	input[type="email"], 
+	input[type="tel"], 
+	.form-field, 
+	.form_table input[type=password], 
+	.form_table textarea {
+		padding: 3px !important;
+	}	
+	input[type=text], input[type=password], textarea, input {
+		min-width: 112px;
+	}
+	.form_table input[type=text] {
+		padding: 0 0 0 3px!important;
+	}
+/*	.form_table input[type=password], 
+	.form_table textarea,
+	select {
+		max-width: initial;
+		width: calc(100% - 28px)!important;
+	}	
+	.form_table input[type=text] {
+		width: calc(100% - 28px - 3px)!important;
+	}*/	
+	input#duedate {
+		margin: 4px 0 4px 1px!important;
+	}	
+	tbody#to_sec select, tbody#resp_sec select {
+		width: 100%;
+	}	
+}
+
+@media screen and (max-width:600px) {
+	table#ticket-view-reply,
+	table#ticket-view-note	{	
+	border-spacing:0;
+		width:100%;
+	}
+	table#ticket-view-reply th,
+	table#ticket-view-note th,
+	table#ticket-view-reply td,
+	table#ticket-view-note td { 
+		position:relative;
+		width:100%;
+		text-align:left
+	}
+	table#ticket-view-note td:first-child,
+	table#ticket-view-reply td:first-child {
+		width:100%;
+		float: left;
+		clear:both;
+	}
+	table#ticket-view-note td:nth-child(2),
+	table#ticket-view-reply td:nth-child(2) {
+		margin: 0 0 10px 0;
+	}	
+	table#ticket-view-reply > tbody > tr > td + td:not([width]),
+	table#ticket-view-note > tbody > tr > td + td:not([width]) {
+		width: 100%;
+		float: left;
+		clear: both;
+	}
+	div#response_options {
+	    width: 98%!important;
+	}	
+	#response_options > form {
+	    padding: 0;
+	}	
+	table#ticket-view-reply,
+	table#ticket-view-note {
+		padding: 10px;
+	}	
+	select#emailreply,
+	select#cannedResp,
+	tbody#resp_sec .redactor-box,
+	div#reply_form_attachments,
+	select[name="reply_status_id"] {
+	    width: 100%!important;
+	}
+	tbody#resp_sec .redactor-box {
+		width: calc(100% - 20px);
+	}
+	select#cannedResp.select2-hidden-accessible {
+		width: 1px !important;
+	}	
+	form#reply input[type="reset"],
+	form#note input[type="reset"] {
+	    display: inline-block!important;
+	}
+	table#ticket-view-note input#title {
+	    width: 96%!important;
+	    margin: 4px 0 0 
+	}
+	table#ticket-view-note .faded {
+	    font-size: 100%;
+	}
+	form#reply,
+	form#note {
+	    margin-bottom: 1%;
+	}
+	.redactor-editor.redactor-linebreaks.redactor-placeholder {
+	    min-height: 180px!important;
+	}
+	.sidebar {
+		width: 92%;
+    	margin: 0 0 2% 2% !important;
+		float: left;
+		padding: 10px;
+		border: .5px solid #a8a6a6;
+		background: #ebebeb;
+		border-radius: 3px;
+	}	
+	.faq-content .thread-body.bleed {
+		width: 100%;
+	}	
+	i.help-tip.icon-question-sign[href="#export"] {
+		display: none;
+	}	
+ 
+/* ==========================================================================
+ IE Fixes
+========================================================================== */
+
+	div#button-inner, div#button-more-inner {
+	    display: initial !important;
+	    margin: initial !important;
+	    height: 30px !important;
+	}
+}
+
+@media screen and (max-width: 760px) {
+	
+	.desktop-ticket-list,
+	.mobile-only {
+    	display: inline !important;
+	}
+	tr.head,
+	td.table-date,
+	td.table-status,
+	td.table-id,
+	div#thread-icon,
+	div#thread-count,
+	td.table-client,
+	td.table-description {
+		display: none;
+	}
+	.index-page table.list, .tickets-page table.list {
+		width: 100% !important;
+	}	
+	form[action="tickets.php"] table.list {
+		border: unset;
+		-webkit-box-shadow: unset;
+		-moz-box-shadow: unset;
+		box-shadow: unset;
+	}
+	form[action="tickets.php"] table.list td {
+		padding: 0 !important;
+	} 
+	table.list tbody tr.highlight td {
+		border-top: unset !important;
+		border-bottom: unset !important;
+	}	
+	table.list tbody tr:nth-child(2n+1) td {
+		background-color: unset;
+	}	
+	table.mobile-ticket-list-outter-table {
+		width: 100% !important;
+		margin: 0 !important;
+		margin-bottom: 0 !important;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+	}
+	td.mobile-only {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+	table.table-accordion {
+		height: unset;
+    	border-radius: 0 5px 5px 0 !important;
+	    border-right: 7px solid #bbb;	
+		border-spacing: 0;
+		border-collapse: separate;		
+	}
+	.rtl table.table-accordion {
+		border-left: 7px solid #bbb;
+		border-right: initial;
+		border-radius: 5px 0 0 5px !important;
+	}	
+	td.cursor.priority {
+    	border-radius: 5px 0 0 5px!important;		
+		width: 7px;
+		border: 0 solid #fff !important;
+	}	
+	.rtl td.cursor.priority {
+		border-radius: 0 5px 5px 0 !important;
+	}	
+	td.checkbox.nohover {
+		margin: 0 !important;
+	    padding: 6px 2px 6px 9px!important;
+		width: 20px !important;
+		height: 20px !important;
+		background: #fff !important;
+	}	
+	.tasks-page table.list input[type=checkbox],
+	.orgs-page table.list input[type=checkbox],
+	.users-page table.list input[type=checkbox] {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+	.tasks-page table.list thead th a {
+		padding: 8px 0 2px 3px;
+		font-size: 17px !important;
+	}	
+	.tasks-page table.list tbody td {
+		padding: 7px;
+	}
+	.tasks-page table.list tbody td:nth-child(6) {
+		padding: 0;
+	}	
+	form[action="tasks.php"] table.list td:nth-child(6) div.wrap {
+		float: left;
+		max-width: 92%;
+	}	
+	form[action="tasks.php"] td:nth-child(2) {
+		padding: 0 0 0 3px !important;
+	}	
+	form[action="tasks.php"] table.list td:nth-child(4) {
+		padding: 10px 0 10px 5px;
+	}	
+	form[action="tasks.php"] table.list td:nth-child(2) a b {
+		font-weight: 100 !important;
+	}	
+	tr.mobile-only-bottom-spacer td {
+		background: #f3f3f5 !important;
+    	height: 6px;
+	}	
+	form[action="tickets.php"] table.list tfoot td {
+		border-top: unset !important;
+		background: unset;
+		padding: 0 !important;
+	}
+	form[action="tickets.php"] table.list td:nth-child(2) {
+	    padding: 0 4px 0 4px !important;
+	}
+	.checkbox input + span {
+		margin: 0;	
+	    width: 13px !important;
+	}	
+	.checkbox input + span::after {
+	    background-position: -1px -1px;
+	}
+	td.accordion-td.summary {
+		border-radius: 0 0 5px 0;
+	}
+	.inner-client-summary a {
+		font-size: 15px;
+		margin: 3px 0 0 0;
+		height: 22px;
+	}
+	.inner-ticket-summary {
+		margin: 2px 0 0 0;
+		height: 24px;
+		border-radius: 0 0 5px 0;	
+	}	
+	.ticket-number-mobile {
+		float: left;
+		border: unset;
+		height: 15px;
+		text-align: center !important;
+		margin: 0 4px 0 0;
+		padding: 0 !important;
+	}	
+	.rtl .ticket-number-mobile {
+		float: right;
+		margin: 0 0 0 8px;
+	}	
+	.link.truncate {
+		font-family: 'Open Sans', sans-serif;
+		font-size:14px;
+		font-weight:400;
+		color: #787878 !important;
+	}
+	.trigger {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0;
+		border: 0;
+		outline: 0;
+		/* padding: 17px; */
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		margin: 0;
+		background: #ff0;
+		display: inline-block;
+		z-index: 2;
+	}	
+	.Icon.overdueTicket {
+	    background-position: 0 1px;
+		padding-left: 17px !important;
+	}	
+	.checkbox input + span {
+	    border: .5px solid #b3b3b3;
+	}
+}
+@media screen and (min-width: 761px) {
+	td.mobile-only,
+	tr.mobile-only-bottom-spacer {
+    	display: none;
+	}
+}
+/* ==========================================================================
+ TICKET LIST MOBILE
+========================================================================== */
+
+@media (max-width: 760px) {
+	form[action="tickets.php"] table.list thead th {
+		display: none;
+	}
+	a.preview.cursor {
+		display: none !important;
+	}	
+	#mobile-only tfoot {
+		display: none;
+	}	
+	table.list + div, #table-foot-options {
+		padding: 10px 0 10px 0;
+	}	
+}
+
+/* ==========================================================================
+ TICKET LIST MOBILE - SORT OPTIONS
+========================================================================== */
+
+@media (min-width: 761px) {
+	div#sort-options {
+		display: none;
+	}
+}
+div#sort-options {
+	margin: 0 0 8px 0;
+    float: right;
+	display: none;	
+}
+div#sort-options a {
+    background: #bbbbbb;
+    color: #fff;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 0 2px 2px 2px;
+    margin: 0 0 2px 0;
+}
+@media (max-width: 760px) {
+	table.list tfoot td[colspan="8"]:before, table.list tfoot td[colspan="7"]:before, table.list tfoot td[colspan="6"]:before, table.list tfoot td[colspan="5"]:before {
+    	padding: 3px 8px 0 1.5em !important;
+	}
+}
+
+ 
+div#sort-options {
+	display: none;
+}
+
+/* ==========================================================================
+ ADDITIONAL MOBILE TWEAKS
+========================================================================== */
+@media (max-width: 1000px) {
+	.osta_ticket {
+		/* padding-left: 6px !important; */
+	}
+	.osta_username {
+		font-size: 12px !important;
+	}	
+}
+@media (max-width: 860px) {
+	.sticky.bar.fixed .flush-left {
+		display: none !important;
+	}
+}
+@media screen and (max-width: 760px) {
+	.pull-right.flush-right .action-button {
+		margin-bottom: 4px;
+	}
+	.pull-right.flush-right .action-button[data-original-title=" Assign"], 
+	.pull-right.flush-right .action-button[data-original-title="Change Status"] {
+		float: right;
+		margin: 0 0 0 6px;
+	}	
+}
+@media screen and (max-width: 600px) {	
+	#content #msg_error {
+		margin: 10px 0 6px 0!important;
+		width: 94%!important;
+	}	
+	table#ticket-open-table .attached.input {
+		width: calc(100% - 23px)!important;
+	}	
+	table#ticket-open-table input#user-email {
+		width: calc(100% - 52px)!important;
+	}
+	table#ticket-open-table .attached.input {
+		margin: 5px 0 10px 0!important;
+	}		
+	span[style="display:inline-block;"] {
+		display: initial!important;
+	}	
+	form.user input[type="email"] {
+		margin: 2px 0 2px 0!important;  /* Open Ticket > Lookup or Add New User popup */
+	}	
+	h2 a[title="Refresh"]:after,
+	.configureQ i.icon-cog {
+		display: none;
+	}	
+	table.list thead th a {
+    	font-size: 13px;
+	}
+}
+	
+@media screen and (max-width: 550px) {	
+	.pull-right.flush-right.page-top .action-button {
+		/*margin: 0 1px;*/
+	}	
+	.action-button.muted[data-dropdown="#sort-dropdown"] {
+		float: right;
+		margin: 7px 0 0 6px;
+	}	
+	.pull-right.flush-right.page-top .action-button {
+		/*margin: 0 1px;*/
+	}	
+	.action-button.muted[data-dropdown="#sort-dropdown"] {
+	  display: inline-block;
+	  font-size: 0;
+	} 
+	.action-button i.icon-caret-down {
+	  display: none !important;
+	}
+	i.icon-sort-by-attributes-alt {
+	  margin: 0 -6px 0 0;
+	}  
+	#ticket_tabs_container form#reply {
+		width: 100% !important;
+	}	
+	#ticket_tabs_container form#reply select#reply-to {
+		width: 100% !important;
+	}	
+	#ticket_tabs_container form#reply .tickets .select2.select2-container.select2-container--default {
+		width: 100% !important;
+	}
+	#ticket_tabs_container form#reply span.select2.select2-container.select2-container--default {
+		width: 100% !important;
+	}	
+}
+@media screen and (max-width: 525px) {	
+	table.table.two-column input.auto.phone {
+		width: 100px !important;
+	}
+}
+@media screen and (max-width: 450px) {	
+	.action-button, .button, button, button.link.button, input[type="button"] {
+	    margin: 0 4px 0 0;	
+		padding: 6px 8px;
+	}
+	.tasks .pull-right.flush-right {
+		/* margin: 0 71px 0 0; */
+	}		
+	#table-foot-options {
+		padding: 0;
+	}	
+}	
+@media (max-width: 420px) {
+	form[action="canned.php"] table.list th:nth-child(4),
+	form[action="canned.php"] table.list td:nth-child(4) {
+		display: none;
+	}
+}
+@media screen and (max-width: 400px) {	
+	table.list thead th a {
+    	font-size: 12px;
+	}
+	.action-button i.icon-caret-down, .action-button.muted i.icon-caret-down {
+		border-left: 0;
+		padding: 0;
+		margin-left: 0;
+	}	
+	.tasks .pull-right.flush-right {
+		/* margin: 0 63px 0 0; */
+	}	
+}
+@media screen and (max-width: 360px) {	
+	table.list thead th a {
+    	font-size: 11px;
+	}
+	.action-button i.icon-trash, a[href="categories.php?a=delete"]:before, a.users-action i.icon-trash.icon-fixed-width, li.danger a[data-name="delete"] i.icon-trash.icon-fixed-width, a.items-action i.icon-trash.icon-fixed-width, a.ticket-action i.icon-trash {
+		width: 17px !important;
+	}
+}
+@media screen and (max-width: 760px) {
+	ul#nav-mobile nav#customQ_nav {
+		display: inline-block;
+	}
+	ul#nav-mobile #customQ_nav .jb-overflowmenu-menu-primary li.item {
+		display: block;
+		width: 100%;
+	}
+	ul#nav-mobile ul#sub_nav {
+		margin-left: 0 !important;
+	}
+	ul#nav-mobile #sub_nav {
+		padding: 0 0;
+	}
+	#nav-mobile .icon-sort-down,
+	#nav-mobile i.icon-caret-down {
+		display: none !important;
+	}
+	#nav-mobile ul.subMenuQ,
+	#nav-mobile li.personalQ {
+		display: none !important;
+	}
+	#queue-count-bucket {
+		display: none;
+	}
+	/* fixes for mobile Open Ticket field form width glitch */
+	body.demo.staff-side.tickets-page table.form_table.fixed tr {
+	  display: initial;
+	}
+	body.demo.staff-side.tickets-page table.fixed > tbody > tr > td + td:not([width]) {
+		width: 100%;
+	}
+	table.form_table.fixed tr#userRow td,
+	table.form_table.fixed tr#ccRow td {
+		display: inline-block;
+	}
+	tbody#dynamic-form tr {
+	  display: table;
+  }
+	
+}
+
+/* ==========================================================================
+ THEME OPTIONS
+========================================================================== */
+@media screen and (max-width: 1060px) {
+	#theme-info {
+	    background: #fff;
+	}
+	.custom-text-container {
+		margin: 0 40px 0 0;
+	}
+	.theme ul.clean.tabs {
+		padding-left: 0;
+	}	
+	.theme ul.tabs li {
+	    min-width: fit-content;
+	}
+}
+@media screen and (max-width: 976px) {
+	#logo-type, 
+	#custom-logo-column-outer,
+	.custom-text-and-links-col1,	
+	.custom-text-and-links-col2,
+	.theme-information-col1,
+	.theme-information-col2 {
+		display: block;
+		overflow: hidden;
+	    vertical-align: top;	
+	}
+	#custom-logo-column-inner-title h2 {
+		margin-top: 10px;
+	}	
+	.ie-redirect-table,
+	.consent-message-table,
+	.scroll-table {
+		width: 490px !important;
+		margin: 20px 0 50px 20px;
+	}
+	#logo-type, #custom-logo-column-outer {
+		width: calc(100% - 0) !important;
+		overflow: hidden;
+	}
+}
+@media screen and (max-width: 870px) {
+	td.options-header-image,
+	td.options-header-color {
+		display: block;
+	}
+	#theme-header-options .container {
+		margin-right: 0;
+	}
+	#theme-header-options .right, #logo-options .right {
+		width: 61px;
+	}
+	#theme-header-options {
+		width: calc(100% - 20px) !important;
+	}	
+	#custom-logo-column {
+		margin-top: 20px;
+	}	
+	.custom-logo-link, 
+	.custom-logo-link a {
+		font-size: 20px;
+	}	
+	.custom-text-and-links-col2 {
+		padding-top: 7px;
+	}	
+}
+@media screen and (max-width: 625px) {
+	.theme-preview {
+		display: none;
+	}
+	.switch {
+		float: initial;	
+		text-align: center;
+	}
+}
+@media screen and (max-width: 590px) {
+	.ie-redirect-table,
+	.consent-message-table,
+	.scroll-table {
+		width: 428px !important;
+	}
+}
+@media screen and (max-width: 570px) {
+	.custom-text-container {
+		float: initial;
+	}	
+}
+@media screen and (max-width: 460px) {
+	.indent {
+		padding-left: 0 !important;
+	}	
+	#logo-options td, 
+	#additional-options td, 
+	#theme2a tr:nth-child(2) td, 
+	#theme3 td, 
+	#theme4 td, 
+	#theme5 tr:nth-child(2) td,
+	#theme6 tr:nth-child(2) td,
+	#theme7 tr:nth-child(2) td	{
+		padding: 0 0 20px 0;
+	}
+	#osta-settings-title {
+		float: unset;
+	}	
+	#custom-css-container {
+		width: 100%;
+	}
+	#osta-toggle {
+		float: right;
+		margin: 0 0 0 2px;
+		padding: 0 !important;
+		/* width: 57px !important; */
+		font-size: 13px;
+	}
+	.theme-card {
+		margin-left: 0;
+	}	
+	#logo-type table,
+	#custom-logo-column-inner {
+		margin-left: 0 !important;
+	}	
+	#custom-theme-options {
+		float: left;
+	}	
+	#theme-header-options {
+		margin-left: 0;
+	}	
+	.backdrop .inner {
+		width: 285px;
+		height: 161px;
+	}	
+	#custom-backdrop-container, #upload-backdrop-container {
+		padding: 20px 0 !important;
+	}	
+	#theme-header-options .container {
+		margin: 10px 10px 10px -6px;
+	}	
+	#theme-header-options .title, #logo-options .title,	
+	#theme-header-options .image, #theme-header-options .image, #logo-options .image {
+		width: 240px;
+	}	
+	#theme-header-options .container, #logo-options .container {
+		width: 328px;
+	}
+	span.custom-logo-link {
+		display: block;
+		margin: -10px 0 0 0;
+	}	
+	#brace {
+		padding-right: 18px;
+	}
+	.ie-redirect-table,
+	.consent-message-table,
+	.scroll-table {
+		margin: 20px 0 40px 0;
+	}
+	.custom-text-and-links-col1,	
+	.custom-text-and-links-col2 {
+		width: calc(100% - 0);
+	}
+	.ie-redirect-table,
+	.consent-message-table,
+	.scroll-table {
+		width: calc(100% - -6px) !important;
+	}
+}
+@media screen and (max-width: 440px) {
+	img#scroll-top-img {
+		width: 100%;
+	}
+	#choose-theme-options {
+		margin: -24px 0 10px;
+	}	
+	#default-logo {
+		margin-top: -3px !important;
+	}	
+	#custom-css-container {
+		width: 100% !important;
+		margin: 14px 0 30px 0 !important;
+	}	
+	.CodeMirror-scroll {
+		width: 100%;
+	}
+	#system-backdrops-options {
+		width: 100% !important;
+	}
+	#system-backdrops-options td.toggles {
+		width: initial !important;
+		padding-right: 0 !important;
+	}
+	#system-backdrops-options .options-backdrop ~ .toggles {
+		padding-right: 0 !important;
+	}	
+	#system-backdrops-options #spacer {
+		display: none;
+	}
+	.container label,
+	#osta-toggle label,
+	#system-backdrops-options label {
+		transform: scale(.8);
+	}	
+	.options-backdrop,
+	.option-solid {
+		font-size: 15px !important;
+	}
+	#system-backdrops-options {
+		margin-bottom: -13px;
+	}
+}
+@media screen and (max-width: 400px) {
+	.theme .tab_content, 
+	.theme2 .tab_content {
+	    padding: 8px;
+	}
+}
+
+/* ==========================================================================
+ MOBILE TABLE EXPERIMENT 2019
+========================================================================== */
+@media only screen and (max-width: 760px) {
+
+	/* Force table to not be like tables anymore */
+	table.list, .list thead, .list tbody, .list th, .list td, .list tr {
+		display: block;
+	}
+	table.list {
+		border: 0;
+	}	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	.list thead tr {
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	.list tr {
+		margin: 0 0 1rem 0;
+		overflow: hidden;	  
+	}
+	.list td {
+		/* Behave  like a "row" */
+		border: none !important;
+		position: relative !important;
+		padding: 3px 0 3px 41% !important;
+		font-size: 15px !important;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;		
+	}
+	form[action="tasks.php"] td:nth-child(2),
+	form[action="tasks.php"] td:nth-child(3),
+	.directory .list td:first-child {
+		padding: 3px 0 3px 41% !important;
+	}
+	.list td:before {
+		position: absolute;
+		/* top: 0; */
+		left: 6px;
+		width: 36%;
+		white-space: nowrap;
+		text-align: right;
+		padding: 0;
+		font-size: 15px;
+		font-weight: 400;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}	
+	.list td a {
+		font-size: 15px !important;
+	}	
+	.list td a[data-preview^="#tasks"] {
+		top: 8px !important;
+		position: relative;
+		margin: 0 0 5px 0;
+		font-size: 14px !important;	
+	}	
+	a[title="Preview Task"].Icon.no-pjax.preview {
+	    top: 0 !important;
+		padding: 1px 3px !important;
+	}
+	td.task-number {
+		margin-top: 4px !important;
+	}	
+	table.list, #ticketTable {
+		/* width: 100%; */
+		/* border: 1px solid #cfd4d6; */
+		/* border-radius: 6px; */
+		/* margin: 5px 0 0 0; */
+		/* background: initial; */
+		background-color: initial;
+	}
+	.list tr.highlight {
+		background: #ddd;
+	}	
+	table.list tbody tr.highlight td {
+		border-top-color: #ddd !important;
+		border-bottom-color: #ddd !important;
+	}
+	table.list tbody tr.highlight:nth-child(2n+1) td { /* let's restate this */
+	    background-color: #dddddd !important;
+	}	
+	table.list tbody tr:hover td,
+	table.list tbody tr:nth-child(2n+1):hover td {
+		background: initial;
+	}
+	.list td:nth-of-type(2) {
+		padding-top: 16px !important;
+	}
+	.directory-page .list td:nth-of-type(2) {
+		padding-top: 0 !important;
+	}
+	.list td:last-of-type {
+		padding-bottom: 10px !important;
+	}
+	.list td:first-child {
+		padding: initial !important;
+		border-bottom: initial !important;
+		width: 0;
+		display: inline-block;
+		float: left;
+		z-index: 9;
+	}	
+	.padding-slider-container {
+		display: none;
+	}
+	.list td.osta_priority {
+	    visibility: hidden;
+	}	
+	.list input[type="checkbox"] {
+		margin: 0;
+		visibility: hidden;
+	}
+	.list td.osta_ticket:before,
+	.list td.osta_number:before	{
+		content: "Ticket Number";
+	}
+	.list td.osta_lastupdated:before {
+		content: "Last Updated";
+	}
+	.list td.osta_subject:before {
+		content: "Subject";
+	}
+	.list td.osta_from:before,
+	.list td.osta_username:before {
+		content: "From";
+	}
+	.list td.osta_assignee:before {
+		content: "Assigned To";
+	}
+	.list td.osta_duedate:before {
+		content: "Due Date";
+	}	
+	.list td.osta_closedate:before {
+		content: "Close Date";
+	}	
+	.list td.osta_created:before,
+	.list td.osta_datecreated:before {
+		content: "Date Created";
+	}		
+	.list td.osta_department:before {
+		content: "Department";
+	}	
+	.list td.osta_lastmessage:before {
+		content: "Last Message";
+	}	
+	.list td.osta_lastresponse:before {
+		content: "Last Response";
+	}	
+	.list td.osta_status:before {
+		content: "Status";
+	}	
+	.list td.osta_team:before {
+		content: "Team";
+	}	
+	.list.queue.tickets a.preview {
+		font-weight: 400 !important;
+		border: .5px solid #128dbe !important;
+		border-radius: 2px !important;
+	    padding: 1px 3px 2px 3px !important;
+		background: #ffffff7a !important;
+		margin: 0 !important;
+		font-size: 14px !important;
+	}	
+	.osta_ticket,
+	.osta_lastupdated,
+	.osta_subject,
+	.osta_username,
+	.osta_assignee,
+	.osta_duedate,
+	a[style="display:inline"] {
+		font-size: 15px !important;
+	}	
+	.new-reply {
+		top: -9px;
+		left: -4px;
+		font-size: 11px !important;
+	    margin: 0 -10px 0 0;	
+	}
+	.list tr {
+		border: 1px solid #b9b9b9;
+		border-left-width: 14px;
+		border-radius: 6px;
+		background: #fff;
+		-webkit-box-shadow: 2px 2px 10px -3px rgba(0,0,0,0.75);
+		-moz-box-shadow: 2px 2px 10px -3px rgba(0,0,0,0.75);
+		box-shadow: 2px 2px 10px -3px rgba(0,0,0,0.75);
+		padding: 0 0 10px 0;
+	}	
+	td.osta_priority {
+		display: none;
+	}	
+	tr.priority-low {
+		border-left: 14px solid #58A9E6 !important;
+	}
+	tr.priority-normal {
+		border-left: 14px solid #9CBF56 !important;
+	}	
+	tr.priority-high {
+		border-left: 14px solid #D9B35F !important;
+	}
+	tr.priority-emerency {
+		border-left: 14px solid #ED656E !important;
+	}	
+	form[action="tickets.php"] table.list td:first-child {
+		max-width: initial;
+	}
+	table.list.queue.tickets {
+		border: initial;
+	}
+	.list tfoot tr {
+		box-shadow: initial !important;
+		border: initial;
+	}
+	.list tfoot td {
+		width: initial !important;
+		height: initial !important;
+		background: initial !important;
+		margin: 10px 10px 0 10px !important;
+	}
+	table.list.queue.tickets ~ div {
+		margin: 10px;
+	}
+	.list td.osta_ticket {
+	    height: 30px;
+	}	
+	.list.queue.tickets .osta_ticket div,
+	.list.queue.tickets .osta_number div {
+		float: left;
+	}
+	.overdue-ticket,
+	.ticket-has-attachement {
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-size: 24px;
+		display: inline-block;
+		content: "";
+		margin-top: 2px;
+		width: 21px;
+	}
+	.overdue-ticket {
+	background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%23D0A33F' d='M12 20C16.4 20 20 16.4 20 12S16.4 4 12 4 4 7.6 4 12 7.6 20 12 20M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2M17 13.9L16.3 15.2L11 12.3V7H12.5V11.4L17 13.9Z' /%3E %3C/svg%3E");
+	}
+	.ticket-has-attachement {
+		background-image: url(../icons/paperclip.svg);
+		background-size: 10px;
+		background-position: 0 0;
+		width: 12px;
+	}
+	.osta_ticket .icon-code-fork {
+		top: 2px;
+	}	
+	.Icon.overdueTicket ,
+	i.small.icon-paperclip {
+		display: none;
+	}
+	.ticket-has-attachement,
+	.list.queue.tickets .osta_ticket div.pull-right,
+	.list.queue.tickets .osta_number div.pull-right	{
+		margin-left: 22px;
+	}
+	.faded-more i.icon-comments-alt,
+	.task-number i.icon-fixed-width.icon-comments-alt	{
+		width: 21px;
+		height: 21px;
+		background-size: 21px !important;
+		top: 0 !important;
+		margin: 0 0 0 2px;	
+	}
+	.list small.faded-more {
+		font-size: 15px !important;
+		color: #636363;
+	}
+	.Icon.lockedTicket {
+		background: url(../../osta/icons/lock-mobile.png) 0 3px no-repeat !important;
+		background-size: 9px !important;
+		padding-left: 9px;
+	}
+	.locked .truncate {
+		margin-left: 12px;
+	}	
+	.osta_duedate {
+		text-transform: capitalize !important;
+	}
+	table.list .pull-right.faded-more {
+		display: none !important;
+	}
+
+
+	#new-reply-icon {
+		display: none;
+	}
+	.new-reply-waiting #new-reply-icon {
+		display: inline-block;
+	}
+
+	.ticket-num {
+	 /* margin-left: -22px;
+		display: contents; */
+	}
+
+	div[style="font-weight:bold"] .ticket-num {
+		margin-left: -1px;
+	}
+	.overdue-ticket {
+		margin-left: 13px;
+	}
+	.osta_ticket .icon-code-fork,
+	.osta_ticket .icon-code-link	{
+		margin: 0 0 0 14px;
+	}
+	.osta_ticket .pull-right {
+		margin: 3px 13px 0 0;
+	}
+	#new-reply-icon {
+		margin: 1px 7px 0 0;
+	}
+	.osta_subject a {
+		width: calc(100% - 10px) !important;
+	}
+	.list td.osta_priority {
+		height: 0 !important;
+	}
+	.list time.relative:empty:before {
+		content: '(not set)';
+		color: #aaa;
+		text-transform: lowercase;
+	}
+	table.list tfoot td[colspan="8"]:before, table.list tfoot td[colspan="7"]:before, table.list tfoot td[colspan="6"]:before, table.list tfoot td[colspan="5"]:before {
+		display: none;
+	}
+}
+@media only screen and (max-width: 400px)  {
+	.overdue-ticket, .ticket-has-attachement {
+		margin-left: 13px;
+	}
+	.list.queue.tickets .osta_ticket div.pull-right {
+			margin-left: 11px;
+	}	
+}
+/* ==========================================================================
+ MOBILE USER LIST 2019
+========================================================================== */
+@media only screen and (max-width: 760px) {
+	form#users-list table.list tbody tr:nth-child(2n+1) td, form#mass-actions table.list tbody tr:nth-child(2n+1) td, form[action="canned.php"] table.list tbody tr:nth-child(2n+1) td, form[action="teams.php"] table.list tbody tr:nth-child(2n+1) td, form[action="roles.php"] table.list tbody tr:nth-child(2n+1) td, form[action="departments.php"] table.list tbody tr:nth-child(2n+1) td, form[action="helptopics.php"] table.list tbody tr:nth-child(2n+1) td, form[action="filters.php"] table.list tbody tr:nth-child(2n+1) td, form[action="slas.php"] table.list tbody tr:nth-child(2n+1) td, form[action="apikeys.php"] table.list tbody tr:nth-child(2n+1) td, form[action="pages.php"] table.list tbody tr:nth-child(2n+1) td, form[action="forms.php"] table.list tbody tr:nth-child(2n+1) td, form[action="lists.php"] table.list tbody tr:nth-child(2n+1) td, form[action="plugins.php"] table.list tbody tr:nth-child(2n+1) td, form[action="logs.php"] table.list tbody tr:nth-child(2n+1) td {
+		background-color: #ffffff;
+	}
+	form#users-list a.preview,
+	form[action="orgs.php"] .list td a {
+		font-weight: 600;
+	}
+	form#users-list .list td:last-of-type {
+		padding-bottom: 14px !important;
+		display: inline-block;	
+	}
+	form#users-list .list td:nth-child(2):before {
+		content: "Name";
+	}
+	form#users-list .list td:nth-child(3):before {
+		content: "Status";
+	}
+	form#users-list .list td:nth-child(4):before {
+		content: "Created";
+	}
+	form#users-list .list td:nth-child(5):before {
+		content: "Updated";
+	}
+	form#users-list th:nth-child(5), form#users-list td:nth-child(5), form#orgs-list th:nth-child(5), form#orgs-list td:nth-child(5) {
+		display: initial;
+	}
+	form#users-list .list td,
+	form#orgs-list .list td	{
+		position: initial !important;
+	}
+	form#users-list .list tbody td:last-of-type, 
+	form#orgs-list .list tbody td:last-of-type {
+		padding-bottom: 14px !important;
+		display: inline-block;	
+	}
+	form#orgs-list .list td:nth-child(2):before {
+		content: "Name";
+	}
+	form#orgs-list .list td:nth-child(3):before {
+		content: "Users";
+	}
+	form#orgs-list .list td:nth-child(4):before {
+		content: "Created";
+	}
+	form#orgs-list .list td:nth-child(5):before {
+		content: "Last Updated";
+	}
+	.tickets-page form#tasks .list td {
+	    text-align: left;	
+	}	
+	.tickets-page form#tasks .list td:nth-child(2):before {
+		content: "Task #";
+	}
+	.tickets-page form#tasks .list td:nth-child(3):before {
+		content: "Date";
+	}
+	.tickets-page form#tasks .list td:nth-child(4):before {
+		content: "Status";
+	}	
+	.tickets-page form#tasks .list td:nth-child(5):before {
+		content: "Title";
+	}
+	.tickets-page form#tasks .list td:nth-child(6):before {
+		content: "Department";
+	}	
+	.tickets-page form#tasks .list td:nth-child(7):before {
+		content: "Agent";
+	}	
+	.tasks-page form#tasks .list td:nth-child(2):before {
+		content: "Task #";
+	}
+	.tasks-page form#tasks .list td:nth-child(3):before {
+		content: "Ticket #";
+	}
+	.tasks-page form#tasks .list td:nth-child(4):before {
+		content: "Date";
+	}
+	.tasks-page form#tasks .list td:nth-child(5):before {
+		content: "Title";
+	}	
+	.tasks-page form#tasks .list td:nth-child(6):before {
+		content: "Department";
+	}
+	.tasks-page form#tasks .list td:nth-child(7):before {
+		content: "Agent";
+	}	
+	.list time.relative:empty:before,
+	.list .staffAssigned:empty:before {
+		content: '(not set)';
+		color: #aaa;
+		text-transform: lowercase;
+	}
+	td .wrap:empty:before,
+	.directory .list td:empty:after {
+		content: '(not set)';
+		color: #aaa;
+		text-transform: lowercase;
+	}	
+	table.list tbody tr:nth-child(2n+1) td,
+	.orgs table.list tbody tr:nth-child(2n+1) td,
+	.tasks table.list tbody tr:nth-child(2n+1) td,
+	.emails table.list tbody tr:nth-child(2n+1) td,
+	.banlist table.list tbody tr:nth-child(2n+1) td,
+	.tickets table.list tbody tr:nth-child(2n+1) td,
+	.templates table.list tbody tr:nth-child(2n+1) td,
+	.directory table.list tbody tr:nth-child(2n+1) td,
+	form#users-list table.list tbody tr:nth-child(2n+1) td,
+	form#mass-actions table.list tbody tr:nth-child(2n+1) td,
+	form[action="canned.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="teams.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="roles.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="departments.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="helptopics.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="filters.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="slas.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="apikeys.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="pages.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="forms.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="lists.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="plugins.php"] table.list tbody tr:nth-child(2n+1) td,
+	form[action="logs.php"] table.list tbody tr:nth-child(2n+1) td {
+		background-color: #fff;
+	}	
+	.orgs table.list tr,
+	.tasks table.list tr,
+	.emails table.list tr,
+	.banlist table.list tr,
+	.templates table.list tr,
+	.directory table.list tr, 
+	form#users-list .list tr,
+	form#mass-actions table.list tr,
+	form[action="orgs.php"] table.list tr,
+	form[action="canned.php"] table.list tr,
+	form[action="teams.php"] table.list tr,
+	form[action="roles.php"] table.list tr,
+	form[action="departments.php"] table.list tr,
+	form[action="helptopics.php"] table.list tr,
+	form[action="filters.php"] table.list tr,
+	form[action="slas.php"] table.list tr,
+	form[action="apikeys.php"] table.list tr,
+	form[action="pages.php"] table.list tr,
+	form[action="forms.php"] table.list tr,
+	form[action="lists.php"] table.list tr,
+	form[action="plugins.php"] table.list tr,
+	form[action="logs.php"] table.list tr {
+		border-left-width: 1px;
+	}
+	form[action="tasks.php"] table.list tr td a.preview b {
+		font-weight: 500 !important;
+	}
+	form[action="tasks.php"] table.list td:nth-child(4) a {
+		font-size: 15px !important;
+	}	
+	.tasks table.list tbody tr td:nth-child(2):before {
+		padding-top: 11px;
+	}
+
+	table.list .tasks-icons {
+		font-size: 18px !important;
+		color: #636363;
+		margin-left: 53px !important;
+		margin-top: 6px;
+	}
+	form[action="tasks.php"] table.list i.icon-fixed-width.icon-comments-alt {
+		width: 20px;
+		top: 5px !important;
+	}
+	.directory table.list td {
+		font-size: 15px !important;
+	}
+	.directory .list td:first-child {
+		width: initial;
+		float: initial;
+		display: initial;
+		z-index: initial;
+		font-size: 15px !important;
+		font-weight: 600 !important;
+	}
+	.directory .list td:nth-child(1):before {
+		content: "Name";
+	}
+	.directory .list td:nth-child(2):before {
+		content: "Department";
+	}
+	.directory .list td:nth-child(3):before {
+		content: "Email Address";
+	}
+	.directory .list td:nth-child(4):before {
+		content: "Phone Number";
+	}
+	.directory .list td:nth-child(5):before {
+		content: "Extension";
+	}
+	.directory .list td:nth-child(6):before {
+		content: "Mobile Number";
+	}
+	.directory .list td:first-child {
+		margin-top: 10px !important;
+		display: inline-block;
+	}
+	.directory-page .directory .list td:first-child {
+		display: block;
+	}	
+	.directory .list td:last-of-type {
+		padding-bottom: 10px !important;
+	}
+	form[action="#users/import"] tr {
+		border-left-width: 1px;
+		-webkit-box-shadow: initial;
+		-moz-box-shadow: initial;
+		box-shadow: initial;
+		border: initial;	
+	}
+	form[action="#users/import"] table.list {
+		display: table;
+		width: 100%;
+	}
+	.canned .list td:nth-child(2):before {
+		content: "Title";
+	}
+	.canned .list td:nth-child(3):before {
+		content: "Status";
+	}
+	.canned .list td:nth-child(4):before {
+		content: "Department";
+	}
+	.canned .list td:nth-child(5):before {
+		content: "Last Updated";
+	}
+	.canned .list  td:nth-child(2) a {
+		font-size: 14px;
+		font-weight: 600;
+	}
+	.categories .list td:nth-child(2):before {
+		content: "Name";
+	}
+	.categories .list td:nth-child(3):before {
+		content: "Type";
+	}
+	.categories .list td:nth-child(4):before {
+		content: "FAQs";
+	}
+	.categories .list td:nth-child(5):before {
+		content: "Last Updated";
+	}
+	.categories .list  td:nth-child(2) a {
+		font-size: 14px;
+		font-weight: 600;
+	}
+	html[lang="ar-EG"] .list td.osta_ticket:before { content: "رقم التذكرة";}
+	html[lang="ar-EG"] .list td.osta_lastupdated:before { content: "آخر تحديث";}
+	html[lang="ar-EG"] .list td.osta_subject:before { content: "الموضوع";}
+	html[lang="ar-EG"] .list td.osta_username:before { content: "من";}
+	html[lang="ar-EG"] .list td.osta_assignee:before { content: "تم إسنادها إلى";}
+	html[lang="ar-EG"] .list td.osta_duedate:before { content: "تاريخ الإستحقاق";}
+	html[lang="ar-EG"] .list td.osta_closedate:before { content: "تاريخ الاغلاق";}
+	html[lang="ar-EG"] .list td.osta_datecreated:before { content: "تاريخ الإنشاء";}
+	html[lang="ar-EG"] .list td.osta_department:before { content: "القسم";}
+	html[lang="ar-EG"] .list td.osta_lastmessage:before { content: "آخر رسالة";}
+	html[lang="ar-EG"] .list td.osta_lastresponse:before { content: "آخر رد";}
+	html[lang="ar-EG"] .list td.osta_status:before { content: "الحالة";}
+	html[lang="ar-EG"] .list td.osta_team:before { content: "فريق";}
+
+	html[lang="ar-SA"] .list td.osta_ticket:before { content: "رقم التذكرة";}
+	html[lang="ar-SA"] .list td.osta_lastupdated:before { content: "آخر تحديث";}
+	html[lang="ar-SA"] .list td.osta_subject:before { content: "الموضوع";}
+	html[lang="ar-SA"] .list td.osta_username:before { content: "من";}
+	html[lang="ar-SA"] .list td.osta_assignee:before { content: "تم إسنادها إلى";}
+	html[lang="ar-SA"] .list td.osta_duedate:before { content: "تاريخ الإستحقاق";}
+	html[lang="ar-SA"] .list td.osta_closedate:before { content: "تاريخ الاغلاق";}
+	html[lang="ar-SA"] .list td.osta_datecreated:before { content: "تاريخ الإنشاء";}
+	html[lang="ar-SA"] .list td.osta_department:before { content: "القسم";}
+	html[lang="ar-SA"] .list td.osta_lastmessage:before { content: "آخر رسالة";}
+	html[lang="ar-SA"] .list td.osta_lastresponse:before { content: "آخر رد";}
+	html[lang="ar-SA"] .list td.osta_status:before { content: "الحالة";}
+	html[lang="ar-SA"] .list td.osta_team:before { content: "فريق";}
+
+	html[lang="az"] .list td.osta_ticket:before { content: "Sorğu nömrəsi";}
+	html[lang="az"] .list td.osta_lastupdated:before { content: "Son yenilənmə";}
+	html[lang="az"] .list td.osta_subject:before { content: "Mövzu";}
+	html[lang="az"] .list td.osta_username:before { content: "Kimdən";}
+	html[lang="az"] .list td.osta_assignee:before { content: "Təyin olunub";}
+	html[lang="az"] .list td.osta_duedate:before { content: "Vaxtı";}
+	html[lang="az"] .list td.osta_closedate:before { content: "Bağlanma tarixi";}
+	html[lang="az"] .list td.osta_datecreated:before { content: "Tarix yaradıldı";}
+	html[lang="az"] .list td.osta_department:before { content: "Şöbə";}
+	html[lang="az"] .list td.osta_lastmessage:before { content: "Son mesaj";}
+	html[lang="az"] .list td.osta_lastresponse:before { content: "Son cavab";}
+	html[lang="az"] .list td.osta_status:before { content: "Vəziyyət";}
+	html[lang="az"] .list td.osta_team:before { content: "Komanda";}
+
+	html[lang="bg"] .list td.osta_ticket:before { content: "Номер на заявката";}
+	html[lang="bg"] .list td.osta_lastupdated:before { content: "Последно обновление";}
+	html[lang="bg"] .list td.osta_subject:before { content: "Тема";}
+	html[lang="bg"] .list td.osta_username:before { content: "От";}
+	html[lang="bg"] .list td.osta_assignee:before { content: "Възложен на";}
+	html[lang="bg"] .list td.osta_duedate:before { content: "Краен срок";}
+	html[lang="bg"] .list td.osta_closedate:before { content: "Дата на Приключване";}
+	html[lang="bg"] .list td.osta_datecreated:before { content: "Дата на създаване";}
+	html[lang="bg"] .list td.osta_department:before { content: "Отдел";}
+	html[lang="bg"] .list td.osta_lastmessage:before { content: "Последно съобщение";}
+	html[lang="bg"] .list td.osta_lastresponse:before { content: "Последен отговор";}
+	html[lang="bg"] .list td.osta_status:before { content: "Статус";}
+	html[lang="bg"] .list td.osta_team:before { content: "Екип";}
+
+	html[lang="ca"] .list td.osta_ticket:before { content: "Nombre de Ticket";}
+	html[lang="ca"] .list td.osta_lastupdated:before { content: "Darrera actualització";}
+	html[lang="ca"] .list td.osta_subject:before { content: "Assumpte";}
+	html[lang="ca"] .list td.osta_username:before { content: "De";}
+	html[lang="ca"] .list td.osta_assignee:before { content: "Assignat a";}
+	html[lang="ca"] .list td.osta_duedate:before { content: "Data límit";}
+	html[lang="ca"] .list td.osta_closedate:before { content: "Data de tancament";}
+	html[lang="ca"] .list td.osta_datecreated:before { content: "Data de creació";}
+	html[lang="ca"] .list td.osta_department:before { content: "Departament";}
+	html[lang="ca"] .list td.osta_lastmessage:before { content: "Últim missatge";}
+	html[lang="ca"] .list td.osta_lastresponse:before { content: "Última resposta";}
+	html[lang="ca"] .list td.osta_status:before { content: "Estat";}
+	html[lang="ca"] .list td.osta_team:before { content: "Equip";}
+
+	html[lang="cs"] .list td.osta_ticket:before { content: "Číslo požadavku";}
+	html[lang="cs"] .list td.osta_lastupdated:before { content: "Poslední změna";}
+	html[lang="cs"] .list td.osta_subject:before { content: "Předmět";}
+	html[lang="cs"] .list td.osta_username:before { content: "Od";}
+	html[lang="cs"] .list td.osta_assignee:before { content: "Přiděleno";}
+	html[lang="cs"] .list td.osta_duedate:before { content: "Termín";}
+	html[lang="cs"] .list td.osta_closedate:before { content: "Datum uzavření";}
+	html[lang="cs"] .list td.osta_datecreated:before { content: "Datum vytvoření";}
+	html[lang="cs"] .list td.osta_department:before { content: "Oddělení";}
+	html[lang="cs"] .list td.osta_lastmessage:before { content: "Poslední zpráva";}
+	html[lang="cs"] .list td.osta_lastresponse:before { content: "Poslední odpověď";}
+	html[lang="cs"] .list td.osta_status:before { content: "Stav";}
+	html[lang="cs"] .list td.osta_team:before { content: "Tým";}
+
+	html[lang="da"] .list td.osta_ticket:before { content: "Sagsnummer";}
+	html[lang="da"] .list td.osta_lastupdated:before { content: "Sidst opdateret";}
+	html[lang="da"] .list td.osta_subject:before { content: "Emne";}
+	html[lang="da"] .list td.osta_username:before { content: "Fra";}
+	html[lang="da"] .list td.osta_assignee:before { content: "Tildelt til";}
+	html[lang="da"] .list td.osta_duedate:before { content: "Forfaldsdato";}
+	html[lang="da"] .list td.osta_closedate:before { content: "Lukke dato";}
+	html[lang="da"] .list td.osta_datecreated:before { content: "Oprettelsesdato";}
+	html[lang="da"] .list td.osta_department:before { content: "Afdeling";}
+	html[lang="da"] .list td.osta_lastmessage:before { content: "Sidste besked";}
+	html[lang="da"] .list td.osta_lastresponse:before { content: "Sidste svar";}
+	html[lang="da"] .list td.osta_status:before { content: "Status";}
+	html[lang="da"] .list td.osta_team:before { content: "Hold";}
+
+	html[lang="de"] .list td.osta_ticket:before { content: "Ticket-Nummer";}
+	html[lang="de"] .list td.osta_lastupdated:before { content: "Zuletzt aktualisiert";}
+	html[lang="de"] .list td.osta_subject:before { content: "Betreff";}
+	html[lang="de"] .list td.osta_username:before { content: "Von";}
+	html[lang="de"] .list td.osta_assignee:before { content: "Zugewiesen an";}
+	html[lang="de"] .list td.osta_duedate:before { content: "Fälligkeitsdatum";}
+	html[lang="de"] .list td.osta_closedate:before { content: "Geschlossen am";}
+	html[lang="de"] .list td.osta_datecreated:before { content: "Erstellungsdatum";}
+	html[lang="de"] .list td.osta_department:before { content: "Abteilung";}
+	html[lang="de"] .list td.osta_lastmessage:before { content: "Letzte Nachricht";}
+	html[lang="de"] .list td.osta_lastresponse:before { content: "Letzte Antwort";}
+	html[lang="de"] .list td.osta_status:before { content: "Status";}
+	html[lang="de"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="el"] .list td.osta_ticket:before { content: "Αριθμός Δελτίου";}
+	html[lang="el"] .list td.osta_lastupdated:before { content: "Τελευταία Ενημέρωση";}
+	html[lang="el"] .list td.osta_subject:before { content: "Θέμα";}
+	html[lang="el"] .list td.osta_username:before { content: "Από";}
+	html[lang="el"] .list td.osta_assignee:before { content: "Ανατέθηκε Στον";}
+	html[lang="el"] .list td.osta_duedate:before { content: "Ημερομηνία Παράδοσης";}
+	html[lang="el"] .list td.osta_closedate:before { content: "Ημερομηνία Κλεισίματος";}
+	html[lang="el"] .list td.osta_datecreated:before { content: "Ημερομηνία Δημιουργίας";}
+	html[lang="el"] .list td.osta_department:before { content: "Τμήμα";}
+	html[lang="el"] .list td.osta_lastmessage:before { content: "Τελευταίο Μήνυμα";}
+	html[lang="el"] .list td.osta_lastresponse:before { content: "'Τελευταία Απόκριση";}
+	html[lang="el"] .list td.osta_status:before { content: "Κατάσταση";}
+	html[lang="el"] .list td.osta_team:before { content: "Ομάδα";}
+
+	html[lang="es-AR"] .list td.osta_ticket:before { content: "Número de Ticket";}
+	html[lang="es-AR"] .list td.osta_lastupdated:before { content: "Última actualización";}
+	html[lang="es-AR"] .list td.osta_subject:before { content: "Asunto";}
+	html[lang="es-AR"] .list td.osta_username:before { content: "De";}
+	html[lang="es-AR"] .list td.osta_assignee:before { content: "Asignado a";}
+	html[lang="es-AR"] .list td.osta_duedate:before { content: "Fecha de Vencimiento";}
+	html[lang="es-AR"] .list td.osta_closedate:before { content: "Fecha de cierre";}
+	html[lang="es-AR"] .list td.osta_datecreated:before { content: "Fecha de creación";}
+	html[lang="es-AR"] .list td.osta_department:before { content: "Departamento";}
+	html[lang="es-AR"] .list td.osta_lastmessage:before { content: "Último mensaje";}
+	html[lang="es-AR"] .list td.osta_lastresponse:before { content: "Última respuesta";}
+	html[lang="es-AR"] .list td.osta_status:before { content: "Estado";}
+	html[lang="es-AR"] .list td.osta_team:before { content: "Equipo";}
+
+	html[lang="es-ES"] .list td.osta_ticket:before { content: "Número de Ticket";}
+	html[lang="es-ES"] .list td.osta_lastupdated:before { content: "Última actualización";}
+	html[lang="es-ES"] .list td.osta_subject:before { content: "Asunto";}
+	html[lang="es-ES"] .list td.osta_username:before { content: "De";}
+	html[lang="es-ES"] .list td.osta_assignee:before { content: "Asignado a";}
+	html[lang="es-ES"] .list td.osta_duedate:before { content: "Fecha de Vencimiento";}
+	html[lang="es-ES"] .list td.osta_closedate:before { content: "Fecha de cierre";}
+	html[lang="es-ES"] .list td.osta_datecreated:before { content: "Fecha de creación";}
+	html[lang="es-ES"] .list td.osta_department:before { content: "Departamento";}
+	html[lang="es-ES"] .list td.osta_lastmessage:before { content: "Último mensaje";}
+	html[lang="es-ES"] .list td.osta_lastresponse:before { content: "Última respuesta";}
+	html[lang="es-ES"] .list td.osta_status:before { content: "Estado";}
+	html[lang="es-ES"] .list td.osta_team:before { content: "Equipo";}
+
+	html[lang="es-MX"] .list td.osta_ticket:before { content: "Número de Ticket";}
+	html[lang="es-MX"] .list td.osta_lastupdated:before { content: "Última actualización";}
+	html[lang="es-MX"] .list td.osta_subject:before { content: "Asunto";}
+	html[lang="es-MX"] .list td.osta_username:before { content: "De";}
+	html[lang="es-MX"] .list td.osta_assignee:before { content: "Asignado a";}
+	html[lang="es-MX"] .list td.osta_duedate:before { content: "Fecha de Vencimiento";}
+	html[lang="es-MX"] .list td.osta_closedate:before { content: "Fecha de cierre";}
+	html[lang="es-MX"] .list td.osta_datecreated:before { content: "Fecha de creación";}
+	html[lang="es-MX"] .list td.osta_department:before { content: "Departamento";}
+	html[lang="es-MX"] .list td.osta_lastmessage:before { content: "Último mensaje";}
+	html[lang="es-MX"] .list td.osta_lastresponse:before { content: "Última respuesta";}
+	html[lang="es-MX"] .list td.osta_status:before { content: "Estado";}
+	html[lang="es-MX"] .list td.osta_team:before { content: "Equipo";}
+
+	html[lang="et"] .list td.osta_ticket:before { content: "Pöördumise number";}
+	html[lang="et"] .list td.osta_lastupdated:before { content: "Viimati uuendatud";}
+	html[lang="et"] .list td.osta_subject:before { content: "Pealkiri";}
+	html[lang="et"] .list td.osta_username:before { content: "Kellelt";}
+	html[lang="et"] .list td.osta_assignee:before { content: "Suunatud";}
+	html[lang="et"] .list td.osta_duedate:before { content: "Tähtaeg";}
+	html[lang="et"] .list td.osta_closedate:before { content: "Sulgemise kuupäev";}
+	html[lang="et"] .list td.osta_datecreated:before { content: "Loomise kuupäev";}
+	html[lang="et"] .list td.osta_department:before { content: "Departamento";}
+	html[lang="et"] .list td.osta_lastmessage:before { content: "Viimane sõnum";}
+	html[lang="et"] .list td.osta_lastresponse:before { content: "Viimane vastus";}
+	html[lang="et"] .list td.osta_status:before { content: "Staatus";}
+	html[lang="et"] .list td.osta_team:before { content: "Meeskond";}
+
+	html[lang="fa"] .list td.osta_ticket:before { content: "شماره پیگیری";}
+	html[lang="fa"] .list td.osta_lastupdated:before { content: "آخرین بروزرسانی";}
+	html[lang="fa"] .list td.osta_subject:before { content: "موضوع";}
+	html[lang="fa"] .list td.osta_username:before { content: "از";}
+	html[lang="fa"] .list td.osta_assignee:before { content: "محول شده به";}
+	html[lang="fa"] .list td.osta_duedate:before { content: "تاریخ انقضاء";}
+	html[lang="fa"] .list td.osta_closedate:before { content: "تاریخ بسته شدن";}
+	html[lang="fa"] .list td.osta_datecreated:before { content: "تاریخ ایجاد";}
+	html[lang="fa"] .list td.osta_department:before { content: "واحد سازمانی";}
+	html[lang="fa"] .list td.osta_lastmessage:before { content: "آخرین پیام";}
+	html[lang="fa"] .list td.osta_lastresponse:before { content: "آخرین پاسخ";}
+	html[lang="fa"] .list td.osta_status:before { content: "وضعیت";}
+	html[lang="fa"] .list td.osta_team:before { content: "تیم";}
+
+	html[lang="fi"] .list td.osta_ticket:before { content: "Tikettinumero";}
+	html[lang="fi"] .list td.osta_lastupdated:before { content: "Viimeksi päivitetty";}
+	html[lang="fi"] .list td.osta_subject:before { content: "Aihe";}
+	html[lang="fi"] .list td.osta_username:before { content: "Lähettäjä";}
+	html[lang="fi"] .list td.osta_assignee:before { content: "Käsittelijä";}
+	html[lang="fi"] .list td.osta_duedate:before { content: "Eräpäivä";}
+	html[lang="fi"] .list td.osta_closedate:before { content: "Sulkupäiväys";}
+	html[lang="fi"] .list td.osta_datecreated:before { content: "Luontipäivä";}
+	html[lang="fi"] .list td.osta_department:before { content: "Osasto";}
+	html[lang="fi"] .list td.osta_lastmessage:before { content: "Viimeinen viesti";}
+	html[lang="fi"] .list td.osta_lastresponse:before { content: "Viimeisin vastaus";}
+	html[lang="fi"] .list td.osta_status:before { content: "Tila";}
+	html[lang="fi"] .list td.osta_team:before { content: "Tiimi";}
+
+	html[lang="fr"] .list td.osta_ticket:before { content: "Numéro de billet";}
+	html[lang="fr"] .list td.osta_lastupdated:before { content: "Dernière mise à jour";}
+	html[lang="fr"] .list td.osta_subject:before { content: "Sujet";}
+	html[lang="fr"] .list td.osta_username:before { content: "De";}
+	html[lang="fr"] .list td.osta_assignee:before { content: "Assigné à";}
+	html[lang="fr"] .list td.osta_duedate:before { content: "Date d'échéance";}
+	html[lang="fr"] .list td.osta_closedate:before { content: "Date de fermeture";}
+	html[lang="fr"] .list td.osta_datecreated:before { content: "Date de création";}
+	html[lang="fr"] .list td.osta_department:before { content: "Service";}
+	html[lang="fr"] .list td.osta_lastmessage:before { content: "Dernier Message";}
+	html[lang="fr"] .list td.osta_lastresponse:before { content: "Dernière réponse";}
+	html[lang="fr"] .list td.osta_status:before { content: "État";}
+	html[lang="fr"] .list td.osta_team:before { content: "Équipe";}
+
+	html[lang="he"] .list td.osta_ticket:before { content: "מספר כרטיס";}
+	html[lang="he"] .list td.osta_lastupdated:before { content: "עודכן לאחרונה";}
+	html[lang="he"] .list td.osta_subject:before { content: "נושא";}
+	html[lang="he"] .list td.osta_username:before { content: "מאת";}
+	html[lang="he"] .list td.osta_assignee:before { content: "מוקצה ל-";}
+	html[lang="he"] .list td.osta_duedate:before { content: "תאריך יעד";}
+	html[lang="he"] .list td.osta_closedate:before { content: "תאריך סגירה";}
+	html[lang="he"] .list td.osta_datecreated:before { content: "תאריך יצירה";}
+	html[lang="he"] .list td.osta_department:before { content: "מחלקה";}
+	html[lang="he"] .list td.osta_lastmessage:before { content: "הודעה אחרונה";}
+	html[lang="he"] .list td.osta_lastresponse:before { content: "תגובה אחרונה";}
+	html[lang="he"] .list td.osta_status:before { content: "מצב";}
+	html[lang="he"] .list td.osta_team:before { content: "צוות";}
+
+	html[lang="hr"] .list td.osta_ticket:before { content: "Broj kartice";}
+	html[lang="hr"] .list td.osta_lastupdated:before { content: "Zadnje ažuriranje";}
+	html[lang="hr"] .list td.osta_subject:before { content: "Naslov";}
+	html[lang="hr"] .list td.osta_username:before { content: "Od";}
+	html[lang="hr"] .list td.osta_assignee:before { content: "Dodjeljeno";}
+	html[lang="hr"] .list td.osta_duedate:before { content: "Krajnji rok";}
+	html[lang="hr"] .list td.osta_closedate:before { content: "Datum zatvaranja";}
+	html[lang="hr"] .list td.osta_datecreated:before { content: "Datum kreiranja";}
+	html[lang="hr"] .list td.osta_department:before { content: "Odjel";}
+	html[lang="hr"] .list td.osta_lastmessage:before { content: "Zadnja poruka";}
+	html[lang="hr"] .list td.osta_lastresponse:before { content: "Zadnji odgovor";}
+	html[lang="hr"] .list td.osta_status:before { content: "Status";}
+	html[lang="hr"] .list td.osta_team:before { content: "Tim";}
+
+	html[lang="hu"] .list td.osta_ticket:before { content: "Hibajegy szám";}
+	html[lang="hu"] .list td.osta_lastupdated:before { content: "Utolsó módosítás";}
+	html[lang="hu"] .list td.osta_subject:before { content: "Tárgy";}
+	html[lang="hu"] .list td.osta_username:before { content: "Feladó";}
+	html[lang="hu"] .list td.osta_assignee:before { content: "Hozzárendelt";}
+	html[lang="hu"] .list td.osta_duedate:before { content: "Határidő";}
+	html[lang="hu"] .list td.osta_closedate:before { content: "Dátum lezárása";}
+	html[lang="hu"] .list td.osta_datecreated:before { content: "Létrehozás dátuma";}
+	html[lang="hu"] .list td.osta_department:before { content: "Részleg";}
+	html[lang="hu"] .list td.osta_lastmessage:before { content: "Utolsó üzenet";}
+	html[lang="hu"] .list td.osta_lastresponse:before { content: "Utolsó válasz";}
+	html[lang="hu"] .list td.osta_status:before { content: "Állapot";}
+	html[lang="hu"] .list td.osta_team:before { content: "Csapat";}
+
+	html[lang="id"] .list td.osta_ticket:before { content: "Nomor Tiket";}
+	html[lang="id"] .list td.osta_lastupdated:before { content: "Terakhir Diperbaharui";}
+	html[lang="id"] .list td.osta_subject:before { content: "Subjek";}
+	html[lang="id"] .list td.osta_username:before { content: "Dari";}
+	html[lang="id"] .list td.osta_assignee:before { content: "Menugaskan ke";}
+	html[lang="id"] .list td.osta_duedate:before { content: "Jatuh tempo";}
+	html[lang="id"] .list td.osta_closedate:before { content: "Tanggal Tutup";}
+	html[lang="id"] .list td.osta_datecreated:before { content: "Tanggal Dibuat";}
+	html[lang="id"] .list td.osta_department:before { content: "Departemen";}
+	html[lang="id"] .list td.osta_lastmessage:before { content: "Pesan Terakhir";}
+	html[lang="id"] .list td.osta_lastresponse:before { content: "Respon Terakhir";}
+	html[lang="id"] .list td.osta_status:before { content: "Status";}
+	html[lang="id"] .list td.osta_team:before { content: "Tim";}
+
+	html[lang="it"] .list td.osta_ticket:before { content: "Numero Ticket";}
+	html[lang="it"] .list td.osta_lastupdated:before { content: "Ultimo Aggiornamento";}
+	html[lang="it"] .list td.osta_subject:before { content: "Oggetto";}
+	html[lang="it"] .list td.osta_username:before { content: "Da";}
+	html[lang="it"] .list td.osta_assignee:before { content: "Assegnato a";}
+	html[lang="it"] .list td.osta_duedate:before { content: "Data Scadenza";}
+	html[lang="it"] .list td.osta_closedate:before { content: "Data di chiusura";}
+	html[lang="it"] .list td.osta_datecreated:before { content: "Dato registrato";}
+	html[lang="it"] .list td.osta_department:before { content: "Reparto";}
+	html[lang="it"] .list td.osta_lastmessage:before { content: "Ultimo Messaggio";}
+	html[lang="it"] .list td.osta_lastresponse:before { content: "Ultima Risposta";}
+	html[lang="it"] .list td.osta_status:before { content: "Stato";}
+	html[lang="it"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="ja"] .list td.osta_ticket:before { content: "チケット番号";}
+	html[lang="ja"] .list td.osta_lastupdated:before { content: "前回の更新";}
+	html[lang="ja"] .list td.osta_subject:before { content: "件名";}
+	html[lang="ja"] .list td.osta_username:before { content: "差出人";}
+	html[lang="ja"] .list td.osta_assignee:before { content: "アサイン先";}
+	html[lang="ja"] .list td.osta_duedate:before { content: "期限日";}
+	html[lang="ja"] .list td.osta_closedate:before { content: "終了日";}
+	html[lang="ja"] .list td.osta_datecreated:before { content: "作成日";}
+	html[lang="ja"] .list td.osta_department:before { content: "部門";}
+	html[lang="ja"] .list td.osta_lastmessage:before { content: "前回のメッセージ";}
+	html[lang="ja"] .list td.osta_lastresponse:before { content: "前回の返信";}
+	html[lang="ja"] .list td.osta_status:before { content: "ステータス";}
+	html[lang="ja"] .list td.osta_team:before { content: "チーム";}
+
+	html[lang="ko"] .list td.osta_ticket:before { content: "티켓 번호";}
+	html[lang="ko"] .list td.osta_lastupdated:before { content: "최종 갱신";}
+	html[lang="ko"] .list td.osta_subject:before { content: "제목";}
+	html[lang="ko"] .list td.osta_username:before { content: "발신자";}
+	html[lang="ko"] .list td.osta_assignee:before { content: "할당";}
+	html[lang="ko"] .list td.osta_duedate:before { content: "완료목표일";}
+	html[lang="ko"] .list td.osta_closedate:before { content: "종료일시";}
+	html[lang="ko"] .list td.osta_datecreated:before { content: "작성일";}
+	html[lang="ko"] .list td.osta_department:before { content: "부서";}
+	html[lang="ko"] .list td.osta_lastmessage:before { content: "마지막 메시지";}
+	html[lang="ko"] .list td.osta_lastresponse:before { content: "최근 답변";}
+	html[lang="ko"] .list td.osta_status:before { content: "상태";}
+	html[lang="ko"] .list td.osta_team:before { content: "팀";}
+
+	html[lang="lt"] .list td.osta_ticket:before { content: "Užklausos numeris";}
+	html[lang="lt"] .list td.osta_lastupdated:before { content: "Paskutinį kartą atnaujinta";}
+	html[lang="lt"] .list td.osta_subject:before { content: "Tema";}
+	html[lang="lt"] .list td.osta_username:before { content: "Nuo";}
+	html[lang="lt"] .list td.osta_assignee:before { content: "Priskirta";}
+	html[lang="lt"] .list td.osta_duedate:before { content: "Terminas iki";}
+	html[lang="lt"] .list td.osta_closedate:before { content: "Uždarymo data";}
+	html[lang="lt"] .list td.osta_datecreated:before { content: "Sukūrimo data";}
+	html[lang="lt"] .list td.osta_department:before { content: "Padalinys";}
+	html[lang="lt"] .list td.osta_lastmessage:before { content: "Paskutinis pranešimas";}
+	html[lang="lt"] .list td.osta_lastresponse:before { content: "Paskutinis atsakymas";}
+	html[lang="lt"] .list td.osta_status:before { content: "Būsena";}
+	html[lang="lt"] .list td.osta_team:before { content: "Komanda";}
+
+	html[lang="mk"] .list td.osta_ticket:before { content: "Број на Тикет";}
+	html[lang="mk"] .list td.osta_lastupdated:before { content: "Последно обновено";}
+	html[lang="mk"] .list td.osta_subject:before { content: "Наслов";}
+	html[lang="mk"] .list td.osta_username:before { content: "Од";}
+	html[lang="mk"] .list td.osta_assignee:before { content: "Доделено на";}
+	html[lang="mk"] .list td.osta_duedate:before { content: "Краен рок";}
+	html[lang="mk"] .list td.osta_closedate:before { content: "Датум на затворање";}
+	html[lang="mk"] .list td.osta_datecreated:before { content: "Датум на креирање";}
+	html[lang="mk"] .list td.osta_department:before { content: "Оддел";}
+	html[lang="mk"] .list td.osta_lastmessage:before { content: "Последна порака";}
+	html[lang="mk"] .list td.osta_lastresponse:before { content: "Последен одговор";}
+	html[lang="mk"] .list td.osta_status:before { content: "Статус";}
+	html[lang="mk"] .list td.osta_team:before { content: "Тим";}
+
+	html[lang="mn"] .list td.osta_ticket:before { content: "Хүсэлтийн дугаар";}
+	html[lang="mn"] .list td.osta_lastupdated:before { content: "Шинэчлэгдсэн";}
+	html[lang="mn"] .list td.osta_subject:before { content: "Subject";}
+	html[lang="mn"] .list td.osta_username:before { content: "From";}
+	html[lang="mn"] .list td.osta_assignee:before { content: "Хариуцсан";}
+	html[lang="mn"] .list td.osta_duedate:before { content: "Гүйцэтгэх огноо";}
+	html[lang="mn"] .list td.osta_closedate:before { content: "Хаагдсан огноо";}
+	html[lang="mn"] .list td.osta_datecreated:before { content: "Үүсгэсэн огноо";}
+	html[lang="mn"] .list td.osta_department:before { content: "Алба";}
+	html[lang="mn"] .list td.osta_lastmessage:before { content: "Сүүлчийн мессеж";}
+	html[lang="mn"] .list td.osta_lastresponse:before { content: "Сүүлчийн хариулт";}
+	html[lang="mn"] .list td.osta_status:before { content: "Төлөв";}
+	html[lang="mn"] .list td.osta_team:before { content: "Баг";}
+
+	html[lang="ms"] .list td.osta_ticket:before { content: "Nombor Tiket";}
+	html[lang="ms"] .list td.osta_lastupdated:before { content: "Terakhir Dikemaskini";}
+	html[lang="ms"] .list td.osta_subject:before { content: "Subjek";}
+	html[lang="ms"] .list td.osta_username:before { content: "Daripada";}
+	html[lang="ms"] .list td.osta_assignee:before { content: "Diberikan kepada";}
+	html[lang="ms"] .list td.osta_duedate:before { content: "Tarikh Akhir";}
+	html[lang="ms"] .list td.osta_closedate:before { content: "Tarikh Tutup";}
+	html[lang="ms"] .list td.osta_datecreated:before { content: "Tarikh Dicipta";}
+	html[lang="ms"] .list td.osta_department:before { content: "Jabatan";}
+	html[lang="ms"] .list td.osta_lastmessage:before { content: "Mesej Terakhir";}
+	html[lang="ms"] .list td.osta_lastresponse:before { content: "Respon Terakhir";}
+	html[lang="ms"] .list td.osta_status:before { content: "Status";}
+	html[lang="ms"] .list td.osta_team:before { content: "Pasukan";}
+
+	html[lang="nl"] .list td.osta_ticket:before { content: "Ticketnummer";}
+	html[lang="nl"] .list td.osta_lastupdated:before { content: "Laatst bijgewerkt";}
+	html[lang="nl"] .list td.osta_subject:before { content: "Onderwerp";}
+	html[lang="nl"] .list td.osta_username:before { content: "Van";}
+	html[lang="nl"] .list td.osta_assignee:before { content: "Toegewezen aan";}
+	html[lang="nl"] .list td.osta_duedate:before { content: "Vervaldatum";}
+	html[lang="nl"] .list td.osta_closedate:before { content: "Sluitingsdatum";}
+	html[lang="nl"] .list td.osta_datecreated:before { content: "Aanmaakdatum";}
+	html[lang="nl"] .list td.osta_department:before { content: "Afdeling";}
+	html[lang="nl"] .list td.osta_lastmessage:before { content: "Laatste bericht";}
+	html[lang="nl"] .list td.osta_lastresponse:before { content: "Laatste reactie";}
+	html[lang="nl"] .list td.osta_status:before { content: "Status";}
+	html[lang="nl"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="no"] .list td.osta_ticket:before { content: "Saksnummer";}
+	html[lang="no"] .list td.osta_lastupdated:before { content: "sist oppdatert";}
+	html[lang="no"] .list td.osta_subject:before { content: "Emne";}
+	html[lang="no"] .list td.osta_username:before { content: "Fra";}
+	html[lang="no"] .list td.osta_assignee:before { content: "Tilordnet til";}
+	html[lang="no"] .list td.osta_duedate:before { content: "Forfallsdato";}
+	html[lang="no"] .list td.osta_closedate:before { content: "ferdig dato";}
+	html[lang="no"] .list td.osta_datecreated:before { content: "Dato opprettet";}
+	html[lang="no"] .list td.osta_department:before { content: "Avdeling";}
+	html[lang="no"] .list td.osta_lastmessage:before { content: "Siste melding";}
+	html[lang="no"] .list td.osta_lastresponse:before { content: "Siste svar";}
+	html[lang="no"] .list td.osta_status:before { content: "Status";}
+	html[lang="no"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="pl"] .list td.osta_ticket:before { content: "Numer zgłoszenia";}
+	html[lang="pl"] .list td.osta_lastupdated:before { content: "Ostatnio zaktualizowano";}
+	html[lang="pl"] .list td.osta_subject:before { content: "Temat";}
+	html[lang="pl"] .list td.osta_username:before { content: "Od";}
+	html[lang="pl"] .list td.osta_assignee:before { content: "Przypisane do";}
+	html[lang="pl"] .list td.osta_duedate:before { content: "Termin wykonania";}
+	html[lang="pl"] .list td.osta_closedate:before { content: "Data zakończenia";}
+	html[lang="pl"] .list td.osta_datecreated:before { content: "Data utworzenia";}
+	html[lang="pl"] .list td.osta_department:before { content: "Departament";}
+	html[lang="pl"] .list td.osta_lastmessage:before { content: "Ostatnia wiadomość";}
+	html[lang="pl"] .list td.osta_lastresponse:before { content: "Ostatnia odpowiedź";}
+	html[lang="pl"] .list td.osta_status:before { content: "Status";}
+	html[lang="pl"] .list td.osta_team:before { content: "Zespół";}
+
+	html[lang="pt-BR"] .list td.osta_ticket:before { content: "Número do Ticket";}
+	html[lang="pt-BR"] .list td.osta_lastupdated:before { content: "Última Atualização";}
+	html[lang="pt-BR"] .list td.osta_subject:before { content: "Assunto";}
+	html[lang="pt-BR"] .list td.osta_username:before { content: "De";}
+	html[lang="pt-BR"] .list td.osta_assignee:before { content: "Atribuído a";}
+	html[lang="pt-BR"] .list td.osta_duedate:before { content: "Data de Vencimento";}
+	html[lang="pt-BR"] .list td.osta_closedate:before { content: "Data de Conclusão";}
+	html[lang="pt-BR"] .list td.osta_datecreated:before { content: "Data de Criação";}
+	html[lang="pt-BR"] .list td.osta_department:before { content: "Departamento";}
+	html[lang="pt-BR"] .list td.osta_lastmessage:before { content: "Última Mensagem";}
+	html[lang="pt-BR"] .list td.osta_lastresponse:before { content: "Última Resposta";}
+	html[lang="pt-BR"] .list td.osta_status:before { content: "Status";}
+	html[lang="pt-BR"] .list td.osta_team:before { content: "Equipe";}
+
+	html[lang="pt-PT"] .list td.osta_lastupdated:before { content: "Última atualização";}
+	html[lang="pt-PT"] .list td.osta_subject:before { content: "Assunto";}
+	html[lang="pt-PT"] .list td.osta_username:before { content: "De";}
+	html[lang="pt-PT"] .list td.osta_assignee:before { content: "Atribuído a";}
+	html[lang="pt-PT"] .list td.osta_duedate:before { content: "Data de vencimento";}
+	html[lang="pt-PT"] .list td.osta_closedate:before { content: "Data de fecho";}
+	html[lang="pt-PT"] .list td.osta_datecreated:before { content: "Data Criada";}
+	html[lang="pt-PT"] .list td.osta_department:before { content: "Departamento";}
+	html[lang="pt-PT"] .list td.osta_lastmessage:before { content: "Última mensagem";}
+	html[lang="pt-PT"] .list td.osta_lastresponse:before { content: "Última resposta";}
+	html[lang="pt-PT"] .list td.osta_status:before { content: "Estado";}
+	html[lang="pt-PT"] .list td.osta_team:before { content: "Equipa";}
+
+	html[lang="ro"] .list td.osta_lastupdated:before { content: "Ultima actualizare";}
+	html[lang="ro"] .list td.osta_subject:before { content: "Subiect";}
+	html[lang="ro"] .list td.osta_username:before { content: "Expeditor";}
+	html[lang="ro"] .list td.osta_assignee:before { content: "Atribuit lui";}
+	html[lang="ro"] .list td.osta_duedate:before { content: "Data scadentă";}
+	html[lang="ro"] .list td.osta_closedate:before { content: "Data inchidere";}
+	html[lang="ro"] .list td.osta_datecreated:before { content: "Data creării";}
+	html[lang="ro"] .list td.osta_department:before { content: "Departament";}
+	html[lang="ro"] .list td.osta_lastmessage:before { content: "Ultimul mesaj";}
+	html[lang="ro"] .list td.osta_lastresponse:before { content: "Ultimul raspuns";}
+	html[lang="ro"] .list td.osta_status:before { content: "Stare";}
+	html[lang="ro"] .list td.osta_team:before { content: "Echipa";}
+
+	html[lang="ru"] .list td.osta_lastupdated:before { content: "Последнее обновление";}
+	html[lang="ru"] .list td.osta_subject:before { content: "Тема";}
+	html[lang="ru"] .list td.osta_username:before { content: "От";}
+	html[lang="ru"] .list td.osta_assignee:before { content: "Назначено На";}
+	html[lang="ru"] .list td.osta_duedate:before { content: "Срок сдачи";}
+	html[lang="ru"] .list td.osta_closedate:before { content: "Дата Закрытия";}
+	html[lang="ru"] .list td.osta_datecreated:before { content: "Дата создания";}
+	html[lang="ru"] .list td.osta_department:before { content: "Отдел";}
+	html[lang="ru"] .list td.osta_lastmessage:before { content: "Последнее сообщение";}
+	html[lang="ru"] .list td.osta_lastresponse:before { content: "Последний ответ";}
+	html[lang="ru"] .list td.osta_status:before { content: "Статус";}
+	html[lang="ru"] .list td.osta_team:before { content: "Команда";}
+
+	html[lang="sk"] .list td.osta_lastupdated:before { content: "Posledná aktualizácia";}
+	html[lang="sk"] .list td.osta_subject:before { content: "Predmet";}
+	html[lang="sk"] .list td.osta_username:before { content: "Od";}
+	html[lang="sk"] .list td.osta_assignee:before { content: "Pridelené";}
+	html[lang="sk"] .list td.osta_duedate:before { content: "Termín";}
+	html[lang="sk"] .list td.osta_closedate:before { content: "Dátum uzavretia";}
+	html[lang="sk"] .list td.osta_datecreated:before { content: "Dátum vytvorenia";}
+	html[lang="sk"] .list td.osta_department:before { content: "Oddelenie";}
+	html[lang="sk"] .list td.osta_lastmessage:before { content: "Posledná správa";}
+	html[lang="sk"] .list td.osta_lastresponse:before { content: "Posledná odpoveď";}
+	html[lang="sk"] .list td.osta_status:before { content: "Status";}
+	html[lang="sk"] .list td.osta_team:before { content: "Tím";}
+
+	html[lang="sl"] .list td.osta_lastupdated:before { content: "Nazadnje posodobljeno";}
+	html[lang="sl"] .list td.osta_subject:before { content: "Zadeva";}
+	html[lang="sl"] .list td.osta_username:before { content: "Od";}
+	html[lang="sl"] .list td.osta_assignee:before { content: "Dodeljeno za";}
+	html[lang="sl"] .list td.osta_duedate:before { content: "Datum zapadlosti";}
+	html[lang="sl"] .list td.osta_closedate:before { content: "Datum zapiranja";}
+	html[lang="sl"] .list td.osta_datecreated:before { content: "Datum nastanka";}
+	html[lang="sl"] .list td.osta_department:before { content: "Oddelek";}
+	html[lang="sl"] .list td.osta_lastmessage:before { content: "Zadnje Sporočilo";}
+	html[lang="sl"] .list td.osta_lastresponse:before { content: "Zadnje obvestilo";}
+	html[lang="sl"] .list td.osta_status:before { content: "Status";}
+	html[lang="sl"] .list td.osta_team:before { content: "Skupina";}
+
+	html[lang="sr-CS"] .list td.osta_lastupdated:before { content: "Poslednje ažuriranje";}
+	html[lang="sr-CS"] .list td.osta_subject:before { content: "Naslov";}
+	html[lang="sr-CS"] .list td.osta_username:before { content: "Od";}
+	html[lang="sr-CS"] .list td.osta_assignee:before { content: "Dodeljeno";}
+	html[lang="sr-CS"] .list td.osta_duedate:before { content: "Tokom datuma";}
+	html[lang="sr-CS"] .list td.osta_closedate:before { content: "Datum zatvaranja";}
+	html[lang="sr-CS"] .list td.osta_datecreated:before { content: "Datum kreiranja";}
+	html[lang="sr-CS"] .list td.osta_department:before { content: "Odsek";}
+	html[lang="sr-CS"] .list td.osta_lastmessage:before { content: "Poslednja poruka";}
+	html[lang="sr-CS"] .list td.osta_lastresponse:before { content: "Poslednji odgovor";}
+	html[lang="sr-CS"] .list td.osta_status:before { content: "Status";}
+	html[lang="sr-CS"] .list td.osta_team:before { content: "Tim";}
+
+	html[lang="sv-SE"] .list td.osta_lastupdated:before { content: "Senast uppdaterad";}
+	html[lang="sv-SE"] .list td.osta_subject:before { content: "Ämne";}
+	html[lang="sv-SE"] .list td.osta_username:before { content: "Från";}
+	html[lang="sv-SE"] .list td.osta_assignee:before { content: "Tilldelat till";}
+	html[lang="sv-SE"] .list td.osta_duedate:before { content: "Förfallodatum";}
+	html[lang="sv-SE"] .list td.osta_closedate:before { content: "Stängt Datum";}
+	html[lang="sv-SE"] .list td.osta_datecreated:before { content: "Skapad den";}
+	html[lang="sv-SE"] .list td.osta_department:before { content: "Avdelning";}
+	html[lang="sv-SE"] .list td.osta_lastmessage:before { content: "Senaste Meddelande";}
+	html[lang="sv-SE"] .list td.osta_lastresponse:before { content: "Senaste Svar";}
+	html[lang="sv-SE"] .list td.osta_status:before { content: "Status";}
+	html[lang="sv-SE"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="th"] .list td.osta_ticket:before { content: "Ticket number";}
+	html[lang="th"] .list td.osta_lastupdated:before { content: "'ปรับปรุงล่าสุดเมื่อ'";}
+	html[lang="th"] .list td.osta_subject:before { content: "เรื่อง";}
+	html[lang="th"] .list td.osta_username:before { content: "'จาก";}
+	html[lang="th"] .list td.osta_assignee:before { content: "มอบหมายให้";}
+	html[lang="th"] .list td.osta_duedate:before { content: "วันครบกำหนด";}
+	html[lang="th"] .list td.osta_closedate:before { content: "วันปิด";}
+	html[lang="th"] .list td.osta_datecreated:before { content: "วันที่สร้าง";}
+	html[lang="th"] .list td.osta_department:before { content: "แผนก";}
+	html[lang="th"] .list td.osta_lastmessage:before { content: "ข้อความล่าสุด";}
+	html[lang="th"] .list td.osta_lastresponse:before { content: "ตอบล่าสุด";}
+	html[lang="th"] .list td.osta_status:before { content: "สถานะ";}
+	html[lang="th"] .list td.osta_team:before { content: "'ทีม";}
+
+	html[lang="tr"] .list td.osta_ticket:before { content: "Talep Numaranız";}
+	html[lang="tr"] .list td.osta_lastupdated:before { content: "Son Güncelleme";}
+	html[lang="tr"] .list td.osta_subject:before { content: "Konu";}
+	html[lang="tr"] .list td.osta_username:before { content: "Kimden";}
+	html[lang="tr"] .list td.osta_assignee:before { content: "Atanmış";}
+	html[lang="tr"] .list td.osta_duedate:before { content: "Bitiş Tarihi";}
+	html[lang="tr"] .list td.osta_closedate:before { content: "Kapanış Tarihi";}
+	html[lang="tr"] .list td.osta_datecreated:before { content: "Oluşturulma Tarihi";}
+	html[lang="tr"] .list td.osta_department:before { content: "Bölüm";}
+	html[lang="tr"] .list td.osta_lastmessage:before { content: "Son Mesaj";}
+	html[lang="tr"] .list td.osta_lastresponse:before { content: "Son Yanıt";}
+	html[lang="tr"] .list td.osta_status:before { content: "Durum";}
+	html[lang="tr"] .list td.osta_team:before { content: "Takım";}
+
+	html[lang="uk"] .list td.osta_ticket:before { content: "Номер заявки";}
+	html[lang="uk"] .list td.osta_lastupdated:before { content: "Оновлено";}
+	html[lang="uk"] .list td.osta_subject:before { content: "Тема";}
+	html[lang="uk"] .list td.osta_username:before { content: "Від";}
+	html[lang="uk"] .list td.osta_assignee:before { content: "Відповідальний";}
+	html[lang="uk"] .list td.osta_duedate:before { content: "Термін здачі";}
+	html[lang="uk"] .list td.osta_closedate:before { content: "Дата закриття";}
+	html[lang="uk"] .list td.osta_datecreated:before { content: "Дата створення";}
+	html[lang="uk"] .list td.osta_department:before { content: "Відділ";}
+	html[lang="uk"] .list td.osta_lastmessage:before { content: "Останнє повідомлення";}
+	html[lang="uk"] .list td.osta_lastresponse:before { content: "Остання відповідь";}
+	html[lang="uk"] .list td.osta_status:before { content: "Статус";}
+	html[lang="uk"] .list td.osta_team:before { content: "Команда";}
+
+	html[lang="vi"] .list td.osta_ticket:before { content: "Mã yêu cầu";}
+	html[lang="vi"] .list td.osta_lastupdated:before { content: "Cập nhật Lần cuối";}
+	html[lang="vi"] .list td.osta_subject:before { content: "Tiêu đề";}
+	html[lang="vi"] .list td.osta_username:before { content: "Từ";}
+	html[lang="vi"] .list td.osta_assignee:before { content: "Phân công";}
+	html[lang="vi"] .list td.osta_duedate:before { content: "Ngày hết hạn";}
+	html[lang="vi"] .list td.osta_closedate:before { content: "Ngày kết thúc";}
+	html[lang="vi"] .list td.osta_datecreated:before { content: "Ngày tạo";}
+	html[lang="vi"] .list td.osta_department:before { content: "Phòng ban";}
+	html[lang="vi"] .list td.osta_lastmessage:before { content: "Tin nhắn cuối cùng";}
+	html[lang="vi"] .list td.osta_lastresponse:before { content: "Phản hồi cuối cùng";}
+	html[lang="vi"] .list td.osta_status:before { content: "Tình trạng";}
+	html[lang="vi"] .list td.osta_team:before { content: "Nhóm";}
+
+	html[lang="zh-CN"] .list td.osta_ticket:before { content: "咨询编号";}
+	html[lang="zh-CN"] .list td.osta_lastupdated:before { content: "最近更新";}
+	html[lang="zh-CN"] .list td.osta_subject:before { content: "主题";}
+	html[lang="zh-CN"] .list td.osta_username:before { content: "发自";}
+	html[lang="zh-CN"] .list td.osta_assignee:before { content: "分配至";}
+	html[lang="zh-CN"] .list td.osta_duedate:before { content: "截止日期";}
+	html[lang="zh-CN"] .list td.osta_closedate:before { content: "关闭日期";}
+	html[lang="zh-CN"] .list td.osta_datecreated:before { content: "创建日期";}
+	html[lang="zh-CN"] .list td.osta_department:before { content: "创建日期";}
+	html[lang="zh-CN"] .list td.osta_lastmessage:before { content: "最后消息";}
+	html[lang="zh-CN"] .list td.osta_lastresponse:before { content: "最后回复";}
+	html[lang="zh-CN"] .list td.osta_status:before { content: "状态";}
+	html[lang="zh-CN"] .list td.osta_team:before { content: "团队";}
+
+	html[lang="zh-TW"] .list td.osta_ticket:before { content: "案件編號";}
+	html[lang="zh-TW"] .list td.osta_lastupdated:before { content: "最後更新";}
+	html[lang="zh-TW"] .list td.osta_subject:before { content: "主題";}
+	html[lang="zh-TW"] .list td.osta_username:before { content: "從";}
+	html[lang="zh-TW"] .list td.osta_assignee:before { content: "分配給";}
+	html[lang="zh-TW"] .list td.osta_duedate:before { content: "截止日期";}
+	html[lang="zh-TW"] .list td.osta_closedate:before { content: "關閉日期";}
+	html[lang="zh-TW"] .list td.osta_datecreated:before { content: "建立日期";}
+	html[lang="zh-TW"] .list td.osta_department:before { content: "部門";}
+	html[lang="zh-TW"] .list td.osta_lastmessage:before { content: "最後一條消息";}
+	html[lang="zh-TW"] .list td.osta_lastresponse:before { content: "上一次回應";}
+	html[lang="zh-TW"] .list td.osta_status:before { content: "狀態";}
+	html[lang="zh-TW"] .list td.osta_team:before { content: "團隊";}
+}
+
+/* reverse jQuery media query responsive table chages */
+
+@media only screen and (min-width: 761px) {
+	.osta_ticket .pull-right,
+	.osta_ticket .overdue-ticket,
+	.osta_ticket .ticket-has-attachement {
+		display: none;
+	}	
+}
+
+/* ==========================================================================
+ TRANSLATIONS - LANGUAGES THAT TAKE UP TOO MUCH ROOM
+========================================================================== */
+@media screen and (max-width: 1000px) {
+	html[lang="ar"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="ca"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="da"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="de"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="el"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="es_ES"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="mx"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="fr"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="mn"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="pl"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="pt_PT"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="pt_BR"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="ru"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="ro"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="sr_CS"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="sl"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="tr"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="bg"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="et"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="lt"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="mk"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="ms"] #left-logo {
+		max-width: 270px;
+	}
+	html[lang="sv_SE"] #left-logo {
+		max-width: 270px;
+	}
+
+
+	html[lang="ar"] #header a {
+		font-size: 11px;
+	}
+	html[lang="ca"] #header a {
+		font-size: 11px;
+	}
+	html[lang="da"] #header a {
+		font-size: 11px;
+	}
+	html[lang="de"] #header a {
+		font-size: 11px;
+	}
+	html[lang="el"] #header a {
+		font-size: 11px;
+	}
+	html[lang="es_ES"] #header a {
+		font-size: 11px;
+	}
+	html[lang="mx"] #header a {
+		font-size: 11px;
+	}
+	html[lang="fr"] #header a {
+		font-size: 11px;
+	}
+	html[lang="mn"] #header a {
+		font-size: 11px;
+	}
+	html[lang="pl"] #header a {
+		font-size: 11px;
+	}
+	html[lang="pt_PT"] #header a {
+		font-size: 11px;
+	}
+	html[lang="pt_BR"] #header a {
+		font-size: 11px;
+	}
+	html[lang="ru"] #header a {
+		font-size: 11px;
+	}
+	html[lang="ro"] #header a {
+		font-size: 11px;
+	}
+	html[lang="sr_CS"] #header a {
+		font-size: 11px;
+	}
+	html[lang="sl"] #header a {
+		font-size: 11px;
+	}
+	html[lang="tr"] #header a {
+		font-size: 11px;
+	}
+	html[lang="bg"] #header a {
+		font-size: 11px;
+	}
+	html[lang="et"] #header a {
+		font-size: 11px;
+	}
+	html[lang="lt"] #header a {
+		font-size: 11px;
+	}
+	html[lang="mk"] #header a {
+		font-size: 11px;
+	}
+	html[lang="ms"] #header a {
+		font-size: 11px;
+	}
+	html[lang="sv_SE"] #header a {
+		font-size: 11px;
+	}
+
+
+	html[lang="ar"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="ca"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="da"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="de"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="el"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="es_ES"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="mx"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="fr"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="mn"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="pl"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="pt_PT"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="pt_BR"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="ru"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="ro"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="sr_CS"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="sl"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="tr"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="bg"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="et"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="lt"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="mk"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="ms"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+	html[lang="sv_SE"] #header #nav a[href*="/profile.php"] {
+		font-size: 0;
+		width: 14px;
+		display: inline-block;
+	}
+
+
+	html[lang="ar"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="ca"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="da"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="de"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="el"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="es_ES"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="mx"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="fr"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="mn"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="pl"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="pt_PT"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="pt_BR"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="ru"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="ro"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="sr_CS"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="sl"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="tr"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="bg"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="et"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="lt"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="mk"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="ms"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+	html[lang="sv_SE"] #header #nav a[href*="/profile.php"] svg	{
+		display: inline-block;
+		fill: var(--header-title-color);
+		width: 18px !important;
+		height: 18px !important;
+		content: "";
+		position: relative;
+		top: 4px;
+		margin: 0 2px 0 -4px;
+	}
+}
+
+
+@media screen and (max-width: 1050px) and (min-width: 761px) { 
+/* Ticket Queue > date column text > small screen > break evenly */
+	.date-text {
+		position: relative;
+		top: 1px;
+		padding-right: 33px;
+		line-height: 11px;
+		font-size: 10.5px;
+		font-size: 10px;
+	}
+}
+
+@media screen and (max-width: 1259px) {
+	#sub_nav > li:first-child > a {
+		margin-left: 0 !important;
+	}
+}
+
+@media screen and (max-width: 740px) {
+	.modal-content {
+		width: 100%;
+		margin: 16px auto 0;
+	}	
+	#table-outter tr {
+		display: table;
+	}
+	#td-outter:nth-child(2) {
+		display: table-row;
+	}
+}

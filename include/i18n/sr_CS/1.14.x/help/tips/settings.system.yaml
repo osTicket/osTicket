@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Status sistema za podršku
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: URL adresa sistema za podršku
+  content: >
+    Ovaj URL je osnova Vaše osTicket instalacije. Koristi se u komunikaciji elektronskom poštom da usmeri krajnjeg korisnika nazad na Vaš tiketing sistem.
+helpdesk_name_title:
+  title: Ime tiketing sistema
+  content: >
+    Ovo je naslov koji se pojavljuje u pretraživaču. Ako je Vaša stranica tiketing sistema zapamćena u pretaživaču ovo će biti naziv stranice.
+default_department:
+  title: Podrazumevano odeljenje
+  content: >
+    Odaberite osnovno <span class="doc-desc-title">Odeljenje</span> za tikete koji nisu automatski usmereni na odeljenja. <br/><br/> Tiket može biti usmeren na osnovu Teme pomoći, dolazne pošte i podešavanja filtriranja tiketa.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Podrazumevana veličina strane
+  content: >
+    Odaberite broj predmeta po stranici u spisku tiketa u panelu zaposlenih. Svaki agent takođe može da uredi ovaj broj za sopstveni nalog pod <span class="doc-desc-title">Moja podešavanja</span>.
+default_log_level:
+  title: Osnovni nivo beleženja
+  content: >
+    Odredite minimalni nivo događaja koji će se snimati u <span class="doc-desc-title">Sistemskim beleškama</span>. <span class="doc-desc-opt">Debug</span> predstavlja najmanji nivo ozbiljnosti, a <span class="doc-desc-opt">Error</span> predstavlja najveći nivo ozbiljnosti. Na primer, ukoliko želite da vidite sva dešavanja u <span class="doc-desc-title">Sistemskim beleškama</span>, odaberite <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Očisti dnevnike
+  content: >
+    Odredite koliko dugo želite da čuvate <span class="doc-desc-title">Sistemske dnevnike</span> pre njihovog brisanja.
+enable_richtext:
+  title: Omogući Rich Tekst
+  content: >
+    Ukoliko je omogućeno, ovo će zabraniti upotrebu bogatog formata teksta između klijenta i agenta.
+enable_avatars:
+  title: Omogućiti da se vide slike avatara u celokupnom pogledu
+  content: >
+    Omogućite ovo da biste prikazali <span class="doc-desc-title">Avatare</span> u temi prepiske. <br><br> <span class="doc-desc-title">Izvor Avatara</span> se može podesiti u stranicama za podešavanje Agenata i Korisnika.
+  links:
+    - 
+      title: Podešavanja agenata
+      href: /scp/podešavanja.php?t=agenti
+    - 
+      title: Korisnička Podešavanja
+      href: /scp/podešavanja.php?t=korisnici
+collision_avoidance:
+  title: Izbegavanje kolizije agenata
+  content: >
+    Unesite maksimalnu dužinu vremena koje se dozvoljava agentu da drži tiket ili zadatak zaključanim bez ikakvih aktivnosti. <br><br>Unesite <span class="doc-desc-opt">0</span> kako biste onemogućili svojstvo zaključavanja.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Datum i vreme
+  content: >
+    Sledeća podešavanja definišu uobičajena podešavanja za datum i vreme za šalter za informacije. Možete izabrati lokalna uobičajena podešavanja za izabranu destinaciju ili prilagoditi formate kako bi ispunili vaše jedinstvene zahteve. Koristiti PHP format nizova kao referencu za prilagođavanje. Datumi dole prikazani jednostavno prikazuju rezultat njihovih odgovarajućih vrednosti.
+  links:
+    - 
+      title: Pogledajte tabelu PHP Formatiranja Datuma
+      href: http://uputstvozaupotrebu.php-projekat.org/raščlanjivanjeformata/datumivreme
+languages:
+  title: Sistemski Jezici
+  content: >
+    Izaberite primarni jezik sistema i opciono druge jezike kako bi vaš interfejs bio lokalizovan za vaše agente i krajnje korisnike.
+primary_language:
+  title: Primarni Jezik Sistema
+  content: >
+    Sadržaj ovog jezika se prikazuje agentima i krajnjim korisnica ukoliko njihov dotični odabir jezika nije trenutno dosupan. Ovo uključuje sadržaj interfejsa kao i prilagođen sadržaj kao što su hvala-vam stranice i email poruke.<br/><br/> Ovo je jezik u kom bi verzije vašeg sadržaja koje nisu prevedene trebale da se napišu.
+secondary_language:
+  title: Sekundarni Jezici
+  content: >
+    Izaberite željene jezičke opcije za vaše agente i krajnje korisnike. Ova interfejs će biti dostupan u tim jezicima i prilagođeni sadržaj, kao što su hvala-vam stranice i nazivi pomoćnih tema će moći da se prevedu na ove jezike.
+#Attachments
+attachments:
+  title: Podešavanje i Skladištenje Dodatih Fajlova
+  content: >
+    Konfigurišite kako se skladište dodati fajlovi.
+default_storage_bk:
+  title: Pozadinsko Skladištenje Fajlova
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Maksimalna veličina fajla
+  content: >
+    Izaberite maksimalnu veličinu fajla za dodavanje od strane agenata. Ovo uključuje priložene fajlove unapred pripremljenim porukama, članci u bazi znanja i priloženi fajlovi u tiketima i odgovorima zadatka. Gornji limit kontroliše PHP <code>maksimalna_veličina_otpremanja</code> podešavanje.
+  links:
+    - 
+      title: PHP inicijalna podešavanja
+      href: "http://php.net/uputstvo/en/ini.core.php#ini.otpremi-maksimalnu-veličinu-fajla"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

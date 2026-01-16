@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Réponses pré-enregistrées
+  content: >
+    Créer une <span class="doc-desc-title"> Réponse pré-enregistrée</span> qui peut être inclus dans une réponse de billet. En fait, vous pouvez inclure autant de <span class="doc-desc-title">réponses pré-enregistrée</span> dans un billet. Il peut également figurer dans le programme d'installation <span class="doc-desc-title">automatique de billet-réponse</span> par un <span class="doc-desc-title"> Filtre de billet</span>.
+  links:
+    - 
+      title: Configurer un filtre de ticket
+      href: /scp/filters.php
+canned_attachments:
+  title: Pièces jointes pré-enregistrées
+  content: >
+    Joindre un fichier que vous souhaitez être automatiquement inclus dans la réponse du ticket qui utilise la nouvelle <span class="doc-desc-title"> réponse pré-enregistrée</span>.

@@ -1,0 +1,23 @@
+#
+# Initial Service-Level-Agreements (SLA) defined for the system
+#
+# Fields:
+# id - (int:optional) id number in the database
+# flags - (int:bitmask)
+#   isactive - (flag:1) true of false if the SLA should initially be active
+#   enable_priority_escalation - (flag:2) true or false if the SLA should
+#       cause the ticket priority to be escalated when it is marked overdue
+#   disable_overdue_alerts - (flag:4) - true or false if the overdue alert
+#       emails should _not_ go out for tickets assigned to this SLA
+#   transient - (flag:8) - true if the SLA should change when changing
+#       department or help topic.
+# grace_period - (int) number or hours after the ticket is opened before it
+#       is marked overdue
+# name - (string) descriptive name of the SLA
+# notes - (string) administrative notes (viewable internally only)
+---
+- id: 1
+  flags: 3
+  grace_period: 18
+  name: Default SLA
+  notes: |

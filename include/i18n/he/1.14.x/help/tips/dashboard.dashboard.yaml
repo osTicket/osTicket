@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: פעילות בכרטיס
+  content: >
+    בחר טווח תאריכים כדי ליצור את הגרף ואת הטבלה (cf. <span class="doc-desc-title"> סטטיסטיקה</span>) שלהלן כדי להתמקד על כל הנתונים המתאימים עבור התאריכים. הגרף שלהלן ישקף סקירה רחבה של הנתונים של המערכת כולה (קרי, האוכלוסייה). עם זאת, תוכלו לנווט באמצעות <span class="doc-desc-title"> סטטיסטיקה</span> בטבלה שלהלן כדי להתמקד על נושא צר יותר עניין (למשל, המחלקה, נושאים או צוות). בנוסף, באפשרותך לייצא נתונים מוצגים כעת בטבלת <span class="doc-desc-title"> הסטטיסטיקה</span>.
+report_timeframe:
+  title: דווח על מסגרת זמן
+  content: >
+    בחרו תאריך התחלה עבור הנתונים הרצויים באמצעות בורר. לאחר מכן, בחר את משך הזמן ממועד זה כדי להגדיר את תאריך הסיום עבור הנתונים.
+statistics:
+  title: סטטיסטיקות
+  content: >
+    נווט אל נושא על-ידי לחיצה על הלשונית המתאימה כדי להציג את הנתונית הספציפיים. בתוך הטבלה, העיגולים מייצגים את גודל הנתונים הנומינלי. לכן, כשמספר הנתונים בתא מסוים גדול יותר, העיגול יהיה גדול יותר.
+opened:
+  title: נפתח
+  content: >
+    קריאות שבעת פתיחתם צויינה מחלקה או נושא העזרה בכרטיס הקריאה, או מספר הקריאה שסוכן פתח עבור משתמש.
+assigned:
+  title: הוקצה
+  content: >
+    קריאות שהוקצו נציג או לצוות. המספר מבטא כרטיסי קריאה שהוקצו באופן ידני נציג או לצוות, כרטיסי קריאה שנלקחו בבעלות, וכרטיסי קריאה שהוקצו על ידי פילטרים ו/או על ידי חוקים אוטומטיים אחרים.
+overdue:
+  title: איחור
+  content: >
+    כרטיסי קריאה שסומנו על ידי המערכת כ'מאחרים'. כרטיסים מסומנים כ'מאחרים' כאשר הם עוברים את המועד הקבוע בתוכנית האחריות להם הם שייכים.
+closed:
+  title: סגור
+  content: >
+    מספר הקריאות שכרגע בסטטוס סגור.
+reopened:
+  title: נפתח מחדש
+  content: >
+    מספר הפעמים הכולל שקריאה נפתחה מחדש. קריאה נפתחת מחדש כאשר הסטטוס שלה משתנה מ"סגור" ל "פתוח".
+deleted:
+  title: נמחק
+  content: >
+    מספר הקריאות שנמחקו.
+service_time:
+  title: זמן שירות
+  content: >
+    מתייחס לאורך הזמן מפתיחת קריאת שירות ועד לסגירתה. עמודת זמן השירות מודדת את אורך זמן השירות הממוצע ,בשעות, לכל קריאה.
+response_time:
+  title: זמן תגובה
+  content: >
+    מציג זמן תגובה ממוצע של סוכן, ביחידות של שעות, לתכתובת קריאה.

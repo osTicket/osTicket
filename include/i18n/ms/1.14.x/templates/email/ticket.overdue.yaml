@@ -1,0 +1,29 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Dihantar kepada ahli staf apabila transisi tiket telah tamat tempoh di dalam sistem.
+  Tiket tamat tempoh boleh terjadi berdasarkan kepada tarikh tamat tempoh dan juga SLA yang telah ditetapkan ke tiket tersebut.
+subject: |
+  Amaran tiket basi
+body: |
+  <h3><strong>Hi%{recipient.name}</strong>,</h3>
+  tiket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> adalah serius tertunggak.
+  <br>
+  <br>
+  Kita semua perlu kerja keras untuk menjamin bahawa semua tiket ditangani dalam masa yang ditetapkan.
+  <br>
+  <br>
+  Ditandatangani,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Untuk melihat atau bertindak balas terhadap tiket, sila <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logmasuk</span></a> kepada sistem tiket sokongan. Anda menerima notis ini kerana tiket diberikan terus kepada anda atau kepada pasukan atau jabatan yang anda menjadi ahli.</div>
+  <em style="font-size: small"> Mesra anda <span style="font-size: smaller"
+  >(walaupun dengan kesabaran yang terhad)</span> Sistem Sokongan Pelanggan </em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

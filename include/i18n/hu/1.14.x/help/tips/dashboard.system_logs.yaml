@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Rendszernaplók
+  content: >
+    Itt találja meg a hibaelhárításhoz kapcsolódó naplózási tevékenységet (például: Hibák, Figyelmeztetések vagy Bugok).
+  links:
+    - 
+      title: Állítsa be a naplózandó tevékenység típusát az <br /><span class="doc-desc-title">Alapértelmezett naplózási szint</span> módosításával.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Időintervallum
+  content: >
+    Válassza ki az időintervallumot, amelyben látni szeretné a <span class="doc-desc-title">Rendszernaplókat</span>.
+type:
+  title: Típus
+  content: >
+    Válasszon a szűkítési lehetőségek közül, hogy egy adott típusú tevékenységet lásson. A <span class="doc-desc-opt">Debug</span> a legkisebb és a <span class="doc-desc-opt">Hiba</span> a legnagyobb súlyosságot jelenti.
+showing_logs:
+  title: Megjelenítés&hellip;Napló
+  content: >
+    Győződjön meg lent, az <span class="doc-desc-title">Oldal</span> szakasznál arról, hogy nincs több megjeleníthető oldal a rendszernaplóban.
+log_title:
+  title: Napló megnevezése
+  content: >
+    Kattintson a <span class="doc-desc-title">Napló megnevezése</span> oszlop fejlécére, ha az eredményeket a <span class="doc-desc-title">Napló megnevezése</span> alapján szeretné rendezni.
+log_type:
+  title: Napló típusa
+  content: >
+    Kattintson a <span class="doc-desc-title">Napló típusa</span> oszlop fejlécére, ha az eredményeket a <span class="doc-desc-title">Napló típusa</span> alapján szeretné rendezni.
+log_date:
+  title: Napló dátuma
+  content: >
+    Ez a dátum a napló készítésének a dátuma. Ha a <span class="doc-desc-title">Napló dátuma</span> alapján szeretné rendezni az eredményeket, egyszerűen kattintson a <span class="doc-desc-title">Napló dátuma</span> oszlop fejlécére. (Használja az <span class="doc-desc-title">Időintervallum</span> mezőt felül, hogy szűkítse a naplók időtartamának megjelenítését.)
+ip_address:
+  title: IP-cím
+  content: >
+    Ez az <span class="doc-desc-title">IP</span><span class="doc-desc-title"> cím</span> a munkatárs vagy felhasználó címe az osTicket használatának időpontjában.

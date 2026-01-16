@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formatiranje imena agenta
+  content: >
+    Odaberite format za imena agenata na sustavu. Email predlošci će koristiti taj format za imena ukoliko nijedan drugi format nije specificiran.
+staff_identity_masking:
+  title: Prikrivanje identiteta djelatnika
+  content: >
+    Ukoliko omogućeno, ovo će prikriti djelatnikovo ime od klijenta za vrijeme komunikacije djelatnika i klijenta.
+#Authentication settings
+password_reset:
+  title: Politika isteka zaporke
+  content: >
+    Postavlja koliko često (u mjesecima) će agenti morati promijeniti svoju lozinku. Ukoliko je onemogućeno (postavljeno na "Nema isteka"), lozinka neće isteći.
+password_expiration_policy:
+  title: Politika isteka zaporke
+  content: >
+    Odredite koliko često će djelatnici morati mjenjati svoje zaporke. Ukoliko je onemogučeno (npr., <span class="doc-desc-opt">Nema isteka</span>), zaporke neće zastarjevati.
+allow_password_resets:
+  title: Dopustite poništavanje zaporki
+  content: >
+    Aktivirajte ovu mogućnost ukoliko želite prikazati poveznicu za <span class="doc-desc-title">Zaboravljena lozinka</span> na <span class="doc-desc-title">Stranici za prijavu osoblja</span> nakon neuspješne prijave.
+reset_token_expiration:
+  title: Prozor za poništavanje zaporke
+  content: >
+    Odredite vrijeme (u minutama) koliko će  <span class="doc-desc-title"> token za poništavanje zaporke</span> biti valjan. Kada djelatnik zatraži <span class="doc-desc-title">poništavanje zaporke</span>, bit će mu poslan email sa tokenom koji će mu omogučiti poništavanje zaporke.
+staff_session_timeout:
+  title: Vrijeme neaktivnosti djelatnika prije automatske odjave
+  content: >
+    Odredite maksimalno vrijeme mirovanja (u minutama) prije nego što je obavezna ponovna prijava agenta. <br><br> Ukoliko želite onemogućiti <span class="doc-desc-title"> vremensko ograničenje sesije agenta</span>, unesite 0.
+bind_staff_session_to_ip:
+  title: Veži djelatnikovu prijavu uz IP adresu
+  content: >
+    Omogućite ovo ukoliko želite da djelatnik bude upamćen po svojoj IP adresi kod prijave. <br><br>Ova opcija nije preporučljiva za djelatnike koji koriste dinamičke IP adrese.

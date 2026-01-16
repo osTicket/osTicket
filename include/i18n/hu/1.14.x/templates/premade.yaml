@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Mi az az osTicket (minta)?
+  response: |
+    Az osTicket egy széles körben használt, nyílt forráskódú hibajegy kezelő rendszer, vonzó alternatívája a magasabb árfekvésű és komplex ügyfélszolgálati rendszereknek - egyszerű, könnyű, megbízható, nyílt forráskódú, web-alapú, könnyen beállítható és használható.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Melléklet csatolva!
+- 
+  isenabled: 1
+  title: Minta (változókkal)
+  response: |
+    Kedves %{ticket.name.first},
+    <br>
+    <br>
+    A #%{ticket.number} számú hibajegye kelt: %{ticket.create_date} dátummal a(z)
+    %{ticket.dept.name} részleghez került.
+  0: |
+

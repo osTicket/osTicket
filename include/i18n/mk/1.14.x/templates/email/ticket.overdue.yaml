@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Испратено е известување до вработените, кога тикето е задоцнет во системот. Задоцнетите тикети се пресметуваат врз основа на SLА кој што е  дефинирано за тикетот.
+subject: |
+  Известување за заостанати тикети
+body: |
+  <h3><strong>Здраво, %{recipient.name}</strong>,</h3>
+  Тикетот, <a href="%{ticket.staff_link}">#%{ticket.number}</a> е со сериозно задоцнување.
+  <br>
+  <br>
+  Сите ние работиме напорно за да гарантираме дека сите тикети ќе бидат навремено разрешени.
+  <br>
+  <br>
+  Потпишано,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>За да го видите или отворите тикето, ве молиме <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >најавете се</span></a> во системот за поддршка на тикети. Вие го добивате оваа известување, бидејќи тикетот е испратен од вас или од вашиот тим, на кој што сте член.</div>
+  <em style="font-size: small">Од <span style="font-size: smaller"
+  >(и покрај нетрпеливоста)</span> Системот за поддршка на корисници</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

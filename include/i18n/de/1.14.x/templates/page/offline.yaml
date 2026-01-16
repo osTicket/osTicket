@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Die Offline-Seite erscheint im Benutzerportal, wenn der Helpdesk offline ist.
+name: Offline
+body: |
+  <div><h1>
+  <span style="font-size: medium">Support Ticket System Offline</span>
+  </h1>
+  <p>Vielen Dank für Ihr Interesse mit uns in Kontakt zu treten.</p>
+  <p>Unser Helpdesk ist momentan offline, bitte besuchen Sie diese Seite zu einem späteren Zeitpunkt erneut.</p>
+  </div>

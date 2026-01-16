@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Brukernavn formatering
+  content: >
+    Velg et format for brukernavn i hele systemet. E-post maler bruker dette som navn hvis ingen andre formater angis i variabelen.
+#Authentication settings
+client_session_timeout:
+  title: Brukerens økt-tidsavbrudd
+  content: >
+    Velg maksimalt inaktiv tid (i minutter) før en Agent er nødvendig for å logge på igjen. <br><br>Hvis du vil deaktivere <span class="doc-desc-title"> Ansatte samling pause</span>, angir du 0.
+registration_method:
+  title: Alternativer for registrering
+  content: >
+    <span class="doc-desc-title">Registreringsmetode</span> og<span class="doc-desc-title">Registrering påkrevet</span> brukes sammen for å konfigurere hvordan brukerne registrerer seg og få tilgang til nett-portal for din hjelpdisk. Tabellen nedenfor oppsummerer hvordan de to innstillingene er tolket av systemet. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Registrering påkrevet</th> <th>Registreringsmetode</th> <th>Resultat</th></tr> <tr><td>Nei</td><td>Offentlig</td> <td>Registrering anbefalt, men ikke påkrevd for nye saker.</td></tr> <tr><td>Yes</td><td>Public</td> <td>Registrering og innlogging er påkrevet for nye saker</td></tr> <tr><td>Nei</td><td>Privat</td> <td>Hvem som helst kan opprette en sak, men bare agenter kan registrere kontoer</td></tr> <tr><td>Ja</td><td>Privat</td> <td>Brukertilgang er kun etter invitasjon</td></tr> <tr><td>No</td><td>Deaktivert</td> <td>Ingen kan registrere en konto, men hvem som helst kan opprette en sak. <em> Dette var hvordan osTicket fungerte før 1.9</em></td></tr> <tr><td>Ja</td><td>Deaktivert</td> <td>Deaktiver nye saker via nettportal</td></tr> </tbody></table>
+client_verify_email:
+  title: Kreve e-postbekreftelse
+  content: >
+    Deaktiver dette alternativet for å gi brukerne umiddelbar tilgang til sakene gjennom "Sjekk supporthenvendelse" påloggingssiden i klient portal. Hvis aktivert, (som er standard), må brukere motta en e-post og følge en kobling i e-posten for å vise saken. <br><br>Deaktivere e-postverifisering kan tillate tredjeparter (f.eks sak samarbeidspartnere) til å representere sakseieren.
+allow_auth_tokens:
+  title: Aktiver autentiseringsinformasjon
+  content: >
+    Aktiver dette alternativet for å tillate bruk av autentiserings tokens til auto-login av brukere fra linken klikk på billetten.

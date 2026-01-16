@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Enviat als usuaris quan han excedit el màxim nombre de Tickets permesos al sistema. Aquest límit és configurable al Tauler d'Administració, i es defineix amb un número de Tickets oberts per una adreça electrònica en concret.
+subject: |
+  Superat el límit de Tickets oberts
+body: |
+  <h3><strong> Benvolgut %{ticket.name.first}</strong></h3>
+  Voste a arribat al màxim nombre permitit de Tickets oberts. Per poder obrir un altre Ticket, ha de tancar un altre dels teus Tickets pendents. Per millorar o afegir comentaris a un ticket obert <a
+  href="%{url}/tickets.php?e=%{ticket.email}"> registrese al seu sistema de suport</a>
+  <br>
+  <br>
+  Gracies.<br/>
+  Sistema de suport de Ticket

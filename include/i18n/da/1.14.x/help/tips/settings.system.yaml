@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk Status
+  content: >
+    Hvis status er ændret til <span class="doc-desc-opt">Offline</span>, Klient grænsefladen blive deaktiveret. Kun Admins vil kunne få adgang til systemet.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Denne URL-adresse er i base for din osTicket installation. Det bruges i Email kommunikation til at linke slut brugere tilbage til din helpdesk.
+helpdesk_name_title:
+  title: Helpdesk navn/titel
+  content: >
+    Dette er den titel, der vises i gennemse tab. Hvis din helpdesk side er et bogmærke, vil dette være titel/navn på webstedet.
+default_department:
+  title: Standard afdeling
+  content: >
+    Vælg en standard <span class="doc-desc-title"> afdeling</span> for bestilling, der ikke er automatisk dirigeres til en afdeling. <br/> <br/> Bestillingen kan være distribueret base på hjælpeemnet, indgående e-mail og billet filterindstillinger.
+default_schedule:
+  title: Standard tidsplan
+  content: >
+    Vælg en standard tidsplan der skal benyttes af SLA når sager er forfaldne.
+  links:
+    - 
+      title: Administrer tidsplaner
+      href: /scp/schedules.php
+default_page_size:
+  title: Standard sidestørrelse
+  content: >
+    Vælg antallet poster pr. side i den bestilling køer i panelet personale. Hver Agent kan også tilpasse dette nummer for egen regning under <span class="doc-desc-title"> Mine indstillinger</span>.
+default_log_level:
+  title: Standard logføringsniveau
+  content: >
+    Bestem minimum af spørgsmål, som vil blive registreret i <span class="doc-desc-title"> systemloggen</span>. <span class="doc-desc-opt"> Debug</span> repræsenterer mindst sværhedsgraden, og <span class="doc-desc-opt"> fejl</span> repræsenterer den største alvor. For eksempel, hvis du vil se alle emner i <span class="doc-desc-title"> Systemets logfiler</span>, vælg <span class="doc-desc-opt"> Debug</span>.
+purge_logs:
+  title: Rens Logs
+  content: >
+    Bestem, hvor længe du ønsker at holde <span class="doc-desc-title"> Systemets logfiler</span>, før de slettes.
+enable_richtext:
+  title: Aktiver Rtf
+  content: >
+    Hvis aktiveret, vil dette tillade brug af RTF-formatering mellem kunder og agenter.
+enable_avatars:
+  title: Aktiver portrætbilleder på tråden
+  content: >
+    Aktiver dette for at vise <span class="doc-desc-title">portrætbilleder</span> på tråd korrespondance. <br><br> <span class="doc-desc-title">Portrætbillede kilden</span> kan blive indstillet i Agenter og Brugere indstillinger.
+  links:
+    - 
+      title: Agent indstillinger
+      href: /scp/settings.php?t=agents
+    - 
+      title: Bruger indstillinger
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Medarbejder Kollision undgåelse
+  content: >
+    Indtast den maksimale tid en agent kan holde en sag eller opgave låst, uden nogen aktivitet. <br><br> Indtast <span class="doc-desc-opt">0</span> for at deaktivere låse funktionen.
+allow_iframes:
+  title: Tillad iFrames
+  content: >
+    Indtast en kommasepareret liste over domæner, hvor systemet kan vises i en ramme. hvis dette er tomt, sætter systemet standard værdien 'selv'. Dette acceptere domæne wildcards, HTTP/HTTPS URL skema, og port numre. <br><br> <b>Eksempel:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Indtast en kommasepareret liste over ip adresser der tillader adgang til systemet. Der er fire valg muligheder til at vælge hvilket panel(ler) der anvendes af ACL. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Anvend til</th> <th>Beskrivelse</th></tr> <tr><td>Deaktiveret</td> <td>Deaktiverer ACL helt.</td></tr> <tr><td>Alle</td> <td>Anvender ACL til alle paneler. (eks. Brugerportal, Personale panel, Admin panel)</td></tr> <tr><td>Brugerprotal.</td> <td>Anvender ACL til kun Brugerportalen.</td></tr><tr><td>Personale panel</td> <td>Anvender ACL til kun Personale panel og Admin panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Dato &amp; tid indstillinger
+  content: >
+    De følgende indstillinger definerer standard indstillingerne for dato &amp; tids indstillinger i kundeservice portalen. Du kan vælge at bruge de lokale standarder for den valgte lokalitet eller bruge tilpassede formater til at opfylde dine unikke behov. Der henvises til ICU formatstrenge som reference for tilpasning. De  viste datoer nedenfor illustrerer blot resultatet af deres tilsvarende værdier.
+  links:
+    - 
+      title: Se ICU Dato formateringstabellen
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: System sprog
+  content: >
+    Vælg et primært system sprog og eventuelt et sekundært sprog for at gøre din grænseflade bedre for dine agenter og brugere.
+primary_language:
+  title: Primært system sprog
+  content: >
+    Indholdet af dette sprog vises til agenter og brugere, hvis deres respektive præference sprog ikke er tilgængeligt i øjeblikket. Dette omfatter indholdet af grænsefladen, samt, brugerdefineret indhold såsom takke-sider og e-mails. <br/><br/> Dette er det sprog, som de uoversatte versioner af dit indhold skal skrives i.
+secondary_language:
+  title: Sekundære sprog
+  content: >
+    Vælg præference sprog indstillinger for dine agenter og brugere. Brugergrænsefladen vil være tilgængelig på disse sprog, og brugerdefinerede indhold, såsom takke-sider og navne på hjælp emner, vil blive oversat til disse sprog.
+#Attachments
+attachments:
+  title: Indstillinger for vedhæftninger og opbevaring
+  content: >
+    Konfigurer hvordan vedhæftede filer er gemt.
+default_storage_bk:
+  title: Fillagring Backend
+  content: >
+    Vælg hvordan vedhæftede filer er gemt. <br><br> Yderligere lagringenheder kan tilføjes ved at installere storage plugins
+max_file_size:
+  title: Maximum fil størrelse
+  content: >
+    Vælg en maksimal filstørrelse for vedhæftede filer uploadet af agenter. Dette omfatter standard vedhæftede filer, informations database, og vedhæftede filer til sags og opgave besvarelser. Den øvre grænse styres af PHP s <code> upload_max_filesize </code> indstilling.
+  links:
+    - 
+      title: PHP ini indstillinger
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Login Krævet
+  content: >
+    Aktivér denne indstilling for at forbyde visning af vedhæftede filer til uautoriserede brugere. Det vil sige, at brugerne skal logge ind på systemet (både slutbrugere og agenter) for at se vedhæftede filer. <br> <br> Fra et sikkerhedsmæssigt synspunkt skal du være opmærksom på, at brugerens browser kan beholde tidligere betragtede filer i sin cache. Desuden udløber alle filforbindelser på din helpdesk efter ca. 24 timer.

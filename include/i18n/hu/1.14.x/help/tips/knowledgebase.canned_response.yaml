@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Sablonválasz
+  content: >
+    Hozzon létre új <span class="doc-desc-title">Sablonválasz</span>t, mely a hibajegyre adott válaszban szerepel. Használható még, mint <span class="doc-desc-title">Hibajegy automatikus válasz</span>, melyet egy <span class="doc-desc-title">Hibajegy szűrő</span> használatával küldhet.
+  links:
+    - 
+      title: Hibajegy szűrő beállítása
+      href: /scp/filters.php
+canned_attachments:
+  title: Sablon csatolmányok
+  content: >
+    Csatoljon egy fájlt a hibajegyhez, mely automatikusan mellékelve lesz a <span class="doc-desc-title">Sablonválasz</span> létrehozásakor.

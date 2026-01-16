@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Equips
+  content: >
+    Equips són un o més Agents junts associats amb la finalitat de l'assignació de Tickets. Els membres de l'equip poden expandir-se a través dels límits del Departament.
+status:
+  title: Estat
+  content: >
+    Si  <span class="doc-desc-opt"> està deshabilitat</span>, aquest equip no estarà disponible per a assignacions de Tickets ni per a rebre alertes &amp; avisos en les assignacions anteriors.
+lead:
+  title: Equip directiu
+  content: >
+    Un <span class="doc-desc-title"> equip</span> pot tenir un nomenat líder que pot rebre <span class="doc-desc-title"> alertes &amp; avisos</span> separats pels membres.
+  links:
+    - 
+      title: Configurar alertes &amp; Notificacions
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Alerta d'Assignació
+  content: >
+    Pot desactivar la <span class="doc-desc-title"> Alerta d'assignació de Ticket</span> per Tickets assignats a aquest equip.
+  links:
+    - 
+      title: Configurar alertes &amp; Notificacions
+      href: /scp/settings.php?t=alerts
+members:
+  title: Companys d'equip
+  content: >
+    Membres de l'equip es configuren mitjançant el perfil d'Agent.
+  links:
+    - 
+      title: Gestió de personal
+      href: /scp/staff.php

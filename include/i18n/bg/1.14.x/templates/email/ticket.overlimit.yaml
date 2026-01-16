@@ -1,0 +1,21 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Изпраща се до потребителите, когато те са надвишили максималното ограничение на отворени заявки.
+  Ограничението може да се конфигурира в администраторския панел и се определя от броя на заявки, отворени от определен адрес на ел. поща.
+subject: |
+  Достигнато е ограничението на броя отворени заявки
+body: |
+  <h3><strong>Уважаеми/ма %{ticket.name.first},</strong></h3>
+  Вие сте достигнали максималния позволен брой на отворени заявки. За да отворите
+  друга заявка, някоя от висящи заявки трябва да бъде приключена. За да
+  обновите или добавите коментар към отворена заявка, просто <a
+  href="%{url}/tickets.php?e=%{ticket.email}">влезте в нашата система за поддръжка</a>.
+  <br>
+  <br>
+  Благодарим Ви,<br/>
+  Система за поддръжка

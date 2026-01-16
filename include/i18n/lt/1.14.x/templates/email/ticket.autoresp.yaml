@@ -1,0 +1,23 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Siunčiama vartotojui kuomet sukuriama nauja užklausa
+subject: |
+  Pagalbos užklausa atidaryta [%{ticket.number}]
+body: |
+  <h3><strong>Gerbiamas%{recipient.name.first},</strong></h3><p>
+  Pagalbos užklausa buvo sukurta ir priskirta #%{ticket.number}
+  Pagalbos sistemos atstovas su jumis susisieks artimiausiu metu. Jūs galite<a href="%{recipient.ticket_link}">matyti šios užklausos progresą internete realiu laiku</a>.
+  </p><br><div style="color: rgb(127, 127, 127)">
+  Jūsų %{company.name}Komanda,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Jeigu
+  norite pateikti papldomus komentarus arba informaciją apie problemą,
+  prašome atsakyti į šį elektroninį laišką arba<a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >prisijunkite prie savo paskyros</span></a>
+  savo pilno pagalbos užklausų archyvo.</em></div>

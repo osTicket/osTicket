@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Име на системот за поддршка
+  content: |
+    <p>Име на системот за поддршка пр. [Company Name] поддршка</p>
+system_email:
+  title: Системска адреса за електронска пошта
+  content: |
+    <p>Основна емаил адреса пр. support@yourcompany.com - подоцна може да додадете повеќе адреси!</p>
+default_lang:
+  title: Основен јазик на системот
+  content: |
+    <p>Основните податоци за обраниот јазик ќе бидат инсталирани во базата. На пример емаил темплејтите и основните системски страници ќе бидат инсталирани за избраниот јазик.</p>
+  links:
+    - 
+      title: osTicket јазични пакети
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Име
+  content: |
+    <p>Име на администраторот</p>
+last_name:
+  title: Презиме
+  content: |
+    <p>Презиме на администраторот</p>
+email:
+  title: Емаил адреса
+  content: |
+    <p>Емаил адреса на администраторот. Мора да биде различна од основната адреса на системот.</p>
+username:
+  title: Корисничко име
+  content: |
+    <p>Корисничко име на администраторот. Мора да содржи најмалку три (3) карактери.</p>
+password:
+  title: Лозинка
+  content: |
+    <p>Лозинка на администраторот. Мора да биде пет (5) карактери или повеќе.</p>
+password2:
+  title: Потврди лозинка
+  content: |
+    <p>Повторно внесете ја лозинката на администраторот. Лозинките мора да бидат идентични.</p>
+db_prefix:
+  title: Префикс на MySQL табелите
+  content: |
+    <p>osTicket побарува префикс на табелите се со цел да спречи можни конфликити во споделени бази.</p>
+db_host:
+  title: MySQL име на хостот
+  content: |
+    <p>
+    Мора да се користи 'localhost' доколку базата се наоѓа на ист сервер како и веб серверот. Проверете ги подесувањата доколку 'localhost' вредноста не е исправна.
+    </p>
+    <p>
+    Основната порта поставена во php.ini се подразбира. Нестандардниот број на порта може да се постави во облик <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL база на податоци
+  content: |
+    <p>Име на базата што osTicket ќе ја користи.</p>
+db_user:
+  title: МySQL корисничко име
+  content: |
+    <p>MySQL корисникот мора да има целосни права за пристап над базата.</p>
+db_password:
+  title: MySQL лозинка
+  content: |
+    <p>MySQL лозинка која одговара на наведениот корисник.</p>

@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: 新咨询帮助主题
+  content: >
+    选择自动与通过此电子邮件地址创建的咨询相关联的<span class="doc-desc-title">帮助主题</span>。<br/><br/>与帮助主题相关联的表单将添加至咨询，但没有任何数据。
+  links:
+    - 
+      title: 管理帮助主题
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: 新咨询优先级
+  content: >
+    选择通过此电子邮件地址创建新咨询的<span class="doc-desc-title">优先级</span>。
+new_ticket_department:
+  title: 新咨询部门
+  content: >
+    选择通过此电子邮件地址创建新咨询，并将其发送至的<span class="doc-desc-title">部门</span>。
+  links:
+    - 
+      title: 管理部门
+      href: /scp/departments.php
+auto_response:
+  title: 新咨询自动回复
+  content: >
+    您可在通过此电子邮件地址创建新咨询时禁用发送至用户的自动回复。
+username:
+  title: 用户名
+  0: >
+
+password:
+  title: 密码
+  0: >
+
+login_information:
+  title: 电子邮件登录信息
+  content: >
+    从 IMAP / POP 邮箱中获取电子邮件以及通过 SMTP 发送电子邮件需要的<span class="doc-desc-title">用户名</span>和<span class="doc-desc-title">密码</span>。
+mail_account:
+  title: 正在获取电子邮件
+  content: >
+    从远程 IMAP 或 POP 邮件中获取电子邮件并将其转换至帮助中心中的咨询。
+  links:
+    - 
+      title: 管理<span class="doc-desc-title">电子邮件轮询</span> &amp; <span class="doc-desc-title">自动执行计划任务</span>设置。
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: 远程主机
+  content: >
+    输入邮件服务器的<span class="doc-desc-title">主机名称</span>和<span class="doc-desc-title">端口</span>号。上述内容可参见主机账户文档或询问电子邮件管理员。
+protocol:
+  title: 邮箱协议
+  content: >
+    选择由远程电子邮件服务器支持的邮箱协议。推荐使用 IMAP，如有可能，使用 SSL 的效果会更佳。
+fetch_frequency:
+  title: 获取频率
+  content: >
+    输入系统轮询邮箱的频率（以分钟为计量单位）。<br/><br/>这将定义用户发送电子邮件至此邮箱后接受自动回复的平均延迟。
+emails_per_fetch:
+  title: 每次获取电子邮件数
+  content: >
+    一次性输入处理的电子邮件数。
+fetched_emails:
+  title: 已获取电子邮件
+  content: >
+    确定已处理电子邮件的步骤：<br/><br/> <span class="doc-desc-opt"><b>移动至文件夹</b></span>：这可将电子邮件从收件箱备份至您指定的文件夹。如果文件夹不存在，系统将尝试自动创建。（<b>推荐</b>）<hr> <span class="doc-desc-opt"><b>删除邮件</b></span>：执行此操作将在处理后删除您收件箱中的电子邮件。<hr> <span class="doc-desc-opt"><b>不执行任何操作</b></span>：该操作可将电子邮件保留在您的收件箱中。系统将记录您的电子邮件消息 ID 并尝试不重新进行获取。但是，此选项可能导致重复创建咨询。（<em>不推荐</em>）
+smtp_settings:
+  title: SMTP 设置
+  content: >
+    可通过 SMTP 服务器发送从帮助中心发出的电子邮件。如有可能，推荐执行上述操作。同时，此操作将增加电子邮件发送几率并降低其被标记为垃圾邮件的几率。
+header_spoofing:
+  title: 允许标题欺骗
+  content: >
+    启用此功能，即可允许邮箱通过与上述<span class="doc-desc-title">电子邮件地址</span>设置给出的不同地址发送电子邮件。<br/><br/>从此邮箱别名发送电子邮件时通常使用此高级设置。
+

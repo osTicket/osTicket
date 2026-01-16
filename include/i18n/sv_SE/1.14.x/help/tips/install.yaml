@@ -1,0 +1,72 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Namn på Helpdesk
+  content: |
+    <p>Namn på ditt ärendehanteringssystem, t.ex. [Företagsnamn] Support</p>
+system_email:
+  title: Systemets standard mailadress
+  content: |
+    <p>Standard mailadress, t.ex. support@dittforetag.se. Du kan lägga till fler senare!</p>
+default_lang:
+  title: Systemets standardspråk
+  content: |
+    <p>Grunddata kommer att installeras i databasen. Som exempel kommer e-postmallar och standardsystemsidor att installeras för detta språk.</p>
+  links:
+    - 
+      title: osTicket Språkpaket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Förnamn
+  content: |
+    <p>Administratörens förnamn</p>
+last_name:
+  title: Efternamn
+  content: |
+    <p>Administratörens efternamn</p>
+email:
+  title: E-postadress
+  content: |
+    <p>Administratörens e-postadress. Får inte vara samma som systemets standard e-post.</p>
+username:
+  title: Användarnamn
+  content: |
+    <p>Administratörens användarnamn. Måste innehålla minst tre (3) tecken.</p>
+password:
+  title: Lösenord
+  content: |
+    <p>Administratörens lösenord.  Måste innehålla fem (5) tecken eller mer.</p>
+password2:
+  title: Bekräfta lösenord
+  content: |
+    <p>Bekräfta administratörens lösenord. Måste matcha.</p>
+db_prefix:
+  title: MySQL tabellprefix
+  content: |
+    <p>osTicket kräver tabellprefix för att undvika möjliga tabellkonflikter i en delad databas.</p>
+db_host:
+  title: MySQL värdnamn
+  content: |
+    <p>
+    De flesta värdar använder 'localhost' för lokala databaser. Kontrollera med din värd om localhost misslyckas.
+    </p> <p>
+    Standardporten förutsätts vara angiven i php.ini. Ett icke-standard portnummer kan anges som <code>databasvärd:port</code>
+    </p>
+db_schema:
+  title: MySQL-databas
+  content: |
+    <p>Namn på databas som osTicket skall använda.</p>
+db_user:
+  title: MySQL användarnamn
+  content: |
+    <p>MySQL-användaren måste ha fullständiga rättigheter till databasen.</p>
+db_password:
+  title: MySQL lösenord
+  content: |
+    <p>MySQL lösenord som är associerad med ovan användare.</p>

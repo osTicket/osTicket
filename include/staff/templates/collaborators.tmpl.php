@@ -31,14 +31,14 @@ if(($users=$thread->getCollaborators())) {?>
                                 <span class="faded"><em>%s</em></span>
                             </div>
                         </td>',
-                        $user->getId(),
-                        $user->getId(),
-                        $checked,
-                        $thread->getId(),
-                        $user->getId(),
-                        (($U = $user->getUser()) && ($A = $U->getAvatar()))
-                            ? $U->getAvatar()->getImageTag(24) : '',
-                        Format::htmlchars($user->getName()),
+                    $user->getId(),
+                    $user->getId(),
+                    $checked,
+                    $thread->getId(),
+                    $user->getId(),
+                    (($U = $user->getUser()) && ($A = $U->getAvatar()))
+                        ? $U->getAvatar()->getImageTag(24) : '',
+                    Format::htmlchars($user->getName()),
                         $user->getEmail());
 
             echo sprintf('<td width="10">

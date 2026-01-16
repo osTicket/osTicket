@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Tämä malli määrittelee sivun, joka näytetään asiakkaalle rekisteröitymisen päätteeksi. Mallin tulisi mainita, että järjestelmä lähettää vahvistussähköpostilinkin sekä mikä on rekisteröitymisen seuraava vaihe.
+name: "Tilin rekisteröinti"
+body: >
+  <div><strong>Kiitos tilin rekisteröimisestä.</strong><br/><br />Olemme lähettäneet sinulle sähköpostia antamaasi osoitteeseen. Ole hyvä ja seuraa saamaasi linkkiä vahvistaaksesi tilisi ja päästäksesi tiketteihisi.</div>

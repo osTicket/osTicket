@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Ticket Sharing
+  content: >
+    <p>Të shperndarit e biletës së Organizatës lejon anëtarët të hasin tek bileta e zotëruar nga anëtarët e tjerë të organizatës.</p><p class="info-banner"><i class="icon-info-sign"></i>Bashkëpunëtorët kanë hasje gjithmonë tek biletat</p>
+email_domain:
+  title: Email Domain
+  content: >
+    Përdoruesit mund të shtohen automatikisht tek kjo organizatë bazuar në domen(at) për postën-e. Për shembull, vendos <code>kompaniaime.com</code> për përdoruesit me adresë postë-e duke përfunduar në @kompaniaime.com
+

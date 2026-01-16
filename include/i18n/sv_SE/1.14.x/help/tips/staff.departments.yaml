@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Typ
+  content: >
+    Om avdelningstypen är Privat. så kommer inte avdelningssignaturen att vara tillgänglig vid svar. Inte heller kommer avdelningens tilldelningar att visas i klientportalen.
+dept_manager:
+  title: Avdelningschef
+  content: >
+    Du kan välja en handläggare som avdelningsansvarig för att mottaga Varningar &amp; Meddelanden för ärenden i avdelningarna.
+  0: Handläggare behöver inte vara medlemmar i avdelningen för att vara ansvarig för avdelningen

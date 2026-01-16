@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Podrazumvani skup šablona imejlova
+  content: >
+    Odaberite <span class="doc-desc-title">Skup šablona za poštu</span> korišćen za slanje <span class="doc-desc-title">Automatskih odgovora</span> i <span class="doc-desc-title">Upozorenja</span> za razne aktivnosti koje se mogu desiti tokom trajanja tiketa. <br><br> Odeljenjima mogu biti dodeljeni različiti skupovi šablona.
+  links:
+    - 
+      title: Uredi setove šablona za imejl poruke
+      href: /scp/templates.php
+default_system_email:
+  title: Podrazumevani odlazni imejl
+  content: >
+    Odaberite sa koje mejl adrese će es slati odlazne poruke. <br><br><span class="doc-desc-title">Odeljenje</span> može da podesi sopstvenu <span class="doc-desc-title">mejl adresu</span> koja će nadjačati ovde navedenu adresu.
+  links:
+    - 
+      title: Upravljanje imejl adresama
+      href: /scp/emails.php
+default_alert_email:
+  title: Podrazumevani imejl za upozorenja
+  content: >
+    Odaberite sa koje imejl adrese <span class="doc-desc-title"> će se agentima slati upozorenja i obaveštenja</span>.
+  links:
+    - 
+      title: Upravljanje imejl adresama
+      href: /scp/emails.php
+admins_email_address:
+  title: Imejl adresa admina
+  content: >
+    Unesite administratorovu imejl adresu na koju će se slati<span class="doc-desc-title">sistemske greške</span> i <span class="doc-desc-title"> Obaveštenje o novom tiketu</span> (ukoliko je omogućeno).
+  links:
+    - 
+      title: Upravljanje upozorenjima i obaveštenjima
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Preuzimanje elektronske pošte
+  content: >
+    Dozoliti IMAP/POP preuzimanje za konfigurisane i dozvoljene <span class="doc-desc-title">naloge elektronske pošte</span>.
+  links:
+    - 
+      title: Upravljaj poštanskim sandučetima
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Preuzmi elektronsku poštu koristeći Auto-cron
+  content: >
+    Omogućavanje periodičnog preuzimanja elektronske pošte upotrebom internog menadžera zadataka koga inicijalizuje aktivnost agenta. <br><br> Obratite pažnju da elektronska pošta neće biti povučena ukoliko se niko ne uloguje u kontrolni panel zaposlenih. Eksterni planer zadataka se preporučuje zbog predvidljivih intervala preuzimanja elektronske pošte.
+  links:
+    - 
+      title: Korišćenje spoljašnjeg planera zadataka
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Obriši citiran odgovor
+  content: >
+    Ako je omogućeno, ovo će ukloniti raniju prepisku između učesnika u prepisci. <br><br>Ova funkcionalnost je relaciono zavisna od <span class="doc-desc-title">Separatora za odgovore</span> ispod.
+reply_separator_tag:
+  title: Separator za odgovore
+  content: >
+    Ovaj znak daje do znanja korisniku da odgovori iznad linije. <br><br> <strong>Obaveštenje:</strong> ovo je bitno jedino ako je <span class="doc-desc-title"> Brisanje odgovora pod navodnicima</span> omogućeno iznad.
+emailed_tickets_priority:
+  title: Prioritet poslatih tiketa
+  content: >
+    Odaberite da li želite da određivanje prioriteta u korisnikovom mejl klijentu (npr Outlook-u) određuje novi prioritet tiketa. <br><br> Ovo podešavanje može biti nadjačano od strane <span class="doc-desc-title">Filtera tiketa</span>.
+  links:
+    - 
+      title: Kreiraj i upravljaj filterima tiketa
+      href: /scp/filters.php
+accept_all_emails:
+  title: Primi sve imejlove
+  content: >
+    Primi imejlove od nepoznatih korisnika. <br><br> Dečekiranje ove opcije ima kao posledicu to da se tiketi odbijaju.
+accept_email_collaborators:
+  title: Primi saradnike imejla
+  content: >
+    Dodaj adresu elektronske pošte učesnika u <code><strong>To</strong></code> i <code><strong>CC</strong></code> polja kao saradnika na tiketu. <br /><br /> <em>Saradnici se uvek mogu dodati ručno od strane agenta dok rade na tiketu.</em>
+default_mta:
+  title: Podrazumevani MTA
+  content: >
+    <span class="doc-desc-title">Default MTA</span> brine o procesu slanja odlazne elektronske pošte bez SMTP podešavanja.
+ticket_response_files:
+  title: Fajlovi odgovora tiketa
+  content: >
+    Ako je omogućeno, svi dokumenti zakačeni za tiket tokom odgovora će takođe biti prosleđeni i na korisnikov imejl.
+verify_email_addrs:
+  title: Potvrdi Email Adrese
+  content: >
+    Omogućite ovu opciju kako biste proverili da li email adresa ima razmenjivača adrese (MX) u DNS-u domena. Ovo je korisno kako bi se otkrile nepravilno ukucane email adrese. Ovo se izvodi uz dodatno proveravanje pravilno formiranih email adresa.

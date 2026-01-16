@@ -1,0 +1,24 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+notes: |
+  İstifadəçi sorğuya yeni mesaj göndərəndə istifadəçiyə göndərin. Bu, istifadəçi sistemdən gələn e-poçta cavab verirsə və ya sifarişçi veb portalını ziyarət edirsə və ora yeni mesaj yazırsa baş verir.
+subject: |
+  Mesaj təsdiqlənməsi
+body: |
+  <h3><strong>Əziz %{recipient.name.first},</strong></h3>
+  Sizin təklifi dəstəkləmənizə cavabınız ticket_link}"&gt;"><a<br>
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> qeydə alındı
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Sizin %{company.name} komanda,<br>
+  %{signature}
+  </div>
+  <hr>
+  center"&gt;"><div style="color: rgb(127, 127, 127); font-size: small; text-align:<br>
+  center"><em>Təklifin dəstəklənməsinə burada ticket _link}"&gt;"><a<br>
+  href="%{recipient.ticket_link}">online baxa bilərsiniz</a></em>
+  </div>

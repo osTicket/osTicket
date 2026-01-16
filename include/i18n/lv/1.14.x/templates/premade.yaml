@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Kas ir osTicket (paraugs)?
+  response: |
+    osTicker ir plaši lietota atvērtā koda problēmu pieteikumu sistēma, kas ir patīkama alternatīva lielizmaksu komplesām lietotājatbalsta sistēmām - vienkārša, viegla, uzticama, bezmaksas, web-orientēta un vienkārša gan uzstādīšanā, gan lietošanā.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Sagatavotie pielikumi - tas ir super!
+- 
+  isenabled: 1
+  title: Paraugs (ar mainīgajiem)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

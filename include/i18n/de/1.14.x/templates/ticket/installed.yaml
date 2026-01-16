@@ -1,0 +1,29 @@
+---
+#Welcome ticket template
+#When the system if first installed and the installer finishes setting up
+#the database, it creates a first ticket with a welcome message to the
+#administrator
+#---
+deptId: 1 #support
+topicId: 1 #support
+name: osTicket Support
+email: support@osticket.com
+source: Web #notrans
+subject: osTicket installiert!
+message: |
+  <p>
+  Vielen Dank, dass Sie sich für osTicket entschieden haben.
+  </p><p>
+  Bitte stellen Sie sicher, dass Sie den <a href="https://forum.osticket.com">osTicket Foren</a> beitreten und sich in unsere <a href="https://osticket.com">Mailingliste</a> eintragen, um stets über die neuesten Nachrichten, Sicherheitswarnungen und Updates informiert zu sein. Die osTicket-Foren sind auch ein Ort um Unterstützung, Anleitungen, Tipps und Hilfe von anderen Benutzern zu erhalten. Neben den Foren bietet das osTicket-Wiki eine nützliche Sammlung von Schulungsmaterialien, Dokumentationen und Hinweisen aus der Community. Wir freuen uns über Ihren Beitrag zur Gemeinschaft von osTicket.
+  </p><p>
+  Wenn Sie auf der Suche nach hochwertigerer Unterstützung sind, bieten wir professionelle Dienstleistungen und kommerziellen Support mit garantierten Reaktionszeiten und Zugang zum Kern-Entwickler-Team an. Wir können auch helfen osTicket anzupassen oder fügen neue Funktionen zum System nach Ihren speziellen Anforderungen hinzu.
+  </p><p>
+  Wenn die Verwaltung und Aktualisierung dieser osTicket-Installation für Sie zu aufwendig  ist, nutzen Sie osTicket als gehosteten Dienst auf <a href="https://www.supportsystem.com">https://www.supportsystem.com/</a> -- es ist keine Installation erforderlich und wir können Ihre Daten importieren! Mit "SupportSystem" erhalten sie eine fertige osTicket-Infrastruktur, so dass Sie sich auf Ihre Kunden konzentrieren können, mit der Sicherheit, dass die Anwendung stabil, gepflegt und sicher ist.
+  </p><p>
+  Bis dann,
+  </p><p>
+  -<br/>
+  Ihr osTicket Team https://osticket.com/
+  </p><p>
+  <strong>PS:</strong> Stellen Sie Kunden nicht nur zufrieden, stellen Sie zufriedene Kunden her!
+  </p>

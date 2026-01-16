@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Хүсэлтийн дугаарын формат
+  content: >
+    Энэ тохиргоогоор хүсэлтийн дугаарын форматыг тохируулна. Чагт тэмдэгийн оронд (`#`) тоонууд байрлана. Өөр бусад тоо, тэмдэгтүүд нь хэвээрээ байрлана. <span class="doc-desc-title">Тусламжийн сэдэв</span> нь тусгай формат өгөх боломжтой. <br/><br/> Жишээ нь, 6 оронтой тоо байх бол <code>######</code>.
+sequence_id:
+  title: Хүсэлтийн дугаарын дараалал
+  content: >
+    Шинэ хүсэлтийг дугаарлах дарааллыг тохируулна. Систем тоог дэс дараалуулан нэмэгдүүлэх, дурын тоогоор өөрчлөх сонголттой. Та хүссэн дарааллаа үүсгэх боломжтой. Нэмэлт дарааллуудыг тусламжийн сэдвийн <span class="doc-desc-title">Хүсэлтийн дугаарын формат</span> хэсэгт тохируулна.
+queue_bucket_counts:
+  title: Top-Level Ticket Counts
+  content: >
+    This setting is used to hide or show the ticket counts on Main-Level queues. Get back to the way things used to be.
+default_ticket_status:
+  title: Шинэ хүсэлтийн төлөв
+  content: >
+    Шинээр хүсэлт нэмэгдэхэд оноох төлөвийг тохируулна. Мөн тусламжийн сэдэв болон шүүлтүүрүүдээс тохируулах боломжтой.
+  links:
+    - 
+      title: Хүсэлтийн төлөвийг тохируулах
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: Үйлчилгээний стандарт
+  content: >
+    Шинээр үүсгэсэн хүсэлт нь хугацаа хэтэрсэн хүсэлт болох хүртлээ хэр удаан нээлттэй төлөвт байж болохыг зохицуулах Үйлчилгээний стандартыг сонго.
+  links:
+    - 
+      title: Нэмэлт SLA төлөвлөгөө үүсгэх
+      href: /scp/slas.php
+default_priority:
+  title: Стандарт зэрэглэл
+  content: >
+    Зэрэглэлийг нь автоматаар оноож өгөөгүй хүсэлтүүдийн стандарт <span class="doc-desc-title">зэрэглэл</span>-ийг сонгоно уу. <br/><br/> Зэрэглэлийг хүсэлтийн төрөл, хуваарилагдсан алба эсвэл хүсэлтийн шүүлтүүрээс хамааран оноож өгч болно.
+maximum_open_tickets:
+  title: Нээлттэй байх хүсэлтийн тоо
+  content: >
+    Хэрэглэгчид <strong>нээлттэй</strong> байж болох хамгийн их хүсэлтийн <em>тоог</em> тохируулна. <br><br> Хэрвээ <span class="doc-desc-opt">0 </span> гэж оруулбал хязгаар тавихгүй.
+email_ticket_priority:
+  title: Имэйл хүсэлтийн зэрэглэл
+  content: >
+    Мэйл илгээгчийн хаягаас хамаарч түвшин тогтоох
+show_related_tickets:
+  title: Хамааралтай хүсэлтүүдийг харуулах
+  content: >
+    Хэрэглэгч нэвтрэхэд хамааралтай бүх хүсэлтүүдийг харуулах эсэх - тохируулаагүй бол нэвтрэх бүрт зөвхөн нэг л хүсэлт уруу хандаж болно
+human_verification:
+  title: Гараар баталгаажуулах
+  content: >
+    Ирж буй хүсэлт нь хүний үйл хөдлөлийн үр дүн гэдгийг баталгаажуулахын тулд Хэрэглэгчийн портал дээр CAPTCHA ашиглах. <br><br> GDLib санг шаардана
+claim_tickets:
+  title: Хариу өгмөгц Хүсэлтийг өөрийн болгох
+  content: >
+    Enable this to auto-assign unassigned tickets to the responding Agent. <br><br> Reopened tickets are always assigned to the last respondent unless auto assign on reopen is disabled on the Department level.
+collaborator_ticket_visibility:
+  title: Collaborator Tickets Visibility
+  content: >
+    If Enabled, Users will have visibility to ALL Tickets they participate in when signing into the Web Portal. <br><br> If Disabled, Users will only be able to see their own Tickets when signing into the Web Portal.
+require_topic_to_close:
+  title: Require Help Topic to Close
+  content: >
+    If Enabled, a Ticket must have a Help Topic in order to be Closed by an Agent
+assigned_tickets:
+  title: Даалгасан хүсэлтүүд
+  content: >
+    Идэвхижүүлснээр <span class="doc-desc-title">Нээлттэй хүсэлтүүд</span> жагсаалтад хуваарилагдсан хүсэлтүүдийг харуулахгүй.
+answered_tickets:
+  title: Хариу өгсөн хүсэлтүүд
+  content: >
+    Идэвхижүүлснээр хариулсан хүсэлтүүд нь <span class="doc-desc-title">Хариулсан хүсэлтүүд</span> хэсэгт харагдана. Үгүй бол тэдгээр нь <span class="doc-desc-title">Нээлттэй хүсэлтүүд</span> хэсэгт харагдана.
+ticket_attachment_settings:
+  title: Хүсэлтэд хавсаргасан файл
+  content: >
+    <span class="doc-desc-title">Хүсэлтийн дэлгэрэнгүй</span> талбарт хавсаргах файлын тохиргоо. Энэ тохиргоо нь хүсэлт хүсэлт орж ирсэн суваг (вэб, имэйл, API г. м.) -аас үл хамааран, шинээр үүсэх бүх хүсэлтэд хамаатай.

@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Trang đích đề cập đến nội dung của cổng thông tin khách hàng xem đầu tiên. Khung mẫu dùng để chỉnh sửa nội dung phía trên trên hai liên kết <strong>Tạo một ticket</strong> và <strong>Kiểm tra trạng thái ticket</strong>.
+name: Landing
+body: >
+  <h1>Chào mừng đến với Trung tâm hỗ trợ</h1> <p>Để bạn có được sự hỗ trợ tốt nhất, chúng tôi sử dụng hệ thống  tạo ticket. Mỗi ticket có một mã số riêng để bạn có thể  theo dõi quá trình xử lý và phản hồi trực tuyến. Chúng tôi sẽ lưu trữ đầy đủ lịch sử  và tất cả các yêu cầu hỗ trợ của bạn. Bạn cần dùng địa chỉ email hợp lệ để gửi một ticket. </p>

@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Овај темплејт дефинира емаил испратен до клиентот кога креираат акаунт од клиентската страна, или кога Агентот го креира наместо нив. Овај емаил служи за верификација на емаил адреси. Моментално користите %{link}  негде внатре во body.
+name: "Добродојдовте во  %{company.name}"
+body: >
+  <h3><strong>Здраво %{recipient.name.first},</strong></h3> <div> Ние направивме профил за вас на нашето биро за помош на %{url}.<br /> <br /> Ве молиме притисните на линкот подолу за да го потврдиме вашиот профил и да добиете пристап тикетите.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Системот за поддршка на корисници <br /> %{company.name}</em> </div>

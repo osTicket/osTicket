@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: 사용자명
+  content: >
+    담당자의 <span class="doc-desc-title">사용자명</span>(<span class="doc-desc-title">헬프 데스크</span>에서 유일한)을 선택하세요.
+email_address:
+  title: 메일 주소
+  content: >
+    <span class="doc-desc-title">헬프 데스크</span>에서 <span class="doc-desc-title">경고 및 알림</span>을 받기 위한 담당자 메일 주소를 입력하세요.
+  0: <br><br>
+  1: 스태프는 사용자명 또는 이메일 주소를 사용하여 스태프 제어판에 로그인 할 수 있습니다.
+welcome_email:
+  title: 환영 이메일
+  content: >
+    새로 등록된 담당자가 자신의 패스워드를 설정할 수 있도록 계정에 대한 링크를 전송하세요. 이 확인란이 선택되지 않으면 암호를 설정한 후 새로 등록된 스태프에게 로그인 정보를 알려줘야 합니다.
+account_password:
+  title: 계정 패스워드
+  content: >
+    <span class="doc-desc-title">administrator</span>의 역할로, 담당자의 패스워드를 변경할 수 있습니다.
+forced_password_change:
+  title: 강제 패스워드 변경
+  content: >
+    다음 로그인시에 새로운 에이전트가 자신의 암호를 변경하도록 강제하려면 이를 활성화하세요.
+agents_signature:
+  title: 담당자 서명
+  content: >
+    티켓에 답변할 때 선택할 수 있는 담당자의 서명을 만드세요.
+account_status:
+  title: 계정 상태
+  content: >
+    담당자의 상태가 <span class="doc-desc-opt">잠금</span>인 경우 담당자는 헬프 데스크에 로그인 할 수 없습니다.
+assigned_group:
+  title: 할당된 그룹
+  content: >
+    담당자가 속한 <span class="doc-desc-title">그룹</span>은 <span class="doc-desc-title">헬프 데스크</span>에서 담당자가 어떤 권한을 갖는지를 결정합니다.
+  links:
+    - 
+      title: 그룹 관리
+      href: /scp/groups.php
+primary_department:
+  title: 주 부서
+  content: >
+    담당자가 속한 주<span class="doc-desc-title">부서</span> 와 유효한 <span class="doc-desc-title">역활</span>을 선택하십시오..
+  links:
+    - 
+      title: 부서 관리
+      href: /scp/departments.php
+primary_role:
+  title: 주 역할
+  content: >
+    담당자가 속한 주<span class="doc-desc-title">역활</span> 선택.
+primary_role_on_assign:
+  title: 할당에 주 역할 사용
+  content: >
+    담당자에게 <span class="doc-desc-title">주 부서</span> 및  <span class="doc-desc-title">확장 액세스</span>  부서 외부의 티켓 및 작업이 할당될 때 <span class="doc-desc-title">주 역활</span>로 이 옵션을 실행합니다. 그렇지 않으면 담당자는 보기만 할 수 있습니다.
+daylight_saving:
+  title: 서머 타임
+  content: >
+    해당 담당자의 시간대에 자동으로 서머 타임을 설정하려면 이 기능을 활성화하세요.
+limited_access:
+  title: 제한된 접속
+  content: >
+    활성화하면 담당자는 직접 또는 팀을 통해 할당된 티켓에만 접근할 수 있습니다.
+directory_listing:
+  title: 디렉토리 목록
+  content: >
+    <span class="doc-desc-title">스태프 디렉토리</span>에 이 담당자를 포함하려면 이를 활성화하세요.
+  links:
+    - 
+      title: 스태프 디렉토리로 이동
+      href: /scp/directory.php
+vacation_mode:
+  title: 휴가 모드
+  content: >
+    담당자의 상태를 <span class="doc-desc-opt">휴가 모드</span>로 변경하면 담당자는 <span class="doc-desc-title">경고 및 알림</span>을 받지 않고 티켓 할당을 받지 않게 됩니다.
+

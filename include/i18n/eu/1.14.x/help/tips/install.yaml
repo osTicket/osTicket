@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Helpdesk-aren izena
+  content: |
+    <p>Helpdesk-aren Izena, adibidez [Enpresaren Izena] Laguntza</p>
+system_email:
+  title: Sistemaren e-posta lehenetsia
+  content: |
+    <p>Lehenetsitako e-posta helbidea; adibidez laguntza@zurekonpainia.com - geroago gehiago erantxi daitezke!</p>
+default_lang:
+  title: Sistemaren hizkuntza lehenetsia
+  content: |
+    <p>Hizkuntza honen hasierako datuak instalatuko dira datu basean. Hizkuntza hau ere e-posta txantiloi eta sistemako orrietan konfiguratuko da.</p>
+  links:
+    - 
+      title: osTicket hizkuntza paketeak
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Izena
+  content: |
+    <p>Administrazailearen lehen izena</p>
+last_name:
+  title: Abizena
+  content: |
+    <p>Administratzailearen abizena</p>
+email:
+  title: Helbide Elektronikoa
+  content: |
+    <p>Administratzailearen e-posta pertsonala. Ezin da izan sistemako lehenetsitako e-postaren berdina</p>
+username:
+  title: Erabiltzailea
+  content: |
+    <p>Administratzailearen erabiltzailea. Hiru (3) karaktere gutxienez eduki behar ditu</p>
+password:
+  title: Pasahitza
+  content: |
+    <p>Administratzailearen pasahitza. Bost (5) karaktere edo gehiago eduki behar ditu.</p>
+password2:
+  title: Pasahitza errepikatu
+  content: |
+    <p>Administratzailearen pasahitza errepikatu</p>
+db_prefix:
+  title: MySQL-ko tablen hasiera
+  content: |
+    <p>Datu basean arazoak sahiesteko, tabla bakoitzari hasiera bat ipini behar zaio</p>
+db_host:
+  title: MySQL-ko Hostname-a
+  content: |
+    <p>
+    Zerbitzari gehienak 'localhost' erabiltzen dute datu basearen zerbitzari gisa. Zure zerbitzariarekin sahiatu 'localhost'-ekin arazoak badituzu.
+    </p>
+    <p>
+    php.ini fitxategian dagoen defektuzko portua konfiguratzen da. Estandar-a ez den portu bat <code>hostname:port</code> erabiliz konfiguratu daiteke.
+    </p>
+db_schema:
+  title: MySQL-ko datubasea
+  content: |
+    <p>osTicket erabiliko duen datubasearen izena</p>
+db_user:
+  title: MySQL-ko erabiltzailea
+  content: |
+    <p>MySQL-ko erabiltzailea baimen guztiak eduki behar ditu datubasean</p>
+db_password:
+  title: MySQL-ko pasahitza
+  content: |
+    <p>Goiko erabiltzailearen MySQL-ko pasahitza</p>

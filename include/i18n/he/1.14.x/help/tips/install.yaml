@@ -1,0 +1,68 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: שם מערך התמיכה
+  content: |
+    <p>שם של מערך התמיכה שלכם - למשל [שם החברה] תמיכה</p>
+system_email:
+  title: דוא"ל ברירת מחדל של המערכת
+  content: |
+    <p>דוא"ל שישמש כברירת מחדל למשל support@yourcompany.com - ניתן להוסיף יותר מאוחר!</p>
+default_lang:
+  title: שפת ברירת המחדל
+  content: |
+    <p>נתונים ראשוניים לשפה זו יוזנו לבסיס הנתונים, למשל תבניות דואר אלקטרוני ודפי ברירת מחדל של המערכת.</p>
+  links:
+    - 
+      title: ערכות שפה של osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: שם פרטי
+  content: |
+    <p>שם פרטי של המנהל</p>
+last_name:
+  title: שם משפחה
+  content: |
+    <p>שם המשפחה של המנהל</p>
+email:
+  title: כתובת דוא"ל
+  content: |
+    <p>כתובת הדוא"ל האישית של המנהל. חייבת להיות שונה המהווה ברירת מחדל דוא"ל של המערכת-</p>
+username:
+  title: שם משתמש
+  content: |
+    <p>שם משתמש של המנהל. חייב להיות לפחות שלוש (3) תווים.</p>
+password:
+  title: סיסמה
+  content: |
+    <p>הסיסמה של המנהל.  חייבת להכיל חמישה (5) תווים או יותר.</p>
+password2:
+  title: אימות סיסמה
+  content: |
+    <p>הקש מחדש את סיסמת האדמיניסטרטור. חייב להתאים.</p>
+db_prefix:
+  title: קידומת טבלה בMySql
+  content: |
+    <P>המערכת דורשת בקידומת כדי להימנע מהתנגשויות אפשריות בטבלה במסד נתונים משותף.</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>רוב המארחים השתמש "localhost" על שם מחשב מארח מקומי של מסד הנתונים. בדוק עם המנחה אם localhost נכשל. </p> <p>ההנחה היא יציאת ברירת המחדל להגדיר ב- php. ini. מספר יציאה סטנדרטי ניתן לציין את <code>hostname:port</code></p>
+db_schema:
+  title: מסד הנתונים MySQL
+  content: |
+    <p>שם מסד הנתונים שosTicket ישתמש בו.</p>
+db_user:
+  title: שם המשתמש MySQL
+  content: |
+    <p>למשתמש MySQL יש זכויות מלאות למסד הנתונים.</p>
+db_password:
+  title: סיסמה לMySql
+  content: |
+    סיסמת MySql המשויכת למשתמש מעלה

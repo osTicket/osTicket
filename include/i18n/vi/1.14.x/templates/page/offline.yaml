@@ -1,0 +1,10 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Trang offline sẽ được hiển thị trên cổng thông tin khách hàng khi khách hàng truy cập lúc bộ phận hỗ trợ offline.
+name: Offline
+body: |
+  <div><h1> <span style="font-size: medium">Hệ thống hỗ trợ offline</span></h1> <p>Cảm ơn bạn đã liên hệ với chúng tôi.</p> <p>Bộ phận hỗ trợ của chúng tôi tạm thời offline lúc này, xin vui lòng quay lại sau.</p> </div>

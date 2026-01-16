@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Käsittelijän nimen muotoilu
+  content: >
+    Valitse käsittelijöiden nimien muotoilu koko järjestelmässä. Sähköpostiviestipohjat käyttävät tätä muotoilua ellei muuta muotoilua ole määritelty.
+staff_identity_masking:
+  title: Henkilöstön tietojen piilotus
+  content: >
+    Jos tämä aktivoitu poistetaan Käsittelijän nimi kaikista Asiakaskommunikaatioista.
+#Authentication settings
+password_reset:
+  title: Salasanan vanhentumiskäytäntö
+  content: >
+    Määrittää kuinka usein (kuukausissa) Käsittelijöiden pitää uusia salasanansa. Jos tämä on poissa käytöstä (tilassa "Ei vanhene"), niin salasanat eivät vanhene.
+password_expiration_policy:
+  title: Salasanan vanhentumiskäytäntö
+  content: >
+    Määrittää kuinka usein Käsittelijöiden pitää uusia salasanansa. Jos poissa käytöstä (<span class="doc-desc-opt">Ei vanhentumista</span>) niin salasanat eivät vanhene.
+allow_password_resets:
+  title: Salli salasanan resetoinnit
+  content: >
+    Aktivoi tämä ominaisuus jos haluat näyttää <span class="doc-desc-title">Unohdin salasanani</span> linkin <span class="doc-desc-title">Henkilökunnan kirjautumisikkunassa</span> virheellisen kirjautumisyrityksen jälkeen.
+reset_token_expiration:
+  title: Salasanan Resetointi-ikkuna
+  content: >
+    Valitse kesto (minuuteissa) jonka aikaa <span class="doc-desc-title"> Salasanan resetointi viesti</span> on aktiivinen. Kun Käsittelijä pyytää <span class="doc-desc-title">Salasanan resetointia</span>, heille lähetetään sähköpostiviesti joka mahdollistaa resetoinnin.
+staff_session_timeout:
+  title: Käsittelijän istunnon aikakatkaisu
+  content: >
+    Valitse maksimi toimeton aika (minuuteissa) ennen kuin Käsittelijää vaaditaan kirjautumaan uudestaan. <br><br> Jos haluat poistaa <span class="doc-desc-title">Henkilökunnan istunnon aikakatkaisun</span>, aseta luvuksi 0.
+bind_staff_session_to_ip:
+  title: Sido käsittelijän istunto IP-osoitteeseen
+  content: >
+    Aktivoi tämä jos haluat Käsittelijän muistettavan heidän IP-osoitteen perusteella kirjautumisen yhteydessä. <br><br> Tämä asetus ei ole suositeltavaa käyttäjille joiden IP-osoitteet ovat dynaamisia.

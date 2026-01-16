@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  このテンプレートは、アカウントがクライアントポータルで作成されたかエージェントによって代理で作成されたときにクライアントに送信されるメールを定義します。このメールは、メールアドレス検証に使用されます。本文のどこかに %{link}を使用してください。
+name: "%{company.name}にようこそ"
+body: >
+  <h3><strong>%{recipient.name.first}様</strong></h3> <div> 貴社のヘルプデスク%{url}にお客様のアカウントを作成しました。<br /> <br /> 以下のリンクにアクセスして、アカウントを確認して、 チケットにアクセスしてください。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">カスタマーサポートシステム<br /> %{company.name}</em> </div>

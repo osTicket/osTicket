@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  當使用者發佈新訊時也會同步傳送訊息給發送者。此情形是因為使用者由系統或是客服網路管控發佈的回復信件。
+subject: |
+  訊息確認
+body: |
+  <h3><strong>親愛的 %{recipient.name.first},</strong></h3>
+  您的案件回覆 <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> 已在處理中
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  %{company.name} 團隊敬上,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>您可隨時線上查閱進度<a
+  href="%{recipient.ticket_link}">點我</a></em>
+  </div>

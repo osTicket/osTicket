@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Skupine
+  content: >
+    Skupine se uporabljajo za nastavitev pravic agentov v Helpdesku. Preko skupine lahko agent dobi pravice v oddelku, ki ni njegov primaren.
+status:
+  title: Status
+  content: >
+    Če <span class="doc-desc-opt">je onemogočen</span>, se agenti v tej skupini ne morejo prjavit in ne bodo prejeli oddelčnih alarmov &amp; obvestil.
+department_access:
+  title: Dostop Oddelka
+  content: >
+    Preveri vse oddelke do katerih imajo dostop člani skupine.

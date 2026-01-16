@@ -1,0 +1,41 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Nastavení báze znalostí
+  0: >
+
+knowledge_base_status:
+  title: Stav báze znalostí
+  content: >
+    Tato volba umožní vašim zákazníkům samoobslužný přístup k článkům vaší veřejné báze znalostí.
+    <br><br> Kategorie báze znalostí a častých dotazů mohou označeny jako interní (viditelné pouze pro pracovníky).
+  links:
+    - 
+      title: Správa báze znalostí
+      href: /scp/kb.php
+restrict_kb:
+  title: Omezení přístupu do databáze znalostí
+  content: >
+    Znemožní neregistrovaným uživatelům přistupovat do báze znalostí na zákaznickém portále.
+  links:
+    - 
+      title: Nastavení přístupových práv
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Předpřipravené odpovědi
+  content: >
+    Tato volba umožní pracovníkům použití <span class="doc-desc-title">předpřipravených odpovědí</span> při odpovídání na požadavky.
+  links:
+    - 
+      title: Správa předpřipravených odpovědí
+      href: /scp/canned.php

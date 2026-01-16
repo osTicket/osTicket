@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Tato šablona definuje e-mail odeslaný uživateli, který klikl na odkaz <strong>Obnova zapomenutého hesla</strong> na stránce přihlášení uživatele.
+name: "Přístup k systému zákaznické podpory společnosti %{company.name}"
+body: >
+  <h3><strong>Vážený/á %{user.name.first},</strong></h3> <div> byl zadán požadavek na obnovu vašeho hesla pro přístup do <a href="%{url}">systému zákaznické podpory</a> %{company.name}<br /> <br /> Pokud jste požadavek nezadal vy, případně jeden z našich pracovníků, prosíme, smažte tento e-mail a neberte jej na vědomí. Váš účet je stále zabezpečen, nikdo k němu nezískal přístup, není zablokován a vašeho heslo nebylo změněno. Někdo asi omylem zadal vaši e-mailovou adresu.<br /> <br /> Pro změnu vašeho hesla prosím klikněte na níže zobrazený odkaz do systému zákaznické podpory.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Zákaznická podpora <br /> %{company.name}</em> </div>

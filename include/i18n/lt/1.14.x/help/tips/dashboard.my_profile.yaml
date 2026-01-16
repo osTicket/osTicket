@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktai
+  0: >
+
+username:
+  title: Vartotojo vardas
+  content: >
+    Tik tie Agentai, kurie turi Administratoriaus statusą gali pakeisti naudotojo vardą. Jeigu jūs esate Agentas su administrtatoriaus pivilegijomis, galite tai įvykdyti, pasirinkdami Agentą , kurio vardą norite pakeisti iš <span class="doc-desc-title">Personalo narių</span> lentelės.
+  links:
+    - 
+      title: Pakeisti vardą Administratoriaus teisėmis
+      href: /scp/staff.php
+time_zone:
+  title: Laiko juosta
+  0: >
+
+daylight_saving:
+  title: Vasaros laikas
+  0: >
+
+maximum_page_size:
+  title: Maksimalus puslapio dydis
+  0: >
+
+auto_refresh_rate:
+  title: Automatinio atnaujinimo dažnis
+  0: >
+
+default_signature:
+  title: Numatytasis parašas
+  0: >
+
+default_paper_size:
+  title: Numatytasis lapo dydis
+  0: >
+
+show_assigned_tickets:
+  title: Rodyti priskirtas užklausas
+  content: >
+    <p>Leidžiant šią parinktį, bus nepaisoma globalaus nustatymo slėpti priskirtus bilietus nuo atvirų eilių.</p><p class="info-banner"><i class="icon-info-sign"></i> Ši parinktis galima tik kai priskiriami bilietai yra atmetami globaliai.</p>
+password:
+  title: Slaptažodis
+  0: >
+
+current_password:
+  title: Dabartinis slaptažodis
+  0: >
+
+new_password:
+  title: Naujas slaptažodis
+  0: >
+
+confirm_new_password:
+  title: Pakartokite naują slaptažodį
+  0: >
+
+signature:
+  title: Parašas
+  content: >
+    Sukurti papildomą  <span class="doc-desc-title">Parašą</span>, kuris galbūt rodomas jūsų atsakymo į užklausą pabaigoje. Ar šis  <span class="doc-desc-title">Parašas</span> rodomas priklauso nuo <span class="doc-desc-title">Elektroninio laiško ruošinio</span>, kuris bus naudojamas, atsakant į užklausą.
+  links:
+    - 
+      title: Sukurti Elektroninių laiškų  ruošinius administratoriaus valdymo meniu
+      href: /scp/templates.php

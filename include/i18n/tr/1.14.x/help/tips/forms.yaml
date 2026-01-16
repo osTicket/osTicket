@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Form Başlığı
+  content: >
+    Bu başlık metni form alanları üzerinde gri bir kutu şeklinde gösterilir
+form_instructions:
+  title: Form Talimatları
+  content: >
+    Kullanıcıların gerekli olan verileri ve form alanlarını girebilmesi için ekstra talimatlar ve yardım dökümanları ekleyebilirsiniz.
+field_sort:
+  title: Alan Görüntüleme Konumu
+  content: >
+    İmleç aşağı - yukarı ok işareti olduğunda sütunu sürükleyerek sıralayınız. Sıralama kaydedinceye kadar etkili olmayacaktır.
+field_label:
+  title: Alan Etiketi
+  content: >
+    Bu etiket bu alan için giriş olarak gösterilir. Tipik olarak bir kısa cevap bunun gibi gösterilecektir: <br><strong>Etiket:</strong>&nbsp;<input type="text">
+field_type:
+  title: Alan İçerik Türü
+  content: >
+    Bu kullanıcıdan gelmesi umulan bir giriş tipini tanımlamak için kullanılır. Kısa ve uzun cevap, telefon numarası, tarih ve zaman, kontrol kutusu, açılır liste veya özel bir seçim listesinden seçebilirsiniz.
+  links:
+    - 
+      title: Özel Listeler
+      href: /scp/lists.php
+field_visibility:
+  title: Alan Görünürlüğü
+  content: >
+    Bu alan için görüntüleme ve gereklilik seçeneklerini seçiniz. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Ayar</th> <th>Sonuç</th></tr> <tr><td>Opsiyonel</td> <td>Son kullanıcılar ve personel bu alanı görebilir fakat cevaplaması gerekmez.</td></tr> <tr><td>Gerekli</td> <td>Son kullanıcılar ve personel bu alanı görür ve cevap vermeleri gerekir.</td></tr> <tr><td>Son Kullanıcılar İçin Gerekli</td> <td>Bu alanı son kullanıcılar ve personel görebilir fakat sadece son kullanıcılar cevap vermek zorundadır.</td></tr> <tr><td>Personel İçin Gerekli</td> <td>Personel ve son kullanıcılar bu alanı görebilir fakat sadece personelin cevaplanması zorunludur.</td></tr> <tr><td>Dahili,Opsiyonel</td> <td>Sadece personel bu alanı görebilir ve cevaplanması zorunlu değildir.</td></tr> <tr><td>Dahili, Gerekli</td> <td>Sadece personel bu alanı görebilir ve cevaplanması zorunludur.</td></tr> <tr><td>Sadece son kullanıcı</td> <td>Sadece son kullanıcılar bunu görebilir ve cevaplanması zorunludur.</td></tr> </tbody></table>
+field_variable:
+  title: Alan Otomasyonu
+  content: >
+    E-mail ve sayfa şablonlarında kullanılacak olan alan bilgisi bu sütundaki isimle yer alacaktır. Mesela genel kayıt formundaki alanlar <code>%{ticket.variable}</code> şeklinde yer alır.<strong>variable</strong> bu sütunda tanımlanmış isimdir.<br> <br> <em>Kurum bilgisi <code>%{</code><code>company.variable}</code> şeklinde ve kullanıcı bilgisi de <code>%{ticket.user.variable}</code> şeklinde olacaktır.</em>
+field_delete:
+  title: Bu alanı kaldır
+  content: >
+    Bu formdan bir alanı kaldırmak için formu kontrol edip kaydedin. <br> <br> <em>Bir alanı silmek formlarda o alan için daha önce girilmiş verileri silmez. Örneğin, daha önce oluşturulmuş bir kayıt o alanın verisini içeriyorsa, alanı bu formdan silmek kayıt içindeki veriyi silmeyecektir.</em>

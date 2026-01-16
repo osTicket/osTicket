@@ -1,0 +1,29 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Sent to agents when a task is assigned to them or the team to which
+  they belong. Use %{assigner} to distinguish who made the assignment.
+subject: |
+  Se t'ha assignat una tasca
+body: |
+  <h3><strong>Hola%{assignee.name.first},</strong></h3>
+  %{assigner.name.short} t'ha assignat la tasca<a href="%{task.staff_link}">#%{task.number}</a>
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Per veure/respondre a la tasca, si us plau <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >accedeix</span></a> al sistema</div>
+  <em style="font-size: small; ">Amablement, el teu servei d'atenció a l'usuari</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
+   
+  Context | Request Context

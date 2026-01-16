@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Редослед на извршување
+  content: >
+    Внесете број кој го контролира приоритетот на филтерот. Колку е помал бројот, толку повисок е приоритетот на овој филтер во однос на другите филтри кои имаат поголем број. <br><br> ако сакате овој филтер да биде последниот кој се применува како пронајден на бараниот поим, овозможете <span class="doc-desc-title">Запрете процесирање кога ќе се најде бараниот поим</span>.
+target_channel:
+  title: Канал
+  content: >
+    Изберете го каналот <span class="doc-desc-title">Kaнал</span> за вашиот <span class="doc-desc-title">тикет филтер</span>. <span class="doc-desc-title">Канал</span> е изворот од кој тикетот стигнал во системот. <br><br> на пример, ако изберете <span class="doc-desc-opt"> Веб форми</span>, вие кажувате дека сакате да го примените <span class="doc-desc-title">тикет филтер</span> на тие тикети кои потекнуваат од веб формата на порталот на клиентот.
+rules_matching_criteria:
+  title: Правила кои се совпаѓаат со критериумите
+  content: >
+    Изберете толеранција во резултатите за пребарување на вашите <span class="doc-desc-title">тикет филтер</span>. Доколку сакате <span class="doc-desc-title"> тикет филтер </span> да пронајде било кое од зададените правила, и потоа да запре, изберете<span class="doc-desc-opt">Пронајди било кој</span>. Ако сакате да ги пронајдете <em><strong>сите правила</strong></em> од<span class="doc-desc-title">тикет филтер</span> , изберете <span class="doc-desc-opt">Пронајди ги сите</span>.
+reject_ticket:
+  title: Одбивање тикет
+  content: >
+    Ако ова е овозможено, останатите процесирања се запрени и сите други избори на акции ќе бидат игнорирани во случај на совпаѓање.
+reply_to_email:
+  title: Одговор на Email
+  content: >
+    Овозможете го ова ако сакате вашата техничка поддршка да ги почитува корисничките Еmail апликации<span class="doc-desc-title">Одговори на</span> наслов. Ова поле е релевантно ако <span class="doc-desc-title">Канал</span> вклучува <span class="doc-desc-opt">Еmail</span>.
+ticket_auto_response:
+  title: Оневозможување автоматски одговор на тикет
+  content: >
+    <em>Забелешка: Ова ќе го надмине секој<span class="doc-desc-title">Оддел</span>или<span class="doc-desc-title">Подесувања на автоматски одговор</span>.</em>
+canned_response:
+  title: Спремен автоматски одговор
+  content: >
+    Изберете <span class="doc-desc-title">Спремен одговор</span> ако сакате да биде испратен email на корисникот на <span class="doc-desc-title">Тикет филтер</span>совпаѓање. <span class="doc-desc-title">Автоматски одговор на нов тикет</span> користениот предлог зависи од <span class="doc-desc-title">Постави template</span> кој е наведен како основен или како совпаѓање за одреден тикет<span class="doc-desc-title">Оддел</span>.
+  links:
+    - 
+      title: Управување спремни одговори
+      href: /scp/canned.php
+    - 
+      title: Управување со множествата на шаблони
+      href: /scp/templates.php
+    - 
+      title: Шаблон за автоматски одговор на нов тикет
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Оддел
+  content: >
+    Изберете <span class="doc-desc-title">Оддел</span> кој сакате да го доделите на <span class="doc-desc-title">Тикет филтер</span>.
+  links:
+    - 
+      title: Управување на оддели
+      href: /scp/departments.php
+priority:
+  title: Приоритет
+  content: >
+    Изберете ниво на <span class="doc-desc-title">Приоритет</span> кое сакате да биде применето на совпаѓањата на <span class="doc-desc-title">Тикет филтер</span>.<br /><br /><em>Забелешка: Ова ќе ги надмине поставувањата за <span class="doc-desc-title">Оддел</span> или <span class="doc-desc-title">Тема за помош</span></em>.
+sla_plan:
+  title: SLA План
+  content: >
+    Изберете го <span class="doc-desc-title">SLA План</span> кој сакате да го доделите на <span class="doc-desc-title">Тикет филтер</span>.
+  links:
+    - 
+      title: Управување со SLA планови
+      href: /scp/slas.php
+auto_assign:
+  title: Автоматско доделување
+  content: >
+    Изберете Агент или Тим за кој сакате да ги доделите совпаѓањата од <span class="doc-desc-title">Тикет филтер</span>.
+  links:
+    - 
+      title: Управување со агенти
+      href: /scp/staff.php
+    - 
+      title: Управување со тимови
+      href: /scp/teams.php
+help_topic:
+  title: Помош со тема
+  content: >
+    Изберете<span class="doc-desc-title">Тема за помош</span>која сакате да ја примените на <span class="doc-desc-title">тикет филтер</span>.
+  links:
+    - 
+      title: Управување на помошните теми
+      href: /scp/helptopics.php
+admin_notes:
+  title: Забелешки на администратор
+  content: >
+    Овие забелешки се единствено видливи за оние чиј тип на акаунт е<span class="doc-desc-title">Admin</span>.

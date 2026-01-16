@@ -1,0 +1,48 @@
+---
+#Email template: message.alert.yaml
+#Sent to staff members when a new message is posted by a user to a ticket.
+#This can occur if the users responds to an email from the system or visits
+#the customer web portal and posts a new message there.
+#---
+notes: |
+  Enviada aos membros do staff quando uma nova mensagem é enviada por um utilizador para um ticket.  Isso pode ocorrer se os utilizadores responderem a um e-mail do sistema ou visitarem o portal do cliente e enviarem uma nova mensagem de lá.
+subject: |
+  Alerta de nova mensagem
+body: |
+  <h3><strong>Olá %{recipient.name},</strong></h3>
+  Nova mensagem anexada ao bilhete <a
+  href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>De</strong>:
+      </td>
+      <td>
+           %{poster.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Departamento</strong>:
+      </td>
+      <td>
+           %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Para ver ou responder ao ticket, por favor <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> no sistema de tickets de suporte</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Seu amigo
+  Sistema de Apoio ao Cliente</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

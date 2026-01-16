@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Alertes et avis
+  content: >
+    Les alertes et avis sont des notifications envoyées par courriel automatiquement aux collaborateurs quand divers événements se produisent sur leurs billets.
+ticket_alert:
+  title: 'Alerte : Nouveau ticket'
+  content: >
+    <p>Alerte envoyée aux collaborateurs lors de la création d'un nouveau ticket.</p><p class="info-banner"> <i class="icon-info-sign"></i> cette alerte n'est pas envoyée si le ticket est assigné automatiquement via un filtre de ticket ou la rubrique d'aide.</p>
+  links:
+    - 
+      title: Modèle par défaut de notification de nouveau billet
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Alerte de Nouveau Message
+  content: >
+    Alerte envoyée aux Agents lorsqu'un nouveau message de l'utilisateur est ajouté à un ticket existant.
+  links:
+    - 
+      title: Modèle par défaut de notification de nouveau message
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Alerte d'une nouvelle activité interne
+  content: >
+    Alertes envoyées aux agents lorsqu'une activité interne comme une note interne ou la réponse d'un agent est ajoutée à un ticket.
+  links:
+    - 
+      title: Modèle par défaut d'activité du billet
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Alerte d'assignation d'un ticket
+  content: >
+    Alerte envoyée aux agents sur l'assignation d'un ticket.
+  links:
+    - 
+      title: Modèle par défaut de notification d'assignation de ticket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Notification de transfert
+  content: >
+    Alerte envoyée aux Agents sur le transfert de ticket entre services.
+  links:
+    - 
+      title: Modèle par défaut de notification de transfert de ticket
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Alerte ticket en retard
+  content: >
+    Alerte envoyée aux Agents lorsqu'un ticket sera en retard par rapport au SLA à la date d'échéance.
+  links:
+    - 
+      title: Modèle par défaut de notification des tickets obsolètes
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Gérer les SLA
+      href: /scp/slas.php
+system_alerts:
+  title: Alertes système
+  content: >
+    Événements système significatifs qui sont envoyés à l'administrateur (%{config.admin_email}). D'après le <span class="doc-desc-title"> Niveau de journalisation</span> configuré, les événements sont également mis à disposition dans les <span class="doc-desc-title"> Journaux système</span>
+  links:
+    - 
+      title: Afficher les journaux système
+      href: /scp/logs.php
+    - 
+      title: Changer le courriel de l'administrateur
+      href: /scp/settings.php?t=emails

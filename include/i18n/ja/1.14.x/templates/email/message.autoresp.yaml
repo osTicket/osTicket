@@ -1,0 +1,26 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  チケットに対してユーザーが新規投稿を行った場合スタッフメンバーに送信されます。
+  ユーザーがシステム上受信したメールに返信、もしくはweb画面へアクセスしそこで新規投稿を行った場合に送信されます。
+subject: |
+  確認メッセージ
+body: |
+  <h3><strong>%{recipient.name.first}　様</strong></h3>
+  サポートを円滑に行うために返信をお願いします。 <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+   %{company.name} チーム,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>あなたはサポートの進捗状況を確認することが出来ます。 <a
+  href="%{recipient.ticket_link}">online here</a></em>
+  </div>

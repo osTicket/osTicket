@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: פרטי חברה
+  content: >
+    זה מתייחס לחברה או לארגון אשר ישתמשו במערכת הקריאות של osTickets ובצוות התמיכה שלה. כאשר הצוות המטפל יענה לקריאות השירות המידע שנמצא כאן יופיע בחתימת המייל שלהם (החתימה שנמצאת בתחתית המייל).
+  links:
+    - 
+      title: טופס פרטי החברה
+      href: /scp/forms.php?type=C
+landing_page:
+  title: דף נחיתה
+  content: >
+    The <span class="doc-desc-title">דף הנחיתה</span> יוצג בעמוד הבית של אתר התמיכה שלך.
+offline_page:
+  title: דף לא מקוון
+  content: >
+    <span class="doc-desc-title">דף לא מקוון</span>יוצג כאשר הצוות המטפל לא יהיה במחובר , ראה הגדרות מנהל מערכת -&gt; הגדרות -&gt; מערכת -&gt; סטטאטוס צוות התמיכה.
+default_thank_you_page:
+  title: עמוד "תודה לך" ברירת מחדל
+  content: >
+    עמוד "תודה לך" יוצג ללקוח כאשר יפתח קריאת שירות חדשה.
+    דפי "תודה לך" יכולים להיות קשורים בדפי התמיכה.
+logos:
+  title: לוגואים
+  content: >
+    אתה יכול לשנות את  <span class="doc-desc-title">הלוגו</span> שיוצג ללקוח באתר התמיכה שלך.)
+upload_a_new_logo:
+  title: העלאת לוגו חדש
+  content: >
+    אנא בחר קובץ בפורמט (gif jpg או png). אנחנו נתאים את גודל התמונה לאתר באופן אוטומטי, שים לב משקל התמונה לא ישתנה, על מנת שהאתר יעלה האופן מהיר יותר ממומלץ לשמור את התמונה בגודל של (170*817).
+backdrops:
+  title: תפאורות
+  content: >
+    אתה יכול להתאים את<span class="doc-desc-title">תפאורה</span> t מה יוצג בדף כניסת צוות.
+upload_a_new_backdrop:
+  title: העלה תפאורה חדשה
+  content: >
+    בחר תמונה של .gif, .jpg או .png פורמטים. אנו באופן יחסי לשנות את גודל התצוגה של התמונה שלך. אנו לא, עם זאת, לשנות את גודל הנתונים של התמונה. לכן, כדי זמני טעינה מהירה, מומלץ כי אתה שומר את התמונה שלך קטן יחסית (מתחת מגה). שימו לב גם כי הגדרות העלאת מקסימום PHP לחול.

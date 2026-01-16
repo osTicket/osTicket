@@ -1,0 +1,25 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Powiadomienia wysyłane do współuczestników przy zdarzeniach dotyczących zgłoszenia, np. odpowiedź lub wiadomość.
+subject: |
+  ODP: %{ticket.subject}
+body: |
+  <h3><strong>Szanowny(a) %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> właśnie dodano informację do zgłoszenia, w którym uczestniczysz.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Otrzymujesz tę wiadomość ponieważ współuczestniczysz w zgłoszeniu
+  <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Aby uczestniczyć, odpowiedz na tego maila
+  lub <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >kliknij tutaj</a> dla pełnego dostępu do archiwum i wątku zgłoszenia.</em>
+  </div>

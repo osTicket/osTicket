@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Namensformatierung für Benutzer
+  content: >
+    Wählen Sie eine Namensformatierung für Benutzer, welche für das ganze System gilt. Diese wird in E-Mail-Vorlagen für die Namen verwendet, falls kein anderes Format festgelegt wurde.
+#Authentication settings
+client_session_timeout:
+  title: Inaktivitätslimit für Benutzer
+  content: >
+    Geben Sie die maximale Inaktivitätsdauer (in Minuten) an, bevor ein Benutzer automatisch abgemeldet wird. <br><br>Wenn Sie Funktion <span class="doc-desc-title">Inaktivitätslimit für Benutzer</span> deaktivieren möchten, geben Sie "0" ein.
+registration_method:
+  title: Registrierungsoptionen
+  content: >
+    <span class="doc-desc-title">Registrierungsmethode</span> und <span class="doc-desc-title">Registrierung erforderlich</span> werden gemeinsam verwendet, um zu konfigurieren wie Benutzer sich registrieren und Zugriff auf das Benutzerportals Ihres Helpdesk bekommen. Die folgende Tabelle fasst zusammen, wie die beiden Einstellungen vom System interpretiert werden. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" > <tbody style="vertical-align:top;"><tr><th>Registrierung erforderlich</th> <th>Registrierungsmethode</th> <th>Ergebnis</th></tr> <tr><td>Nein</td> <td>Öffentlich</td> <td>Aufforderung zur Registrierung, aber nicht für neue Tickets erforderlich.</td></tr> <tr><td>Ja</td> <td>Öffentlich</td> <td>Registrierung und Anmeldung werden für neue Tickets benötigt</td></tr> <tr><td>Nein</td> <td>Privat</td> <td>Jeder kann ein Ticket erstellen, aber nur Agenten können Konten registrieren</td></tr> <tr><td>Ja</td> <td>Privat</td> <td>Benutzerzugang ist nur auf Einladung möglich</td></tr> <tr><td>Nein</td> <td>Deaktiviert</td> <td>Niemand kann ein Konto registrieren, aber jeder kann ein Ticket erstellen. <em>So funktionierte osTicket vor Version 1.9</em></td></tr> <tr><td>Ja</td> <td>Deaktiviert</td> <td>Neue Tickets über das Benutzerportal deaktivieren</td></tr></tbody></table>
+client_verify_email:
+  title: E-Mail-Überprüfung ist erforderlich
+  content: >
+    Deaktivieren Sie diese Option, um Ihren Benutzern direkten Zugang zu Tickets über die "Ticket-Status überprüfen"-Anmeldeseite im Benutzerportal zu geben. Wenn aktiviert (das ist die Standardeinstellung), ist es notwendig, dass die Benutzer eine E-Mail mit einem Zugangslink erhalten, über den sie das Ticket einsehen können. <br><br>Das Deaktivieren der E-Mail-Überprüfung könnte es Dritten ermöglichen (z.B. die "beteiligten Personen") sich als Ticket-Besitzer auszugeben.
+allow_auth_tokens:
+  title: Authentifizierungstoken aktivieren
+  content: >
+    Das Aktivieren dieser Funktion erlaubt die Verwendung von Authentifizierungstoken für die Auto-Anmeldung von Benutzern durch das Anklicken eines Ticket-Links.

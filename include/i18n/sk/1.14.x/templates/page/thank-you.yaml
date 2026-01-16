@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Stránka "Ďakujeme" sa zobrazuje v prípade, že používateľ zadal prostredníctvom Helpdesku novú zákaznícku požiadavku.
+name: ďakujem
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Ďakujeme že ste nás kontaktovali.
+  <br>
+  <br>
+  Vaša požiadavka bola vytvorená, náš pracovník sa Vám ozve čoskoro, ak to bude potrebné.</p>
+  <br>
+  <br>
+  Support Team
+  </div>

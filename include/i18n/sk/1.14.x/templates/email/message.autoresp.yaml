@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Odoslať používateľovi keď používateľ vytvorí novú správu k požiadavke. To môže nastať ak používateľ reaguje na e-mail zo systému alebo píše novú správu cez zákaznícky webový portál.
+subject: |
+  Potvrdenie správy
+body: |
+  <h3><strong>Vážený%{recipient.name.first},</strong></h3>
+  vaša odpoveď na požiadavku <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> má novú poznámku
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Your %{company.name} Team,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>You can view the support request progress <a
+  href="%{recipient.ticket_link}">online here</a></em>
+  </div>

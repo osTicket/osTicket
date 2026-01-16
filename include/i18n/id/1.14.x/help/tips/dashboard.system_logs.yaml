@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Sistem log
+  content: >
+    Ini adalah di mana Anda akan menemukan pemecahan masalah terkait penebangan aktivitas apapun (misalnya, kesalahan, peringatan, atau bug).
+  links:
+    - 
+      title: Menyesuaikan apa jenis kegiatan dicatat dengan mengubah <br /><span class="doc-desc-title"> Default Log Level</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Rentang tanggal
+  content: >
+    Pilih rentang kalender Anda yang Anda ingin untuk melihat di <span class="doc-desc-title"> Log sistem</span>.
+type:
+  title: Jenis
+  content: >
+    Pilih pilihan untuk mempersempit fokus pada jenis tertentu kegiatan. <span class="doc-desc-opt"> debug</span> mewakili keparahan setidaknya, dan <span class="doc-desc-opt"> kesalahan</span> mewakili keparahan terbesar.
+showing_logs:
+  title: Menampilkan &hellip; log
+  content: >
+    Pastikan untuk memeriksa bagian <span class="doc-desc-title"> halaman</span> di bawah ini untuk memastikan bahwa tidak ada lebih banyak halaman yang menampilkan log sistem yang tersedia.
+log_title:
+  title: Judul log
+  content: >
+    Klik header tabel <span class="doc-desc-title"> Log judul</span> jika Anda ingin untuk mengurutkan hasil sesuai <span class="doc-desc-title"> Judul Log</span>.
+log_type:
+  title: Jenis log
+  content: >
+    Klik header tabel <span class="doc-desc-title"> Log judul</span> jika Anda ingin untuk mengurutkan hasil sesuai <span class="doc-desc-title"> Judul Log</span>.
+log_date:
+  title: Tanggal log
+  content: >
+    Ini adalah tanggal log yang dihasilkan oleh perangkat lunak. Jika Anda ingin untuk mengurutkan hasil berdasarkan <span class="doc-desc-title"> Tanggal Log</span>, cukup klik header tabel <span class="doc-desc-title"> Log tanggal</span>. (Menggunakan <span class="doc-desc-title"> Rentang tanggal</span> formulir di atas untuk mempersempit rentang kalender Anda log.)
+ip_address:
+  title: Alamat IP
+  content: >
+    Ini merujuk kepada <span class="doc-desc-title"> Alamat</span> <span class="doc-desc-title"> IP</span> dari agen atau klien yang menggunakan osTicket saat log yang dihasilkan.

@@ -76,7 +76,7 @@ foreach ($columns as $C) {
 if (!$sorted) {
     // Apply queue sort-dropdown selected preference
     if (isset($sort['queuesort']))
-        $sort['queuesort']->applySort($tickets, $sort['dir']);
+    $sort['queuesort']->applySort($tickets, $sort['dir']);
     else // otherwise sort by created DESC
         $tickets->order_by('-created');
 }
@@ -126,48 +126,49 @@ $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
 
-<!-- SEARCH FORM START -->
-<div id='basic_search'>
-  <div class="pull-right" style="height:25px">
-    <span class="valign-helper"></span>
-    <?php
-    require 'queue-quickfilter.tmpl.php';
-    if ($queue->getSortOptions())
-        require 'queue-sort.tmpl.php';
-    ?>
-  </div>
-    <form action="tickets.php" method="get" onsubmit="javascript:
-  $.pjax({
-    url:$(this).attr('action') + '?' + $(this).serialize(),
-    container:'#pjax-container',
-    timeout: 2000
-  });
-return false;">
-    <input type="hidden" name="a" value="search">
-    <input type="hidden" name="search-type" value=""/>
-    <div class="attached input">
-      <input type="text" class="basic-search" data-url="ajax.php/tickets/lookup" name="query"
-        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'] ?? null, true); ?>"
-        autocomplete="off" autocorrect="off" autocapitalize="off">
-      <button type="submit" class="attached button"><i class="icon-search"></i>
-      </button>
-    </div>
-    <a href="#" onclick="javascript:
-        $.dialog('ajax.php/tickets/search', 201);"
-        >[<?php echo __('advanced'); ?>]</a>
-        <i class="help-tip icon-question-sign" href="#advanced"></i>
-    </form>
-</div>
-<!-- SEARCH FORM END -->
-
-<div class="clear"></div>
+<!--osta-->
 <div style="margin-bottom:20px; padding-top:5px;">
     <div class="sticky bar opaque">
         <div class="content">
+
+            <div class="pull-right flush-right page-top">            
+            
+				<form action="tickets.php" method="get" onsubmit="javascript:
+					  $.pjax({
+						url:$(this).attr('action') + '?' + $(this).serialize(),
+						container:'#pjax-container',
+						timeout: 2000
+					  });
+return false;">
+					<input type="hidden" name="a" value="search">
+					<input type="hidden" name="search-type" value=""/>
+					<div class="attached input">
+						<input type="text" class="basic-search" data-url="ajax.php/tickets/lookup" name="query"  placeholder="<?php echo __('Search Tickets'); ?>"
+							size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+							autocomplete="off" autocorrect="off" autocapitalize="off">		
+					  <button type="submit" class="attached button"><i class="icon-search"></i>
+						</button>
+					</div>
+					<a href="#" onclick="javascript:$.dialog('ajax.php/tickets/search', 201);">
+						<div class="action-button advanced-search gray-light2" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Advanced Search'); ?>">
+							<div class="button-icon">
+							</div>
+							<div class="button-text advanced-search">
+								<?php echo __('Advanced'); ?>	
+								<svg style="width:20px;height:20px" viewBox="0 0 20 20">
+									<path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+								</svg>							
+							</div>
+						</div>
+					</a>
+				</form>            
+
+            </div>
+			
             <div class="pull-left flush-left">
                 <h2><a href="<?php echo $refresh_url; ?>"
-                    title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
-                    $queue->getName(); ?></a>
+                    title="<?php echo __('Refresh'); ?>"> <?php echo
+                    $queue->getName(); ?> <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg></a>
                     <?php
                     if (($crit=$queue->getSupplementalCriteria()))
                         echo sprintf('<i class="icon-filter"
@@ -216,6 +217,12 @@ if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
             if ($count) {
                 Ticket::agentActions($thisstaff, array('status' => $status ?? null));
             }?>
+<!--osta-->
+<?php
+require 'queue-quickfilter.tmpl.php';
+if ($queue->getSortOptions())
+	require 'queue-sort.tmpl.php';
+?>
             </div>
         </div>
     </div>
@@ -226,14 +233,14 @@ if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
-
-<table class="list queue tickets" border="0" cellspacing="1" cellpadding="2" width="940">
+<!--osta-->
+<table class="list queue tickets font-reg" border="0" cellspacing="1" cellpadding="2" width="940">
   <thead>
     <tr>
 <?php
 $canManageTickets = $thisstaff->canManageTickets();
 if ($canManageTickets) { ?>
-        <th style="width:12px"></th>
+<!--osta--><th style="width:12px"><a id="selectToggle" href="#ckb"></a></th>
 <?php
 }
 
@@ -247,8 +254,9 @@ foreach ($columns as $C) {
         $heading = sprintf('<a href="?%s" class="%s">%s</a>',
             Http::build_query($args), $dir, $heading);
     }
-    echo sprintf('<th width="%s" data-id="%d">%s</th>',
-        $C->getWidth(), $C->id, $heading);
+    $classname = "osta_"  . str_replace(" ", "", strtolower(  preg_replace("/[^A-Za-z0-9 ]/", "", isset( $C->ht["name"] ) ? $C->ht["name"]  : $C->ht["heading"] )));
+    echo sprintf('<th width="%s" data-id="%d" class="%s">%s</th>',
+        $C->getWidth(), $C->id, $classname, $heading);
 }
 ?>
     </tr>
@@ -256,19 +264,42 @@ foreach ($columns as $C) {
   <tbody>
 <?php
 foreach ($tickets as $T) {
-    echo '<tr>';
+    echo '<tr data-redirect="' . $_SERVER['REQUEST_URI'] . '" rel="#tickets/' . $T['ticket_id'] . '/field/priority/edit">';
     if ($canManageTickets) { ?>
-        <td><input type="checkbox" class="ckb" name="tids[]"
-            value="<?php echo $T['ticket_id']; ?>" /></td>
+        <!-- osta -->
+        <td class="checkbox-cell"><p class="checkbox"><input type="checkbox" class="ckb" name="tids[]"
+            value="<?php echo $T['ticket_id']; ?>" /><label></label></p></td>
 <?php
     }
+ //  echo print_r( $columns, true );
+//die();
     foreach ($columns as $C) {
         list($contents, $styles) = $C->render($T);
+
+        //osta
+        $fieldname = isset( $C->ht["name"] ) ? $C->ht["name"]  : $C->ht["heading"];
+	$classname = "osta_"  . str_replace(" ", "", strtolower(  preg_replace("/[^A-Za-z0-9 ]/", "", $fieldname )));
+    // 2020 - DEC - 10 -- Ted one line below - Added new variable extra for inline update  ticket priority on osta_priority column
+    $extra = "";
+if( $fieldname  == "Priority" ) {
+   
+ $classname .= " osta_priority_" . str_replace(" ", "", strtolower(  preg_replace("/[^A-Za-z0-9 ]/", "", strip_tags($contents) )));
+ // 2020 - DEC - 10 -- Ted added below 2 lines to inline update  ticket priority on osta_priority column
+ $extra = ' data-redirect="' . $_SERVER['REQUEST_URI'] . '" rel="#tickets/' . $T['ticket_id'] . '/field/priority/edit" ';
+ 
+ $classname = " osta-ticket-action "  . $classname; 
+}
+        
+        if ( preg_match("/:([0-5][0-9]) ([AaPp][Mm])$/", $contents ) ) {
+            $contents = substr($contents,0,-3) . "&nbsp;" . substr($contents,-2);
+        }
         if ($style = $styles ? 'style="'.$styles.'"' : '') {
-            echo "<td $style><div $style>$contents</div></td>";
+            // 2020 - DEC - 10 -- Ted one line below- use new variable extra for inline update  ticket priority on osta_priority column
+            echo "<td $style $extra class=\"" . $classname . "\"><div $style>$contents</div></td>";
         }
         else {
-            echo "<td>$contents</td>";
+             // 2020 - DEC - 10 -- Ted  1 line below - use new variable extra for inline update  ticket priority on osta_priority column
+            echo "<td $extra class=\"" . $classname . "\">$contents</td>";
         }
     }
     echo '</tr>';
@@ -288,11 +319,125 @@ foreach ($tickets as $T) {
             echo $ferror?Format::htmlchars($ferror):__('Query returned 0 results.');
             echo '</i>';
         } ?>
+		<!--osta-->
+		<div class="padding-slider-container">
+		  <input type="range" min="5" max="30" value="18" class="padding-slider" id="myRange"><span id="padding-slider"></span>
+		</div>		
+		<div id="resize-buttons-container">
+		  <a class="resize-buttons" id="text-down" href="#">A-</a>
+		  <a class="resize-buttons" id="text-reset" href="#">A</a>
+		  <a class="resize-buttons" id="text-up" href="#">A+</a>
+		</div>
+		
       </td>
     </tr>
   </tfoot>
 </table>
+<!-- osta -->
+<script>
+if ( ($("#msg_info" ).length) || ($("#msg_notice" ).length) || ($("#msg_warning" ).length) || ($("#msg_error" ).length) ) {
+	$(".attached.input").addClass("move-search"); //move search when msg displayed
+}
+$( "th.osta_ticket a" ).text( "#" );
+$( "div[style='font-weight:bold']" ).closest( "td.osta_ticket" ).addClass( "new-reply-waiting" );
+$( "td.osta_ticket" ).prepend( "<div id='new-reply-icon' data-placement='top' data-toggle='tooltip' data-original-title='<?php echo __('New Reply'); ?>'><span class='dot'></span></div>" );
+$( "table.list.queue.tickets a.preview" ).wrap( "<div class='ticket-num'></div>" );
+$( "td.osta_lastupdated" ).wrapInner( "<div class='date-text'></div>" );
+$( "td.osta_priority.osta_priority_low" ).closest( "tr" ).addClass( "priority-low osta-ticket-action " );
+$( "td.osta_priority.osta_priority_normal" ).closest( "tr" ).addClass( "priority-normal osta-ticket-action " );
+$( "td.osta_priority.osta_priority_high" ).closest( "tr" ).addClass( "priority-high osta-ticket-action ");
+$( "td.osta_priority.osta_priority_emergency" ).closest( "tr" ).addClass( "priority-emerency osta-ticket-action ");
+$( "td:not(.osta_ticket) .icon-link" ).closest( "tr" ).addClass( "osta-ticket-linked");
+$( "td:not(.osta_ticket) .icon-code-link" ).closest( "tr" ).addClass( "osta-ticket-code-linked");
+$( "td:not(.osta_ticket) .icon-code-fork" ).closest( "tr" ).addClass( "osta-ticket-merged");
+$( ".tickets td:not(.osta_ticket) .icon-link,.tickets td:not(.osta_ticket) .icon-code-fork,.tickets td:not(.osta_ticket) .icon-code-link" ).remove();
+$( ".lockedTicket" ).closest( "tr" ).addClass( "locked" );
+if ($("td:contains('Query returned 0 results')").length) {
+	$("tfoot td").addClass("empty");
+}
+jQuery( ".truncate a" ).each(function(i, value) {
+   var $link = jQuery(value);
+   var text = $link.text();
+   if(text.length > 55) {
+      $link.text(text.substring(0, 55) + "...");
+   }
+});
+function myFunction(x) {
+  if (x.matches) { // If media query matches
+	$( "tbody tr" ).wrapInner( "<label class='wrapper'></label>" );
+	$( ".overdueTicket" ).closest( "tr" ).addClass( "overdue" );
+	$( ".overdue td.osta_ticket" ).append( "<div class='overdue-ticket' data-placement='top' data-toggle='tooltip' data-original-title='<?php echo __('Ticket is Overdue!'); ?>'>&nbsp;</div>" );
+	$( ".paperclip" ).closest( "tr" ).addClass( "paperclip-icon" );
+	$( ".paperclip-icon td.osta_ticket" ).append( "<div class='ticket-has-attachement' data-placement='top' data-toggle='tooltip' data-original-title='<?php echo __('Ticket Has Attachment'); ?>'>&nbsp;</div>" );
+	$( ".lockedTicket" ).closest( "div" ).addClass( "locked" );
+	$('div[style="font-weight:bold"] .icon-code-link').each(function() {$(this).parent().after(this);});
+	$('div[style="font-weight:bold"] .icon-code-fork').each(function() {$(this).parent().after(this);});	
+	$( "tr" ).each(function() {
+		var $test = $(this),
+			$href = $test.find( ".pull-right"),
+			$target = $test.find( "td.osta_ticket" );
+		$href.appendTo($target);
+	});
+  } else {
+	$( "tbody tr > .wrapper" ).contents().unwrap();
+	$( ".overdueTicket" ).closest( "tr" ).removeClass( "overdue" );
+	$( "td.osta_ticket .overdue-ticket" ).remove();
+	$( "td.osta_ticket .pull-right" ).remove();
+	$( ".paperclip" ).closest( "tr" ).removeClass( "paperclip-icon" );
+  }
+}
+var x = window.matchMedia( "(max-width: 760px)" )
+myFunction(x) // Call listener function at run time
+x.addListener(myFunction) // Attach listener function on state changes
 
+// Padding Slider
+var slider = document.getElementById("myRange");
+var output = document.getElementById("padding-slider");
+var thisTable = document.querySelector('table');
+var thisDiv = document.querySelector('input#myRange');
+output.innerHTML = slider.value;
+slider.oninput = function() {
+ output.innerHTML = this.value;
+  var thisVal = parseInt(this.value);
+  setCookie("padding-slider", thisVal,999999);
+  padItems(thisVal);
+}
+function padItems(thisVal) { 
+    if (thisVal > 21 && thisVal < 26) {
+        thisTable.setAttribute('class', 'list queue tickets font-med');
+    } else if (thisVal > 25 && thisVal < 30) {
+        thisTable.setAttribute('class', 'list queue tickets font-lrg');
+    } else if (thisVal === 30) {
+        thisTable.setAttribute('class', 'list queue tickets font-x-lrg');
+    } else {
+        thisTable.setAttribute('class', 'list queue tickets font-reg');
+    }
+    if (thisVal > 4 && thisVal < 18) { 
+        thisDiv.setAttribute('class', 'padding-slider left');
+    } else if (thisVal > 18 && thisVal < 31) { 
+        thisDiv.setAttribute('class', 'padding-slider right');  
+    } else {
+        thisDiv.setAttribute('class', 'padding-slider');
+    }  
+    var items = document.getElementsByClassName("checkbox-cell");
+    for (var i=0; i < items.length; i++) {
+    items[i].style.padding =  thisVal + "px 0";
+    }
+}
+var val = getCookie("padding-slider");
+if(val) { slider.value = val; padItems(val);} 
+
+//jfontsize
+  $('.list th, .list th a, .list td, .list td a:not(#resize-buttons-container a)').jfontsize({
+    btnMinusClasseId: '#text-down', // Defines the class or id of the decrease button
+    btnDefaultClasseId: '#text-reset', // Defines the class or id of default size button
+    btnPlusClasseId: '#text-up', // Defines the class or id of the increase button
+    btnMinusMaxHits: 2, // How many times the size can be decreased
+    btnPlusMaxHits: 4, // How many times the size can be increased
+    sizeChange: 1 // Defines the range of change in pixels
+  });
+</script>
+	
 <?php
     if ($count > 0 || $skipCount) { //if we actually had any tickets returned.
 ?>  <div>

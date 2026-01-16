@@ -100,8 +100,8 @@ if($_POST){
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=Team::lookup($v))) {
                               $t->delete();
-                              $i++;
-                            }
+                                $i++;
+                        }
                         }
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),

@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Хайх талбар
+  0: >
+
+advanced:
+  title: Дэлгэрэнгүй
+  content: >
+    Хайлтын параметруудаа нарийсгана уу. Дэлгэрэнгүй хайлтын шүүлтүүдээ сонгож хайлт хийсний дараа гарч ирсэн үр дүнг та хуудасны доод хэсэгт <span class="doc-desc-title">Экспорт</span> хийж болно.
+open_tickets_table:
+  title: Нээлттэй хүсэлтүүдийн хүснэгт
+  content: >
+    Одоогоор нээлттэй бөгөөд анхаарал хандуулах шаардлагатай байгаа бүх хүсэлтүүд
+ticket:
+  title: Хүсэлт
+  0: >
+
+date:
+  title: Огноо
+  0: >
+
+subject:
+  title: Subject
+  0: >
+
+from:
+  title: From
+  0: >
+
+priority:
+  title: Зэрэглэл
+  0: >
+
+assigned_to:
+  title: Хариуцсан
+  0: >
+
+export:
+  title: Экспорт
+  content: >
+    Харагдаж буй өгөгдлийг CSV файл уруу экспортлох. CSV файлыг хүснэгт боловсруулах дурын програмаар нээж болно (Microsoft Excel, Apple Pages, OpenOffice г.м.).
+advanced_search_dialog:
+  title: Дэлгэрэнгүй хайлт
+  0: >
+
+adv_keyword:
+  title: Түлхүүр үгээр хайх
+  content: >
+    Хүсэлтийн гарчиг, мэдээлэл, тусгай талбаруудын утгуудад суурилсан даралтуудыг хайх.
+adv_date_range:
+  title: Огнооны завсраар хайх
+  content: >
+    Тодорхойлолтыг энд
+merge_types:
+  title: Төрлүүдийг нэгтгэх
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Хариултын төрлүүд
+  content: >
+    <b> Reply All: </b> Энэ хариу нь таны сонгосон хэрэглэгч болон хамтрагчруу илгээнэ. </br> <b>Reply to User: </b> Энэ хариу нь зөвхөн хэрэглэгчрүү илгээнэ, Хамтрагчруу илгээгдэхгүй. </br> <b>Do Not Email Reply: </b> имэйлээр анхааруулга илгээгээгүй боловч, хүсэлтийг үзэж байх үед Агентын хариу <b> ALL </b> хэрэглэгчдэд харагдах болно.

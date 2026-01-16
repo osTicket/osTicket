@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Vlastní seznamy
+  content: >
+    Váš <span class="doc-desc-title">uživatelský seznam</span> dovoluje vytvořit rozbalovací nabídku s přednastavenými hodnotami, ze kterých uživatel může vybírat ve vašem <span class="doc-desc-title">uživatelském formuláři</span>. Pokud chcete použít tento <span class="doc-desc-title">uživatelský seznam</span> jako <span class="doc-desc-title">cíl</span> ve <span class="doc-desc-title">filtru požadavků</span>, nezapomeňte ho přidat do vašeho formuláře <span class="doc-desc-title">detailu požadavku</span>.
+name:
+  title: Jméno
+  0: >
+
+plural_name:
+  title: Jméno v množném čísle
+  0: >
+
+sort_order:
+  title: Řazení
+  0: >
+
+list_s_initial_items:
+  title: Výchozí položky seznamu
+  0: >
+
+value:
+  title: Hodnota
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Kódy, zkratky apod. Pokud použijete interní kódy pro položky v tomto seznamu, tyto kódy a zkratky mohou být zadány v tomto sloupci. Pokud je vlastní seznam zobrazen jako <span class="doc-desc-option">dopředný</span>, pak tyto zkratky mohou být použity k hledání položek uživatelského seznamu.

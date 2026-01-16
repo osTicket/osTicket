@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  該模板定義發送到客戶端時，他們的帳戶已在客戶端門戶或代表其代理創建的電子郵件。此電子郵件作為電子郵件地址驗證。在模板內請使用%{link}。
+name: "歡迎來到 %{company.name}"
+body: >
+  <h3><strong>您好 %{recipient.name.first},</strong></h3> <div>我們已經為您建立了一個帳戶在我們的支援案件系統 %{url}.<br /> <br /> 請遵循以下連結以確認您的帳戶和查詢案件狀態。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">您最可靠的支援案件系統<br /> %{company.name}</em> </div>

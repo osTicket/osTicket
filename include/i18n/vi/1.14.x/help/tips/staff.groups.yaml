@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Nhóm
+  content: >
+    Nhóm có thể xác định quyền của nhân viên trong phần hỗ trợ. Nhóm cũng có thể được cấp quyền truy nhập cho nhiều Ban ngành khác nhau thay vì Ban ngành ban đầu của nhân viên.
+status:
+  title: Tình trạng
+  content: >
+    Nếu <span class="doc-desc-opt"> vô hiệu hóa</span>, các nhân viên trong nhóm này không thể đăng nhập và sẽ không nhận được cảnh báo &amp; thông báo của phòng ban .
+department_access:
+  title: Quyền truy cập Ban ngành
+  content: >
+    Đánh dấu các phòng ban mà các thành viên nhóm được phép truy cập.

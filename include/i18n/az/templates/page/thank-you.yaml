@@ -1,0 +1,19 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+notes: |
+  Bu şablon müştəri portalında müştəri yeni sorğunu təqdim etdikdən sonra yazının təşəkkür səhifəsində görünməsini təyin edəcək.
+name: Təşəkkür
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Bizimlə əlaqə qurduğunuz üçün təşəkkürlər.
+  <br>
+  <br>
+  Dəstək sorğusu təklifi yaradılıb, vacib olduqda qısa müddətdə nümayəndə sizə geri dönəcək.</p>
+  <br>
+  <br>
+  Dəstək komandası
+  </div>

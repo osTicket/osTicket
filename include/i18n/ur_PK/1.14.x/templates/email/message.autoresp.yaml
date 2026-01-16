@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  صارف کو بھیجا جاتا ہے جب یوزر ٹکٹ پر نیا پیغام بھیجتا ہے. یہ ہو سکتا ہے کہ صارف نظام سے جاری کردہ ای میل کا جواب دے یا کسٹمر ویب پورٹل پر آکے وہاں ایک نیا پیغام پوسٹ کرے.
+subject: |
+  پیغام کی توثیق
+body: |
+  <h3><strong>عزیز %{recipient.name.first},</strong></h3>
+  مدد کی درخواست پر آپ کا جواب نوٹ کر لیا گیا ہے۔ <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> has been noted
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  آپ کی %{company.name} ٹیم,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>مدد کی درخواست پر کام کو آپ <a
+  href="%{recipient.ticket_link}">یہاں آن لائن</a> دیکھ سکتے ہیں</em>
+  </div>

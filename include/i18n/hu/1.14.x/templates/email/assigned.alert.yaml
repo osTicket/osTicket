@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Munkatársnak küldve, mikor hozzárendelnek egy hibajegyet. A hibajegyek vagy automatikusan a rendszer által, vagy manuálisan egy munkatárs által rendelhetőek valakihez. Használja a %{assigner} változót hogy meg lehessen határozni a hozzárendelőt.
+subject: |
+  Hozzád rendelt hibajegyek
+body: |
+  <h3><strong>Kedves %{assignee.name.first},</strong></h3>
+  %{assigner.name.short} a <a href="%{ticket.staff_link}">#%{ticket.number}</a> számú
+  hibajegyet hozzád rendelte.
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Feladó</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Tárgy</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>A hibajegy megtekintéséhez/megválaszolásához, kérjük, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >jelentkezzen be</span></a> a hibajegy kezelő rendszerbe.</div>
+  <em style="font-size: small; ">Ügyfélszolgálat</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

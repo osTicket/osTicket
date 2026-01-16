@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Gebruikersnaam opmaak
+  content: >
+    Kies een formaat om gebruikersnamen mee op te maken. Email-berichten zullen dit formaat gebruiken voor de opmaak van de naam als er geen andere opmaak is geselecteerd.
+#Authentication settings
+client_session_timeout:
+  title: Gebruiker sessie Time-out
+  content: >
+    Kies de maximale niet-actieve tijd (in minuten) voordat een gebruiker gevraagd wordt opnieuw in te loggen.<br><br> Als u <span class="doc-desc-title">Gebruiker sessie-timout</span> wilt uitschakelen voer 0 in.
+registration_method:
+  title: Registratie Opties
+  content: >
+    <span class="doc-desc-title">Registratie Methode</span> en <span class="doc-desc-title">Registratie Vereist</span> worden gebruikt om te configureren hoe gebruikers registreren en toegang hebben tot het webportaal van jouw helpdesk. De onderstaande tabel bevat een overzicht van de twee instellingen die door het systeem zijn geinterpreteerd. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th>Registratie Vereist</th><th>Registratie Methode</th><th>Resultaat</th></tr><tr><td>Neen</td><td>Publiek</td><td>Registratie word aangewezen maar is niet vereist voor nieuwe tickets.</td></tr><tr><td>Ja</td><td>Publiek</td><td>Registratie en login zijn vereist voor nieuwe tickets</td></tr><tr><td>Neen</td><td>Privé</td><td>Iedereen kan een ticket aanmaken, maar Verantwoordelijken kunnen enkel accounts registreren</td></tr><tr><td>Ja</td><td>Privé</td><td>Gebruikerstoegang enkel mogelijk door invitatie</td></tr><tr><td>Neen</td><td>Uitgeschakeld</td><td>Niemand kan registreren voor een account, maar iedereen kan een ticket aanmaken.<em>Dit was hoe osTicket functioneerde vóór versie 1.9</em></td></tr><tr><td>Ja</td><td>Uitgeschakeld</td><td>Schakel nieuwe tickets uit via webportal</td></tr></tbody></table>
+client_verify_email:
+  title: E-mail verificatie vereisen
+  content: >
+    Schakel deze optie uit om uw gebruikers directe toegang te geven aan tickets via de "Bekijk Ticket Status" login pagina van de Client Portal. Als dit ingeschakeld is (wat standaard is), zal de gebruiker eerst een e-mail ontvangen met daarin een link om het ticket te bekijken. <br><br>Als E-mail verificatie uitgeschakeld is kunnen derde partijen (bvb. ticket medewerkers) zich voor doen als ticket-eigenaar.
+allow_auth_tokens:
+  title: Schakel beveiligings-tokens in
+  content: >
+    Schakel deze optie in om 'beveiligings-tokens' te gebruiken om mensen automatisch op hun tickets te laten inloggen via de link in hun email.

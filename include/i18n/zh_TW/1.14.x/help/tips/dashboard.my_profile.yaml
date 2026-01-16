@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: 聯絡資訊
+  0: >
+
+username:
+  title: 帳號
+  content: >
+    具有代理商資格與行政人員身分才能更改使用者名稱. 如果你已有優先資格權限、您將透過專用代理商工具來編修<span class="doc-desc-title">工作人員</span> 列表。
+  links:
+    - 
+      title: 以管理員身份更改使用者名
+      href: /scp/staff.php
+time_zone:
+  title: 時區
+  0: >
+
+daylight_saving:
+  title: 冬令時光節約
+  0: >
+
+maximum_page_size:
+  title: 最大頁面大小
+  0: >
+
+auto_refresh_rate:
+  title: 自動更新頻率
+  0: >
+
+default_signature:
+  title: 預設簽名
+  0: >
+
+default_paper_size:
+  title: 預設紙張大小
+  0: >
+
+show_assigned_tickets:
+  title: 顯示已簽出的票
+  content: >
+    <p>啟用此選項將會覆蓋公開已分配案件的全局設置。</p> <p class =“info-banner”> <i class =“icon-info-sign”> </i>此設置只供排除的全域已分配案件時使用。</p>
+password:
+  title: 密碼
+  0: >
+
+current_password:
+  title: 目前密碼
+  0: >
+
+new_password:
+  title: 新密碼
+  0: >
+
+confirm_new_password:
+  title: 確認新密碼
+  0: >
+
+signature:
+  title: 簽名
+  content: >
+    新建的選項 <span class="doc-desc-title">簽名檔</span> 可能出現再票券底部. 無論這 <span class="doc-desc-title">簽名檔</span> 有顯示, 或無、均按者<span class="doc-desc-title">電子郵件範例</span>使用再票券上。
+  links:
+    - 
+      title: 管理介面上建立新的電子郵件範例
+      href: /scp/templates.php

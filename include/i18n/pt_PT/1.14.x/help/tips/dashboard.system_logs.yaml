@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Registos de sistema
+  content: >
+    Isto é onde você vai encontrar qualquer solução de problemas relacionados atividade log (por exemplo, erros, avisos ou erros).
+  links:
+    - 
+      title: Customize o tipo de atividade que é registada, alterando o<br /><span class="doc-desc-title">nível predefinido de registo</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Intervalo de data
+  content: >
+    Escolha o intervalo de datas que gostaria de ver nos <span class="doc-desc-title">registos de sistema</span>.
+type:
+  title: Tipo
+  content: >
+    Escolha uma opção para restringir seu âmbito num tipo específico de atividade. <span class="doc-desc-opt"> depurar</span> representa a menor gravidade, e <span class="doc-desc-opt"> erro</span> representa a maior gravidade.
+showing_logs:
+  title: A mostrar &hellip;Logs
+  content: >
+    Verifique a secção de <span class="doc-desc-title">Página</span> abaixo para se certificar de que não há mais páginas que exibam os Logs de Sistema disponíveis.
+log_title:
+  title: Título de Log
+  content: >
+    Clique no cabeçalho da tabela de <span class="doc-desc-title">Título de Log</span> se quiser classificar os resultados de acordo com o <span class="doc-desc-title">Título de Log</span>.
+log_type:
+  title: Tipo de Log
+  content: >
+    Clique no cabeçalho da tabela de <span class="doc-desc-title">Título de Log</span> se quiser classificar os resultados de acordo com o <span class="doc-desc-title">Título de Log</span>.
+log_date:
+  title: Data do registo
+  content: >
+    Esta é a data em que o log foi gerado pelo software. Se quiser classificar os resultados de acordo com a <span class="doc-desc-title"> Data do registo</span>, simplesmente clique no cabeçalho da tabela de <span class="doc-desc-title">Data de Log</span>. (Utilize o formulário de <span class="doc-desc-title">Período de Data</span> acima para reduzir seu intervalo de calendário de registos.)
+ip_address:
+  title: Endereço IP
+  content: >
+    Isto refere-se ao <span class="doc-desc-title"> endereço</span> <span class="doc-desc-title"> IP</span> do agente ou do cliente que usava osTicket na época em que o log foi gerado.

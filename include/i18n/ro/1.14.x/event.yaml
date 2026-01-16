@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: creat
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: redeschis
+  description:
+- 
+  id: 4
+  name: atribuit
+  description:
+- 
+  id: 5
+  name: eliberat
+  description:
+- 
+  id: 6
+  name: transferat
+  description:
+- 
+  id: 7
+  name: menționat
+  description:
+- 
+  id: 8
+  name: întârziat
+  description:
+- 
+  id: 9
+  name: editat
+  description:
+- 
+  id: 10
+  name: vizualizat
+  description:
+- 
+  id: 11
+  name: eronat
+  description:
+- 
+  id: 12
+  name: colaborare
+  description:
+- 
+  id: 13
+  name: retrimis
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: merged
+  description:
+- 
+  id: 16
+  name: unlinked
+  description:
+- 
+  id: 17
+  name: linked
+  description:

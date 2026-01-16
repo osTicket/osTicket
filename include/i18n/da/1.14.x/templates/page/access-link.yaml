@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Denne skabelon definerer meddelser for klienter, som har fået tilsendt et adgangslink. Sagsnummer og e-mailadresse giver adgang til sagen.
+name: "Adgangslink til sag [#%{ticket.number}]"
+body: >
+  <h3><strong>Hej %{recipient.name.first},</strong></h3> <div> Et adgangs link anmodning om bestilling #%{ticket.number} er blevet forelagt dine vegne for helpdesk på %{url}.<br /> <br /> Følg linket nedenfor for at kontrollere status for bestillingen #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Hvis du <strong>ikke har</strong> lavet anmodningen, skal du slette og se bort fra denne e-mail. Din konto er stadig sikret og ingen har fået adgang til bestillingen. Nogen kunne have fejlagtigt angivet din e-mail adresse.<br /> <br /> --<br /> %{company.name} </div>

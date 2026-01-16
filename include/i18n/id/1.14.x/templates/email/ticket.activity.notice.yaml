@@ -1,0 +1,10 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Pemberitahuan yang dikirim ke kolaborator pada tiket aktivitas misalnya Balasan atau pesan.
+subject: |
+  Balasan: %{ticket.subject}
+body: |
+  <h3><strong>Dear %{recipient.name.first},</strong></h3> <div><em>%{poster.name}</em> hanya log pesan ke tiket di mana Anda berpartisipasi.</div> <br>%{message} <br><br><hr><div style="color: rgb(127, 127, 127); font-size: small; text-align: center;"> <em>Anda mendapatkan email ini karena Anda kolaborator tiket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" > #%{ticket.number}</a>.  Untuk berpartisipasi, hanya membalas email ini atau <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" > Klik di sini</a> untuk arsip lengkap kain Tiket.</em> </div>

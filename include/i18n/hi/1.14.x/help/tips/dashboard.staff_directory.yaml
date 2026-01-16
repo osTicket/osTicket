@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: सदस्य कर्मचारी
+  content: >
+    निम्न तालिका यह ऊपर फिल्टर के परिणामों को प्रदर्शित करता है। कोई फ़िल्टर सेटिंग्स नहीं चुना जाता है, तो सभी <span class="doc-desc-title">सदस्य कर्मचारी </span> को विभिन्न पन्नों पर प्रदर्शित कर रहे हैं। अधिक परिणामों के माध्यम से संचालन करने के लिए नीचे दिए गए पृष्ठों अनुभाग देखें।
+apply_filtering_criteria:
+  title: निस्पंदन मानदंड लागू करे
+  content: >
+    अपने वर्तमान हितों की प्रासंगिक के लिए एक <span class="doc-desc-title">विभाग</span> चुनें। आप भी एक विशिष्ट एजेंट के लिए एक खोज प्रदर्शन कर सकते हैं।

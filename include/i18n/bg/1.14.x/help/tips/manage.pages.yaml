@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Страници на сайта
+  content: >
+    Страниците на сайта могат да служат като мини система за управление на съдържание (CMS). Може да дефинирате многобройни начални страници, офлайн страници и страници с благодарности, и да ги конфигурирате в настройките за фирмата и помощните теми.
+  links:
+    - 
+      title: Настройки за фирмата
+      href: /scp/settings.php?t=pages
+type:
+  title: Тип
+  content: >
+    <span class="doc-desc-opt">Офлайн</span> страниците се показват на клиентския портал, ако вашата система за поддръжка е изключена. <span class="doc-desc-opt">Началните</span> страници се показват на началната страница на вашия клиентски портал. <span class="doc-desc-opt">Страниците с благодарности</span> се показват след като потребител подаде заявка. <span class="doc-desc-opt">Другите</span> страници могат да да се използват като проста система за управление на съдържанието (CMS).

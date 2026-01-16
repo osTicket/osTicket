@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  To je izvorno sporočilo in pasica, ki sta prikazana na prijavni strani osebja. Prvo vnosno polje se nanaša na rdeče besedilo, ki se pojavi na vrhu. Naslednji prostor besedila je za vsebino pasice, ki naj služi kot zavrnitev odgovornosti.
+name: "Zahtevano je preverjanje pristnosti"
+body: ""

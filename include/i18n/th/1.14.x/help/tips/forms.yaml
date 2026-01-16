@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: หัวข้อของฟอร์ม
+  content: >
+    ข้อความชื่อเรื่องนี้จะปรากฏในกล่องสีเทาเหนือฟิลด์รูปแบบ
+form_instructions:
+  title: แบบฟอร์มคำแนะนำ
+  content: >
+    คุณสามารถเพิ่มคำแนะนำเป็นพิเศษซึ่งจะช่วยให้คำแนะนำผู้ใช้งานในบริบทของแต่ละฟิลด์ในแบบฟอร์ม และอาจจะเน้นข้อมูลที่จำเป็นต้องกรอก
+field_sort:
+  title: ตำแหน่งที่แสดงฟิลด์
+  content: >
+    คลิกที่ไอคอนลูกศร ขึ้น-ลง และลากแถวของฟิลด์ เพื่อเรียงลำดับในแบบฟอร์มนี้ การจัดลำดับจะไม่มีผลกับงานที่ดำเนินไปแล้วจนกว่าจะมีบันทึกแบบฟอร์ม
+field_label:
+  title: ป้ายชื่อฟิลด์
+  content: >
+    ป้ายชื่อนี้จะแสดงเป็นการโต้ตอบสำหรับฟิลด์นี้ โดยปกติคำตอบสั้นๆ จะได้รับการแสดงผลเช่นนี้:<br> <strong>ป้าย:</strong>&nbsp; <input type="text">
+field_type:
+  title: ฟิลด์ชนิดเนื้อหา
+  content: >
+    ใช้เพื่อกำหนดประเภทของข้อมูลนำเข้าที่ได้รับการคาดหวังจากผู้ใช้ระบบ คุณสามารถเลือกได้จากคำตอบแบบสั้นและคำตอบแบบยาว, เบอร์โทรศัพท์, วันที่และเวลา, กล่อง Checkbox, ตัวเลือก drop-down, หรือเลือกจากรายการที่สร้างขึ้น
+  links:
+    - 
+      title: รายการที่กำหนดเอง
+      href: /scp/lists.php
+field_visibility:
+  title: การมองเห็นฟิลด์
+  content: >
+    เลือกรูปแบบการมองเห็นและตัวเลือกความต้องการสำหรับฟิลด์นี้ <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>การตั้งค่า</th> <th>ผลลัพธ์</th></tr> <tr><td>ทางเลือก</td> <td>ตัวแทนและผู้ใช้ระบบสามารถมองเห็นฟิลด์ แต่ทั้งคู่ไม่จำเป็นต้องตอบคำถาม</td></tr> <tr><td>จำเป็น</td> <td>ตัวแทนและผู้ใช้ระบบสามารถมองเห็นฟิลด์ และทั้งคู่จำเป็นต้องตอบคำถาม</td></tr> <tr><td>จำเป็นสำหรับผู้ใช้ระบบ</td> <td>ตัวแทนและผู้ใช้ระบบสามารถมองเห็นฟิลด์ แต่เฉพาะผู้ใช้ระบบเท่านั้นที่จำเป็นต้องตอบคำถาม</td></tr> <tr><td>จำเป็นสำหรับตัวแทน</td> <td>ตัวแทนและผู้ใช้ระบบสามารถมองเห็นฟิลด์ แต่เฉพาะตัวแทนเท่านั้นที่จำเป็นต้องตอบคำถาม</td></tr> <tr><td>ภายใน, ทางเลือก</td> <td>เฉพาะตัวแทนเท่านั้นที่มองเห็นฟิลด์ แต่ไม่จำเป็นต้องตอบคำถาม</td></tr> <tr><td>ภายใน, จำเป็น</td> <td>เฉพาะตัวแทนเท่านั้นที่มองเห็นฟิลด์ และต้องตอบคำถามด้วย</td></tr> <tr><td>สำหรับผู้ใช้ระบบเท่านั้น</td> <td>เฉพาะผู้ใช้ระบบเท่านั้นที่มองเห็นฟิลด์ และต้องตอบคำถามด้วย</td></tr> </tbody></table>
+field_variable:
+  title: ฟิลด์อัตโนมัติ
+  content: >
+    The field data will be available to email and page templates via the name used in this column. For instance, fields on the common ticket form are available via <code>%{ticket.variable}</code>, where <strong>variable</strong> is the name used in this column.<br> <br> <em>Company information is available via <code>%{</code><code>company.variable}</code> and user information is available via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: ลบฟิลด์นี้
+  content: >
+    ตรวจสอบและบันทึกแบบฟอร์มเพื่อลบฟิลด์ข้อมูลออกจากแบบฟอร์มนี้<br> <br> <em> การลบฟิลด์ไม่ได้ลบข้อมูลที่ป้อนก่อนหน้านี้สำหรับฟิลด์ของฟอร์มเสร็จสมบูรณ์ ตัวอย่างเช่น ถ้า Ticket ที่ส่งก่อนหน้านี้มีข้อมูลสำหรับฟิลด์ข้อมูล การลบฟิลด์จากฟอร์มนี้จะไม่ลบข้อมูลใน Ticket </em>

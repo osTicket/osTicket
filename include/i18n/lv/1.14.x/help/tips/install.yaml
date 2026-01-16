@@ -1,0 +1,76 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Help Desk nosaukums
+  content: |
+    <p>Jūsu atbalsta sistēmas nosaukums, piem., [Uzņēmuma Nosaukums] atbalsts</p>
+system_email:
+  title: Noklusētais sistēmas epasts
+  content: |
+    <p>Noklusējuma e-pasta adrese, piem., atbalsts@jusuuznemums.lv - vēlāk ir iespēja pievienot vēl!</p>
+default_lang:
+  title: Noklusētā sistēmas valoda
+  content: |
+    <p>Sākuma dati šajā valodā tiks uzstādīti datubāzē.
+    Piemēram, e-pasta sagataves un sistēmas noklusētās lapas tiks uzstādītas šajā valodā.</p>
+  links:
+    - 
+      title: osTicket Valodas pakotne
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Vārds
+  content: |
+    <p>Administratora vārds</p>
+last_name:
+  title: Uzvārds
+  content: |
+    <p>Administratora uzvārds</p>
+email:
+  title: E-pasta adrese
+  content: |
+    <p>Administratora personīgā epasta aderese. Jābūt atšķirīgai no sistēmas noklusētā epasta.</p>
+username:
+  title: Lietotāja vārds
+  content: |
+    <p>Administratora lietotāja vārds. Jāsatur vismaz trīs (3) simbolus. </p>
+password:
+  title: Parole
+  content: |
+    <p>Administratora parole.  Jāsatur piecus (5) simbolus vai vairāk.</p>
+password2:
+  title: Apstipriniet paroli
+  content: |
+    <p>Ievadiet administratora paroli vēlreiz. Tām jāsakrīt.</p>
+db_prefix:
+  title: MySQL Tabulas Prefikss
+  content: |
+    <p>osTicket ir nepieciešams tabulas prefikss, lai izvairītos no iespējamiem konfliktiem koplietojamās datu bāzēs.</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>
+    Most hosts use 'localhost' for local database hostname. Check with
+    your host if localhost fails.
+    </p>
+    <p>
+    Default port set in php.ini is assumed. A non-standard port number
+    can be specified as <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL datubāze
+  content: |
+    <p>Datubāzes vārds, ko izmantos osTicket.</p>
+db_user:
+  title: MySQL Lietotājvārds
+  content: |
+    <p>MySQL lietotājam ir nepieciešamas pilnas tiesības uz datubāzi.</p>
+db_password:
+  title: MySQL Parole
+  content: |
+    <p>MySQL parole, kas saistīta ar augstāk esošo lietotāju.</p>

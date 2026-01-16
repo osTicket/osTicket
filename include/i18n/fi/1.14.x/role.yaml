@@ -1,0 +1,79 @@
+---
+- 
+  #Default roles defined for the system
+  #Fields:
+  #id - Primary id for the role
+  #flags - (bit mask) role flags
+  #name - (string) descriptive name for the role
+  #notes - (string) internal notes
+  #permissions: (list<keys>)
+  #NOTE: ------------------------------------
+  #---
+  id: 1
+  flags: 1
+  name: Kaikki oikeudet
+  notes: |
+    Rooli rajoittamattomalla pääsyllä
+  permissions:
+    - tiketti.luo
+    - tiketti.muokkaa
+    - tiketti.määrää
+    - ticket.release
+    - tiketti.siirrä
+    - ticket.refer
+    - tiketti.vastaa
+    - tiketti.sulje
+    - tiketti.poista
+    - tehtävä.luo
+    - tehtävä.muokkaa
+    - tehtävä.määrää
+    - tehtävä.siirrä
+    - tehtävä.vastaa
+    - tehtävä.sulje
+    - tehtävä.poista
+    - purkitettu.hallitse
+    - lanka.muokkaa
+- 
+  id: 2
+  flags: 1
+  name: Laajennettu käyttöoikeus
+  notes: |
+    Rooli laajennetulla käyttöoikeudella
+  permissions:
+    - tiketti.luo
+    - tiketti.muokkaa
+    - tiketti.määrää
+    - ticket.release
+    - tiketti.siirrä
+    - ticket.refer
+    - tiketti.vastaa
+    - tiketti.sulje
+    - tehtävä.luo
+    - tehtävä.muokkaa
+    - tehtävä.määrää
+    - tehtävä.siirrä
+    - tehtävä.vastaa
+    - tehtävä.sulje
+    - purkitettu.hallitse
+- 
+  id: 3
+  flags: 1
+  name: Rajoitettu pääsy
+  notes: |
+    Rooli rajoitetulla käyttöoikeudella
+  permissions:
+    - tiketti.luo
+    - tiketti.määrää
+    - ticket.release
+    - tiketti.siirrä
+    - ticket.refer
+    - tiketti.vastaa tehtävä.luo
+    - tehtävä.määrää
+    - tehtävä.siirrä
+    - tehtävä.vastaa
+- 
+  id: 4
+  flags: 1
+  name: Katseluoikeus ainoastaan
+  notes: Yksinkertainen rooli ilman oikeuksia
+  permissions: [ ]

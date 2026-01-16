@@ -1,0 +1,21 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Този шаблон определя съдържанието, което се показва на страницата Благодарим Ви след като клиент изпрати нова заявка в клиентския портал.
+name: Благодарим Ви
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Благодарим Ви, че се свързахте с нас.
+  <br>
+  <br>
+  Създадена е заявка за поддръжката и наш представител ще се свърже с Вас възможно най-бързо, ако е необходимо.
+  </p>
+  <br>
+  <br>
+  Отдел Поддръжка
+  </div>

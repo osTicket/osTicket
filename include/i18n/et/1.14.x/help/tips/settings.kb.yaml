@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Teadmistebaasi sätted
+  0: >
+
+knowledge_base_status:
+  title: Teadmistebaasi staatus
+  content: >
+    Luba need seaded, et kasutajad saaks juurdepääsu avalikele teadmistebaasi artiklitele. <br><br> Teadmistebaasi kategooriaid ja KKK saab kasutada etevõtte siseselt (nähtav vaid agentidele).
+  links:
+    - 
+      title: Halda teadmistebaasi
+      href: /scp/kb.php
+restrict_kb:
+  title: Piira ligipääsu teadmistebaasile
+  content: >
+    Aktiveeri need seaded, et ära hoida registreerimata kasutajate ligipääs teadmistebaasi artiklitele kliendi kasutajaliidese kaudu.
+  links:
+    - 
+      title: Ligipääsu seaded
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Ettevalmistatud vastused
+  content: >
+    Luba see seadistus, et lubada agentidel kasutada <span class="doc-desc-title">ettevalmistatud vastuseeid</span> piletitele vastates.
+  links:
+    - 
+      title: Halda ettevalmistatud vastuseid
+      href: /scp/canned.php

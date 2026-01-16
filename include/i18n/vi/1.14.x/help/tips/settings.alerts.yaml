@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Cảnh báo và Chú thích
+  content: >
+    Cảnh báo và chú thích là những thông báo email tự động được gửi tới các nhân viên khi các lệnh khác nhau được kích hoạt.
+ticket_alert:
+  title: Yêu cầu cảnh báo mới
+  content: >
+    <p>Cảnh báo được gửi tới các nhân viên khi một lệnh mới được tạo.</p><p class="info-banner"><i class="icon-info-sign"></i>Cảnh báo này không được gửi ra ngoài nếu lệnh này được tự động chỉ định thông qua một bộ lọc lệnh hoặc Tiêu đề trợ giúp.</p>
+  links:
+    - 
+      title: Khung cảnh báo lệnh mới mặc định
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Cảnh báo khi có thông báo mới
+  content: >
+    Cảnh báo được gửi tới các nhân viên khi một tin nhắn mới từ người dùng được nối với một lệnh đang tồn tại.
+  links:
+    - 
+      title: Khung cảnh báo tin nhắn mới mặc định
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Cảnh báo ghi chú nội bộ mới
+  content: >
+    Cảnh báo gửi ra ngoài cho nhân viên khi các hoạt động nội bộ như ghi chú nội bộ hoặc một nhân biên trả lời yêu cầu.
+  links:
+    - 
+      title: Khung hoạt động của lệnh mặc định
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Cảnh báo chỉ định lệnh
+  content: >
+    Cảnh báo về lệnh chỉ định được gửi tới các nhân viên.
+  links:
+    - 
+      title: Khung cảnh báo chỉ định lệnh mặc định
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Cảnh báo chuyển lệnh
+  content: >
+    Cảnh báo được gửi tới các nhân viên khi chuyển lệnh giữa các phòng ban.
+  links:
+    - 
+      title: Khung cảnh báo chuyển lệnh mặc định
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Cảnh báo lệnh quá hạn
+  content: >
+    Cảnh báo được gửi cho các nhân viên khi một lệnh quá hạn dựa trên SLA hoặc ngày đáo hạn.
+  links:
+    - 
+      title: Khung cảnh báo lệnh cũ mặc định
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Quản lý SLA
+      href: /scp/slas.php
+system_alerts:
+  title: Hệ thống cảnh báo
+  content: >
+    Những sự kiện hệ thống quan trọng được gửi tới quản trị viên(%{config.admin_email}).Phụ thuộc vào<span class="doc-desc-title">mức độ ghi chép cấu hình</span>,các sự kiện này sẽ có mặt trên<span class="doc-desc-title">Nhật ký hệ thống</span>
+  links:
+    - 
+      title: Xem Nhật ký hệ thống
+      href: /scp/logs.php
+    - 
+      title: Thay đổi email của admin
+      href: /scp/settings.php?t=emails

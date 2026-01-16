@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: E-postmallar
+  content: >
+    E-postmallar används för att skicka Autosvar och Upplysningar om olika händelser som kan inträffa under ett ärendes livstid.
+template_to_clone:
+  title: Mall att kopiera
+  content: >
+    Välj en mall-uppsättning att kopiera eller använd de inbyggda e-postmallarna i osTicket.
+language:
+  title: Språk
+  content: >
+    Välj önskat språk för <span class="doc-desc-opt">inbyggda</span> <span class="doc-desc-title">e-postmallarna</span>. Ytterligare språkpaket finns att ladda ner på osTicket.com.
+  links:
+    - 
+      title: osTicket Språkpaket
+      href: https://osticket.com/download
+status:
+  title: Status
+  content: >
+    <span class="doc-desc-opt">Aktiverade</span> mallar finns tillgängliga för att kopplas samman med Avdelningar och anges som standard i systemet.  Mallarna som används kan ej <span class="doc-desc-opt">Inaktiveras</span>.

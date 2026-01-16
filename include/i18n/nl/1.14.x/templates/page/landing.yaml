@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  De landingspagina refereert naar de initiële weergave van het klantportaal. De template wijzigt de inhoud die men ziet boven de twee links <strong>Open een Nieuw Ticket</strong> en <strong>Controleer Ticket Status</strong>.
+name: Landingspagina
+body: >
+  <h1>Welkom bij het Support Center</h1> <p>Om verzoeken tot support beter te kunnen ondersteunen maken wij gebruik van een Support Ticket Systeem. Elke supportaanvraag krijgt een uniek ticketnummer toegewezen wat u kunt gebruiken om de voortgang en de antwoorden online te volgen. Voor uw informatie bieden wij een volledige geschiedenis van al uw aanvragen voor support. Een geldig e-mailadres is vereist om een nieuw ticket aan te kunnen maken. </p>

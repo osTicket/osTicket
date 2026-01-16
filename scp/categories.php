@@ -109,7 +109,7 @@ if($_POST){
                                       foreach ($faqs as $key => $faq)
                                           $faq->delete();
                                   }
-                              $c->delete();
+                             $c->delete();
                         }
 
                         if (count($categories)==$count)

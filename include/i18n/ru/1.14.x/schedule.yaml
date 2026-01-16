@@ -1,0 +1,175 @@
+---
+- 
+  #Initial set of schedules and entries
+  #Fields:
+  #id:
+  #flags:
+  #0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+  #sort:     Manual sort order
+  #name:     Name of the Schedule
+  #timezone:   Timezone of the Schedule
+  #description:   Description of the Schedule
+  #entries:     Schedule Entries
+  #---
+  id: 1
+  flags: 0x01
+  name: Понедельник - Пятница 8:00 - 17:00 с Праздниками в США
+  configuration:
+    holidays:
+      - 4
+  entries:
+    - 
+      name: Понедельник
+      repeats: еженедельно #notrans
+      starts_on: 2019-01-07
+      starts_at: 08:00:00
+      ends_on: 2019-01-07
+      ends_at: 17:00:00
+      day: 1
+    - 
+      name: Вторник
+      repeats: еженедельно #notrans
+      starts_on: 2019-01-08
+      starts_at: 08:00:00
+      ends_on: 2019-01-08
+      ends_at: 17:00:00
+      day: 2
+    - 
+      name: Среда
+      repeats: еженедельно #notrans
+      starts_on: 2019-01-09
+      starts_at: 08:00:00
+      ends_on: 2019-01-09
+      ends_at: 17:00:00
+      day: 3
+    - 
+      name: Четверг
+      repeats: еженедельно #notrans
+      starts_on: 2019-01-10
+      starts_at: 08:00:00
+      ends_on: 2019-01-10
+      ends_at: 17:00:00
+      day: 4
+    - 
+      name: Пятница
+      repeats: еженедельно #notrans
+      starts_on: 2019-01-11
+      starts_at: 08:00:00
+      ends_on: 2019-01-11
+      ends_at: 17:00:00
+      day: 5
+- 
+  id: 2
+  flags: 0x01
+  name: 24/7
+  entries:
+    - 
+      name: Ежедневно
+      repeats: ежедневно #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+- 
+  id: 3
+  flags: 0x01
+  name: 24/5
+  entries:
+    - 
+      name: Будни
+      repeats: рабочие дни #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+- 
+  id: 4
+  flags: 0
+  name: Выходные в США
+  entries:
+    - 
+      name: Новый год
+      repeats: раз в год #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+      day: 1
+      month: 1
+    - 
+      name: День Мартина Лютера Кинга(20.01 USA)
+      repeats: раз в год #notrans
+      starts_on: 2019-01-21
+      starts_at: 00:00:00
+      ends_on: 2019-01-21
+      ends_at: 23:59:59
+      day: 1
+      week: 3
+      month: 1
+    - 
+      name: День поминовения в США (25 мая)
+      repeats: раз в год #notrans
+      starts_on: 2019-05-27
+      starts_at: 00:00:00
+      ends_on: 2019-05-27
+      ends_at: 23:59:59
+      day: 1
+      week: -1
+      month: 5
+    - 
+      name: День независимости в США (4 июля)
+      repeats: раз в год #notrans
+      starts_on: 2019-07-04
+      starts_at: 00:00:00
+      ends_on: 2019-07-04
+      ends_at: 23:59:59
+      day: 4
+      month: 7
+    - 
+      name: День труда в США (первый понедельник Сентября)
+      repeats: раз в год #notrans
+      starts_on: 2019-09-02
+      starts_at: 00:00:00
+      ends_on: 2019-09-02
+      ends_at: 23:59:59
+      day: 1
+      week: 1
+      month: 9
+    - 
+      name: День коренных народов в США
+      repeats: раз в год #notrans
+      starts_on: 2019-10-14
+      starts_at: 00:00:00
+      ends_on: 2019-10-14
+      ends_at: 23:59:59
+      day: 1
+      week: 2
+      month: 10
+    - 
+      name: День Ветеранов
+      repeats: раз в год #notrans
+      starts_on: 2019-11-11
+      starts_at: 00:00:00
+      ends_on: 2019-11-11
+      ends_at: 23:59:59
+      day: 11
+      month: 11
+    - 
+      name: День Благодарения
+      repeats: раз в год #notrans
+      starts_on: 2019-11-28
+      starts_at: 00:00:00
+      ends_on: 2019-11-28
+      ends_at: 23:59:59
+      day: 4
+      week: 4
+      month: 11
+    - 
+      name: Рождество
+      repeats: раз в год #notrans
+      starts_on: 2019-11-25
+      starts_at: 00:00:00
+      ends_on: 2019-11-25
+      ends_at: 23:59:59
+      day: 25
+      month: 12

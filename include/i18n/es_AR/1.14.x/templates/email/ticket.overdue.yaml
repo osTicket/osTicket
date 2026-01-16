@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Enviar a los miembros del personal cuando un ticket sea marcado como demorado en el sistema. La demora en los tickets está basada en la fecha límite del ticket como también en el SLA definido para el ticket.
+subject: |
+  Alerta de ticket demorado
+body: |
+  <h3><strong>Hola %{recipient}</strong>,</h3>
+  El ticket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> está seriamente demorado.
+  <br>
+  <br>
+  Debemos trabajar duramente para garantizar que todos los tickets sean respondidos de manera oportuna.
+  <br>
+  <br>
+  Firmado,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Para ver o responder el ticket, por favor <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >ingresá</span></a> al Sistema de Soporte Técnico. Estás recibiendo esta notificación porque el ticket está asignado directamente a vos o tu equipo o al departamento del cual sos miembro.</div>
+  <em style="font-size: small">Saluda atte.<span style="font-size: smaller"
+  >(although with limited patience)</span> Equipo Soporte Técnico</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: 티켓 활동
+  content: >
+    날짜 범위를 선택하면 해당 기간에 대한 데이터가 그래프와 표(<span class="doc-desc-title">Statistics</span>)에 나타납니다. 그래프는 항상 시스템 전체의 데이터(즉, 모집단)를 반영하여 보여줍니다. 하지만 <span class="doc-desc-title">Statistics </span> 표를 통해 관심있는 주제(예를 들어 부서, 주제, 직원)에 대한 정보를 얻을 수 있습니다. 또한 <span class="doc-desc-title">Statistics </span> 표에 나타나는 정보를 내보내기 할 수도 있습니다.
+report_timeframe:
+  title: 보고 기간
+  content: >
+    날짜 선택기를 사용하여 추출하고자 하는 데이터의 시작일을 지정합니다. 그리고 시작일을 기준으로 날짜의 길이를 입력하여 데이터를 얻습니다.
+statistics:
+  title: 통계
+  content: >
+    특정 데이터 샘플을 보기 위해 해당 탭을 클릭하여 관심 있는 주제로 이동합니다. 테이블 내의 원은 해당 데이터의 크기를 나타냅니다. 따라서 특정 단위의 크기가 클 수록 원 또한 커집니다.
+opened:
+  title: 열림
+  content: >
+    티켓에 부서 또는 도움 주제가 있거나 담당자가 사용자를 대신하여 개설한 티켓 수 입니다
+assigned:
+  title: 할당됨
+  content: >
+    담당자 또는 팀에 할당된 티켓입니다. 이 수는 담당자 또는 팀에 수동으로 할당된 티켓, 청구된 티켓 및 티켓 필터/기타 자동 할당 규칙에서 할당된 티켓을 반영합니다.
+overdue:
+  title: 기한 초과됨
+  content: >
+    시스템에 의해 '기한 초과'로 표시된 티켓입니다. 티켓은 해당 티켓이 속한 SLA 계획을 위반했을 때 지연으로 표시되며, 만료 날짜가 지나면 '열림' 상태가 됩니다.
+closed:
+  title: 종료됨
+  content: >
+    이 수는 종료 상태인 티켓 수 입니다.
+reopened:
+  title: 재개됨
+  content: >
+    티켓이 다시 열린 총 횟수입니다. 티켓 상태가 닫힘에서 오픈으로 변경될 때마다 다시 열림 상태 입니다.
+deleted:
+  title: 삭제됨
+  content: >
+    삭제된 티켓의 합계입니다.
+service_time:
+  title: 서비스 시간
+  content: >
+    티켓을 처음 열 때부터 티켓을 종료할 때까지 지속된 시간을 나타냅니다. 서비스 시간 열은 티켓 당 평균 서비스 시간을 측정합니다.
+response_time:
+  title: 응답 시간
+  content: >
+    담당자의 평균 응답 시간을 시간 단위로 표시합니다.

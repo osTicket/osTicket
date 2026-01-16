@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Munkatárs név formátum
+  content: >
+    Válasszon egy formázást a munkatársak neveinek. Az email sablonok névként fogják használni, ha nincs más meghatározott formátum.
+staff_identity_masking:
+  title: Munkatárs személyének elrejtése
+  content: >
+    Engedélyezés esetén elrejti a munkatárs nevét az ügyféllel történő bármilyen kommunikáció közben.
+#Authentication settings
+password_reset:
+  title: Jelszó érvényesség házirend
+  content: >
+    Meghatározza (hónapokban), hogy a kezelőknek milyen gyakran kell megváltoztatniuk a jelszavukat. Ha nincs engedélyezve ("Lejárat nélkül"-re van állítva) a jelszó soha nem veszti érvényét.
+password_expiration_policy:
+  title: Jelszó érvényesség házirend
+  content: >
+    Válassza ki, hogy a kezelőknek milyen gyakran kell megváltoztatniuk a jelszavukat. Ha nincs engedélyezve (ami a <span class="doc-desc-opt">Nincs lejárat</span>), a jelszó nem veszti soha érvényét.
+allow_password_resets:
+  title: Jelszó-visszaállítás engedélyezése
+  content: >
+    Engedélyezze ezt a lehetőséget ha szeretné megjeleníteni az <span class="doc-desc-title">Elfelejtett jelszó</span> linket a <span class="doc-desc-title">Személyzeti Bejelentkezés panelen</span>sikertelen bejelentkezési próbálkozást követően.
+reset_token_expiration:
+  title: Jelszó-visszaállítási ablak
+  content: >
+    Válassza ki mennyi idő teljen el (percben) a <span class="doc-desc-title">Jelszó visszaállító kupon</span>aktiválásáig. Ha a kezelő <span class="doc-desc-title">Jelszó visszaállítást</span>igényel, egy kupon kerül neki elküldésre emailben, ami engedélyezi a visszaállítás megtételét.
+staff_session_timeout:
+  title: munkatárs munkafolyamat időntúl
+  content: >
+    Válassza ki a maximális tétlenségi időt (percben), ami után a kezelőnek újra be kell jelentkeznie.<br><br>Ha nem szeretné az <span class="doc-desc-title">alkalmazott munkamenet időkorlátját</span> használni, állísta 0-ra.
+bind_staff_session_to_ip:
+  title: Munkatárs munkafolyamat hozzárendelése IP-hez
+  content: >
+    Engedélyezze ezt, ha szeretné hogy a kezelőt az aktuális IP cím alapján azonosításra kerüljön. <br><br>Ez a beállítás nem ajánlott a dinamikus IP címmel rendelkező felhasználóknak.

@@ -1,0 +1,28 @@
+---
+#Email template: task.overdue.alert.yaml
+#Sent to agents when a tasks transitions to overdue in the system.
+#Overdue tasks occur based on set due-date.
+#---
+notes: |
+  Inviato agli agenti quanto un task è segnato dal sistema come scaduto.
+  Un task è scaduto in base alle impostazioni definite.
+subject: |
+  Avviso di Ticket in scadenza
+body: |
+  <h3><strong>Ciao %{recipient.name}</strong>,</h3>
+  Il task, <a href="%{task.staff_link}">#%{task.number}</a> è particolarmente in ritardo.
+  <br>
+  <br>
+  Dovremmo tutti lavorare in sintonia per garantire che tutti i task siano gestiti in un tempo ragionevole..
+  <br>
+  <br>
+  In fede,<br>
+  %{task.dept.manager.name}
+  <hr>
+  <div>Per visualizzare o rispondere al task, <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >accedi</span></a> al sistema. Ricevi questa notifica poiché il task è assegnato direttamente a te o ad un team di cui fai parte.</div>
+  <em style="font-size: small">Il tuo amichevole <span style="font-size: smaller"
+  >(anche se non molto paziente)</span> centro di supporto.</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

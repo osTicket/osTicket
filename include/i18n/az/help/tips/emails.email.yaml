@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+new_ticket_help_topic:
+  title: Yeni sorğu kömək mövzusu
+  content: >
+    Bu e-poçt ünvanı vasitəsilə yaradılan sorğuları avtomatik əlaqələndirmək üçün <span class="doc-desc-title">kömək mövzusu</span> seçin. <br/><br/> Kömək mövzusu ilə əlaqələndirilmiş formalar sorğuya əlavə olunacaq, amma hər hansı bir məlumata malik olmayacaq.
+  links:
+    - 
+      title: Kömək mövzularını idarə et
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Yeni sorğu üstünlüyü
+  content: >
+    Bu e-poçt vasitəsilə yaradılmış yeni sorğular üçün <span class="doc-desc-title">üstünlük</span> seçin.
+new_ticket_department:
+  title: Yeni sorğu şöbəsi
+  content: >
+    Bu e-poçt vasitəsilə yaradılmış yeni sorğuları yönləndirəcək <span class="doc-desc-title">şöbəni</span> seçin.
+  links:
+    - 
+      title: Şöbələri idarə et
+      href: /scp/departments.php
+auto_response:
+  title: Yeni sorğuya avtomatik cavab
+  content: >
+    Bu e-poçt vasitəsilə yeni sorğu yaradılanda istifadəçiyə göndərilən avtomatik cavabı ləğv edə bilərsiniz.
+userid:
+  title: İstifadəçi adı
+  content: >
+    The Username is utilized in the email authentication process. We accept single address strings, shared mailbox strings, servername + username strings, and a combination of all.
+  links:
+    - 
+      title: More Information
+      href: https://docs.osticket.com/en/latest/Admin/Emails/Emails.html
+username:
+  title: İstifadəçi adı
+  0: >
+
+password:
+  title: Şifrə
+  0: >
+
+login_information:
+  title: E-poçt girişi məlumatı
+  content: >
+    <span class="doc-desc-title">İstifadəçi adı</span> və <span class="doc-desc-title">şifrə</span> IMAP / POP poçt qutularından e-poçt alan zaman, həmçinin SMTPdən e-poçt göndərəndə tələb olunur.
+mail_account:
+  title: E-poçt qəbul etmək
+  content: >
+    IMAP və ya POP poçt qutularından kənar e-poçtlar qəbul edin və onları help deskinizdə sorğuya çevirin.
+  links:
+    - 
+      title: <span class="doc-desc-title">E-poçt səsverməsinin</span> &amp; <span class="doc-desc-title">avtomatik planlama (AutoCron)</span> parametrlərini idarə et.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Məsafəli (kənar, uzaqlaşdırılmış) host
+  content: >
+    <span class="doc-desc-title">Host adını</span> və <span class="doc-desc-title">portun</span> nömrəsini poçt serveriniz üçün daxil edin. Bu, sizin hostinq hesabınız və ya e-poçt administratorunuzdan gələnlərin sənədləşdirilməsi üçün mövcud ola bilər.
+mail_folder:
+  title: Mail Folder
+  content: >
+    Enter the <span class="doc-desc-title">Folder</span> name that you wish to fetch mail from. If left emtpy the system will fetch from the INBOX.
+protocol:
+  title: Poçt qutusu protokolu
+  content: >
+    Uzaqlaşdırılmış poçt serverinizin dəstəklədiyi poçt qutusu protokolunu seçin. IMAP məsləhət görülür və əgər mümkündürsə SSL.
+smtp_auth_creds:
+  title: Use Separate Authentication
+  content: >
+    If this setting is Disabled the system will use the same Authentication Credentials as entered above. If you require separate credentials for Fetching and SMTP, you can Enable this setting and enter your SMTP Authentication Credentails.
+fetch_frequency:
+  title: Tezliyi almaq
+  content: >
+    Sistemin dəqiqədə poçt qutusunu nə qədər tez-tez yoxlayacağını daxil edin. <br/><br/> İstifadəçi bu poçt qutusuna e-poçt göndərdikdən sonra avtomatik cavabın ortalama nə qədər gecikdiyini müəyyənləşdirəcək.
+emails_per_fetch:
+  title: Alınan hər e-poçt
+  content: >
+    Bir dəfəyə çıxarılan e-poçtların sayını daxil edin.
+fetched_emails:
+  title: Alınan e-poçtlar
+  content: >
+    İşlənmiş e-poçtlarla nə etməli olduğunuza qərar verin: <br/><br/> <span class="doc-desc-opt"><b>qovluğa köçürün</b></span>: Bu, sizin e-poçtunuzu İNBOXdan sizin xüsusi seçdiyiniz qovluğa geri qaytaracaq. Əgər qovluq hələ serverdə mövcud deyilsə, sistem bunu avtomatik yaratmağa cəhd edəcək. (<b>Məsləhətdir</b>) <hr><span class="doc-desc-opt"><b>E-poçtları silin</b></span>: bu, işləndikdə sizin e-poçtunuzu İNBOXdan siləcək. <hr> <span class="doc-desc-opt"><b>Heç nə etməyin</b></span>: Bu, İNBOXda e-poçtlar qoyacaq. Sistem sizin e-poçtlarınıza müdaxilənin aşkarlanmasını  yazacaq və yenidən gətirməyə cəhd edəcək. Lakin bu variant sorğuları yaratmaq üçün dublikat olunmasına səbəb ola bilər. (<em>Məsləhət deyil</em>)
+smtp_settings:
+  title: SMTP tənzimləmələri
+  content: >
+    Help deskdən göndərilən e-poçt SMTP serverinin içindən göndərilə bilər. Bu məsləhətlidir, əgər mümkündürsə, belə ki, e-poçtun çatması ehtimalını artıracaq və poçtların spama düşməsinin azalmasını təmin edəcək.
+header_spoofing:
+  title: Saxtakarlığı qəbul etmək
+  content: >
+    Bunu yuxarıdakı <span class="doc-desc-title">e-poçt ünvanı</span> tənzimləməsində bir dəfə verilən ünvandan poçt qutusu vasitəsilə e-poçtlar göndərilməsinə razı olmaq üçün aktiv edin. <br/><br/> Bu yüksək tənzimləmə əsasən bu poçt qutusunun adından e-poçt göndərmək üçün istifadə olunur.
+

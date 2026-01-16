@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Järjestelmäloki
+  content: >
+    Täältä löydät kaikki vian etsimiseen liittyvät lokit (esimerkiksi virheet, varoitukset ja bugit).
+  links:
+    - 
+      title: Muokkaa lokikirjoituksen tyyppiä muuttamalla <br /> <span class="doc-desc-title"> Lokikirjoituksen oletustaso</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Aikaväli
+  content: >
+    Valitse kalenterialue, jonka haluat nähdä <span class="doc-desc-title"> Järjestelmän lokissa</span>.
+type:
+  title: Tyyppi
+  content: >
+    Valitsemalla vaihtoehdon voit tarkentaa lokiin kirjoitettuja aktiviteetteja. <span class="doc-desc-opt"> Testaus</span> kirjoittaa kaikki tapahtumat ja <span class="doc-desc-opt"> Virhe</span> kirjoittaa vain virheet.
+showing_logs:
+  title: Näytetään &hellip; lokit
+  content: >
+    Varmista, että <span class="doc-desc-title"> Sivut</span> osassa ei ole lisää Järjestelmän lokitietoja.
+log_title:
+  title: Lokin otsikko
+  content: >
+    Klikkaa <span class="doc-desc-title"> Lokin otsikko</span> saraketta, jos haluat lajitella tulokset<span class="doc-desc-title"> Lokin otsikon</span> mukaisesti.
+log_type:
+  title: Lokin tyyppi
+  content: >
+    Klikkaa <span class="doc-desc-title"> Lokin tyyppi</span> saraketta, jos haluat lajitella tulokset<span class="doc-desc-title"> Lokin tyypin</span> mukaisesti.
+log_date:
+  title: Lokin päivämäärä
+  content: >
+    Tämä päivämäärä kertoo milloin lokitapahtuma on tallennettu järjestelmän toimesta. Jos haluat lajitella tuloksia <span class="doc-desc-title"> Lokin päivämäärän</span> mukaan, klikkaa <span class="doc-desc-title"> Lokin päivämäärä</span> saraketta. (Käytä <span class="doc-desc-title"> Aikaväli</span> lomaketta supistaaksesi tapahtumia.)
+ip_address:
+  title: IP-osoite
+  content: >
+    Tämä on <span class="doc-desc-title"> IP-osoite</span>-<span class="doc-desc-title"> osoite</span>, josta Käsittelijä tai Asiakas kirjautui Järjestelmään .

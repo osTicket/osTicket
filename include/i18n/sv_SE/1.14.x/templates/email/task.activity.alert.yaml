@@ -1,0 +1,26 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Skickas till handläggare när ett nytt meddelande/notering postas till ett ärende. Detta kan inträffa om en medarbetare eller en handläggare svarar på ett e-postmeddelande från systemet eller besöker webbportalen och skriver ett nytt meddelande där.
+subject: |
+  Uppgifts-aktivitet [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hej %{recipient.name},</strong></h3>
+  Ärende <a href="%{task.staff_link}">#%{task.number}</a> uppdaterad: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>För att visa/besvara ärendet, vänligen <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logga in</span></a> i support-systemet</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Ditt vänliga ärendehanteringssystem</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

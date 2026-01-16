@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "6"
+  - "8"
+before_script:
+  - npm install -g gulp-cli jsdoc ava
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+
+script:
+  - yarn install
+  - npm run build
+  - npm run test

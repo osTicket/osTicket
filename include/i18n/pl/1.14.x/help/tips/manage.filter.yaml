@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Kolejność wykonywania
+  content: >
+    Wprowadź numer kontrolujący priorytet filtra. Im niższa liczba, tym priorytet wykonania filtra wyższy, od innego, który może mieć wyższy porządek wykonania.<br><br>Jeżeli chcesz żeby filtr był ostatnim stosowanym po dopasowaniu, włącz <span class="doc-desc-title">Zatrzymaj przetwarzanie przy trafieniu</span>.
+target_channel:
+  title: Kanał
+  content: >
+    Wybierz docelowy <span class="doc-desc-title">kanał</span> dla <span class="doc-desc-title">Filtra zgłoszeń</span>. <span class="doc-desc-title">Kanał</span> to źródło, którym zgłoszenia docierają do systemu. <br><br> Na przykład, jeżeli wybierzesz <span class="doc-desc-opt">formularze webowe</span>, to znaczy, że chcesz zastosować  <span class="doc-desc-title">Filtr zgłoszeń</span> do tych zgłoszeń, które zostały utworzone w formularzu na Portalu Klienta.
+rules_matching_criteria:
+  title: Zasady spełniające kryteria
+  content: >
+    Wybierz jak elastyczny ma być twój <span class="doc-desc-title">Filtr zgłoszeń</span>. Jeżeli chcesz, aby <span class="doc-desc-title">Filtr zgłoszeń</span> dopasował dowolną z reguł, a potem zatrzymał się, wybierz <span class="doc-desc-opt">Pasuje dowolna</span>, jeżeli chcesz, aby wszystkie reguły zostały dopasowane, wybierz <span class="doc-desc-opt">Pasują wszystkie</span>.
+reject_ticket:
+  title: Odrzucić zgłoszenie
+  content: >
+    Jeżeli to jest włączone, dalsze przetwarzanie będzie zatrzymane i wszystkie pozostałe wybrane poniższe akcje będą ignorowane.
+reply_to_email:
+  title: Odpowiedź na E-mail
+  content: >
+    Włącz tą opcję, jeżeli chcesz, aby twój System Obsługi Pomocy honorował nagłówek aplikacji klienckiej e-mail <span class="doc-desc-title">Odpowiedz do</span>. To pole ma znaczenie tylko wtedy, gdy <span class="doc-desc-title">Kanał </span> powyżej zawiera <span class="doc-desc-opt">e-mail</span>.
+ticket_auto_response:
+  title: Wyłącz Auto odpowiedzi dla zgłoszeń
+  content: >
+    <em>Uwaga: Zostaną nadpisane wszystkie ustawienia <span class="doc-desc-title"> Dapartamentów</span> i <span class="doc-desc-title">Autoodpowiedzi </span>.</em>
+canned_response:
+  title: Przygotowana automatyczna odpowiedź
+  content: >
+    Wybierz <span class="doc-desc-title">Gotową odpowiedź</span> jaką chcesz, żeby została wysłana do użytkownika po dopasowaniu <span class="doc-desc-title">Filtra zgłoszenia</span>.  Szablon <span class="doc-desc-title">Nowa automatyczna odpowiedź na zgłoszenie</span>, który zostanie użyty zależy od przydzielonego domyślnie <span class="doc-desc-title">zestawu szablonów</span> lub zostanie dopasowany do <span class="doc-desc-title">Departmentu</span>.
+  links:
+    - 
+      title: Zarządzaj Przygotowanymi Odpowiedziami
+      href: /scp/canned.php
+    - 
+      title: Zarządzanie zestawami szablonów
+      href: /scp/templates.php
+    - 
+      title: Nowy szablon Auto odpowiedzi na zgłoszenie
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Departament
+  content: >
+    Wybierz <span class="doc-desc-title">Departament</span>, który ma zostać przydzielony przez  <span class="doc-desc-title">Filtr zgłoszenia</span>.
+  links:
+    - 
+      title: Zarządzanie departamentami
+      href: /scp/departments.php
+priority:
+  title: Priorytet
+  content: >
+    Wybierz <span class="doc-desc-title">Priorytet</span>, który chcesz ustawić dla pasujących wyszukań dla <span class="doc-desc-title">Filtra Zgłoszeń</span>.<br /> <br /> <em>Uwaga: To nadpisuje ustawienia wprowadzone dla <span class="doc-desc-title">Departamentu</span> oraz <span class="doc-desc-title"> Tematu Pomocy</span> .</em>
+sla_plan:
+  title: SLA Plan
+  content: >
+    Wybierz <span class="doc-desc-title">Plan SLA</span>, który chcesz zastosować do pasujących wyników działania <span class="doc-desc-title">Filtra zgłoszeń</span>.
+  links:
+    - 
+      title: Zarządzanie Planami SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Automatyczne przypisywanie
+  content: >
+    Wybierz przedstawiciela lub zespół, którzy zostaną przypisani do pasujących wyników działania <span class="doc-desc-title">Filtra zgłoszeń</span>.
+  links:
+    - 
+      title: Zarządzaj przedstawicielami
+      href: /scp/staff.php
+    - 
+      title: Zarządzanie zespołami
+      href: /scp/teams.php
+help_topic:
+  title: Temat pomocy
+  content: >
+    Wybierz <span class="doc-desc-title">Tytuł Pomocy</span> który chcesz przypisać do pasujących wyników działania <span class="doc-desc-title">Filtra zgłoszeń</span>.
+  links:
+    - 
+      title: Zarządzanie tematami pomocy
+      href: /scp/helptopics.php
+admin_notes:
+  title: Notatki Administratora
+  content: >
+    Ta notatka jest widoczna tylko dla użytkowników, którzy mają ustawiony typ  ‘<span class="doc-desc-title">Admin</span>.’

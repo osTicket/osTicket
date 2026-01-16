@@ -20,11 +20,11 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search
     if ($_REQUEST['q'])
         $faqs->filter(Q::all(array(
             Q::ANY(array(
-                'question__contains'=>$_REQUEST['q'],
-                'answer__contains'=>$_REQUEST['q'],
-                'keywords__contains'=>$_REQUEST['q'],
-                'category__name__contains'=>$_REQUEST['q'],
-                'category__description__contains'=>$_REQUEST['q'],
+            'question__contains'=>$_REQUEST['q'],
+            'answer__contains'=>$_REQUEST['q'],
+            'keywords__contains'=>$_REQUEST['q'],
+            'category__name__contains'=>$_REQUEST['q'],
+            'category__description__contains'=>$_REQUEST['q'],
             ))
         )));
 

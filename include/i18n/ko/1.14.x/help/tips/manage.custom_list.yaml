@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: 사용자 정의 목록
+  content: >
+    <span class="doc-desc-title">사용자 정의 목록</span>을 통해 사전 정의 옵션을 가진 드롭 다운 박스를 만들어 <span class="doc-desc-title">사용자 정의 양식</span>에서 고객이 이를 선택하게 할 수 있습니다. <span class="doc-desc-title">사용자 정의 목록</span>을 <span class="doc-desc-title">티켓 필터</span>에서의 <span class="doc-desc-title">검색 조건</span>으로 사용하고 싶다면, <span class="doc-desc-title">티켓 상세</span> 양식에 이 목록을 추가해야 합니다.
+name:
+  title: 이름
+  0: >
+
+plural_name:
+  title: 별칭
+  0: >
+
+sort_order:
+  title: 순서 정렬
+  0: >
+
+list_s_initial_items:
+  title: 리스트의 초기 항목들
+  0: >
+
+value:
+  title: 값
+  0: >
+
+extra:
+  title: 엑스트라
+  content: >
+    약어 등등. 만약 이 목록의 항목에 대해 내부 코드를 사용할 일이 있다면, 그런 코드들과 약어들을 여기에 입력합니다. 만약 사용자 정의 목록이 <span class="doc-desc-option">TypeAhead</span>로 표현되는 경우, 이 약어들은 사용자 정의 목록에 대한 검색에 사용될 수 있습니다.

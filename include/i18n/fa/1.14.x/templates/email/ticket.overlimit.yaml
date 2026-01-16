@@ -1,0 +1,15 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  زمانی برای کاربر ارسال می شود که کاربر به محدودیت تعداد مجاز درخواست های باز رسیده باشد. این محدودیت در کنترل پنل مدیر سایت قابل تنظیم است، و با تعداد درخواست های باز شده توسط یک آدرس ایمیل خاص تعریف شده است.
+subject: |
+  محدودیت تعداد درخواست های باز رخ داده است
+body: |
+  <h3><strong>%{ticket.name.first} عزیز،</strong></h3>
+  تعداد درخواست‌های باز شما به بالاترین مقدار مجاز رسیده است. برای اینکه قادر به ایجاد درخواست جدید باشید،باید حداقل یکی از درخواست‌های در انتظار شما بسته شود. برای افزودن پیغام یا به‌روزرسانی یک درخواست باز <a
+  href="%{url}/tickets.php?e=%{ticket.email}"> وارد سامانه شوید</a>.<br><br>
+  با تشکر،<br/> سیستم پشتیبانی

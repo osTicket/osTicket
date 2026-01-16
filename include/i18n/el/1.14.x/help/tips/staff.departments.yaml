@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Τύπος
+  content: >
+    Αν ο Τύπος του Τμήματος είναι Ιδιωτικός, τότε η Υπογραφή του Τμήματος δεν θα είναι διαθέσιμη στις αποκρίσεις, ούτε θα εμφανίζεται η ανάθεση τμήματος στον Ιστοχώρο Πελατών.
+dept_manager:
+  title: Υπεύθυνος Τμήματος
+  content: >
+    Μπορείτε να επιλέξετε έναν Εκπρόσωπο ως Υπεύθυνο Τμήματος για να λαμβάνει Ειδοποιήσεις & Ενημερώσεις για δελτία αιτήσεων στα τμήματα.
+  0: Οι Εκπρόσωποι δεν χρειάζεται να είναι μέλη ενός Τμήματος για να είναι Υπεύθυνοι του Τμήματος αυτού

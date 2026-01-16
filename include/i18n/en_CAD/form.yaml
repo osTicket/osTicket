@@ -1,0 +1,205 @@
+#
+# Default (dynamic) form configuration. This data is used as the initial,
+# minimal data for dynamic forms that ships with the system.
+#
+# Fields:
+# id:       Used only if associated with a help topic
+# title:    Bold section title of the form
+# instructions: Title deck, detailed instructions on entering form data
+# notes:    Notes for the form, shown under the fields
+# flags:
+#   0x0001  If the form can be removed from the system
+# fields:   List of fields for the form
+#   type:       Field type (short name) (eg. 'text', 'memo', 'phone', ...)
+#   label:      Field label shown to the user
+#   name:       Name used with the data internally. This is especially
+#               useful for page and email templates, where %{ ticket.<name> }
+#               will be used to retrieve the data from the field.
+#   hint:       Help text shown with the field
+#   flags:      Bit mask for settings & options
+#     # From class DynamicFormField
+#     const FLAG_MASK_CHANGE      = 0x0010;     # Type cannot change
+#     const FLAG_MASK_DELETE      = 0x0020;     # Cannot be deleted
+#     const FLAG_MASK_EDIT        = 0x0040;     # Data cannot be edited
+#     const FLAG_MASK_DISABLE     = 0x0080;     # Field cannot be disabled
+#     const FLAG_MASK_REQUIRE     = 0x10000;    # Requirement cannot be changed
+#     const FLAG_MASK_VIEW        = 0x20000;    # View settings cannot be changed
+#     const FLAG_MASK_NAME        = 0x40000;    # Name cannot be changed
+#
+#   configuration: Field-specific configuration
+#     size:     (text) width of the field
+#     length:   (text) maximum size of the data in the field
+#     cols:     (memo) width of the textarea
+#     rows:     (memo) height of the textarea
+#
+---
+- id: 1
+  type: U # notrans
+  title: Contact Information
+  flags: 0
+  fields:
+    - type: text # notrans
+      name: email # notrans
+      label: Email Address
+      sort: 1
+      flags: 0x777B3
+      configuration:
+        size: 40
+        length: 64
+        validator: email # notrans
+    - type: text # notrans
+      name: name # notrans
+      label: Full Name
+      sort: 2
+      flags: 0x777B3
+      configuration:
+        size: 40
+        length: 64
+    - type: phone # notrans
+      name: phone # notrans
+      label: Phone Number
+      sort: 3
+      flags: 0x3301
+    - type: memo # notrans
+      name: notes
+      label: Internal Notes
+      sort: 4
+      flags: 0x3001
+      configuration:
+        rows: 4
+        cols: 40
+- id: 2
+  type: T # notrans
+  title: Ticket Details
+  instructions: Please Describe Your Issue
+  notes: |
+      This form will be attached to every ticket, regardless of its source.
+      You can add any fields to this form and they will be available to all
+      tickets, and will be searchable with advanced search and filterable.
+  flags: 0
+  fields:
+    - id: 20
+      type: text # notrans
+      name: subject # notrans
+      label: Issue Summary
+      sort: 1
+      flags: 0x77731
+      configuration:
+        size: 40
+        length: 50
+    - id: 21
+      type: thread # notrans
+      name: message # notrans
+      label: Issue Details
+      hint: Details on the reason(s) for opening the ticket.
+      sort: 2
+      flags: 0x75523
+    - id: 22
+      type: priority # notrans
+      name: priority # notrans
+      label: Priority Level
+      flags: 0x430B1
+      sort: 3
+- type: C # notrans
+  title: Company Information
+  instructions: Details available in email templates
+  flags: 0
+  fields:
+    - type: text # notrans
+      name: name # notrans
+      label: Company Name
+      sort: 1
+      flags: 0x471B1
+      configuration:
+        size: 40
+        length: 64
+    - type: text # notrans
+      name: website # notrans
+      label: Website
+      sort: 2
+      flags: 0x43111
+      configuration:
+        size: 40
+        length: 64
+    - type: phone # notrans
+      name: phone # notrans
+      label: Phone Number
+      sort: 3
+      flags: 0x43111
+      configuration:
+        ext: false
+    - type: memo # notrans
+      name: address
+      label: Address
+      sort: 4
+      flags: 0x3101
+      configuration:
+        rows: 2
+        cols: 40
+        html: false
+        length: 100
+- type: O # notrans
+  title: Organization Information
+  instructions: Details on user organization
+  flags: 0
+  fields:
+    - type: text # notrans
+      name: name # notrans
+      label: Name
+      sort: 1
+      flags: 0x777B3
+      configuration:
+        size: 40
+        length: 64
+    - type: memo
+      name: address
+      label: Address
+      sort: 2
+      flags: 0x3301
+      configuration:
+        rows: 2
+        cols: 40
+        length: 100
+        html: false
+    - type: phone
+      name: phone
+      label: Phone
+      sort: 3
+      flags: 0x3301
+    - type: text
+      name: website
+      label: Website
+      sort: 4
+      flags: 0x3301
+      configuration:
+        size: 40
+        length: 0
+    - type: memo # notrans
+      name: notes
+      label: Internal Notes
+      sort: 5
+      flags: 0x3001
+      configuration:
+        rows: 4
+        cols: 40
+- type: A # notrans
+  title: Task Details
+  instructions: Please Describe The Issue
+  notes: |
+      This form is used to create a task.
+  flags: 0
+  fields:
+    - type: text # notrans
+      name: title # notrans
+      flags: 0x770B1
+      sort: 1
+      label: Title
+      configuration:
+        size: 40
+        length: 50
+    - type: thread # notrans
+      name: description # notrans
+      flags: 0x650F3
+      sort: 2
+      label: Description
+      hint: Details on the reason(s) for creating the task.

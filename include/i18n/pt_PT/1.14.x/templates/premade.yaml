@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: O que é osTicket (exemplo)?
+  response: |
+    osTicket é um sistema de tickets de suporte ao cliente largamente utilizado e de código aberto, uma alternativa atraente aos sistemas de suporte ao cliente de custos mais elevados e complexos - simples, leve, confiável, de código aberto, baseado na web e fácil de configurar e usar.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Anexos preparados!
+- 
+  isenabled: 1
+  title: Exemplo (com variáveis)
+  response: |
+    Olá, %{ticket.name.first},
+    <br>
+    <br>
+    O seu Pedido #%{ticket.number} criado em %{ticket.create_date} está atribuído ao departamento %{ticket.dept.name}.
+  0: |
+

@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Burası Müşteri Girişi sayfasına bir başlık tanımlamak için kullanılır. Müşterilerinizi giriş ve kayıtla ilgili kurallarınız konusunda bilgilendirmek açısından faydalı olabilir.
+name: "%{company.name} firması için oturum açma"
+body: >
+  Daha iyi hizmet verebilmek için tüm müşterilerimizi hesap oluşturmaya yönlendiriyoruz.

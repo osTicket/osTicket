@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Používateľské meno
+  content: >
+    Vyberte <span class="doc-desc-title">užívateľské meno</span>, ktoré ho jednoznačne identifikuje v <span class="doc-desc-title">Helpdesku</span>.
+email_address:
+  title: Emailová adresa
+  content: >
+    Zadajte email na ktorý budú posielané <span class="doc-desc-title">upozornenia a oznámenia</span> z <span class="doc-desc-title">Helpdesku</span>.
+  0: <br><br>
+  1: Pracovník sa môže prihlásiť do systému pomocou svojho mena alebo emailu.
+welcome_email:
+  title: Uvítací email
+  content: >
+    Poslaný novému agentovi. Obsahuje prístupový link, pomocou ktorého si agent môže zmeniť svoje heslo. Ak nie je nastavené, musíte mu zadať heslo manuálne a oznámiť detaily prihlásenia do systému iným spôsobom.
+account_password:
+  title: Heslo
+  content: >
+    <span class="doc-desc-title">Administrátor</span> múže zmeniť heslo pracovníka.
+forced_password_change:
+  title: Vynútená zmena hesla
+  content: >
+    Aktivácia príznaku prinúti pracovníka zmeniť si heslo pri najbližšom prihlásení.
+agents_signature:
+  title: Podpis agenta
+  content: >
+    Vytvorte podpis, ktorý sa použije keď agent vytvorí odpoveď na tiket.
+account_status:
+  title: Stav účtu pracovníka
+  content: >
+    Ak je stav účtu <span class="doc-desc-opt">Uzamknutý</span>, pracovník sa nemôže prihlásiť do helpdesku.
+assigned_group:
+  title: Priradená skupina
+  content: >
+    The <span class="doc-desc-title">Priradená skupina</span> určuje práva, ktoré má agent v rámci <span class="doc-desc-title">Helpdesku</span>.
+  links:
+    - 
+      title: Definícia skupín
+      href: /scp/groups.php
+primary_department:
+  title: Primárne oddelenie
+  content: >
+    Vyberte hlavné <span class="doc-desc-title">oddelenie</span>, ku ktorému pracovník patrí a jeho skutočnú <span class="doc-desc-title">rolu</span>.
+  links:
+    - 
+      title: Spravovať oddelenia
+      href: /scp/departments.php
+primary_role:
+  title: Hlavná rola
+  content: >
+    Vyberte hlavnú <span class="doc-desc-title">rolu</span>, ku ktorej pracovník patrí.
+primary_role_on_assign:
+  title: Použiť hlavnú rolu pre priradenie
+  content: >
+    Táto voľba umožní ustúpiť na <span class="doc-desc-title">hlavnú rolu</span>, pokiaľ je pracovníkovi priradená požiadavka alebo úloha mimo priradenia <span class="doc-desc-title">hlavného oddlenia</span> a oddelenia s <span class="doc-desc-title">rozšíreným prístupom</span>. V opačnom prípadě bude mať pracovník len právo prezerania.
+daylight_saving:
+  title: Letný čas
+  content: >
+    Aktivujte príznak ak chcete aby sa používal letný čas pre zvolenú časovú zónu.
+limited_access:
+  title: Obmedzený prístup
+  content: >
+    Ak je nastavený, pracovník má prístup len k tiketom priradeným jemu alebo jeho tímu.
+directory_listing:
+  title: Výpis v adresári
+  content: >
+    Ak je nastavené, pracovník je viditeľný v <span class="doc-desc-title">zozname agentov</span>.
+  links:
+    - 
+      title: Zobraziť zoznam agentov
+      href: /scp/directory.php
+vacation_mode:
+  title: Dovolenka
+  content: >
+    Ak zmeníte nastavenie na <span class="doc-desc-opt">dovolenka</span>, pracovník nebude dostávať žiadne<span class="doc-desc-title">upozornenia a oznamy</span> ani nebude k dispozícií pre priradenie k jednotlivým tiketom.
+

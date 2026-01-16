@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: État
+  content: >
+    En cas de désactivation ou d'archivage, ce <span class="doc-desc-title">service</span> ne sera plus disponible.
+type:
+  title: Type
+  content: >
+    Sélectionner <span class="doc-desc-opt">Privé</span> si vous voulez masquer l'assignation de ce service dans le portail client.  De plus, lorsqu'un service est  <span class="doc-desc-opt">privé</span>, la <span class="doc-desc-title">signature du service</span> ne sera pas affichée dans les réponses par e-mail. <br/><br/> Au moins un service doit être <span class="doc-desc-opt">public</span>
+email:
+  title: Email
+  content: >
+    Adresse e-mail utilisée pour envoyer aux utilisateurs les réponses postées par des Agents.
+template:
+  title: Ensemble de modèles
+  content: >
+    <span class="doc-desc-title">Modèle</span> d'email utilisé pour les réponses automatiques, les alertes et les avis pour les tickets acheminés vers ce service.
+  links:
+    - 
+      title: Gérer les modèles
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Service Level Agreement pour les tickets de ce service.
+  links:
+    - 
+      title: Gérer les Plans SLA
+      href: /scp/slas.php
+schedule:
+  title: Planification
+  content: >
+    Planification utilisée par SLA lors du rendu des tickets, acheminé vers ce service, en retard. <br> <br> Ce paramètre prend la préséance sur les paramètres de planification du système et du SLA.
+  links:
+    - 
+      title: Gérer les Planifications
+      href: /scp/schedules.php
+manager:
+  title: Chef de service
+  content: >
+    Sélectionnez un <span class="doc-desc-title">Gestionnaire</span> pour ce département. <br/> <br/> Les Gestionnaire peuvent recevoir des alertes spéciales et ont également le droit de supprimer l'attribution des tickets.
+  links:
+    - 
+      title: Gérer les alertes et avis
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Destinataires des alertes &amp; avis
+  content: >
+    Sélectionnez les destinataires des <span class="doc-desc-title"> alertes &amp; avis</span> configurés.
+  links:
+    - 
+      title: Configurer les alertes et avis
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Restrictions sur l'assignation de tickets
+  content: >
+    Défini si les tickets d'un service peuvent être attribués à tous-tes les agents-es, aux agents qui sont membres de ce service avec un accès étendu ou principal, ou uniquement aux agents dont c'est le service principal.
+disable_auto_claim:
+  title: Désactiver la revendication automatique
+  content: >
+    Cocher cette option pour <strong>désactiver</strong> la revendication automatique des réponses pour ce service.<br><br> Les agents pourront encore revendiquer les billets non assignés
+disable_reopen_auto_assign:
+  title: Désactiver l'attribution automatique à la réouverture
+  content: >
+    Cochez cette case pour <strong>désactiver </strong> l'attribution automatique des tickets ré-ouverts pour ce service. <br> <br> Sinon, le ticket sera automatiquement attribué au dernier agent ayant répondu
+auto_response_settings:
+  title: Réglages du répondeur automatique
+  content: >
+    Cela vous permet de remplacer les paramètres globaux de répondeur automatique pour ce service.
+new_ticket:
+  title: Réponse automatique à la création d'un billet
+  content: >
+    Vous pouvez désactiver la réponse automatique envoyée à l'utilisateur lorsqu'un nouveau ticket est créé et acheminé à ce service.
+new_message:
+  title: Réponse automatique à un nouveau message
+  content: >
+    Vous pouvez désactiver la réponse automatique envoyée à l'utilisateur pour confirmer un message récemment affiché pour les tickets dans ce département.
+auto_response_email:
+  title: E-mail de réponse automatique
+  content: >
+    Sélectionnez l'adresse e-mail utilisée pour les réponses automatiques de ce service.
+department_access:
+  title: Accès du groupe
+  content: >
+    Permettre aux Agents d'autres services d’accéder aux tickets de ce service.
+department_signature:
+  title: Signature du service
+  content: >
+    La signature est disponible comme un choix, pour les départements <span class="doc-desc-opt"> publiques </span>,  pour les réponses des agents.

@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Templat ini mentakrifkan kandungan yang dipaparkan di dalam halaman Terima-Kasih selepas pelanggan menghantar tiket baru di dalam Portal Pelanggan.
+name: Terima Kasih
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Terima kasih kerana menghubungi kami.
+  <br>
+  <br>
+  Permintaan tiket sokongan telah dicipta dan seorang wakil akan kembali kepada anda tidak lama lagi jika perlu.</p>
+  <br>
+  <br>
+  Pasukan sokongan
+  </div>

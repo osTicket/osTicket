@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Αυτό το πρότυπο ορίζει τη σελίδα που εμφανίζεται στους πελάτες αφού συμπληρώσουν τη φόρμα εγγραφής. Το πρότυπο πρέπει να αναφέρει ότι το σύστημα αποστέλλει ένα email το οποίο περιλαμβάνει σύνδεσμο επιβεβαίωσης και αναφέρει ποιο είναι το επόμενο βήμα στη διαδικασία εγγραφής.
+name: "Δημιουργία λογαριασμού"
+body: >
+  <div><strong>Ευχαριστούμε που εγγραφήκατε για να αποκτήσετε λογαριασμό.</strong><br/> <br /> Σας αποστείλαμε ένα email στη διεύθυνση που καταχωρίσατε. Παρακαλούμε ακολουθήστε τον σύνδεσμο που περιλαμβάνεται στο email για να επιβεβαιώσετε τον λογαριασμό σας και να αποκτήσετε πρόσβαση στα δελτία των αιτημάτων σας. </div>

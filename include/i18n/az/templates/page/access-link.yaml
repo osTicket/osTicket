@@ -1,0 +1,9 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+notes: >
+  Bu şablon müştərilərin e-poçtuna göndərilən linkə giriş üçün bildirişlər müəyyən edir. Sorğu nömrəsi və e-poçt ünvanı linkə girişi işə salır.
+name: "Sorğu [#%{ticket.number}] giriş linki"
+body: >
+  <h3><strong>Salam %{recipient.name.first},</strong></h3> <div> Sorğu #%{ticket.number} üçün giriş linki təklifi %{url}-da sizin adınızdan helpdeskə təqdim olunub.<br /> <br /> Sorğunun #%{ticket.number} statusunu yoxlamaq üçün aşağıdakı linkə daxil olun.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Əgər siz təklif <strong>yaratmamısınızsa</strong>, xahiş edirik silin və bu e-poçta məhəl qoymayın. Sizin hesabınız hələ də təhlükəsizdir və heç kimə sorğuya giriş icazəsi verilməyib. Kimsə səhvən sizin e-poçtu daxil edib.<br /> <br /> --<br /> %{company.name} </div>

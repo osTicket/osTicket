@@ -1,0 +1,75 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Yardım Masası Adı
+  content: |
+    <p>Destek sisteminin adı. Örnek: [şirket adı] Destek</p>
+system_email:
+  title: Varsayılan Sistem E-postası
+  content: |
+    <p>Varsayılan e-posta adresi örnek: destek@firmaniz.com.tr - daha sonra daha fazla e-posta adresi ekleyebilirsiniz!</p>
+default_lang:
+  title: Varsayılan Sistem Dili
+  content: |
+    <p>Bu dil için önceden belirlenen veriler veritabanına kaydedilecek. Örneğin bu dil için varsayılan sistem sayfaları ve eposta taslakları oluşturulacaktır.</p>
+  links:
+    - 
+      title: osTicket Lisan Paketleri
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Adı
+  content: |
+    <p>Yönetici Adı</p>
+last_name:
+  title: Soyadı
+  content: |
+    <p>Yönetici Soyadı</p>
+email:
+  title: E-posta Adresi
+  content: |
+    <p>Yöneticinin kişisel e-posta adresi. Sistemin varsayılan e-posta adresinden farklı olmalıdır.</p>
+username:
+  title: Kullanıcı adı
+  content: |
+    <p>Yöneticinin oturum açma adı. En az üç (3) karakterden oluşmalıdır.</p>
+password:
+  title: Şifre
+  content: |
+    <p>Yöneticinin parolası.  Beş (5) karakter ya da daha fazlası olmalıdır.</p>
+password2:
+  title: Şifreyi Doğrula
+  content: |
+    <p>Yönetici şifresini doğrulama. Şifre ile eşleşmelidir.</p>
+db_prefix:
+  title: mySQL Tablo Öneki
+  content: |
+    <p>osTicket paylaşılan veritabanında olası tablo çakışmalarını önlemek için Tablo Önekine ihtiyaç duyar.</p>
+db_host:
+  title: mySQL Anabilgisayar Adı
+  content: |
+    <p>
+    Çoğu sistem yerel veritabanı sunucu adı için 'localhost' ifadesini kullanır. 
+    Başarısız olmanız durumunda barındırma hizmeti sağlayıcınız ile görüşerek kontrol ediniz.
+    </p>
+    <p>
+    php.ini dosyasında yer alan varsayılan kapı (port) kabul edilir. 
+    Standart olmayan kapı numaraları için <code>sunucuadı:kapıno</code> olarak kullanılabilir.
+    </p>
+db_schema:
+  title: mySQL Veritabanı
+  content: |
+    <p>osTicket sisteminin kullanacağı Veritabanı adı.</p>
+db_user:
+  title: mySQL Kullanıcı adı
+  content: |
+    <p>MySQL kullanıcısı veritabanı üzerinde tüm haklara sahip olmalıdır.</p>
+db_password:
+  title: mySQL Şifresi
+  content: |
+    <p>Yukarıdaki kullanıcı ile ilişkili mySQL şifresi.</p>

@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Individualizuoti sąrašai
+  content: >
+    Jūsų <span class="doc-desc-title">individualizuoti sąrašai</span> leis jums sukurti išskleidžiamas dėžes su išankstiniais variantais iš kurių klientas gali pasirinkti savo<span class="doc-desc-title">pasirinktines formas</span>. Jei norėtumėte naudoti <span class="doc-desc-title">individualizuotą  sąrašą</span> kaip <span class="doc-desc-title">tikslinį</span> <span class="doc-desc-title">Užklausos filtre</span>, nepamirškite pridėti šio sąrašo prie savo<span class="doc-desc-title">Užklausos detalių</span> formos.
+name:
+  title: Vardas, Pavardė
+  0: >
+
+plural_name:
+  title: Daugiskaitinis vardas
+  0: >
+
+sort_order:
+  title: Rūšiavimo tvarka
+  0: >
+
+list_s_initial_items:
+  title: Sąrašo pradiniai punktai
+  0: >
+
+value:
+  title: Reikšmė
+  0: >
+
+extra:
+  title: Papildomai
+  content: >
+    Santrumpos ir panašiai. Jei naudosite vidinius kodus elementams šiame sąraše, šie kodai ir santrumpos gali būti įvesti šiame stulpelyje. Jei individualizuotas sąrašas yra atvaizduojamas kaip <span class="doc-desc-option"> TypeAhead</span>, šie sutrumpinai gali būti naudojami ieškant elementų individualizuotame sąraše.

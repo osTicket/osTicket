@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Formati me Titujt
+  content: >
+    Ky titull shfaqet në një kutizë gri sipër fushave të formatit
+form_instructions:
+  title: Udhëzimet e formatit
+  content: >
+    Ju mund të shtoni udhëzime shtesë të cilat do të ndihmojnë përdoruesin për të kuptuar kontekstin e formatit dhe mundësisht të markojë të dhënat e nevojshme.
+field_sort:
+  title: Vendndodhja për Paraqitjen e Fushës
+  content: >
+    Klikoni në figurinin e shigjetës lartë-dhe-poshtë dhe tërhiq fushën e rrjeshtit sipas këtij formati.
+    Përcaktimi i përzgjedhjes nuk funksionon përderisa të ruhet formati.
+field_label:
+  title: Fusha e Etiketës
+  content: >
+    Kjo etiketë është shfaqur si demonstrim për këtë fushë. Forma tipike, një fushë për përgjigje të shkurtër do të jipet si kjo:<br><strong>Etiketa</strong>&nbsp;<input type="text">
+field_type:
+  title: Tipi i Fushës së Përmbajtjes
+  content: >
+    Kjo është përdorur për përcaktimin e pritur nga përdoruesi të tipit të të dhënave.
+  links:
+    - 
+      title: Listat e Personalizimit
+      href: /scp/lists.php
+field_visibility:
+  title: Paraqitja e Fushës
+  content: >
+    Choose a visibility and requirement option for this field. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Setting</th> <th>Result</th></tr> <tr><td>Optional</td> <td>Agents and EndUsers can see the field, but neither is required to answer.</td></tr> <tr><td>Required</td> <td>Agents and EndUsers can see the field, and both are required to answer</td></tr> <tr><td>Required for EndUsers</td> <td>Agents and EndUsers can see the field, only EndUsers are required to answer</td></tr> <tr><td>Required for Agents</td> <td>Agents and EndUsers can see the field, only Agents are required to answer</td></tr> <tr><td>Internal, Optional</td> <td>Only Agents can see the field, but no answer is required.</td></tr> <tr><td>Internal, Required</td> <td>Only Agents can see the field, and an answer is required.</td></tr> <tr><td>For EndUsers Only</td> <td>Only EndUsers can see the field, and an answer is required.</td></tr> </tbody></table>
+field_variable:
+  title: Automatizimi i Fushës
+  content: >
+    Të dhënat e fushës do të gatiten për postë-e dhe faqja me tabela drejt emrit të përdorur në këtë kollonë. Me ç'rast, fushat nga biletat e rastit janë gati drejt <code>%{ticket.variable}</code>, ku <strong>variabli</strong> është emri përdorur në këtë kollonë.<br><br><em>Informacioni i kompanisë është gatitur drejt <code>%{</code><code>variabli.kompanisë}</code> dhe informacioni i përdorusit është gatitur drejt <code> %{ticket.user.variable}</code></em>
+field_delete:
+  title: Ç'vendos këtë Fushë
+  content: >
+    Zgjidh butonin dhe ruaj formatin për ç'vendosjen e fushës nga ky format.<br><br><em>Fshirja e një fushe nuk ç'vendos të dhënat e krijuara më parë por fushën e formatit të plotësuar. Me ç'rast, nëse një biletë e aprovuar ka të dhëna për një fushë, fshirja e fushës nga ky format nuk do të ç'vendos të dhënat në biletë.</em>

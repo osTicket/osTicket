@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Yardım Masası Durumu
+  content: >
+    Durum <span class = "doc-desc-opt"> Çevrimdışı </span> olarak değiştirilirse, istemci arayüzü devre dışı bırakılır. Sisteme yalnızca Yöneticiler erişebilecek.
+helpdesk_url:
+  title: Yardım Masası URL'si
+  content: >
+    Bu URL osTicket kurulumunun ana adresi olacaktır. Son kullanıcılar ile yapılacak e-posta iletişimlerinde yardım masanıza dönebilmeleri için kullanılacaktır.
+helpdesk_name_title:
+  title: Destek Masası Adı
+  content: >
+    Bu internet tarayıcısın sekmesinden görünecek başlıktır. Eğer siteniz sık kullanılanlara eklenirse, sitenin başlığı/ismi bu olacaktır.
+default_department:
+  title: Varsayılan Bölüm
+  content: >
+    Otomatik olarak bölümü atanmayan istekler için varsayılan <span class="doc-desc-title">bölümü</span> seçin. <br/><br/> Talep yardım konusu, gelen e-posta ve talep filtre adresine göre yönlendirilebilir.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Varsayılan Sayfa Boyutu
+  content: >
+    Personel Panelinde bulunan Talep Sırasındaki sayfa başına gösterilecek talep sayısını seçin. Her bir Temsilci bu numarayı <span class="doc-desc-title">Tercihlerim</span> kısmından değiştirebilir.
+default_log_level:
+  title: Varsayılan Günlük Seviyesi
+  content: >
+    <span class="doc-desc-title">Sistem günlüğü</span> kaydedilecek sorunların en düşük seviyesini belirleyin. <span class="doc-desc-opt">Hata ayıklama</span> en düşük seviyeyi ve <span class="doc-desc-opt">Hata</span> ise en yüksek seviyeyi belirtir. Mesela, eğer <span class="doc-desc-title">Sistem Günlüğünde</span>, bulunan bütün sorunları görmek isterseniz <span class="doc-desc-opt">Hata</span> seviyesini seçin.
+purge_logs:
+  title: Günlükleri Temizle
+  content: >
+    <span class="doc-desc-title">Sistem Kütüğünün</span> silinmeden önce ne kadar tutulacağını seçin.
+enable_richtext:
+  title: Zengin Metni Etkinleştir
+  content: >
+    Eğer açılırsa, Müşteri ve Temsilci arasında zengin metin içeriğinin kullanılmasına izin verir.
+enable_avatars:
+  title: Konu görünümünde Avatarları etkinleştir
+  content: >
+    İş parçacığı yazışmalarında <span class = "doc-desc-title"> Avatar </ span> göstermek için bunu etkinleştirin. <br> <br> Aracılar ve Kullanıcı ayarları sayfalarında <span class = "doc-desc-title"> Avatar Kaynağı </ span> ayarlanabilir.
+  links:
+    - 
+      title: Temsilci Ayarları
+      href: /scp/settings.php?t=agents
+    - 
+      title: Kullanıcı Ayarları
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Personel Çakışma Önleyici
+  content: >
+    Bir temsilcinin işlem yapılmayan bir talebi en fazla kilitli tutabileceği süreyi girin.<br><br> Kilitleme özelliğini kapatmak için <span class="doc-desc-opt">0</span> girin.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Tarih &amp; Saat Seçenekleri
+  content: >
+    Aşağıdaki ayarlar, Tarih için varsayılanları tanımlar. Yardım masasının saat ayarları. Seçilen yerel ayar için yerel ayar varsayılanlarını kullanmayı seçebilir veya benzersiz gereksinimlerinizi karşılamak için biçimleri özelleştirebilirsiniz. Özelleştirme için referans olarak ICU format dizelerine bakın. Aşağıda gösterilen tarihler, karşılık gelen değerlerin sonucunu gösterir.
+  links:
+    - 
+      title: ICU Tarih Biçimlendirme Tablosuna bakın.
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Sistem Dilleri
+  content: >
+    Kullanıcılarınız ve yetkilileriniz için dili yerelleştirmek adına sistem ana dili ve opsiyonel olarak ikinci dil seçin.
+primary_language:
+  title: Sistem Ana Dili
+  content: >
+    İlgili dil tercihi şu anda mevcut değilse, bu dilin içeriği temsilcilere ve son kullanıcılara gösterilir. Buna arayüzün içeriği yanı sıra teşekkür sayfaları ve e-posta mesajları gibi özel içerik dahildir. <br/> <br/> Bu, içeriğinizin çevrilmemiş sürümlerinin yazıldığı dildir.
+secondary_language:
+  title: İkincil Diller
+  content: >
+    Kullanıcılar ve yetkililer için tercih edilen ikinci dili seçiniz. Arayüz ve teşekkürler sayfası, yardımcı konuları gibi ekstra içerikler bu dillerde görünür ve bu dile çevrilebilir olacaktır.
+#Attachments
+attachments:
+  title: Dosya Eki  ve Depolama Ayarları
+  content: >
+    Dosya Eklerinin nasıl saklanacağını yapılandırın.
+default_storage_bk:
+  title: Dosya Depolama Alanı
+  content: >
+    Eklerin nasıl kaydedileceğini seçin. <br> <br> Depolama eklentileri yükleyerek ek depolama arka uçları eklenebilir
+max_file_size:
+  title: Max. Dosya Boyutu
+  content: >
+    Temsilcilerin yükleyebileceği en fazla ek boyutunu seçin. Bunlar hazır yanıtlar, bilgi bankası başlıkları, bilet ve görevlere verilen yanıtlardaki ekler olabilir. Üst limiti PHP' nin <code>upload_max_filesize</code> ayarı ile belirlenir.
+  links:
+    - 
+      title: PHP ini Ayarları
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Giriş Gerekli
+  content: >
+    Kimliği doğrulanmamış kullanıcılara sunulan ekleri yasaklamak için bu ayarı etkinleştirin. Diğer bir deyişle, kullanıcıların ekleri görebilmek için sisteme giriş yapmaları gerekir (hem son kullanıcılar hem de aracılar). <br> <br> Güvenlik açısından, kullanıcının tarayıcısının önceden görüntülenen dosyaları önbelleğinde tutabildiğini unutmayın. Ayrıca, yardım masanızdaki tüm dosya bağlantıları yaklaşık 24 saat sonra otomatik olarak sona erer.

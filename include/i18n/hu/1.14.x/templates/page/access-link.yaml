@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Ez a sablon határozza meg az ügyfélnek kiküldött értesítést a hozzáférési linkről. A hibajegy száma és az email cím alkotja a hivatkozást.
+name: "Hibajegy [#%{ticket.number}] hozzáférési link"
+body: >
+  <h3><strong>Kedves %{recipient.name.first},</strong></h3> <div> Egy hozzáférési kérelmet küldtek be az Ön nevében a #%{ticket.number} számú hibajegyhez az oldalunkon: %{url}.<br /> <br /> Kérjük, kövesse az alábbi linket a hibajegy állapotának ellenőrzéséhez: #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Amennyiben <strong>nem</strong> Ön küldte be a hibajegyet, kérjük, törölje ezt az emailt és hagyja figyelmen kívül. A felhasználói fiókja még mindig biztonságos és senki más nem férhet hozzá a hibajegyhez. Véletlenül kerülhetett beírásra az email címe.<br /> <br /> --<br /> %{company.name} </div>

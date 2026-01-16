@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Информация о Категории Заявки
+  content: >
+    <span class="doc-desc-title">Категории Заявок</span> управляют тем, какая информация собирается от Пользователей и как Заявки направляются или назначаются.
+topic:
+  title: Название Категории
+  content: >
+    Уникальное имя Категории Заявки.
+status:
+  title: Статус
+  content: >
+    Если отключено или архивировано, то эта <span class="doc-desc-title">Категория Заявки</span> не будет доступна.
+type:
+  title: Тип
+  content: >
+    Если <span class="doc-desc-title">Категория Заявки</span> отмечена как Приватная, то она будет доступна для выбора Сотрудниками только тогда, когда Сотрудник открывает новую Заявку в Панели Сотрудников.
+parent_topic:
+  title: Родительская категория
+  content: >
+    Выберите Родительскую Категорию, которой эта <span class="doc-desc-title">Категория</span> будет принадлежать. Родительская Категория будет показываться первой в списке, с этой <span class="doc-desc-title">Катогорией</span> после родительской.
+custom_form:
+  title: Пользовательская Форма
+  content: >
+    Пользовательские Формы помогут Вам получить больше конкретной информации, относящейся к этому <span class="doc-desc-title">Разделу Справки</span>, от Пользователей.
+  links:
+    - 
+      title: Управление Пользовательскими Формами
+      href: /scp/forms.php
+priority:
+  title: Приоритет
+  content: >
+    Выберите Приоритет, назначаемый новым Заявкам, относящимся к этому <span class="doc-desc-title">Разделу Справки</span>. <br><br> Фильтры Заявок могут переопределять Приоритет новых Заявок.
+department:
+  title: Отдел
+  content: >
+    Выберите Отдел, которому будут направляться новые Заявки в рамках этой Категории Заявок.
+  links:
+    - 
+      title: Управление Отделами
+      href: /scp/departments.php
+sla_plan:
+  title: План SLA
+  content: >
+    Выберите план SLA, ассоциированный с этой <span class="doc-desc-title">Категорией Заявок</span>. <br><br> Этот выбор переопределит любой выбранный план SLA Отдела
+  links:
+    - 
+      title: Управление Планами SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Страница Благодарности
+  content: >
+    Выберите Страницу Благодарности, на которую Пользователь будет направляться после открытия Заявки под этой <span class="doc-desc-title">Категорией Заявок</span>.
+  links:
+    - 
+      title: Управление Страницами Благодарности
+      href: /scp/pages.php
+auto_assign_to:
+  title: Автоназначение Новых Заявок
+  content: >
+    При необходимости, выберите Сотрудника или Команду для автоназначения Заявок, открытых с этой <span class="doc-desc-title">Категорией Заявок</span> <br><br> Фильтр Заявок может переопределить назначение.
+  links:
+    - 
+      title: Управление Персоналом и Командами
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Автоответ на Заявку
+  content: >
+    Если отмечено, установка отключит автоответы на новые Заявки для этой <span class="doc-desc-title">Категории Заявок</span>. <br><br> Это переопределяет настройку автоответчика для <span class="doc-desc-title">Отдел</span>а, а также глобальные настройки <span class="doc-desc-title">Автоответчик</span>а.
+  links:
+    - 
+      title: Настройки Автоответчика
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Другой формат нумерации заявок
+  content: >
+    Выберите другой формат нумерации заявок, созданных в этом разделе. Посмотрите подсказки на странице Настройки/Заявки для более подробной информации о настройках.

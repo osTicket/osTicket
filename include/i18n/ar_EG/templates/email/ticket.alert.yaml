@@ -1,0 +1,42 @@
+---
+notes: |
+  ترسل إلى الموظف في حال تم إنشاء تذكرة جديدة في النظام.  تنطبق على التذاكر التي يتم إنشاؤها من خلال البريد الإلكتروني و صفحة الويب الخاصة بطالبي الخدمة.
+subject: |
+  إشعار بتذكرة/طلب جديد
+body: |2
+  <h2>مرحباً %{recipient.name},</h2>
+  تم إنشاء تذكرة #%{ticket.number} جديدة
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>من</strong>:
+      </td>
+      <td>
+          %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <strong>القسم</strong>:
+      </td>
+      <td>
+          %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>لعرض أو الاستجابة لهذه التذكرة الرجاء <a
+  href="%{ticket.staff_link}">تسجيل الدخول</a> إلى نظام دعم التذاكر</div>
+  <em style="font-size: small">نظام دعم العملاء</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"
+      style="width: 126px; " alt="Powered By osTicket"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

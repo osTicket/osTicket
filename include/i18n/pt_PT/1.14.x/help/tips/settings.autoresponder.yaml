@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Novo Pedido
+  content: >
+    Ative se pretender que seja enviada uma resposta automática ao utilizador no novo pedido.
+  links:
+    - 
+      title: Novo Modelo de Resposta Automática do Pedido
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Novo Pedido pelo Funcionário
+  content: >
+    Aviso enviado quando um agente cria um bilhete em nome do utilizador. <em>Agente pode substituir ao criar novos bilhetes.</em>
+  links:
+    - 
+      title: Novo Modelo de Aviso de Pedido
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Confirmação de nova mensagem
+  content: >
+    Aviso de confirmação enviado quando uma nova mensagem é acrescentada a um ticket existente.
+  links:
+    - 
+      title: Modelo de confirmação de nova mensagem
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Aviso de nova mensagem
+  content: >
+    Envie as mensagens recebidas do utilizador que submeteu o pedido para todos os participantes no mesmo.
+  links:
+    - 
+      title: Modelo de aviso de nova atividade
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Aviso de limite atingido
+  content: >
+    Notificação de Ticket negado enviada ao utilizador pela violação de <span class="doc-desc-title"> Máximo de Tickets Abertos</span>.
+  links:
+    - 
+      title: Modelo de aviso de Máximo de Tickets Abertos
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Definir <em>Máximos de Tickets Abertos</em>
+      href: /scp/settings.php?t=tickets

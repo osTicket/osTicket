@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Saadetakse kasutajale, kui luuakse uus pilet
+subject: |
+  Kasutajatoe pilet on avatud [#%{ticket.number}]
+body: |
+  <h3><strong>Tere %{recipient.name.first}</strong></h3>
+  <p>
+  Tehnilise toe päring on loodud piletinumbriga #%{ticket.number}.
+  Kastuajatoe töötaja võtab Teiega peagi ühendust. Selle lingi kaudu saate 
+  <a href="%{recipient.ticket_link}">jälgida oma pileti lahendamise progressi onlines</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Teie %{company.name} meeskond
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Kui soovite lisada kommentaare või infot, siis palun vastake sellele emailile või <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >logige sisse</span></a>, et näha kõiki oma tehnilise toe päringuid</em></div>

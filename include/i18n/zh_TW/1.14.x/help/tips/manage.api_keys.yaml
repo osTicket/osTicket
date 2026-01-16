@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: API 金鑰
+  content: >
+    API 金鑰用於驗證用戶端提交新票通過應用程式開發介面 (API)。而不是API 金鑰使用的密碼 。由於 API 金鑰它們連結發送到每個未加密戶端的網路 IP 位址。
+  links:
+    - 
+      title: osTicket API 文件檔
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: IP 位址
+  content: >
+    用戶端的網路 IP 位址。每個唯一用戶端 IP 位址將需要單一的 API 金鑰

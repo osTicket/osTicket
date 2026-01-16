@@ -1,0 +1,102 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: 상태
+  content: >
+    비활성화할 경우, 이<span class="doc-desc-title">도움 주제</span>은 사용되지 않습니다.
+type:
+  title: Type
+  content: >
+    고객 포털에서 이 부서에 할당을 숨기려면 <span class="doc-desc-opt">비밀</span>을 선택하세요. 또한 <span class="doc-desc-opt">비밀</span> 레이블이 붙은 경우 이메일 회신에 <span class = "doc-desc-title">부서 서명</span>은 표시되지 않습니다.<br/> <br/> 적어도 하나 이상의 부서가 <span class = "doc-desc-opt">공개</span>되어야 합니다.
+email:
+  title: Email
+  content: >
+    에이전트가 티켓에 대한 응답을 달았을 때 사용자에게 발송하는 응답에 사용되는 이메일 주소입니다.
+template:
+  title: 템플릿 셋
+  content: >
+    이 부서에 전달된 티켓에 대한 자동 응답 및 알림을 위해 사용되는 이메일 <span class="doc-desc-title">템플릿 셋</span> 입니다.
+  links:
+    - 
+      title: 템플릿 관리
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    이 부서에 전달되는 티켓에 대한 서비스 수준 협약(SLA : Service Level Agreement)
+  links:
+    - 
+      title: SLA 계획 관리
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: 부서 관리자
+  content: >
+    이 부서의 <span class="doc-desc-title">관리자</span>를 선택하세요. <br/> <br/> 관리자는 특별한 경고를 받도록 설정할 수 있으며, 티켓 할당을 해제할 권한이 있습니다.
+  links:
+    - 
+      title: 경고 및 알림 관리
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: 경고 및 알림 수신자
+  content: >
+    설정된 <span class="doc-desc-title">경고 및 알림</span> 수신자를 선택하세요.
+  links:
+    - 
+      title: 경고 및 알림 설정
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: 티켓 할당 제한
+  content: >
+    티켓이 모든 담당자, 기본 또는 확장 부서 액세스 권한이 있는 담당자 또는 단지 기본 부서 액세스 권한이 있는 담당자에게만 할당될 수 있는지 확인합니다.
+disable_auto_claim:
+  title: 자동 요구 사용 안 함
+  content: >
+    Check this to <strong>disable</strong> auto-claim on response/reply for this department. <br><br> Agents can still manually claim unassigned tickets
+
+    이 부서의 응답 / 회신 시 자동 청구<strong>사용안함</strong> 확인하십시오. <br> <br> 담당자는 여전히 할당되지 않은 티켓을 수동으로 요구 할 수 있습니다.
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: 자동응답기 설정
+  content: >
+    이 설정은 이 부서에 대한 글로벌 자동응답 설정보다 우선합니다.
+new_ticket:
+  title: 새 티켓 자동 응답
+  content: >
+    새 티켓이 생성되고이 부서에 전달될 때 사용자에게 전송되는 자동 회신을 해제 할 수 있습니다.
+new_message:
+  title: 새 메시지 자동응답
+  content: >
+    이 부서의 티켓에 새로 게시된 메시지를 확인하기 위해 사용자에게 전송되는 자동 회신을 해제 할 수 있습니다.
+auto_response_email:
+  title: 자동응답 이메일
+  content: >
+    이 부서에 대한 자동응답에 사용할 이메일 주소를 선택하세요.
+department_access:
+  title: 그룹 액세스
+  content: >
+    이 부서의 티켓에 다른 부서의 에이전트가 접근할 수 있도록 허용합니다.
+department_signature:
+  title: 부서 서명
+  content: >
+    서명은 <span class="doc-desc-opt">공개</span> 부서의  에이전트 회신에 대한 대안으로 사용할 수 있습니다.

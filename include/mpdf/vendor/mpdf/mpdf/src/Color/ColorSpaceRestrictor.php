@@ -38,10 +38,11 @@ class ColorSpaceRestrictor
 	 * @param \Mpdf\Color\ColorModeConverter $colorModeConverter
 	 * @param int $mode
 	 */
-	public function __construct(Mpdf $mpdf, ColorModeConverter $colorModeConverter)
+	public function __construct(Mpdf $mpdf, ColorModeConverter $colorModeConverter, $mode)
 	{
 		$this->mpdf = $mpdf;
 		$this->colorModeConverter = $colorModeConverter;
+		$this->mode = $mode;
 	}
 
 	/**
@@ -92,11 +93,11 @@ class ColorSpaceRestrictor
 			if ($this->mpdf->PDFA && !$this->mpdf->PDFAauto) {
 				$PDFAXwarnings[] = "Spot color specified '" . $this->mpdf->spotColorIDs[$c[1]] . "' (converted to process color)";
 			}
-			if ($this->mpdf->restrictColorSpace != 3) {
+			if ($this->mode != 3) {
 				$sp = $this->mpdf->spotColors[$this->mpdf->spotColorIDs[$c[1]]];
 				$c = $this->colorModeConverter->cmyk2rgb([4, $sp['c'], $sp['m'], $sp['y'], $sp['k']]);
 			}
-		} elseif ($this->mpdf->restrictColorSpace == 1) {
+		} elseif ($this->mode == 1) {
 			$sp = $this->mpdf->spotColors[$this->mpdf->spotColorIDs[$c[1]]];
 			$c = $this->colorModeConverter->cmyk2gray([4, $sp['c'], $sp['m'], $sp['y'], $sp['k']]);
 		}
@@ -113,14 +114,14 @@ class ColorSpaceRestrictor
 	 */
 	private function restrictRgbColorSpace($c, $color, &$PDFAXwarnings = [])
 	{
-		if ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace == 3)) {
+		if ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mode == 3)) {
 			if (($this->mpdf->PDFA && !$this->mpdf->PDFAauto) || ($this->mpdf->PDFX && !$this->mpdf->PDFXauto)) {
 				$PDFAXwarnings[] = "RGB color specified '" . $color . "' (converted to CMYK)";
 			}
 			$c = $this->colorModeConverter->rgb2cmyk($c);
-		} elseif ($this->mpdf->restrictColorSpace == 1) {
+		} elseif ($this->mode == 1) {
 			$c = $this->colorModeConverter->rgb2gray($c);
-		} elseif ($this->mpdf->restrictColorSpace == 3) {
+		} elseif ($this->mode == 3) {
 			$c = $this->colorModeConverter->rgb2cmyk($c);
 		}
 
@@ -136,14 +137,14 @@ class ColorSpaceRestrictor
 	 */
 	private function restrictCmykColorSpace($c, $color, &$PDFAXwarnings = [])
 	{
-		if ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace != 3) {
+		if ($this->mpdf->PDFA && $this->mode != 3) {
 			if ($this->mpdf->PDFA && !$this->mpdf->PDFAauto) {
 				$PDFAXwarnings[] = "CMYK color specified '" . $color . "' (converted to RGB)";
 			}
 			$c = $this->colorModeConverter->cmyk2rgb($c);
-		} elseif ($this->mpdf->restrictColorSpace == 1) {
+		} elseif ($this->mode == 1) {
 			$c = $this->colorModeConverter->cmyk2gray($c);
-		} elseif ($this->mpdf->restrictColorSpace == 2) {
+		} elseif ($this->mode == 2) {
 			$c = $this->colorModeConverter->cmyk2rgb($c);
 		}
 
@@ -159,21 +160,21 @@ class ColorSpaceRestrictor
 	 */
 	private function restrictRgbaColorSpace($c, $color, &$PDFAXwarnings = [])
 	{
-		if ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace == 3)) {
+		if ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mode == 3)) {
 			if (($this->mpdf->PDFA && !$this->mpdf->PDFAauto) || ($this->mpdf->PDFX && !$this->mpdf->PDFXauto)) {
 				$PDFAXwarnings[] = "RGB color with transparency specified '" . $color . "' (converted to CMYK without transparency)";
 			}
 			$c = $this->colorModeConverter->rgb2cmyk($c);
 			$c = [4, $c[1], $c[2], $c[3], $c[4]];
-		} elseif ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace != 3) {
+		} elseif ($this->mpdf->PDFA && $this->mode != 3) {
 			if (!$this->mpdf->PDFAauto) {
 				$PDFAXwarnings[] = "RGB color with transparency specified '" . $color . "' (converted to RGB without transparency)";
 			}
 			$c = $this->colorModeConverter->rgb2cmyk($c);
 			$c = [4, $c[1], $c[2], $c[3], $c[4]];
-		} elseif ($this->mpdf->restrictColorSpace == 1) {
+		} elseif ($this->mode == 1) {
 			$c = $this->colorModeConverter->rgb2gray($c);
-		} elseif ($this->mpdf->restrictColorSpace == 3) {
+		} elseif ($this->mode == 3) {
 			$c = $this->colorModeConverter->rgb2cmyk($c);
 		}
 
@@ -189,21 +190,21 @@ class ColorSpaceRestrictor
 	 */
 	private function restrictCmykaColorSpace($c, $color, &$PDFAXwarnings = [])
 	{
-		if ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace != 3) {
+		if ($this->mpdf->PDFA && $this->mode != 3) {
 			if (($this->mpdf->PDFA && !$this->mpdf->PDFAauto) || ($this->mpdf->PDFX && !$this->mpdf->PDFXauto)) {
 				$PDFAXwarnings[] = "CMYK color with transparency specified '" . $color . "' (converted to RGB without transparency)";
 			}
 			$c = $this->colorModeConverter->cmyk2rgb($c);
 			$c = [3, $c[1], $c[2], $c[3]];
-		} elseif ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace == 3)) {
+		} elseif ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mode == 3)) {
 			if (($this->mpdf->PDFA && !$this->mpdf->PDFAauto) || ($this->mpdf->PDFX && !$this->mpdf->PDFXauto)) {
 				$PDFAXwarnings[] = "CMYK color with transparency specified '" . $color . "' (converted to CMYK without transparency)";
 			}
 			$c = $this->colorModeConverter->cmyk2rgb($c);
 			$c = [3, $c[1], $c[2], $c[3]];
-		} elseif ($this->mpdf->restrictColorSpace == 1) {
+		} elseif ($this->mode == 1) {
 			$c = $this->colorModeConverter->cmyk2gray($c);
-		} elseif ($this->mpdf->restrictColorSpace == 2) {
+		} elseif ($this->mode == 2) {
 			$c = $this->colorModeConverter->cmyk2rgb($c);
 		}
 

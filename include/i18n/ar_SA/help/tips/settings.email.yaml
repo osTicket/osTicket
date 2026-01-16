@@ -1,0 +1,77 @@
+---
+default_email_templates:
+  title: قالب مجموعة البريد الإلكتروني الافتراضي
+  content: >
+    حدد <span class="doc-desc-title"> مجموعة قالب البريد الإلكتروني</span> المستخدمة لإرسال <span class="doc-desc-title"> الردود التلقائية</span> و <span class="doc-desc-title"> hالتنبيهات</span> لمختلف الإجراءات التي يمكن أن تحدث أثناء حياة التذكرة.  <br><br> يمكن إسناد مجموعة قالب بريد الكتروني محددة إلى الأقسام.
+  links:
+    - 
+      title: إدارة مجموعات قوالب البريد الإلكتروني
+      href: /scp/templates.php
+default_system_email:
+  title: البريد الإلكتروني الصادر الإفتراضي
+  content: >
+    اختر عنوان البريد إلكتروني الذي سيتم إرسال رسائل البريد الإلكتروني الصادرة إليه. <br><br> يمكن <span class="doc-desc-title">للقسم</span>  تعيين <span class="doc-desc-title">بريد إلكتروني</span> خاص به والذي سيتجاوز البريد المُعيّن هنا.
+  links:
+    - 
+      title: إدارة عناوين البريد الإلكتروني
+      href: /scp/emails.php
+default_alert_email:
+  title: البريد الإلكتروني الافتراضي للتنبيهات
+  content: >
+    اختر عنوان بريد إلكتروني الذي سيتم إرسال <span class="doc-desc-title">التنبيهات و الإشعارات</span>من خلاله إلى الوكلاء.
+  links:
+    - 
+      title: إدارة عناوين البريد الإلكتروني
+      href: /scp/emails.php
+admins_email_address:
+  title: عنوان البريد الإلكتروني للمدير
+  content: >
+    أدخل عنوان بريد المدير الإلكتروني الذي سيتم إرسال  <span class="doc-desc-title">أخطاء النظام</span> و <span class="doc-desc-title">تنبيهات التذاكر الجديدة</span> إليه (إذا تم التفعيل).
+  links:
+    - 
+      title: إدارة التنبيهات و الإشعارات
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: جلب البريد الإلكتروني
+  content: >
+    إتاحة انتخاب IMAP/POP لضبط وتمكين <span class="doc-desc-title"> صناديق البريد</span>.
+  links:
+    - 
+      title: إدارة صناديق البريد
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: جلب رسائل البريد الإلكتروني باستخدام الـ Auto-cron
+  content: >
+    تمكين جلب البريد الإلكتروني الدوري باستخدام إدارة مهام داخلية يتم تفعيلها عن طريق نشاط الوكلاء.<br><br> يرجى ملاحظة أنه لن يتم جلب رسائل البريد الإلكتروني إذا لم يسجل أحد الدخول إلى لوحة الموظفين. استخدام مجدول مهام خارجي مستحسن جداً لعمل فترات جلب يمكن التنبؤ بها.
+  links:
+    - 
+      title: استخدام مُجدول مهام خارجي
+      href: 'http://osticket.com/wiki/POP3/IMAP_Setting_Guide'
+strip_quoted_reply:
+  title: إهمال الرد المقتبس
+  content: >
+    تفعيل هذا الخيار سيؤدي إلى إزالة المراسلات البريد الإلكتروني السابقة. <br><br>هذه الخاصية تعتمد على<span class="doc-desc-title"> وسم فاصل الرد</span> أدناه.
+reply_separator_tag:
+  title: وسم فاصل الرد
+  content: >
+    هذا الرمز المميز تم إرساله للمستخدم للرد أعلى السطر. <br><br><strong>ملاحظة:</strong> هذه الميزة قابلة للتنفيذا في حالة تفعيل خيار <span class="doc-desc-title"> إهمال الرد المقتبس</span> أعلاه.
+emailed_tickets_priority:
+  title: أولوية التذاكر عبر البريد الإلكتروني
+  content: >
+    اختر ما إذا كنت ترغب في تعيين أولوية/أهمية البريد الإلكتروني الخاص بالمستخدم (مثل OutLook) كأولوية للتذكرة الجديدة. <br><br>يمكن تجاوز هذا الإعداد بواسطة عامل <span class="doc-desc-title"> ترشيح التذاكر</span>.
+  links:
+    - 
+      title: إنشاء وإدارة عوامل ترشيح التذاكر
+      href: /scp/filters.php
+accept_all_emails:
+  title: قبول كافة رسائل البريد الإلكتروني
+  content: >
+    قبول رسائل البريد الإلكتروني من المستخدمين غير معروفين. <br><br>إلغاء تحديد هذا الخيار سوف يسفر عن رفض التذاكر.
+accept_email_collaborators:
+  title: قبول البريد الإلكتروني من المتعاونين
+  content: >
+    إضافة المشاركين في البريد الإلكتروني المدرجين في حقول <code><strong>إلى</strong></code> و <code><strong>نسخة إلى</strong></code> كمتعاونين في التذكرة. <1></1> <em>المتعاونين يمكن إضافتهم دائماً بشكل يدوي بواسطة الوكلاء عند عرض تذكرة.</em>
+default_mta:
+  title: MTA الإفتراضي
+  content: >
+    <span class="doc-desc-title">MTA الإفتراضي</span> يهتم بعملية توصيل البريد الصادر من دون الحاجة لإعدادات بروتوكول SMTP.

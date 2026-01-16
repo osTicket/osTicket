@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informações de contato
+  0: >
+
+username:
+  title: Nome de usuário
+  content: >
+    Somente aqueles Agentes com status de Administrador podem alterar um nome de usuário. Se você é um Agente com privilégios de Administrador, você pode fazer isso selecionando um Agente para editar na tabela <span class="doc-desc-title">Funcionários</span>.
+  links:
+    - 
+      title: Alterar um nome de usuário como Administrador
+      href: /scp/staff.php
+time_zone:
+  title: Fuso Horário
+  0: >
+
+daylight_saving:
+  title: Horário de Verão
+  0: >
+
+maximum_page_size:
+  title: Tamanho Máximo de Página
+  0: >
+
+auto_refresh_rate:
+  title: Taxa de Atualização Automática
+  0: >
+
+default_signature:
+  title: Assinatura Padrão
+  0: >
+
+default_paper_size:
+  title: Tamanho de Papel Padrão
+  0: >
+
+show_assigned_tickets:
+  title: Mostrar Chamados Atribuídos
+  content: >
+    <p>A ativação dessa opção substituirá a configuração global para ocultar os chamados atribuídos das filas abertas.</p> <p class="info-banner"> <i class="icon-info-sign"></i> Esta opção só é possível quando os chamados atribuídos são excluídos de maneira global. </p>
+password:
+  title: Senha
+  0: >
+
+current_password:
+  title: Senha Atual
+  0: >
+
+new_password:
+  title: Nova Senha
+  0: >
+
+confirm_new_password:
+  title: Confirmar a Nova Senha
+  0: >
+
+signature:
+  title: Assinatura
+  content: >
+    Crie uma <span class="doc-desc-title">assinatura</span> opcional para aparecer no final do seu chamado. Se essa <span class="doc-desc-title">assinatura</span> irá aparecer ou não, depende do <span class="doc-desc-title"> Modelo de Email</span> que será usado em uma resposta de chamado.
+  links:
+    - 
+      title: Criar modelos de E-mails no Painel de Administração
+      href: /scp/templates.php

@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Tình trạng
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Loại
+  content: >
+    Chọn <span class="doc-desc-opt">Riêng tư</span> nếu bạn muốn che giấu nhiệm vụ tới Ban ngành này trong Cổng thông tin khách hàng. Thêm vào đó, khi dán nhãn <span class="doc-desc-opt">riêng tư</span>, thì<span class="doc-desc-title">chữ kí ban ngành</span> sẽ không xuất hiện trong phần trả lời emails.  <br/><br/> Ít nhất một Ban ngành phải <span class="doc-desc-opt">để công khai</span>
+email:
+  title: Email
+  content: >
+    Địa chỉ Email được sử dụng khi phản hồi được gửi tới người dùng và khi nhân viên đăng tải nội dung phản hồi tại phần yêu cầu.
+template:
+  title: Bộ các mẫu
+  content: >
+    Email <span class="doc-desc-title">bộ các mẫu</span> được dùng cho việc Tự động phản hồi và Cảnh báo  &amp;  thông báo cho việc yêu cầu được chuyển đến Ban ngành này.
+  links:
+    - 
+      title: Quản lý mẫu
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Thỏa thuận về mức độ dịch vụ cho các yêu cầu được chuyển đến Ban ngành này.
+  links:
+    - 
+      title: Quản lý dự án SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Trưởng phòng
+  content: >
+    Lựa chọn  <span class="doc-desc-title">Quản lý</span> cho Phòng ban này. <br/><br/> Người quản lý có thể tạo cấu hình để nhận những cảnh báo đặc biệt và cũng có quyền để không chấp nhận yêu cầu.
+  links:
+    - 
+      title: Quản lý cảnh báo &amp; thông báo
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Cảnh báo &amp; Người nhận thông báo
+  content: >
+    Chọn người nhận cấu hình <span class="doc-desc-title">cảnh báo &amp;thông báo</span>.
+  links:
+    - 
+      title: Cấu hình cảnh báo &amp; Thông báo
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Những giới hạn chỉ định lệnh
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Tắt xác nhận quyền sở hữu tự động
+  content: >
+    Chọn để <strong>tắt</strong> tính năng tự động xác nhận khi có phản hồi/trả lời cho Phòng ban này. <br><br> Nhân viên vẫn có thể tự xác nhận yêu cầu chưa được gán
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Chế độ phản hồi tự động
+  content: >
+    Điều này cho phép bạn ghi đè lên cài đặt tự động phản hồi chung cho Ban ngành này.
+new_ticket:
+  title: Chế độ tự động phản hồi lệnh mới
+  content: >
+    Bạn có thể vô hiệu hóa phần Tự động phản hồi cho người dùng khi yêu cầu mới được tạo ra và chuyển hướng tới Ban ngành này.
+new_message:
+  title: Tin nhắn Tự động phản hồi mới
+  content: >
+    Bạn có thể vô hiệu hóa phần tự động gửi phản hồi cho người dùng để xác nhận rằng một thông tin yêu cầu mới đăng tải tại ban ngành này.
+auto_response_email:
+  title: Email tự động phản hồi
+  content: >
+    Chọn địa chỉ email từ danh sách tự động phản hồi đã được gửi cho Ban ngành này.
+department_access:
+  title: Quyền truy cập nhóm
+  content: >
+    Cho phép nhân viên của Ban ngành khác truy nhập vào yêu cầu của Ban ngành này.
+department_signature:
+  title: Chữ kí của Ban ngành
+  content: >
+    Chữ kí là không bắt buộc, <span class="doc-desc-opt">Cho các ban ngành chung</span> , trên phần phản hồi của nhân viên.

@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Tato šablona definuje obsah, který se zobrazí po tom, co uživatel úspešně vytvořil účet a potvrdil jej. Tato stránka by měla uživatele informovat, že registrace je dokončena a že uživatel nyní může zadat požadavek nebo přistupovat k již existujícím požadavkům.
+name: "Váš účet byl potvrzen!"
+body: >
+  <div> <strong>Děkujeme za registraci vašeho účtu</strong><br /> <br /> Potvrdil jste vaši e-mailovou adresu a úspěšně tak aktivoval váš účet. Nyní můžete nový požadavek zadat nebo spravovat existující požadavky.<br /> <br /> <em>Zákaznická podpora</em><br /> %{company.name} </div>

@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Űrlap fejléc
+  content: >
+    Ez a cím egy szürke dobozban jelenik meg az űrlap mezők fölött
+form_instructions:
+  title: Űrlap utasítások
+  content: >
+    Hozzáadhat extra utasításokat, melyek segítik a felhasználókat az űrlap mezői közti összefüggések áttekintésében és a kötelező mezők kiemelésében.
+field_sort:
+  title: Mező megjelenítési pozíció
+  content: >
+    A fel-le nyíl ikonra kattintva tudja átrendezni a mezők sorrendjét az űrlapon belül. A rendezés beállításai csak a mentés után lépnek érvénybe.
+field_label:
+  title: Mező címke
+  content: >
+    Ez a felirat segítségként szolgál a mezőhöz. Általában a rövid válaszos mezőket alakítják ilyenre:<br>
+    <strong>Címke:</strong>&nbsp; <input type="text">
+field_type:
+  title: Mező tartalom típusa
+  content: >
+    Ez az ügyféltől várt információ típusát adja meg. Választhat rövid vagy hosszú válasz, telefonszám, idő és dátum, jelölőnégyzet, legördülő menü vagy egyéni listaválasztó közül.
+  links:
+    - 
+      title: Egyéni listák
+      href: /scp/lists.php
+field_visibility:
+  title: Mező láthatóság
+  content: >
+    Válassza ki a mező láthatósági és a követelmény lehetőségeit. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Beállítás</th> <th>Eredmény</th></tr> <tr><td>Opcionális</td> <td>Munkatársak és végfelhasználók láthatják a mezőt, de nem kell válaszolniuk</td></tr> <tr><td>Kötelező</td> <td>Munkatársak és végfelhasználók láthatják a mezőt, és mindkettejüknek válaszolnia kell</td></tr> <tr><td>Végfelhasználóknak kötelező</td> <td>Munkatársak és végfelhasználók láthatják a mezőt, csak végfelhasználóknak kell válaszolnia</td></tr> <tr><td>Munkatársak kötelező</td> <td>Munkatársak és végfelhasználók láthatják a mezőt, csak munkatársaknak kell válaszolnia</td></tr> <tr><td>Belső, opcionális</td> <td>Csak munkatársak láthatják a mezőt, de nem kell válaszolniuk</td></tr> <tr><td>Belső, kötelező</td> <td>Csak munkatársak láthatják a mezőt, és válaszolniuk kell</td></tr> <tr><td>Csak végfelhasználóknak</td> <td>Csak végfelhasználók láthatják a mezőt, és válaszolniuk kell</td></tr> </tbody></table>
+field_variable:
+  title: Mező automatizálás
+  content: >
+    A mező tartalma elérhető/beágyazható emailbe és sablonokba az oszlop nevének használatával. Például az általános hibajegy űrlap mezői elérhetőek a <code>%{ticket.variable}</code> kifejezéssel, ahol a <strong>változó</strong> az oszlop neve.<br> <br> <em>A cégadatok elérhetőek a <code>%{</code><code>company.variable}</code> kód használatával és a felhasználó adatai a <code>%{ticket.user.variable}</code></em> használatával
+field_delete:
+  title: Mező eltávolítása
+  content: >
+    Ellenőrizze és mentse el az űrlapot, hogy eltávolíthasson egy mezőt az űrlapból.<br> <br> <em>A mező törlése nem távolítja el a kitöltött űrlapokból az ebbe a mezőbe előzőleg beírt adatokat. Például, ha egy korábban beküldött hibajegy tartalmaz adatot a szóban forgó mezőhöz, a mezőnek az eltávolítása az nem fogja törölni a hibajegyben szereplő adatot.</em>

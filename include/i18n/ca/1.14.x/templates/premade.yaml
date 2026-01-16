@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Què és osTicket (mostra)?
+  response: |
+    osTicket és un sistema de suport basat en Tickets de codi obert àmpliament utilitzat, una alternativa atractiva a les de més cost i amb una atenció al client complexa -sistemes senzills, lleugers, fiables, de codi obert, basat en web i fàcil de configurar i utilitzar.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Adjunts predefinits!
+- 
+  isenabled: 1
+  title: Simple (amb variables)
+  response: |
+    Hola %{ticket.name.first},
+    <br>
+    <br>
+    El vostre tiquet #%{ticket.number} creat en %{ticket.create_date} és al departament de
+    %{ticket.dept.name}.
+  0: |
+

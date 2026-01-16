@@ -1,0 +1,49 @@
+---
+#Email template: note.alert.yaml
+#Sent to staff members when a new internal note is appended to a ticket.
+#Internal notes can only be added by staff members.
+#---
+notes: |
+  Alert sendes ud til agenter, når intern aktivitet, såsom et internt notat eller en agent svar vedlagt en billet.
+subject: |
+  Nye interne Activity Alert
+body: |
+  <h3><strong>Hej %{recipient.name},</strong></h3>
+  En agent har logget aktivitet på sag <a
+  href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>Fra</strong>:
+      </td>
+      <td>
+          %{note.poster}
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <strong>Titel</strong>:
+      </td>
+      <td>
+          %{note.title}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{note.message}
+  <br>
+  <br>
+  <hr>
+  For at se/svare på sagen, <a
+  href="%{ticket.staff_link}">log venligst ind</a> på bestillingssystemet
+  <br>
+  <br>
+  <em style="font-size: small; ">Din venlige kundesupport
+  System</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

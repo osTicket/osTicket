@@ -37,10 +37,6 @@ if(!$thisstaff
 $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('Canned Response'));
-if ($canned && !$canned->staffCanAccess($thisstaff)) {
-    header('Location: canned.php');
-    exit;
-}
 
 $canned_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -75,8 +71,8 @@ if ($_POST) {
                 $canned->attachments->keepOnlyFileIds($keepers, false);
 
                 // Attach inline attachments from the editor
-                $images = Draft::getAttachmentIds($_POST['response']);
-                $canned->attachments->keepOnlyFileIds($images, true);
+                    $images = Draft::getAttachmentIds($_POST['response']);
+                    $canned->attachments->keepOnlyFileIds($images, true);
 
                 // XXX: Handle nicely notifying a user that the draft was
                 // deleted | OR | show the draft for the user on the name
@@ -105,8 +101,8 @@ if ($_POST) {
                     $premade->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
-                $premade->attachments->upload(
-                    Draft::getAttachmentIds($_POST['response']), true);
+                    $premade->attachments->upload(
+                        Draft::getAttachmentIds($_POST['response']), true);
 
                 // Delete this user's drafts for new canned-responses
                 Draft::deleteForNamespace('canned', $thisstaff->getId());

@@ -11,6 +11,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
     <li><a href="#preferences"><?php echo __('Preferences'); ?></a></li>
     <li><a href="#signature"><?php echo __('Signature'); ?></a></li>
+    <li><a href="#dark-mode-tab"><?php echo __('Dark Mode'); ?></a></li>
   </ul>
 
   <div class="tab_content" id="account">
@@ -84,7 +85,7 @@ if ($avatar->isChangeable()) { ?>
         <tr>
           <td><?php echo __('Mobile Number');?>:</td>
           <td>
-            <input type="tel" size="18" name="mobile" class="auto mobile"
+            <input type="tel" size="18" name="mobile" class="auto phone"
               value="<?php echo Format::htmlchars($staff->mobile); ?>" />
             <div class="error"><?php echo $errors['mobile']; ?></div>
           </td>
@@ -106,7 +107,7 @@ if ($avatar->isChangeable()) { ?>
         <?php } ?>
         <tr>
           <td class="required"><?php echo __('Username'); ?>:
-            <span class="error">*</span></td>
+            <span class="error"><!--osta--></span></td>
           <td>
             <input type="text" size="40" style="width:300px"
               class="staff-username typeahead"
@@ -491,6 +492,73 @@ if (($bks=Staff2FABackend::allRegistered())) {
       </tbody>
     </table>
   </div>
+
+
+
+
+
+   <!-- ===========	osTicket Awesome Dark Mode ================= -->
+
+  <div id="dark-mode-tab" class="hidden">
+    <table class="table two-column" width="100%">
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Dark Mode'); ?><span class="experimental"<?php echo __('Experimental!'); ?></span>
+            <div><small><?php echo __("This will enable Dark Mode for the current Agent.") .' '.
+			('<br /><br />') .' '.
+			('<div id="dark-mode-notes">') .' '.
+            __('NOTES:')  .' '.
+			('<br />') .' '.	
+			('<ul><li>') .' '.				
+            __('Each Agent must enable Dark Mode individually, if they choose to do so.')  .' '.
+			('</li>') .' '.			
+			('<li>') .' '.					
+            __('Dark Mode overrides many other Theme settings, but it only affects the currently logged in Agent.')  .' '.
+			('</li>') .' '.	
+			('<li>') .' '.		
+            __('Dark Mode does make any changes to the Client Portal.')  .' '.
+			('</li>') .' '.	
+			('<li>') .' '.	
+            __('Dark Mode is a highly experimental feature which may render many aspects of osTicket unusable.')  .' '.
+			('</li></ul>') .' '.	
+            __('USE AT YOUR OWN RISK!') .' '.
+			('</div>')
+			; ?>
+            </small></div>
+          </th>
+        </tr>
+        <tr>
+            <td colspan="2">
+
+				<div id="osta-toggle" class="dark-mode-toggle">
+                    <input type="radio" id="dark_mode_radio" name="dark_mode" class="switch nullable"  <?php echo $staff->getExtraAttr("dark_mode", "false")  == "on" ? "checked='checked'":""?>>
+                    <label id="dark_mode_label" class="switch-helper" for="dark_mode_radio">&nbsp;</label>
+					  <script type="text/javascript">
+              if ( "<?echo $staff->getExtraAttr("dark_mode", "false")?>" == "on" )  {
+                $('body').addClass('dark-mode');
+                if ( $('link[rel=stylesheet][href*="dark-mode.css"]').length == 0 ) {
+                  $('head').append('<link rel="stylesheet" type="text/css" href="<?php echo ROOT_PATH; ?>osta/css/dark-mode.css">');
+                }
+              }  else { 
+                $('body').removeClass('dark-mode');
+                $('link[rel=stylesheet][href*="dark-mode.css"]').remove();
+              }
+					  </script>
+                </div>
+				
+            </td>
+        </tr>	
+      </tbody>
+    </table>
+  </div> 
+
+
+
+
+
+
+
 
   <p style="text-align:center;">
     <button class="button action-button" type="submit" name="submit" ><i class="icon-save"></i> <?php echo __('Save Changes'); ?></button>

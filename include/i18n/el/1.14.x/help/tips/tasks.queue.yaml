@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Σύνθετα
+  content: >
+    Περιορίστε τις παραμέτρους αναζήτησης. Μόλις επιλέξετε τα σύνθετα κριτήρια αναζήτησης και εκτελέσετε την αναζήτηση, μπορείτε να <span class="doc-desc-title">Εξαγάγετε</span> τα δεδομένα στο κάτω μέρος της σελίδας.
+export:
+  title: Εξαγωγή
+  content: >
+    Εξαγωγή των δεδομένων που εμφανίζονται αυτή τη στιγμή σε αρχείο CSV. Τα αρχεία CSV μπορούν να ανοιχτούν με οποιοδήποτε λογισμικό υπολογιστικών φύλλων (π.χ., Microsoft Excel, Apple Pages, OpenOffice, κτλ.).

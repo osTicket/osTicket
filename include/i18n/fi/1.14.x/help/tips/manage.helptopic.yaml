@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Ohjeotsikko tiedot
+  content: >
+    <span class="doc-desc-title">Ohjeotsikot</span> kertovat, mitä tietoja Käyttäjiltä kerätään ja miten tikettejä ohjataan ja kohdistetaan.
+topic:
+  title: Otsikon nimi
+  content: >
+    Yksilöllinen Ohjeotsikon nimi.
+status:
+  title: Tila
+  content: >
+    Jos poistettu käytöstä tai arkistoitu, tämä <span class="doc-desc-title">ohjeotsikko</span> ei ole käytettävissä.
+type:
+  title: Tyyppi
+  content: >
+    Jos <span class="doc-desc-title">Ohjeotsikko</span> on Yksityinen, se näkyy vain Käsittelijöillä jotka avaavat uuden tiketin henkilökunnan käyttöliittymässä.
+parent_topic:
+  title: Pääotsikko
+  content: >
+    Valitse Pääotsikko johon tämä <span class="doc-desc-title">Ohjeotsikko</span> kuuluu. Pääotsikko ilmestyy listaan yhdessä tämän <span class="doc-desc-title">Ohjeotsikon</span> kanssa joka sijoitetaan listassa Pääotsikon alle.
+custom_form:
+  title: Muokattava lomake
+  content: >
+    Muokattavat lomakkeet auttavat sinua keräämään tarkempaa tietoa käyttäjiltä jotka liittyvät tähän <span class="doc-desc-title">Ohjeotsikkoon</span>.
+  links:
+    - 
+      title: Hallinnoi Muokattavia lomakkeita
+      href: /scp/forms.php
+priority:
+  title: Prioriteetti
+  content: >
+    Valitse Prioriteettitaso joka liitetään uusiin tiketteihin jotka liittyvät tähän <span class="doc-desc-title">Ohjeotsikkoon</span>. <br><br> Tikettisuodattimet voivat ohittaa uuden tiketin prioriteetin.
+department:
+  title: Osasto
+  content: >
+    Valitse Osasto johon uudet tiketit tämän Ohjeotsikon mukaan ohjataan.
+  links:
+    - 
+      title: Hallinnoi Osastoja
+      href: /scp/departments.php
+sla_plan:
+  title: Palvelutaso
+  content: >
+    Valitse Palvelutaso joka liittyy tähän <span class="doc-desc-title">Ohjeotsikkoon</span>. <br><br> Tämä valinta ohittaa kaikki Osastolle valitut Palvelutasot
+  links:
+    - 
+      title: Hallinnoi palvelutasoja
+      href: /scp/slas.php
+thank_you_page:
+  title: Kiitos sivu
+  content: >
+    Valitse kiitos sivu johon asiakas ohjataan avattuaan tiketin tämän <span class="doc-desc-title">Ohjeotsikon</span> mukaan.
+  links:
+    - 
+      title: Hallinnoi Kiitos sivuja
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automaattisesti kohdista uudet Tiketit
+  content: >
+    Vaihtoehtoisesti valitse Käsittelijä tai Tiimi jolle tiketit kohdistetaan automaattisesti tämän <span class="doc-desc-title">Ohjeotsikon</span> perusteella <br><br> Tikettisuodattimet voivat ohittaa tämän asetuksen.
+  links:
+    - 
+      title: Hallinnoi Henkilökuntaa ja Tiimejä
+      href: /SCP/Staff.php
+ticket_auto_response:
+  title: Tiketin automaattinen vastaus
+  content: >
+    Jos valittu, asetukset estävät uuden tiketin automaattisen vastauksen tälle <span class="doc-desc-title">Ohjeotsikolle</span>. <br><br> Tämä asetus ohittaa <span class="doc-desc-title">Osastojen</span> asetukset sekä yleiset <span class="doc-desc-title">Automaattiset vastausasetukset</span>.
+  links:
+    - 
+      title: Automaattisen vastausten asetukset
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Muokatut Tikettinumerot
+  content: >
+    Valitse "Muokattu" tästä ohittaaksesi järjestelmän oletus tiketöintinumeroinnin tiketeille jotka luodaan tämän Ohjeotsikon mukaan. Katso ohjeiden vinkit Asetukset/Tiketit sivulla saadaksesi lisätietoja asetuksesta.

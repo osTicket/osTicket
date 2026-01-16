@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Kullanıcı adı
+  content: >
+    Lütfen <span class="doc-desc-title">Yardım Masanıza</span> has Temsilci <span class="doc-desc-title">kullancı adı</span> seçin.
+email_address:
+  title: E-posta Adresi
+  content: >
+    <span class="doc-desc-title">Yardım Masasından</span> gönderilecek <span class="doc-desc-title">Uyarı &amp; Bildirimler</span> için Temsilci e-posta adresi girin.
+  0: <br><br>
+  1: Personeller personel kontrol paneline kullancı adları veya e-posta adresleri ile giriş yapabilirler.
+welcome_email:
+  title: Hoşgeldiniz e-postası
+  content: >
+    Yeni Temsilciye kendi şifrelerini belirleyebilecekleri hesap erişim bağlantısını gönder. Bu işaretlenmemiş ise, şifreyi sizin belirlemeniz ve personelinize giriş bilgilerini iletmeniz gerekecektir.
+account_password:
+  title: Hesap Parolası
+  content: >
+    <span class="doc-desc-title">Yönetici</span> olarak, Temcilnin şifresini değiştirebilirsiniz.
+forced_password_change:
+  title: Şifre Değiştirmeye Zorla
+  content: >
+    Bu özellik ile Temsilcilerin bir sonraki girişlerinde şifrelerini değiştirmlerini zorunlu hale getirebilirsiniz.
+agents_signature:
+  title: Personelin İmzası
+  content: >
+    Temcilciler bir talebi cevaplarken kullanabilecekleri bir imza oluşturun.
+account_status:
+  title: Hesap Durumu
+  content: >
+    Eğer Temsilcinin durumu <span class="doc-desc-opt">Kilitli</span> ise, bu kişiler yardım masasına giriş yapamazlar.
+assigned_group:
+  title: Atanan Grup
+  content: >
+    Temsilci için belirleyeceğiniz <span class="doc-desc-title">Grup</span> Temsilcinin <span class="doc-desc-title">Yardım Masası</span>nda sahip olacağı hakları belirleyecektir.
+  links:
+    - 
+      title: Grupları Yönet
+      href: /scp/groups.php
+primary_department:
+  title: Birincil Bölüm
+  content: >
+    Bu temsilciye ait olan birincil <span class = "doc-desc-title"> bölüm</span> ve etkin <span class = "doc-desc-title"> Rol </span> seçin.
+  links:
+    - 
+      title: Bölüm Yönetimi
+      href: /scp/departments.php
+primary_role:
+  title: Birincil Rol
+  content: >
+    Bu temsilciye ait olan birincil <span class = "doc-desc-title"> rol </span> seçin.
+primary_role_on_assign:
+  title: Görev Atamaları İçin Birincil Rol Kullan
+  content: >
+    Bu temsilciye <span class = "doc-desc-title"> birincil bölüm </span> ve <span class = "doc-desc-title"> genişletilmiş erişim </span> bölümlerinin dışındaki bilet ve görev atandığında bunu, <span class = "doc-desc-title"> birincil role</span> geri dönmek için etkinleştirin. Aksi takdirde, temsilcinin yalnızca görüntüleme erişimi olacaktır.
+daylight_saving:
+  title: Yaz saati uygulaması
+  content: >
+    Bu özelliği açarak Temsilcinin zaman dilimini işin içine katabilirsiniz.
+limited_access:
+  title: Sınırlı Erişim
+  content: >
+    Eğer açılırsa, Temsilci sadece direkt kendine atatn veya Takım olarak atanan taleplere erişebilecektir.
+directory_listing:
+  title: Dizin Listeleme
+  content: >
+    Bu özelliği açarsanız Temsilciler <span class="doc-desc-title">Personel Rehberi</span>nde görünecektir.
+  links:
+    - 
+      title: Personel Rehberini göster
+      href: /scp/directory.php
+vacation_mode:
+  title: Tatil Modu
+  content: >
+    Eğer bir temsilcinin durumunu <span class="doc-desc-opt">Tatil Durumu</span> olarak değiştirirseniz, Temsilci ne <span class="doc-desc-title">Uyarı&amp;Bildirim</span> alabilecek ne de yeni taleplere atanabilecektir.
+

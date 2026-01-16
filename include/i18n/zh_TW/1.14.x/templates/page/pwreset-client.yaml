@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  這個範本為忘記密碼 <strong>忘記密碼</strong>的人。
+name: "%{company.name} 支援案件系統訪問"
+body: >
+  <h3><strong>您好 %{user.name.first},</strong></h3> <div> 重新設定密碼要求已經由您授權於求助中心處理  %{url}.<br /> <br />若您發現這是誤送訊息、請忽略與刪除此信件。您的帳戶仍安全且並無人進入。帳戶並無列管也無重置密碼。有人可能錯誤輸入了電子郵件。<br /> <br /> 提供的連結可以讓您登錄至求助中心並可已更改密碼。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">您友好的可戶支援系統<br />%{company.name}</em></div>

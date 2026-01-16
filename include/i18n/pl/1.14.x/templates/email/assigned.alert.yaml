@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Wysyłany do członków obsługi kiedy zgłoszenie jest do nich przydzielone. Zgłoszenia mogą być przydzielone automatycznie przez system lub ręcznie przez innego członka obsługi. Aby rozróżnić kto dokonał przydziału użyj komendy %{assigner}.
+subject: |
+  Zgłoszenie przydzielone do Ciebie
+body: |
+  <h3><strong>Witaj %{assignee.name.first},</strong></h3>
+  Zgłoszenie<a href="%{ticket.staff_link}">#%{ticket.number}</a> zostało
+  przydzielone do Ciebie przez %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Od</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Temat</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Aby wyświetlić lub odpowiedzieć na zgłoszenie, proszę <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >zaloguj się</span></a> do systemu obsługi zgłoszeń</div>
+  <em style="font-size: small; ">Twój przyjazny System Obsługi Klienta</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

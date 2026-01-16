@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Това определя заглавието на страницата за влизане в системата от клиенти. То може да бъде полезно, за да информирате Вашите клиентите относно Вашите политики за влизане в системата и регистрация.
+name: "Влизане в %{company.name}"
+body: >
+  С цел по-добро обслужване, ние Ви насърчаваме да се регистрирате.

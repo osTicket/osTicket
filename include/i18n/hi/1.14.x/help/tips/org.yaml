@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Ticket Sharing
+  content: >
+    <p> संस्थागत टिकट का सहभाजन संस्था के किसी सदस्य द्वारा अपने टिकट को संस्था के दुसरे सदस्यो को सहभाजन की अनुमति प्रदान करता है। </p> <p class="info-banner"> <i class="icon-info-sign"></i> संस्था के सहकर्मी टिकटों का हमेशा सहभाजन कर सकते है। </p>
+email_domain:
+  title: Email Domain
+  content: >
+    उपयोगकर्ता अपने email domain(s) के आधार पर इस संस्था में स्वत: ही सम्मिलित किये जा सकते है। निम्न box के उपयोग से एक या अधिक अल्प विराम से विभाजित domains प्रविष्टि करें। उदाहरणार्थ: ऎसे email addresses जिसके अन्त में @mycompany.com आते है के लिए  <code>mycompany.com</code>  प्रविष्ट करें।
+

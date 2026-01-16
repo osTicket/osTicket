@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Naam
+  content: >
+    Kies een naam die omschrijft wat de opzet is van dit <span class="doc-desc-title">SLA Plan</span>.
+grace_period:
+  title: Responstijd
+  content: >
+    Bepaal het aantal uren nadat een ticket aangemaakt is, het automatisch gemarkeerd zal worden als overtijd. <br><br> <em>Uren worden geteld vanaf de aanmaaktijd van het ticket.</em>
+transient:
+  title: Dynamisch
+  content: >
+    Dynamische Service Plans worden beschouwd als tijdelijk en kunnen worden overschreven door een niet-dynamisch Service Plan op <span class="doc-desc-opt">Departement</span> overdracht of wanneer het <span class="doc-desc-title">Help-onderwerp</span> gewijzigd wordt.
+schedule:
+  title: Schedule
+  content: >
+    Choose the Schedule to be used by this SLA when rendering tickets Overdue. <br><br> Please note that Department settings can override this schedule.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php

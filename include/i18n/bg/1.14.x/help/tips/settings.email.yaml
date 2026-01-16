@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Набор от шаблони за ел.поща по подразбиране
+  content: >
+    Изберете <span class="doc-desc-title">набора от шаблони за ел. поща</span>, който се използва за изпращане на <span class="doc-desc-title">автоматични отговори</span> и <span class="doc-desc-title">предупреждения</span> за различни събития, които могат да случат по време на съществуване на заявката. <br><br> На отделите може да бъдат определени конкретни набори от шаблони за електронна поща.
+  links:
+    - 
+      title: Управление на наборите с шаблони за ел. поща
+      href: /scp/templates.php
+default_system_email:
+  title: Изходяща ел. поща по подразбиране
+  content: >
+    Изберете адреса за ел. поща, от който ще бъдат изпращани изходящите писма. <br><br> <span class="doc-desc-title">Отделът</span> може да установи собствен <span class="doc-desc-title">адрес</span>, който да промени настроеното тук.
+  links:
+    - 
+      title: Управление на адресите за ел. поща
+      href: /scp/emails.php
+default_alert_email:
+  title: Имайл адрес по подразбиране за предупреждения
+  content: >
+    Изберете адреса за електронна поща, от който на сътрудниците ще се изпращат <span class="doc-desc-title">предупреждения &amp; уведомления</span>.
+  links:
+    - 
+      title: Управление на адресите за ел. поща
+      href: /scp/emails.php
+admins_email_address:
+  title: Адрес за ел. поща на администратора
+  content: >
+    Въведете адресът за електронна поща на администратора, на който ще се изпращат <span class="doc-desc-title">системни грешки</span> и <span class="doc-desc-title">предупреждения за нови заявки</span> (ако това е включено).
+  links:
+    - 
+      title: Управление на предупреждения & уведомления
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Изтегляне на имейл
+  content: >
+    Разрешаване на проверка чрез IMAP/POP за конфигурираните и включени <span class="doc-desc-title">пощенски кутии</span>.
+  links:
+    - 
+      title: Управление на пощенските кутии
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Получаване на пощата с помощта на Auto-cron
+  content: >
+    Включва периодичното теглене на писма, с помощта на вътрешния диспечер на задачите, който се задейства от активност на сътрудниците.  <br><br> Моля, обърнете внимание, че писмата няма да се получават, ако никой не влезе в панела за управление на служители. За предсказуеми интервали за получаване на поща, настоятелно се препоръчва да се ползва външен планировчик на задачите.
+  links:
+    - 
+      title: Използване на външен планировчик на задачите
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Отделяне на цитирания отговор
+  content: >
+    Ако е включено, това ще изтрие предшестващата кореспонденция в съобщенията за електронна поща. <br><br> Тази функция зависи от <span class="doc-desc-title">тага за отделяне на отговора</span> по-долу.
+reply_separator_tag:
+  title: Таг за отделяне на отговор
+  content: >
+    Това е маркер, който показва на показва на потребителя, че трябва да отговаря над този ред. <br><br> <strong>Внимание!</strong> това има смисъл само, ако <span class="doc-desc-title">отделянето на цитирания отговор</span> по-горе е включено.
+emailed_tickets_priority:
+  title: Приоритет на изпратените чрез имейл заявки
+  content: >
+    Моля изберете, дали искате настройката на приоритета (важността) на ел. писмо на потребителя (например от Outlook) да задава приоритета на новата заявка. <br><br> Тази настройка може да бъде променена от <span class="doc-desc-title">филтър за заявки</span>.
+  links:
+    - 
+      title: Създаване &amp; управление на филтри за заявки
+      href: /scp/filters.php
+accept_all_emails:
+  title: Да се приемат всички имейли
+  content: >
+    Приемане на имейли от неизвестни потребители. <br><br> Изключването на тази настройка ще предизвика отказ на заявки идващи от такива адреси.
+accept_email_collaborators:
+  title: Приемане на съавторите от ел. писма
+  content: >
+    Да се добавят участниците, които са включени в полетата <code><strong>До</strong></code> и <code><strong>Копие (Cc)</strong></code> като съавтори на заявката. <br /><br /> <em>Съавтори винаги могат да бъдат добавени ръчно от сътрудници при преглед на тикета.</em>
+default_mta:
+  title: MTA по подразбиране
+  content: >
+    <span class="doc-desc-title">MTA по подразбиране</span> се заема с процеса за доставка на електронната поща, за писмата, които са без настроен SMTP.
+ticket_response_files:
+  title: Прикачени файлове в отговор на заявка
+  content: >
+    Ако включено, всички прикачени файлове, които може да качи сътрудника към отговора на заявка, ще бъдат включени и в отговора, изпратен на ел. поща на потребителя.
+verify_email_addrs:
+  title: Verify Email Addresses
+  content: >
+    Активирайте тази функция, за да проверите дали имейл адресът има mail exchanger (MX) в DNS на домейна. Това би било полезно, за откриване на грешно въведени имейл адреси. Извършва се в допълнение към проверката на добре обработения имейл адрес.

@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Ime mize pomoči
+  content: |
+    <p>Ime vašega sistema podpore [Company Name] Podpora</p>
+system_email:
+  title: Privzet sistemski elektronski naslov
+  content: |
+    <p>Privzeti naslov e-sporočila podpora@podjetje.si - več jih lahko dodate kasneje!</p>
+default_lang:
+  title: Privzet sistemski jezik
+  content: |
+    <p>Začetni podatki za ta jezik bodo nameščeni v bazo. Naprimer: predloge e-sporočil in privzete strani sistema bodo nameščene za ta jezik.</p>
+  links:
+    - 
+      title: osTicket jezikovni paketi
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Ime
+  content: |
+    <p>Ime skrbnika</p>
+last_name:
+  title: Priimek
+  content: |
+    <p>Priimek skrbnika</p>
+email:
+  title: Email naslov
+  content: |
+    <p>Osebni naslov e-sporočila skrbnika. Mora biti drugačen kot je privzeti naslov e-sporočila sistema.</p>
+username:
+  title: Uporabniško ime
+  content: |
+    <p>Uporabniško ime skrbnika. Mora vsebovati vsaj tri (3) znake.</p>
+password:
+  title: Geslo
+  content: |
+    <p>Geslo skrbnika. Mora vsebovati vsaj pet (5) znakov ali več.</p>
+password2:
+  title: Potrdite geslo
+  content: |
+    <p>Ponovno vpišite skrbnikovo geslo. Gesli se morata ujemati.</p>
+db_prefix:
+  title: Predpona MySQL tabele
+  content: |
+    <p>osTicket potrebuje predpono table, da se lahko izogne možnemu konfliktu tabel v deljenih bazah.</p>
+db_host:
+  title: Ime gostitelja MySQL
+  content: |
+    <p>
+    Večina gostiteljev uporablja 'localhost' za lokalno ime gostitelja baze. Preverite svojega gostitelja, če 'localhost' ime ne dela.
+    </p>
+    <p>
+    v php.ini se predpostavlja, da je nastavljen privzeti port. Nestandardni port se lahko določi kot <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL baza
+  content: |
+    <p>Ime baze katero bo osTicket uporabil.</p>
+db_user:
+  title: MySQL uporabniško ime
+  content: |
+    <p>MySQL uporabnik mora imeti polne pravice nad bazo.</p>
+db_password:
+  title: MySQL geslo
+  content: |
+    <p>MySQL geslo povezano z gornjim uporabnikom.</p>

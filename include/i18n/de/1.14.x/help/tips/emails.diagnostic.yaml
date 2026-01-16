@@ -1,0 +1,36 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Diagnostics
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+test_outgoing_email:
+  title: E-Mail-Versand testen
+  content: >
+    Die E-Mail-Zustellung hängt von der Serverkonfiguration (php.ini) und/oder der SMTP-Konfiguration ab.
+  links:
+    - 
+      title: E-Mail-Adresse auswählen, um die (ausgehenden) SMTP-Einstellungen zu konfigurieren
+      href: /scp/emails.php
+from:
+  title: Von
+  0: >
+
+to:
+  title: An
+  0: >
+
+subject:
+  title: Betreff
+  0: >
+
+message:
+  title: Nachricht
+  0: >
+

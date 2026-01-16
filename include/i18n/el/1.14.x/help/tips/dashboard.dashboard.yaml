@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Δραστηριότητα Δελτίου
+  content: >
+    Επιλέξτε ένα χρονικό διάστημα για την παραγωγή του γραφήματος και του πίνακα (βλ. <span class="doc-desc-title">Στατιστικά Στοιχεία</span>) παρακάτω, για να εστιάσετε σε οποιαδήποτε δεδομένα που αφορούν τις ημερομηνίες αυτές. Το παρακάτω γράφημα θα αντικατοπτρίζει πάντα μια ευρεία επισκόπηση των δεδομένων του όλου συστήματος (π.χ., του πληθυσμού). Ωστόσο, μπορείτε να περιηγηθείτε στον παρακάτω πίνακα <span class="doc-desc-title">Στατιστικών </span> για να εστιάσετε σε ένα πιο περιορισμένο αντικείμενο ενδιαφέροντος (π.χ., Τμήμα, Τομείς ή Προσωπικό). Επιπλέον, μπορείτε να εξαγάγετε τα δεδομένα που εμφανίζονται στον πίνακα <span class="doc-desc-title">Στατιστικών</span>.
+report_timeframe:
+  title: Αναφορά χρονοδιαγράμματος
+  content: >
+    Επιλέξτε μια ημερομηνία έναρξης για το επιθυμητό δείγμα δεδομένων, χρησιμοποιώντας το εργαλείο επιλογής ημερομηνίας. Στη συνέχεια, επιλέξτε το χρονικό διάστημα από την ημερομηνία αυτή για να ορίσετε την ημερομηνία λήξης για το δείγμα των δεδομένων σας.
+statistics:
+  title: Στατιστικά
+  content: >
+    Πλοηγηθείτε στο αντικείμενο ενδιαφέροντος κάνοντας κλικ στην κατάλληλη καρτέλα για να δείτε το συγκεκριμένο δείγμα δεδομένων. Εντός του πίνακα, οι κύκλοι αντιπροσωπεύουν το μέγεθος των ονομαστικών δεδομένων. Ως εκ τούτου, όσο μεγαλύτερος είναι ο αριθμός σε μία συγκεκριμένη κυψέλη, τόσο μεγαλύτερος θα είναι ο παρακείμενος κύκλος.
+opened:
+  title: Ανοικτό
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Ανατεθειμένο
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Εκπρόθεσμο
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Κλειστό
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Άνοιγμένο ξανά
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Διαγεγραμμένα
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Χρόνος Εξυπηρέτησης
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Χρόνος απόκρισης
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktni podatki
+  0: >
+
+username:
+  title: Uporabniško ime
+  content: >
+    Samo agenti s skrbniškim statusom lahko spremenijo ime uporabnika. Če ste agent s skrbniškimi pravicami, potem lahko to dosežete z izbiro uporabnika na seznamu <span class="doc-desc-title">Člani osebja</span>.
+  links:
+    - 
+      title: Spremeni uporabniško ime kot skrbnik
+      href: /scp/staff.php
+time_zone:
+  title: Časovni pas
+  0: >
+
+daylight_saving:
+  title: Poletno merjenje časa
+  0: >
+
+maximum_page_size:
+  title: Maksimalna velikost strani
+  0: >
+
+auto_refresh_rate:
+  title: Avtomatsko osveževanje
+  0: >
+
+default_signature:
+  title: Privzeti podpis
+  0: >
+
+default_paper_size:
+  title: Privzeta velikost papirja
+  0: >
+
+show_assigned_tickets:
+  title: Prikaži dodeljene karte
+  content: >
+    <p> Aktivacija te opcije bo prevladala nad globalnimi nastavitvami za skrivanje dodeljenih zahtevkov v čakalni vrsti. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Ta nastavitev je na voljo samo, ko so dodeljeni zahtevki globalno izključeni. </p>
+password:
+  title: Geslo
+  0: >
+
+current_password:
+  title: Trenutno geslo
+  0: >
+
+new_password:
+  title: Novo geslo
+  0: >
+
+confirm_new_password:
+  title: Potrdite novo geslo
+  0: >
+
+signature:
+  title: Podpis
+  content: >
+    Ustvarite dodaten <span class="doc-desc-title">Podpis</span>, kateri se bo morda pojavil na koncu vašega kartnega odgovora. Ali se bo ta <span class="doc-desc-title">Podpis</span> pojavil ali ne je odvisno od <span class="doc-desc-title">predloge e-sporočila</span>, ki bo izbrana v kartnem odgovoru.
+  links:
+    - 
+      title: Ustvarite predlogo e-sporočila v Skrbniški plošči
+      href: /scp/templates.php

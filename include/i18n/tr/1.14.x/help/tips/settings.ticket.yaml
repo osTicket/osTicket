@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Kayıt Numarası Biçimi
+  content: >
+    Bu ayar talep numarası üretilirken kullanılır. Rakam konulacak yerler için  (`#`)  işaretini kullanın. Yazacağınız diğer metin korunacaktır. <span class="doc-desc-title">Yardım Konuları</span> özel sayı biçimleri tanımalayabilirler. <br/><br/> Mesela, altı haneli numaralar için  <code>######</code> formatını kullanabilirsiniz.
+sequence_id:
+  title: Talep Numarası Sırası
+  content: >
+    Yeni talep numaralarını oluşturacağınız sıralamayı seçin. Sistem varsayılan olarak raslantısal ve artan bir sıra kullanmaktadır. İstediğiniz sayıda farklı sıralar oluşturabilirsiniz. Yardım konularının ayarlarında farklı <span class="doc-desc-title">Talep Numara Biçimleri</span> kullanın.
+queue_bucket_counts:
+  title: Üst Düzey Bilet Sayısı
+  content: >
+    Bu ayar, Ana Seviye sıralarındaki bilet sayısını gizlemek veya göstermek için kullanılır. Eskiden olduğu gibi geri dön.
+default_ticket_status:
+  title: Yeni Ticketların Varsayılan Durumları
+  content: >
+    Yeni talepler için varsayılan durumu seçin. Bu isterseniz her bir yardım konusu için belirlenebilir. Bu ayar ayrıca talep filtreleri ile çiğnenebilir.
+  links:
+    - 
+      title: Ticket Durumlarını Yönetme
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: Varsayılan SLA
+  content: >
+    Bir talebin zaman aşımına uğrmadan önce ne kadar açık kalacağını belirten varsayılan Servis Seveyisi Anlaşmasını (SLA) seçin.
+  links:
+    - 
+      title: Daha fazla SLA planı oluştur
+      href: /scp/slas.php
+default_priority:
+  title: Varsayılan öncelik
+  content: >
+    Otomatik olarak <span class="doc-desc-title">önceliği</span> belirlenmemiş talepler için varsayılan önceliği seçin. <br/><br/> Öncelik yardım konusuyla, belirlenen bölümle veya talep filtre ayarları ile atanabilir.
+maximum_open_tickets:
+  title: Maksimum Açık Talep
+  content: >
+    Yardım masanızda bir kullanıcın <strong>açık</strong> olarak sahip olacaği maksimum talep <em>sayısını</em> seçin. <br><br> Bu sınırı kaldırmak isterseniz <span class="doc-desc-opt">0</span> girin. 
+email_ticket_priority:
+  title: E-posta Talep Önceliği
+  content: >
+    Gönderenin posta servisi ile atanan e-posta önceliğini kullan
+show_related_tickets:
+  title: Bağlantılı Talepleri Göster
+  content: >
+    Kullanıcı girişinde iligi talepleri göster - aksi halde eirişim her giriş için tek bir talep ile sınırlı kalacaktır
+human_verification:
+  title: İnsan doğrulaması
+  content: >
+    Müşteri portalında CAPTCHA yı aktif ederek gelen taleplerin bir insan tarafından oluşturulduğunu doğrula.<br><br> GDLin kütüphanesine ihtiyaç duyar
+claim_tickets:
+  title: Yanıtlarken Kendine Ata
+  content: >
+    Enable this to auto-assign unassigned tickets to the responding Agent. <br><br> Reopened tickets are always assigned to the last respondent unless auto assign on reopen is disabled on the Department level.
+collaborator_ticket_visibility:
+  title: Ortak Bilet Görünürlük
+  content: >
+    Etkinse, Kullanıcılar Web Portalı'na giriş yaparken katıldığı TÜM Biletlerin görünürlüğüne sahip olur. <br> <br> Devre dışı bırakılırsa, Kullanıcılar Web Portalına giriş yaparken sadece kendi Biletlerini görebilirler.
+require_topic_to_close:
+  title: Kapatılması için Yardım Konusu Gerektir
+  content: >
+    Etkinse, bir Biletin Temsilcisi tarafından Kapatılması için bir Yardım Konusu olmalıdır
+assigned_tickets:
+  title: Atanmış Talepler
+  content: >
+    Bu özellik ile <span class="doc-desc-title">Açık Talepler Sırası</span>dan tanan talepleri kaldırın.
+answered_tickets:
+  title: Cevaplanmış Talepler
+  content: >
+    Bu özellik ile cevaplanmış talepleri <span class="doc-desc-title">Cevaplanmış Talepler Sırası</span>nda gösterin. Aksi halde, bu talepler <span class="doc-desc-title">Açık Talepler Sırası</span>nda görünecektir.
+ticket_attachment_settings:
+  title: Talep Silsile Eklentileri
+  content: >
+    <span class="doc-desc-title">Sorun detayları</span> kısmı için eklen dosyaların ayarlarını düzenleyin. Bu ayarlar talebin geldiği kanala bakılmaksızın(ağ portalı, e-posta, api. vb.) bütün yeni talep ve mesajlarda kullanılacaktır.

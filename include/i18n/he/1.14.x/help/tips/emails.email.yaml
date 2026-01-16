@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: נושא עזרה עבור פניה חדשה
+  content: >
+    בחר <span class="doc-desc-title">נושא עזרה</span> אליו ישוייכו אוטומטית פניות שנוצרות דרך כתובת הדוא"ל הזו.<br/><br/>טפסים השייכים לנושא העזרה הזה יתווספו לפניה, אך לא יכילו מידע.
+  links:
+    - 
+      title: ניהול נושאי עזרה
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: עדיפות כרטיס חדש
+  content: >
+    בחר <span class="doc-desc-title">עדיפות</span> עבור פניות חדשות שנוצרות דרך כתובת הדוא"ל הזו.
+new_ticket_department:
+  title: מחלקה עבור פניות חדשות
+  content: >
+    בחר <span class="doc-desc-title">מחלקה</span> אליה ישויכו פניות חדשות שנוצרות דרך כתובת הדוא"ל הזו.
+  links:
+    - 
+      title: ניהול מחלקות
+      href: /scp/departments.php
+auto_response:
+  title: מענה אוטומטי חדש לכרטיסים
+  content: >
+    באפשרותך לבטל את השליחה האוטומאטית למשתמש כאשר כרטיס חדש נוצר באמצעות כתובת הדוא"ל הזאת.
+username:
+  title: שם משתמש
+  0: >
+
+password:
+  title: סיסמה
+  0: >
+
+login_information:
+  title: פרטי גישה לתיבת הדוא"ל
+  content: >
+    <span class="doc-desc-title"> שם המשתמש</span> ו <span class="doc-desc-title"> הסיסמה</span> נדרשים בכדי להטמיע דואר אלקטרוני משרתי IMAP / POP וגם בכדי לשלוח דוא"ל דרך שרתי SMTP.
+mail_account:
+  title: שליפת דוא"ל
+  content: >
+    שליפת מיילים מתיבת דואר מרוחקת של IMAP או POP, ולהמיר אותם לכרטיסים.
+  links:
+    - 
+      title: נהל הגדרות <span class="doc-desc-title">בדיקת דוא"ל</span> ו-<span class="doc-desc-title">AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: מחשב מארח מרוחק
+  content: >
+    הזן את <span class="doc-desc-title"> שם המחשב המארח</span> ואת מספר <span class="doc-desc-title"> היציאה</span> עבור שרת הדואר שלך. נתונים אלו עשויים להיות זמינים בתיעוד חשבון האחסון שלך.
+protocol:
+  title: פרוטוקול תיבת דואר
+  content: >
+    בחר את הפרוטוקול תיבת דואר הנתמך על-ידי שרת הדואר המרוחק שלך. IMAP מומלץ ו SSL אם הוא מאופשר.
+fetch_frequency:
+  title: תדירות שליפת המיילים
+  content: >
+    בחר באיזו תדירות, בדקות, המערכת תמשוך דוא"ל חדש מתיבת הדוא"ל.<br/><br/>בחירה זו תגדיר את העיכוב הממוצע בקבלת תגובה אוטומטית לאחר שמשתמש שולח הודעת דוא"ל לתיבת דוא"ל זו.
+emails_per_fetch:
+  title: כמטת מיילים לכל שליפה
+  content: >
+    הזן את המספר של הודעות דוא"ל לעיבוד בבת אחת.
+fetched_emails:
+  title: מיילים שנשלפו
+  content: >
+    בחר את הפעולה לביצוע בהודעות שהתקבלו:<br/><br/><span class="doc-desc-opt"><b>העברה לתיקייה </b></span>: יבוצע גיבוי של ההודעה מתיבת "דואר נכנס" לתיקייה שתבחר. אם התיקייה לא קיימת על השרת, המערכת תנסה ליצור אותה עבורך. (<b>אפשרות מומלצת</b>)<hr><span class="doc-desc-opt"><b> מחיקה</b></span>: ההודעה תימחק מתיבת "דואר נכנס" לאחר הטיפול בה.<hr><span class="doc-desc-opt"><b>אל תבצע פעולה</b></span>: אפשרות זו תותיר את ההודעות בתיבת "דואר נכנס". המערכת תזכור את ההודעות שכבר התקבלו ותנסה לא למשוך אותן בשנית מהשרת. עם זאת, בחירה באפשרות זו עלולה ליצור פניות כפולות במערכת. (<em>אפשרות לא מומלצת</em>)
+smtp_settings:
+  title: הגדרות SMTP
+  content: >
+    אימייל שנשלח מפורטל התמיכה ניתן לשליחה דרך שרת SMTP. אם זה אפשרי, שליחה בדרך זו תגדיל את הפעמים של מסירת הדואר האלקטרוני, ותהפוך את הודעות הדוא"ל לפחות סבירות שיסומנו כדואר זבל.
+header_spoofing:
+  title: הרשה כותרת מזוייפת
+  content: >
+    אפשר אופציה זו על מנת לאפשר משלוח <span class="doc-desc-title"> דוא"ל</span> מכתובת שונה מהמוגדרת לעיל. <br/><br/> משתמשים באפשרות מתקדמת זו על מנת לאפשר משלוח דוא"ל עם שמות נרדפים לתיבת הדואר הזו.
+

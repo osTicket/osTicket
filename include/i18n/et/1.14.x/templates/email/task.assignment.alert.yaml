@@ -1,0 +1,25 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Saadetakse agentidele, kui ülesanne on suunatud neile või meeskonnale, kuhu nad kuuluvad. Kasuta %{assigner} eristamaks suunajat.
+subject: |
+  Sinule on suunatud ülesanne
+body: |
+  <h3><strong>Tere %{assignee.name.first},</strong></h3>
+  Ülesanne <a href="%{task.staff_link}">#%{task.number}</a> on suunatud sulle %{assigner.name.short} poolt 
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Ülesande vaatamiseks/vastamiseks, palun <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);">logi sisse</span></a> piletite haldussüsteemi</div>
+  <em style="font-size: small">Sinu sõbralik kasutajatugi</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

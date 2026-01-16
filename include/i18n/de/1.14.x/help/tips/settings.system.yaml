@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk Status
+  content: >
+    Wenn der Status zu <span class="doc-desc-opt">Offline</span> geändert wird, ist das Benutzerportal deaktiviert.  Nur Administratoren erhalten Zugriff auf das System.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Diese URL ist die Basis Ihrer osTicket Installation. Diese wird in der E-Mail-Kommunikation verwendet, um Benutzer zurück zu Ihrem Helpdesk zu leiten.
+helpdesk_name_title:
+  title: Helpdesk Name/Titel
+  content: >
+    Dies ist der Titel, der auf der Registerkarte im Browser angezeigt wird. Wenn die Helpdesk Seite als Lesezeichen gespeichert wird, wird dieser Name/Titel verwendet.
+default_department:
+  title: Standard-Abteilung
+  content: >
+    Wählen Sie eine Standard-<span class="doc-desc-title">Abteilung</span> für Tickets, die nicht automatisch zu einer Abteilung weitergeleitet werden. <br/><br/> Das Ticket kann weitergeleitet werden basierend auf dem Hilfethema, der eingehenden E-Mail-Adresse und den Ticket-Filter-Einstellungen.
+default_schedule:
+  title: Standard Zeitplan
+  content: >
+    Wählen Sie den Standard Zeitplan der zur Berechnung der SLA-Überfälligkeit verwendet werden soll.
+  links:
+    - 
+      title: Zeitpläne verwalten
+      href: /scp/schedules.php
+default_page_size:
+  title: Standard-Seitengröße
+  content: >
+    Wählen Sie die Anzahl der Elemente pro Seite, die in den Ticket-Übersichtsseiten im Agenten-Bereich angezeigt werden sollen. Jeder Agent kann diese Anzahl unter <span class="doc-desc-title">Meine Einstellungen</span> selbst anpassen.
+default_log_level:
+  title: Standard-Log-Level
+  content: >
+    Bestimmen Sie das Mindest-Level für Ereignisse, die im <span class="doc-desc-title">System-Log</span> aufgezeichnet werden. <span class="doc-desc-opt">Debug</span> stellt den geringsten und <span class="doc-desc-opt">Fehler</span> größten Schweregrad dar. Wenn Sie beispielsweise alle Ereignisse in den <span class="doc-desc-title">System-Logs</span> anzeigen wollen, wählen Sie <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Logs löschen
+  content: >
+    Legen Sie fest, wie lange die <span class="doc-desc-title">System-Logs</span> aufbewahrt werden sollen, bevor sie gelöscht werden.
+enable_richtext:
+  title: Rich Text aktivieren
+  content: >
+    Wenn aktiviert, wird dies die Verwendung von Rich-Text-Formatierungen zwischen Benutzern und Agenten erlauben.
+enable_avatars:
+  title: Avatare in der Vorgangsansicht aktivieren
+  content: >
+    Aktivieren Sie diese Option, um <span class="doc-desc-title">Avatare</span> in der Vorgangsansicht anzuzeigen. <br><br>Die <span class="doc-desc-title">Avatarquelle</span> kann in den Einstellungsseiten der Agenten und Benutzer festgelegt werden.
+  links:
+    - 
+      title: Agenteneinstellungen
+      href: /scp/settings.php?t=agents
+    - 
+      title: Benutzereinstellungen
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Agenten-Kollisionsvermeidung
+  content: >
+    Geben Sie an, wie lange ein Ticket oder eine Aufgabe durch einen Agent maximal gesperrt sein darf, ohne dass irgendeine Aktivität erfolgt ist. <br><br> Geben Sie <span class="doc-desc-opt">0</span> ein, um die Bearbeitungssperre zu deaktivieren.
+allow_iframes:
+  title: iFrames erlauben
+  content: >
+    Geben Sie eine durch Komma getrennte Liste von Domains ein, wo das System in einem Frame angezeigt werden darf. Wenn leer gelassen, dann verwendet das System "selbst" als Standard. Diese Einstellung erlaubt Wildcards, HTTP/HTTPS URL Formate und Port-Nummern. <br><br> <b>Beispiel:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntaxinformation (Host-Quelle)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Geben Sie eine durch Komma getrennte Liste von IP Adressen ein denen es erlaubt ist auf das System zuzugreifen. Es gibt vier Auswahlmöglichkeiten auf welche Bereiche die ACL angewendet werden soll. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Anwenden auf</th> <th>Beschreibung</th></tr> <tr><td>Deaktiviert</td> <td>Deaktiviert die ACL vollständig.</td></tr> <tr><td>Alle</td> <td>Wendet die ACL auf alle Bereiche an (z.B. Clienten Portal, Agenten Bereich, Admin Bereich)</td></tr> <tr><td>Clienten Portal</td> <td>Wendet die ACL ausschließlich auf das Clienten Portal an.</td></tr> <tr><td>Mitarbeiter Bereich</td> <td>Wendet die ACL ausschließlich auf den Agenten Bereich und den Admin Bereich an.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Datums- und Zeitoptionen
+  content: >
+    Die folgenden Einstellungen legen die Standard-Einstellungen für Datum &amp; Zeit-Einstellungen für Ihren Helpdesk fest. Sie können die Standard-Gebietsschemata für das ausgewählte Gebietsschema auswählen oder die Formate an Ihre eigenen Bedürfnisse anpassen. Beziehen Sie sich auf die ICU Formatierung-Zeichenfolgen als Referenz für Ihre Anpassungen. Die Werte, die unten angezeigt werden, veranschaulichen Ihnen einfach das Resultat des entsprechenden Wertes.
+  links:
+    - 
+      title: ICU-Datumsformate anzeigen
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Systemsprachen
+  content: >
+    Wählen Sie eine primäre Systemsprache und optional sekundäre Sprachen, um die Benutzeroberfläche lokalisiert für Ihre Agenten und Benutzer zur Verfügung zu stellen.
+primary_language:
+  title: Primäre Systemsprache
+  content: >
+    Inhalte dieser Sprache werden den Agenten und Endbenutzern angezeigt, wenn Ihre jeweilige Spracheinstellung aktuell nicht verfügbar ist. Dies schließt die Inhalte der Benutzeroberfläche, wie auch anpassbare Inhalte, wie die Danke-Schön-Seiten und E-Mail-Vorlagen ein. <br/><br/> Das ist die Sprache, in der die nicht übersetzten Versionen Ihrer Inhalte geschrieben werden sollen.
+secondary_language:
+  title: Sekundäre Sprachen
+  content: >
+    Wählen Sie eine bevorzugte Sprache für Ihre Agenten und Endbenutzer. Die Benutzeroberfläche wird in diesen Sprachen verfügbar sein, so auch der anpassbare Inhalte, wie die Danke-Schön-Seiten und Hilfethemen, werden in diesen Sprachen übersetzbar sein.
+#Attachments
+attachments:
+  title: Speicherort und Einstellungen für Anhänge
+  content: >
+    Konfigurieren Sie wo die Anhänge gespeichert werden.
+default_storage_bk:
+  title: Datei-Speicherort
+  content: >
+    Wählen Sie aus wie die Anhänge gespeichert werden.<br<br> Zusätzliche Speicherorte können über das Installieren von Speicher-Plugins hinzugefügt werden
+max_file_size:
+  title: Maximale Dateigröße
+  content: >
+    Wählen Sie eine maximale Dateigröße für Anhänge, die von Agenten hochgeladen werden können. Das schließt vordefinierte Anhänge, Artikel der Wissensdatenbank und Anhänge zu Ticket- und Aufgaben-Antworten mit ein. Die Obergrenze wird von der PHP <code>upload_max_filesize</code>-Einstellung gesteuert.
+  links:
+    - 
+      title: php.ini-Einstellungen
+      href: "http://php.net/manual/de/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Log-In erforderlich
+  content: >
+    Aktivieren Sie diese Einstellung, um zu verhindern, dass Anlagen für nicht authentifizierte Benutzer bereitgestellt werden. Das heißt, Benutzer müssen sich am System anmelden (sowohl Endbenutzer als auch Agenten), um Anlagen anzeigen zu können. <br><br> Aus Sicherheitssicht ist zu beachten, dass der Browser des Benutzers zuvor angezeigte Dateien im Cache behalten kann. Außerdem verfallen alle Datei-Links auf Ihrem Helpdesk automatisch nach ca. 24 Stunden.

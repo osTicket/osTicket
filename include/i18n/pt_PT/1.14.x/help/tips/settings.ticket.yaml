@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Formato do número de pedido
+  content: >
+    Esta definição é usada para gerar números de tickets. Use cardinais (`#`) onde deverão ser colocados números. Qualquer outro texto em formato numérico será preservado. <span class="doc-desc-title">Tópicos de ajuda</span> pode defenir formatos numéricos personalizados.<br/><br/> Por exemplo, para números de seis digitos, use <code>######</code>.
+sequence_id:
+  title: Sequencia do número do pedido
+  content: >
+    Escolha uma sequeência para criar novos números de tickets. O sistema tem uma sequência incremental e aleatória por defeito. Pode criar quantas sequências desejar. Use várias sequências no <span class="doc-desc-title">formato numérico dos tickets</span>configuração para tópicos de ajuda.
+queue_bucket_counts:
+  title: Contagem de Tickets Top-Level
+  content: >
+    Esta opção é usada para mostrar ou esconder a contagem de ticket nas filas do primeiro nível. Voltar ao que era anterior.
+default_ticket_status:
+  title: Estado Predefinido para Novos Pedidos
+  content: >
+    Escolha um estado como predefinido para os novos pedidos. Isto pode ser definido para cada tópico de ajuda, se pretendido. Este também pode ser substituído por um filtro de pedido.
+  links:
+    - 
+      title: Gerir Estado do Pedido
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: SLA por defeito
+  content: >
+    Para gerir quanto tempo um pedido fica em aberto, antes de passar a pedido atrasado, escolha o nível predefinido do plano SLA.
+  links:
+    - 
+      title: Criar mais planos SLA
+      href: /scp/slas.php
+default_priority:
+  title: Prioridade padrão
+  content: >
+    Escolha uma<span class="doc-desc-title"> prioridade</span> padrão para tickets não atribuídos uma prioridade automaticamente. <br/> <br/> Prioridade pode ser atribuído através do tópico da ajuda, departamento roteado ou configurações de Ticket.
+maximum_open_tickets:
+  title: Máximo de Pedidos em Aberto
+  content: >
+    Introduza o <em>número</em> máximo de pedidos que um utilizador pode ter <strong>em aberto</strong>. <br><br>Introduza<span class="doc-desc-opt"> 0</span> se pretende desativar esta limitação.
+email_ticket_priority:
+  title: Prioridade do pedido por e-mail
+  content: >
+    Usar a prioridade do e-mail atribuída pelo serviço de email do endereço
+show_related_tickets:
+  title: Mostrar Pedidos Relacionados
+  content: >
+    Mostrar todos os pedidos relacionados no início de sessão do utilizador - caso contrário o acesso é restrito a uma visualização de pedido por sessão
+human_verification:
+  title: Verificação humana
+  content: >
+    Ative o CAPTCHA para verificar, no portal de cliente, se um pedido é resultado de atividade humana.<br><br> Requer GDLib library
+claim_tickets:
+  title: Reclamar Pedidos na Resposta
+  content: >
+    Permita que isto atribua automaticamente os bilhetes não atribuídos ao agente que responde. <br><br> Bilhetes reabertos são sempre atribuídos ao último respondente a menos que a atribuição automática na reabertura esteja desactivada ao nível do Departamento.
+collaborator_ticket_visibility:
+  title: Visibilidade de Tickets do Colaborador
+  content: >
+    Se Ativo, os Utilizadores terão visibilidade para TODOS os Tickets em que participaram quando se autenticarem Web Portal. <br> <br> Se Desativado, os utilizadores só poderão ver seus próprios Tickets ao se autenticarem no Web Portal.
+require_topic_to_close:
+  title: Necessita Tópico de Ajuda para Fechar
+  content: >
+    Se ativo, um Ticket deve ter um Tópico de Ajuda para ser Fechado por um Agente
+assigned_tickets:
+  title: Pedidos Atribuídos
+  content: >
+    Ative esta função para excluir os pedidos atribuídos da <span class="doc-desc-title">Fila de Pedidos em Aberto</span>.
+answered_tickets:
+  title: Pedidos Respondidos
+  content: >
+    Habilite esse recurso mostrar Tikets respondidos na <span class="doc-desc-title"> Fila de respostas</span>. Caso contrário, ele será incluído na <span class="doc-desc-title"> Fila de Entrada</span>.
+ticket_attachment_settings:
+  title: Anexos ao ticket
+  content: >
+    Configurar opções de ficheiros anexos ao campo de <span class="doc-desc-title">detalhes do problema</span>. Estas opções são utilizadas para todos os novos tickets e novas mensagens, independentemente do canal de origem (portal web, email, api, etc.).

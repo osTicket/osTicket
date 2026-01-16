@@ -73,8 +73,8 @@ if ($_POST) {
             switch (strtolower($_POST['do'])) {
             case 'delete':
                 foreach ($orgs as $O) {
-                  if ($O->delete())
-                      $count++;
+                    if ($O->delete())
+                        $count++;
                 }
 
                 break;

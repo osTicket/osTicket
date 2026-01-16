@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Søkefeltet
+  0: >
+
+advanced:
+  title: Avansert
+  content: >
+    Begrense søkeparameterne. Når du har valgt avansert søkekriteriene og kjøre søket, kan du <span class="doc-desc-title"> eksportere</span> dataene nederst på siden saker.
+open_tickets_table:
+  title: liste over saker
+  content: >
+    saker som er åpnet og krever oppmerksomhet
+ticket:
+  title: Sak
+  0: >
+
+date:
+  title: Dato
+  0: >
+
+subject:
+  title: Emne
+  0: >
+
+from:
+  title: Fra
+  0: >
+
+priority:
+  title: Prioritet
+  0: >
+
+assigned_to:
+  title: Tilordnet til
+  0: >
+
+export:
+  title: Eksporter
+  content: >
+    Eksportere data i gjeldende visning til en CSV-fil. CSV-filer kan åpnes med regneark programvare (dvs. Microsoft Excel, Apple Pages, OpenOffice, etc.).
+advanced_search_dialog:
+  title: Avansert søk
+  0: >
+
+adv_keyword:
+  title: Søkeord
+  content: >
+    Finne treff basert på emnelinjen og meldingsteksten i saker samt alle tekstinnhold forbundet med egendefinerte felt for brukerne og saker.
+adv_date_range:
+  title: Søk etter datointervall
+  content: >
+    Definisjon her
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Svartyper
+  content: >
+    <b>Svar alle:</b> Dette svaret sendes til brukeren og de samarbeidspartnere du velger å inkludere.<br/> <b>Svar til bruker:</b>Dette svaret sendes kun til brukeren, ikke samarbeidspartnere.<br/> <b>Send ikke e-mail-svar:</b>Det sendes ingen e-mail-varsler, men svaret fra Agenten er synlig for<b>ALLE</b>brukere når de ser saken.</b>.

@@ -1,0 +1,14 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Odredišna stranica se odnosi na početni sadržaj korisničke stranice. Šablon menja sadržaj koji se vidi iznad dva linka <strong>Otvorite novi tiket</strong> i <strong>Proveri status tiketa</strong>.
+name: Sletanje
+body: >
+  <h1>Dobro došli u naš korisnički centar</h1>
+  <p>
+  Kako bismo što brže i kvalitetnije odgovorili na Vaša pitanja i zahteve, odlučili smo se za korišćenje platforme za izdavanje tiketa. Svakom Vašem zahtevu se dodelјuje jedinstven broj tiketa koji možete koristiti za praćenje Vašeg slučaja putem portala. 
+  Takođe Vam omogućavamo uvid u arhivu i istoriju svih Vaših zahteva. Sve što Vam je potrebno za korišćenje ovog servisa je validna adresa elektronske pošte.
+  </p>

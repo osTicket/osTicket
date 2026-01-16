@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Deze template definieert de email die naar klanten wordt gezonden als hun account aangemaakt is in het klanten portaal of als dit uit hun naam door een medewerker is gedaan. Deze email fungeert als email adres verificatie. Gebruik alstublieft %{link} ergens in het bericht.
+name: "Welkom bij %{company.name}"
+body: >
+  <h3><strong>Hallo %{recipient.name.first}.</strong></h3> <div>We hebben voor u een account aangemaakt op onze helpdesk %{url}.<br /> <br />Volg alstublieft de onderstaande link om uw account te bevestigen en toegang te krijgen tot uw tickets.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Uw vriendelijke helpdesk  <br /> %{company.name}</em> </div>

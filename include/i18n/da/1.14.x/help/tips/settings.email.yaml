@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Standard Email skabelon sæt
+  content: >
+    Vælg <span class="doc-desc-title"> Email skabelon angivet</span> bruges til at sende <span class="doc-desc-title"> Auto-svar</span> og <span class="doc-desc-title"> advarsler</span> for forskellige handlinger, der kan finde sted under en bestillings levetid. <br><br>Afdelinger kan tildeles en bestemt Email skabelon angive.
+  links:
+    - 
+      title: Administer Email skabelon sæt
+      href: /scp/templates.php
+default_system_email:
+  title: Standard udgående Email
+  content: >
+    Vælg en e-mail-adresse, hvorfra udgående e-mails sendes. <br><br><span class="doc-desc-title"> afdelinger</span> kan angive sin egen <span class="doc-desc-title"> e-mail-adresse</span>, som vil tilsidesætte hvad er angivet her.
+  links:
+    - 
+      title: Administrer Email adresser
+      href: /scp/emails.php
+default_alert_email:
+  title: Standard Påmindelses Email
+  content: >
+    Vælg en Email adresse som <span class="doc-desc-title"> påminder &amp; meddelelser</span> til agenter.
+  links:
+    - 
+      title: Administrer Email adresser
+      href: /scp/emails.php
+admins_email_address:
+  title: Admins Email adresse
+  content: >
+    Indtast en administrator Email adresse som sender <span class="doc-desc-title"> systemfejl</span> og <span class="doc-desc-title"> nye bestillinger advarsler</span> (hvis aktiveret).
+  links:
+    - 
+      title: Administrer Advarsel & Meddelelser
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Hentning af Email
+  content: >
+    Tillad IMAP/POP polling for konfigureret og aktiveret <span class="doc-desc-title">Mailbokse</span>.
+  links:
+    - 
+      title: Administrer Mailbokse
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Hentet E-mails ved hjælp af Auto-cron
+  content: >
+    Giver mulighed for periodisk email henter ved hjælp af en intern jobliste udløst af medarbejdernes aktivitet.  <br><br>Venligst bemærk, at Emails ikke vil blive hentet, hvis ingen er logget på Medarbejdernes Kontrolpanel. Eksterne opgavestyring er stærkt anbefales til forudsigelige hentnings intervaller.
+  links:
+    - 
+      title: Brug af ekstern Opgavestyring
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Strip Citeret Svar
+  content: >
+    Hvis aktiveret, vil dette fjerne foregående korrespondance mellem email kommunikation. <br><br>Denne funktion er relationel afhængig af <span class="doc-desc-title"> svar separator tag</span> nedenfor.
+reply_separator_tag:
+  title: Svar Separator Tag
+  content: >
+    Dette er en token, der angiver at brugeren kan svare over linjen. <br><br><strong>Note:</strong> dette er kun relevant, hvis <span class="doc-desc-title"> Strip citerede svar</span> er aktiveret ovenfor.
+emailed_tickets_priority:
+  title: Emailet sags priotet
+  content: >
+    Vælg om du vil have prioritet/betydning af brugernes email (f.eks. Outlook) til at diktere den nye bestillings prioritet. <br><br> Denne indstilling kan blive overskrevet af <span class="doc-desc-title>"bestillings filtre</span>.
+  links:
+    - 
+      title: Opret &amp; administrer sags filtre
+      href: /scp/filters.php
+accept_all_emails:
+  title: Accepter alle Emails
+  content: >
+    Accepter Emails fra ukendte brugere. <br><br>Afmarkering af denne indstilling vil resultere i bestillingen bliver afvist.
+accept_email_collaborators:
+  title: Accepter Email Samarbejdspartnere
+  content: >
+    Tilføj Email deltagerne der indgår i <code><strong>til</strong></code> og <code><strong>CC</strong></code> felter som sags samarbejdspartnere. <br/><br/> <em>samarbejdspartnere kan altid tilføjes manuelt af agenter når du får vist en bestilling.</em>
+default_mta:
+  title: Standard MTA
+  content: >
+    <span class="doc-desc-title"> Standard MTA</span> tager sig af Email leverings processen for udgående Emails uden SMTP-indstilling.
+ticket_response_files:
+  title: Sags svarfilerne
+  content: >
+    Hvis aktiveret, vil alle vedhæftninger en agent kan knytte til en sags reaktion være også inkluderet i Email til brugeren.
+verify_email_addrs:
+  title: Bekræft Email adresser
+  content: >
+    Aktivér dette for at kontrollere, om email adressen har en post udveksler (MX) i domænets DNS. Dette er nyttigt til at opdage forkert indtastede email adresser. Ud over dette kontrollerer den om email adressen er korrekt opstillet.

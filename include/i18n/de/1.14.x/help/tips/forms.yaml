@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Kopfzeile des Formulars
+  content: >
+    Dieser Titeltext wird in einer grauen Zelle über den Formularfeldern angezeigt
+form_instructions:
+  title: Formular-Anweisungen
+  content: >
+    Sie können zusätzliche Anweisungen hinzufügen, die dem Benutzer helfen den Kontext des Formularfeldes zu erklären und möglicherweise auf benötigte Daten aufmerksam machen.
+field_sort:
+  title: Anzeigeposition des Feldes
+  content: >
+    Klicken Sie das Icon mit dem Hoch-Runter-Pfeil an und ziehen sie die Feldzeile an die gewünschte Position, um innerhalb des Formulars zu sortieren. Die neue Sortierung wird erst wirksam, wenn das Formular gespeichert wurde.
+field_label:
+  title: Feldbezeichnung
+  content: >
+    Diese Bezeichnung wird vor dem Eingabefeld angezeigt. Normalerweise wird ein Kurz-Antwort-Feld so gerendert, wie dieses hier: <br><strong>Bezeichnung:</strong>&nbsp;<input type="text">
+field_type:
+  title: Feldinhalt-Typ
+  content: >
+    Diese Einstellung wird verwendet um festzulegen, welche Art von Benutzereingabe erwartet wird. Sie können wählen aus kurzer und langer Antwort, Telefonnummer, Datum und Uhrzeit, Kontrollkästchen, Dropdown-Liste oder einer benutzerdefinierten Liste.
+  links:
+    - 
+      title: Benutzerdefinierte Listen
+      href: /scp/lists.php
+field_visibility:
+  title: Feld-Sichtbarkeit
+  content: >
+    Wählen Sie eine Sichtbarkeit und Erfordernis für dieses Feld. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Einstellung</th> <th>Ergebnis</th></tr> <tr><td>Optional</td> <td>Agenten und Benutzer können das Feld sehen, aber keiner ist verpflichtet es auszufüllen.</td></tr> <tr><td>Pflichtfeld</td> <td>Agenten und Benutzer können das Feld sehen, und beide sind verpflichtet es auszufüllen</td></tr> <tr><td>Pflichtfeld für Benutzer</td> <td>Agenten und Benutzer können das Feld sehen, nur Benutzer sind verpflichtet es auszufüllen</td></tr> <tr><td>Pflichtfeld für Agenten</td> <td>Agenten und Benutzer können das Feld sehen, nur Agenten sind verpflichtet es auszufüllen</td></tr> <tr><td>Intern, Optional</td>  <td>Nur Agenten können das Feld sehen, das Ausfüllen ist nicht erforderlich.</td></tr> <tr><td>Intern, Pflichtfeld</td> <td>Nur Agenten können das Feld sehen, und das Ausfüllen ist erforderlich.</td></tr> <tr><td>Nur für Benutzer</td> <td>Nur Benutzer können das Feld sehen, und das Ausfüllen ist erforderlich.</td></tr> </tbody></table>
+field_variable:
+  title: Feldautomatisierung
+  content: >
+    Diese Felddaten können in E-Mail- und Seiten-Vorlagen über den Namen, der in der Spalte angegeben ist, angesprochen werden. Zum Beispiel kann auf die Felder in einem gewöhnlichen Ticket über <code>%{ticket.variable}</code> zugegriffen werden, wobei <strong>variable</strong>, der in dieser Spalte verwendete Name ist.<br> <br> <em>Die Informationen des Helpdesk sind über <code>%{</code><code>company.variable}</code> zugänglich und Benutzerinformationen sind über <code>%{ticket.user.variable}</code>erreichbar</em>
+field_delete:
+  title: Dieses Feld entfernen
+  content: >
+    Das Setzen des Hakens und Speichern des Formulars, entfernt dieses Feld aus dem Formular.<br> <br><em>Das Löschen eines Feldes, entfernt nicht die bisher eingegebenen Daten aus den ausgefüllten Formularen. Wenn z.B. ein vorher übermitteltes Ticket Daten von einem Feld enthält, wird das Löschen dieses Feldes, nicht die Daten aus dem Ticket entfernen.</em>

@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Kasutajatoe nimi
+  content: |
+    <p>Teie kasutajatoe nimetus, nt [ettevõtte nimi] tugiteenus</p>
+system_email:
+  title: Süsteemi vaikeemail
+  content: |
+    <p>Vaikeemaili aadress, näiteks support@yourcompany.com - ülejäänu saad lisada hiljem!</p>
+default_lang:
+  title: Süsteemi vaikekeel
+  content: |
+    <p>Esialgsed andmed selle keele jaoks salvestatakse andmebaasi, nagu näiteks emailide mallid ja süsteemi vaikimis leheküljed.</p>
+  links:
+    - 
+      title: osTicketi keelepaketid
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Eesnimi
+  content: |
+    <p>Administraatori eesnimi</p>
+last_name:
+  title: Perekonnanimi
+  content: |
+    <p>Administraatori perekonnanimi</p>
+email:
+  title: Emaili aadress
+  content: |
+    <p>Administraatori isiklik emaili aadress. See peab erinema süsteemi vaikeaadressist.</p>
+username:
+  title: Kasutajanimi
+  content: |
+    <p>Administraatori kasutajanimi. Peab olema vähemalt kolm (3) tähemärki.</p>
+password:
+  title: Salasõna
+  content: |
+    <p>Administraatori salasõna. Peab olema vähemalt viis (5) või rohkem tähemärki pikk.</p>
+password2:
+  title: Kinnita salasõna
+  content: |
+    <p>Korda administraatori salasõna. Peab kattuma eelnevaga.</p>
+db_prefix:
+  title: MySQL tabeli eesliide
+  content: |
+    <p>osTicket vajab andmebaasi tabeli nime eesliidet vältimaks võimalikke konflikte jagatud andmebaasi puhul.</p>
+db_host:
+  title: MySQL hostinimi
+  content: |
+    <p>
+    Enamik hoste kasutavad 'localhost' kohaliku andmebaasi hosti nimena. Kontrolli oma hosti, kui localhost ei sobi.
+    </p>
+    <p>
+    Vaikimisi port on määratud php.ini failis. Mittestandardse pordi numbri saab määrata nii <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL andmebaas
+  content: |
+    <p>osTicketi poolt kasutatava andmebaasi nimi.</p>
+db_user:
+  title: MySQL kasutajanimi
+  content: |
+    <p>MySQL kasutajal peavad olema kõik andmebaasi õigused.</p>
+db_password:
+  title: MySQL salasõna
+  content: |
+    <p>MySQL salasõna on seotud eespool mainitud kasutajaga.</p>

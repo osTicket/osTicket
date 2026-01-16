@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Henkilökunnan Allekirjoitus
+  content: |
+    Luo henkilökunnalle allekirjoitus tikettien vastauksiin. Tämä allekirjoitus näkyy vaihtoehtona tikettivastauksien alla
+type:
+  title: Tilin tyyppi
+  content: |
+    Järjestelmänvalvojilla on pääsy Järjestelmänvalvojan sivulle. Henkilökunta pääsee vain käsittelemään tikettejä sekä tietopankkiin
+group:
+  title: Kohdistettu ryhmä
+  content: |
+    Rymän jäsenyys määrittää henkilökunnan roolin järjestelmässä. Käy ryhmän hallinta sivulla määrittelemässä mitä oikeuksia tällä henkilökunnalla on tukijärjestelmässä
+notes:
+  title: Sisäiset muistiinpanot
+  content: |
+    Tee sisäisiä muistiinpanoja, jotka koskevat henkilökuntaa. Viestit näkyvät vain niille henkilöille, joiden tilityyppi on Järjestelmänvalvoja

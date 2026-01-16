@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Prioritet + Senast uppdaterad
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: Prioritet + Senast Skapad
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: Prioritet + Förfallodatum
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: Förfallodatum
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: Stängt Datum
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: Skapad datum
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

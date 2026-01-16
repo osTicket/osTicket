@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Þetta sniðmát setur upp efni sem er sýnt á Takk-Fyrir síðunni eftir að viðskiptavinur skráir nýja beiðni.
+name: Takk Fyrir
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Takk fyrir að hafa samband við okkur.
+  <br>
+  <br>
+  Þjónustubeiðni hefur verið skráð og þjónustufulltrúi mun hafa samband við þig fljótlega ef nauðsyn krefur.</p>
+  <br>
+  <br>
+  Þjónustuteymið
+  </div>

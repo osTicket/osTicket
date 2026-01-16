@@ -1,0 +1,22 @@
+---
+#Email template: task.activity.notice.yaml
+#Notice sent to collaborators on task activity e.g reply or message
+#---
+notes: |
+  Сповіщення про активність завдання надіслане співробітникам, наприклад відповідь або повідомлення.
+subject: |
+  Re: %{task.title} [#%{task.number}]
+body: |
+  <h3><strong>Дорогий(а) %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> щойно надіслав(ла) повідомлення до завдання, в якому Ви берете участь.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Ви отримали це повідомлення, тому що Ви є співвиконавцем завдання
+  #%{task.number}. Щоб прийняти участ, надайте відповідь на цей лист.</em>
+  </div>

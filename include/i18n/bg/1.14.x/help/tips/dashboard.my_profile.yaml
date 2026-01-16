@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Информация за контакта
+  0: >
+
+username:
+  title: Потребителско име
+  content: >
+    Само сътрудници с административни права могат да променят потребителски имена. Ако сте сътрудник с административни права, можете да направите това, като изберете сътрудник от  меню <span class="doc-desc-title">Сътрудници</span>.
+  links:
+    - 
+      title: Промяна на потребителското име като администратор
+      href: /scp/staff.php
+time_zone:
+  title: Часова зона
+  0: >
+
+daylight_saving:
+  title: Лятно часово време
+  0: >
+
+maximum_page_size:
+  title: Максимален брой записи на страница
+  0: >
+
+auto_refresh_rate:
+  title: Време за автоматично обновяване
+  0: >
+
+default_signature:
+  title: Подпис по подразбиране
+  0: >
+
+default_paper_size:
+  title: Размер на хартията по подразбиране
+  0: >
+
+show_assigned_tickets:
+  title: Покажи назначените заявки
+  content: >
+    <p>Разрешаването на тази опция ще отмени глобалната настройка за скриване на присвоените билети от отворените опашки.</p> <p class="info-banner"> <i class="icon-info-sign"></i> Тази настройка е налична само когато присвоените билети са изключени глобално.</p>
+password:
+  title: Парола
+  0: >
+
+current_password:
+  title: Текуща парола
+  0: >
+
+new_password:
+  title: Нова парола
+  0: >
+
+confirm_new_password:
+  title: Нова парола (пак)
+  0: >
+
+signature:
+  title: Подпис
+  content: >
+    Създаване на незадължителен <span class="doc-desc-title">подпис</span>, който ще се появява в края на отговорите Ви. Дали <span class="doc-desc-title">подписът</span> ще се появява или не, ще зависи от <span class="doc-desc-title">Email шаблона</span>, който ще бъде използван в отговора на заявката.
+  links:
+    - 
+      title: Създаване на имейл шаблони в администраторския панел
+      href: /scp/templates.php

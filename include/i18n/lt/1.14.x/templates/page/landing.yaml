@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Pagrindinis puslapis susisjęs su Kliento portalo pradinės peržiūros turiniu. Šablonas keičia turinį matoma iš pirmiau nurodytų dviejų nuorodų <strong> Atidaryti naują užklausą</strong>ir <strong>Patikrinti užklausos statusą</strong>.
+name: Pradinis
+body: >
+  <h1>Sveiki atvykę į pagalbos centrą</h1><p>Siekdami supaprastinti pagalbos prašymus ir geriau Jus aptarnauti, mes naudojame pagalbos užklausų sistemą. Kiekvienam pagalbos prašymui priskiriamas unikalus užklausos numeris, kurio dėka galite stebėti progresą ir atsakymus internete. Jūsų patogumui mes teikiame pilną archyvą ir istoriją, apie visas Jūsų pagalbos užklausas.  Galiojantis elektroninio pašto adresas yra reikalaujams pateikiant naują užklausą.</p>

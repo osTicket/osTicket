@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Grupid
+  content: >
+    Grupid on kasutusel, et määrata agentide õigused kasutajatoes. Gruppide kaudu saab agendile anda lisaõigusi osakondadesse, millesse nad ei kuulu.
+status:
+  title: Staatus
+  content: >
+    Kui on <span class="doc-desc-opt">keelatud</span>, siis agendid, kes on selles grupis, ei saa sisse logida ja nad ei saa osakonna hoiatusi ja teated.
+department_access:
+  title: Osakonna ligipääs
+  content: >
+    Kontrolli kõiki osakondi, millele grupi liikmetel on ligipääs.

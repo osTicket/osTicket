@@ -1,0 +1,18 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Halaman arahan mengacu pada isi dari tampilan awal Portal nasabah. Template memodifikasi konten yang dilihat di atas dua link <strong>membuka tiket baru</strong> dan <strong>Memeriksa Status tiket</strong>.
+name: Pendaratan
+body: >
+  <h1>Selamat Datang ke Pusat Dukungan</h1>
+  <p>
+  Untuk mempercepat pelayanan terhadap permintaan dukungan Anda, 
+  kami menggunakan sistem tiket dukungan. Setiap permintaan dukungan 
+  mendapatkan nomor tiket yang unik, yang dapat Anda gunakan untuk 
+  melacak kemajuan dan respon secara langsung. Untuk referensi Anda, 
+  kami menyediakan arsip lengkap beserta semua permintaan dukungan Anda. 
+  Alamat email yang valid sudah barang tentu dibutuhkan untuk mengirim tiket.
+  </p>

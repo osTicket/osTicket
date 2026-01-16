@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Štandardný formát pre meno agenta
+  content: >
+    Vyberte formát pre zobrazenie mena agenta v celom systéme. Emailové šablóny ho použijú ak nebude špecifikovaný iný formát pre meno agenta.
+staff_identity_masking:
+  title: Nezobrazovanie mena pracovníka
+  content: >
+    Aktivovanie tejto voľby nezobrazí meno pracovníka počas komunikácie so zákazníkom.
+#Authentication settings
+password_reset:
+  title: Politika uplynutia platnosti hesiel
+  content: >
+    Nastavenie ako často (v mesiacoch) si budú pracovníci musieť meniť svoje heslo. Ak je toto nastavenie vypnuté (nastavenie "bez vypršania platnosti hesla"), platnosť hesla sa nikdy neskončí.
+password_expiration_policy:
+  title: Politika uplynutia platnosti hesiel
+  content: >
+    Ako často musia pracovníci (agenti) meniť svoje heslo. Ak je zakázané (teda <span class="doc-desc-opt">bez vypršania platnosti hesla</span>), heslo stále platí.
+allow_password_resets:
+  title: Povoliť obnovenie hesla
+  content: >
+    Ak chcete, aby bol zobrazený odkaz <span class="doc-desc-title">Zabudol som heslo </span> na <span class="doc-desc-title">na html stránke, </span> po chybnom pokuse o prihlásenie.
+reset_token_expiration:
+  title: Okno pre obnovu hesla
+  content: >
+    Ako dlho (v minútach) bude <span class="doc-desc-title"> žiadosť o zmenu hesla </span> platná. Ak si pracovník požiada o  <span class="doc-desc-title">reset hesla</span>, email  na reset hesla je počas tejto doby platný.
+staff_session_timeout:
+  title: Max.doba nečinnosti
+  content: >
+    Maximálna dĺžka nečinnosti (v minútach), než je pracovník automaticky odhlásený. <br><br> ak chcete <span class="doc-desc-title">automatické odhlásenie </span> vypnúť, zadajte 0.
+bind_staff_session_to_ip:
+  title: Zviazať agenta s IP adresou
+  content: >
+    Nastavte, ak chcete, aby bol pracovník (agent) zviazaný s jeho IP adresou pri prihlásení.<br><br> Toto nastavenie nie je doporučené pre tých, ktorí majú IP adresy prideľované dynamicky.

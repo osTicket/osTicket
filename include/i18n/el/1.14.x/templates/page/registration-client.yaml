@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Αυτό το πρότυπο ορίζει το email που αποστέλλεται στους Πελάτες όταν έχει δημιουργηθεί ο λογαριασμός τους στο Portal Πελατών ή από ένα Εκπρόσωπο για λογαριασμό τους. Αυτό το email χρησιμεύει για την επαλήθευση της ηλεκτρονικής διεύθυνσης. Παρακαλούμε χρησιμοποιήστε το %{link} κάπου στο σώμα του μηνύματος.
+name: "Καλώς ήρθατε στον οργανισμό: %{company.name}"
+body: >
+  <h3><strong>Αγαπητέ/ή %{recipient.name.first},</strong></h3> <div> Έχουμε δημιουργήσει ένα λογαριασμό για εσάς στο κέντρο εξυπηρέτησής μας στην διεύθυνση: %{url}.<br /> <br /> Παρακαλούμε ακολουθήστε τον παρακάτω σύνδεσμο για να επιβεβαιώσετε τον λογαριασμό και να αποκτήσετε πρόσβαση στα δελτία των αιτημάτων σας.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Το Κέντρο Υποστήριξης <br /> %{company.name}</em> </div>

@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Denne skabelon definerer den email sendt til medarbejdere som vælger linket <strong>Glemt min adgangskode</strong> på Personale Kontrolpanel Log In siden.
+name: "osTicket Personale Adgangskode nulstiller"
+body: >
+  <h3><strong>Hej %{staff.name.first},</strong></h3> <div>En nulstilling af adgangskode er blevet indgivet på dine vegne for helpdesk på %{url}.<br/> <br/> Hvis du føler, at dette er en fejl, slet eller bort fra denne email. Din konto er stadig sikret og ingen har fået adgang til den. Den er ikke låst og din adgangskode ikke er blevet nulstillet. Nogen kunne har fejlagtigt angivet din e-mail adresse. <br/> <br/> Følg linket nedenfor for at logge ind på helpdesk og ændre din adgangskode. <br/> <br/> <a href="%{link}"> %{link}</a> <br/> <br/> <em style="font-size: small"> din venlige kunde Support System</em> <br/> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /></div>

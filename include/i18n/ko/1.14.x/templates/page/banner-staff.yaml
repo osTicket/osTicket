@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  이것은 스탭의 로그인페이지에 표시되는 최초의 메세지와 배너입니다. 최초의 입력필드는, 상부에 붉은 포멧으로 표시되는 텍스트를 나타냅니다. 이 텍스트영역은 면책조항이 되는 배너 컨텐츠용입니다.
+name: "인증이 필요합니다."
+body: ""

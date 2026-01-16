@@ -40,7 +40,7 @@ if ($faqs->exists(true)) {
 foreach ($faqs as $F) {
         $attachments=$F->has_attachments?'<span class="Icon file"></span>':'';
         echo sprintf('
-            <li><a href="faq.php?id=%d" >%s &nbsp;%s</a></li>',
+            <li><!--osta--><i class="icon-file-alt"></i><a href="faq.php?id=%d" >%s &nbsp;%s</a></li>',
             $F->getId(),Format::htmlchars($F->question), $attachments);
     }
     echo '  </ol>
@@ -53,14 +53,7 @@ foreach ($faqs as $F) {
 
 <div class="span4">
     <div class="sidebar">
-    <div class="searchbar">
-        <form method="get" action="faq.php">
-        <input type="hidden" name="a" value="search"/>
-        <input type="text" name="q" class="search" placeholder="<?php
-            echo __('Search our knowledge base'); ?>"/>
-        <input type="submit" style="display:none" value="search"/>
-        </form>
-    </div>
+    <!--osta-->
     <div class="content">
         <section>
             <div class="header"><?php echo __('Help Topics'); ?></div>

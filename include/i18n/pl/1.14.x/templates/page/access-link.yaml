@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Ten szablon odpowiada za powiadomienia dla klientów, do których został wysłany link z dostępem. Numer zgłoszenia i adres e-mail uruchamiają link z dostępem.
+name: "Link do zgłoszenia [#%{ticket.number}]"
+body: >
+  <h3><strong>Witaj %{recipient.name.first},</strong></h3> <div> Prośba o link z dostępem do zgłoszenia #%{ticket.number} została wysłana w Twoim imieniu na strone wsparcia %{url}.<br /> <br /> Kliknij w link poniżej, aby sprawdzić status zgłoszenia #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Jeżeli to zgłoszenie <strong>nie zostało</strong> stworzone przez Ciebie, usuń/zignoruj ten e-mail. Twoje konto jest nadal bezpieczne i nikt inny nie otrzymał dostępu do to Twojego zgłoszenia. Ktoś mógł przypadkowo wprowadzić Twój adres e-mail.<br /> <br /> --<br /> %{company.name} </div>

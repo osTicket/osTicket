@@ -1,0 +1,7 @@
+#languages {
+    fill: var(--nav-bar-bg);
+	cursor: auto;
+}
+#content.up #flags:after {
+	display: none;
+}

@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Що таке osTicket (зразок)?
+  response: |
+    osTicket - це широко використовувана система технічної підтримки з відкритим вихідним кодом, приваблива альтернатива більш дорогим і складним системи підтримки клієнтів - проста, легка, надійна, безкоштовна, веб-орієнтована, легко настроюється і проста у використанні.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Шаблони відповідей - це круто!
+- 
+  isenabled: 1
+  title: Приклад (з змінними)
+  response: |
+    Доброго дня %{ticket.name.first},
+    <br>
+    <br>
+    Вашу заявку #%{ticket.number}, створено %{ticket.create_date}, направлено в відділ %{ticket.dept.name}.
+  0: |
+

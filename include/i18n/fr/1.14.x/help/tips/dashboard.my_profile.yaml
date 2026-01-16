@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informations de contact
+  0: >
+
+username:
+  title: Nom d'utilisateur
+  content: >
+    Seuls les Agents ayant le statut administrateur peuvent changer un nom d'utilisateur. Si vous êtes un Agent disposant de privilèges d'administrateur, vous pouvez le faire en sélectionnant un Agent à modifier dans la table de <span class="doc-desc-title"> Membres du personnel</span>.
+  links:
+    - 
+      title: Modifier un nom d'utilisateur en tant qu'administrateur
+      href: /scp/staff.php
+time_zone:
+  title: Fuseau horaire
+  0: >
+
+daylight_saving:
+  title: Heure d'été
+  0: >
+
+maximum_page_size:
+  title: Taille de Page maximale
+  0: >
+
+auto_refresh_rate:
+  title: Taux de rafraîchissement auto
+  0: >
+
+default_signature:
+  title: Signature par défaut
+  0: >
+
+default_paper_size:
+  title: Format de papier par défaut
+  0: >
+
+show_assigned_tickets:
+  title: Montrer les tickets assignés
+  content: >
+    <p> Activer cette option remplacera les paramètres généraux pour masquer les tickets assignés de la liste des tickets en attente. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Ce paramètre n'est valide que si les tickets assignés sont exclus globalement. </p>
+password:
+  title: Mot de passe
+  0: >
+
+current_password:
+  title: Mot de passe actuel
+  0: >
+
+new_password:
+  title: Nouveau mot de passe
+  0: >
+
+confirm_new_password:
+  title: Confirmer le nouveau mot de passe
+  0: >
+
+signature:
+  title: Signature
+  content: >
+    Créer une <span class="doc-desc-title">signature</span> optionnelle qui peut apparaître à la fin de vos réponses de tickets. Cette <span class="doc-desc-title">Signature</span> peut apparaître ou non, cela dépend du <span class="doc-desc-title">modèle de courriel</span> qui sera utilisée.
+  links:
+    - 
+      title: Créer des modèles de courriels dans le panneau d'administration
+      href: /scp/templates.php

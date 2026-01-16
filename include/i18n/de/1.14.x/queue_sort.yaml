@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Priorität + Zuletzt aktualisiert
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: Priorität + Zuletzt erstellt
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: Priorität + Fälligkeitsdatum
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: Fälligkeitsdatum
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: Geschlossen am
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: Erstellungsdatum
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Updatedatum
+  columns: '["-lastupdate"]'

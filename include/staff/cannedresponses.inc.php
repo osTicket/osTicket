@@ -126,9 +126,9 @@ else
                 $files=$row['files']?'<span class="Icon file">&nbsp;</span>':'';
                 ?>
             <tr id="<?php echo $row['canned_id']; ?>">
-                <td align="center">
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>" class="ckb"
-                            <?php echo $sel?'checked="checked"':''; ?> />
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>" class="ckb"
+                  <?php echo $sel?'checked="checked"':''; ?> /><label></label></p>
                 </td>
                 <td>
                     <a href="canned.php?id=<?php echo $row['canned_id']; ?>"><?php echo Format::truncate($row['title'],200); echo "&nbsp;$files"; ?></a>&nbsp;
@@ -155,6 +155,19 @@ else
      </tr>
     </tfoot>
 </table>
+<!--osta-->
+<script>
+	function myFunction(x) {
+	  if (x.matches) { // If media query matches
+		$( "tbody tr" ).wrapInner( "<label></label>");
+	  } else {
+	   ;
+	  }
+	}
+	var x = window.matchMedia("(max-width: 760px)")
+	myFunction(x) // Call listener function at run time
+	x.addListener(myFunction) // Attach listener function on state changes
+</script>
 <?php
 if($res && $num): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';

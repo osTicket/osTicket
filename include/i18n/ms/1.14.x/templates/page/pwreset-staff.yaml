@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Templat ini merujuk kepada emel yang dihantar ke Staf yang memilih pautan <strong>Lupa Kata Laluan</strong>pada halaman Log Panel Kawalan Staf.
+name: "Menetapkan Semula Kata Laluan Kakitangan osTicket"
+body: >
+  <h3><strong>Hi %{staff.name.first},</strong></h3> <div> Permintaan set semula kata laluan telah dikemukakan bagi pihak anda untuk meja bantuan di %{url}.<br /> <br /> Jika anda merasakan bahawa ini telah dilakukan dalam kesilapan, padam dan tidak ambil kira e-mel ini. Akaun anda masih selamat dan tidak ada yang telah akses kepada akaun anda. Ia tidak dikunci dan kata laluan anda belum ditetapkan semula. Seseorang boleh tersilap memasukkan alamat e-mel anda. <br /> <br /> Ikuti pautan di bawah untuk log masuk ke meja bantuan dan menukar kata laluan anda. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small"> Sistem Sokongan Pelanggan anda yang mesra</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

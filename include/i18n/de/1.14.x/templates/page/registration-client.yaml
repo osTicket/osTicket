@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Diese Vorlage definiert die E-Mail, die an den Benutzer versendet wird, wenn sein Konto über das Benutzerportal oder in seinem Namen von einem Agenten erstellt wurde. Diese E-Mail dient zur Überprüfung der E-Mail-Adresse. Bitte verwenden Sie %{link} irgendwo im Inhalt/Text der E-Mail.
+name: "Willkommen bei %{company.name}"
+body: >
+  <h3><strong>Hallo %{recipient.name},</strong></h3> <div> Wir haben ein Konto für Sie erstellt, unter %{url}.<br /> <br /> Folgen Sie bitte dem Link unten, um Ihr Konto zu bestätigen und Zugang zu Ihren Tickets zu erhalten. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small"> Ihr freundliches Benutzer-Support-System <br /> %{company.name}</em> </div>

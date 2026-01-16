@@ -1,0 +1,57 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: 工单活动
+  content: >
+    选择一个日期范围，使以下图表（参见<span class="doc-desc-title">统计表</span>）重点显示所选日期范围内的所有相关数据。下图将始终显示整个系统数据的全面概述情况（例如，人口）。然而，您可通过浏览以下<span class="doc-desc-title">统计</span>表重点显示特定的感兴趣主题（例如，部门、主题或工作人员）。此外，您可导出当前显示在<span class="doc-desc-title">统计</span>表中的所有数据。
+report_timeframe:
+  title: 报表时段
+  content: >
+    为时段样本选择一个起始日期，然后再选择一个结束日期。
+
+statistics:
+  title: 统计
+  content: >
+    通过点击相应选项卡浏览感兴趣的主题，以查看数据的具体示例。表格内，圆圈表示标定数据的大小。因此，圆圈的大小取决于特定单元格内数字的大小。
+opened:
+  title: 已打开
+  content: >
+    在打开时带有部门或帮助主题的咨询，或者一名代理替用户打开的咨询数量。
+assigned:
+  title: 已分配
+  content: >
+    已被分配给一名代理或一个团队的咨询。该数字代表已被手动分配给代理或团队的咨询、已领取的咨询以及从咨询筛选或其他自动分配规则分配的咨询总数。
+overdue:
+  title: 过期
+  content: >
+    已被系统标记为“过期”的咨询。咨询在违反其所属的SLA计划时会被标记为过期，导致它们在超过截至日期时仍为“打开”状态。
+closed:
+  title: 已关闭
+  content: >
+    目前处在关闭状态下的咨询数量。
+reopened:
+  title: 重新开启
+  content: >
+    一个咨询被重新打开的总次数。重新打开指一个咨询的状态从已关闭变为打开。
+deleted:
+  title: 已删除
+  content: >
+    已被删除的咨询的数量。
+service_time:
+  title: 服务时间
+  content: >
+    指由咨询打开至咨询关闭为止的时间长度。服务时间列以小时为单位来衡量每个咨询的平均服务时间。
+response_time:
+  title: 响应时间
+  content: >
+    向咨询相关人员显示一名代理的平均响应时间，以小时计数。

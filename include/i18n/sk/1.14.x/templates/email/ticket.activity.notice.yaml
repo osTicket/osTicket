@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Oznámenie odoslané spolupracovníkom ticketu, napr. odpoveď alebo správa.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Vážený/á%{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> zaznamenal správu na ticket, na ktorom pracujete.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Tento email ste dostali, pretože ste spolupracovník na tickete <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Pre účasť jednoducho odpovedzte na tento email alebo <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >kliknite sem</a> pre kompletný archív vlákna ticketu.</em>
+  </div>

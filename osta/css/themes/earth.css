@@ -1,0 +1,79 @@
+@charset "utf-8";
+/* CSS Document */
+/* EARTH THEME */
+:root {
+    --header-bg: #5f5f5f;
+    --header-title: #ffffff;
+    --header-title-hover: #adb8ad;
+	
+    --nav-bar-bg: #4CAF50;
+    --nav-bar-link: #ffffff;
+	--nav-bar-link-hover: #353535;
+
+    --mobile-menu-bg: #bfbfbf;	
+    --mobile-link-color: #5f5f5f;
+    --stickybar: #5f5f5f;	
+}
+/* Style Overrides */
+#sub_nav a:hover,
+#nav li a:hover,
+#nav li a:hover svg,
+#languages:hover svg, 
+#nav li a:hover,
+#nav li a.active:hover {
+    color: #2b652e;
+    fill: #2b652e;	
+}
+#nav li a.active {
+    color: var(--nav-bar-link);
+	font-weight: 500;
+}
+/* extras */
+#complianceouter {
+    /* background: #696969; */
+}
+#complaince-button {
+    background: #484747;
+}
+#complaince-button-label {
+    color: #fff;
+}
+a#complaince-button-link:hover > #complaince-button, 
+a#complaince-button-link:focus > #complaince-button,
+a#complaince-button-link:active > #complaince-button {
+	background: #373737;
+}
+/* basic search field */
+form[action="kb.php"] input#query::placeholder,
+form[action="orgs.php"] input.basic-search::placeholder,
+form[action="users.php"] input.basic-search::placeholder,
+form[action="tasks.php"] input.basic-search::placeholder,
+form[action="tickets.php"] input.basic-search::placeholder {
+    color: #355000 !important;
+}
+form[action="kb.php"] input#query::-moz-placeholder,
+form[action="orgs.php"] input.basic-search::-moz-placeholder,
+form[action="users.php"] input.basic-search::-moz-placeholder,
+form[action="tasks.php"] input.basic-search::-moz-placeholder,
+form[action='tickets.php'] input.basic-search::-moz-placeholder {
+    color: var(--header-bg) !important;
+}
+form[action="kb.php"] input#query::-ms-input-placeholder,
+form[action="orgs.php"] input.basic-search::-ms-input-placeholder,
+form[action="users.php"] input.basic-search::-ms-input-placeholder,
+form[action="tasks.php"] input.basic-search::-ms-input-placeholder,
+form[action='tickets.php'] input.basic-search::-ms-input-placeholder {
+    color: var(--header-bg) !important;
+}
+form[action="kb.php"] .button.attached, 
+form[action="orgs.php"] .button.attached, 
+form[action="users.php"] .button.attached, 
+form[action="tasks.php"] .button.attached, 
+form[action="tickets.php"] .button.attached {
+	content: ' ';	
+	display: inline-block;
+    width: 20px;
+    height: 20px;	
+    background-size: 20px !important;	
+background-image: url("data:image/svg+xml;charset=utf-8, %3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath fill='%235f6369' d='M9.5%2C3A6.5%2C6.5 0 0%2C1 16%2C9.5C16%2C11.11 15.41%2C12.59 14.44%2C13.73L14.71%2C14H15.5L20.5%2C19L19%2C20.5L14%2C15.5V14.71L13.73%2C14.44C12.59%2C15.41 11.11%2C16 9.5%2C16A6.5%2C6.5 0 0%2C1 3%2C9.5A6.5%2C6.5 0 0%2C1 9.5%2C3M9.5%2C5C7%2C5 5%2C7 5%2C9.5C5%2C12 7%2C14 9.5%2C14C12%2C14 14%2C12 14%2C9.5C14%2C7 12%2C5 9.5%2C5Z' /%3E %3C/svg%3E") !important;
+}

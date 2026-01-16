@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Vykdymo tvarka
+  content: >
+    Įveskite numerį, kuris kontroliuoja filtro prioritetą. Kuo mažesnis skaičius, tuo didesniu prioritetu šis filtras bus vykdomas, prieš kitą filtrą, kuris gali turėti didesnį vykdymo eiliškumą.<br><br>Jeigu norite, jog šis filtras būtų paskutinis taikomas filtras, įgalinkite <span class="doc-desc-title">Tolimesnio apdorojimo sustabdymą </span>.
+target_channel:
+  title: Kanalas
+  content: >
+    Pasirinkite tikslą <span class="doc-desc-title">Kanalas</span> savo<span class="doc-desc-title">Užklausų filtrui</span>.<span class="doc-desc-title">Kanalas</span> yra šaltinis, kuriuo užklausa atvyko į sistemą.<br><br> Pavyzdžiui, jeigu pasirenkate<span class="doc-desc-opt">Tinklo Formos</span>, jūs teigiate, kad norite taikyti<span class="doc-desc-title">užklausu filtrą</span> toms užklausoms, kurie yra kilę iš kliento portalo internetinės formos.
+rules_matching_criteria:
+  title: Taisyklių sutapimo kriterijus
+  content: >
+    Pasirinkite, kokio elastingumo atitikimų su <span class="doc-desc-title">užklausų filtru</span>. Jei norėtumėte, kad<span class="doc-desc-title">užklausų filtras</span>sutapęs su viena iš taisyklių sustotų, pasirinkite <span class="doc-desc-opt">sutampa su bet kuria</span>. Jeigu norite, kad<em><strong>visos</strong></em><span class="doc-desc-title">užklausos filtro</span>taisyklės sutaptų, pasirinkite<span class="doc-desc-opt">Sutampa visi</span>.
+reject_ticket:
+  title: Atmesti užklausą
+  content: >
+    Jei tai yra įgalinta, tolimesnis apdorojimas yra sustabdomas ir visi kiti veiksmų pasirinkimai bus ignoruojami sutapus.
+reply_to_email:
+  title: Atsakyti į elektroninį laišką
+  content: >
+    Įjunkite šią parinktį, jei norite kad jūsų pagalbos sistema laikytųsi vartotojo elektroninio pašto programos<span class="doc-desc-title">Atsakyti į</span> antraštės principų. Šis laukas yra aktualus jeigu <span class="doc-desc-title">Kanalas</span> aukščiau apima<span class="doc-desc-opt">Elektroninį paštą</span>.
+ticket_auto_response:
+  title: Išjungti automatinius užklausų atsakymus
+  content: >
+    <em>Pastaba: šis nustatymas bus kaip pagrindinis <span class="doc-desc-title">padalinio</span> arba <span class="doc-desc-title">Automatinio atsakinėjimo nustatymui</span>.</em>
+canned_response:
+  title: Uždelstas automatinis atsakymas
+  content: >
+    Pasirinkite<span class="doc-desc-title">Uždelstą atsakymą</span>, kurį norite siųsti vartotojui, kai sutampa<span class="doc-desc-title">Užklausos filtras</span>.<span class="doc-desc-title">Naujo automatinio atsakymo</span> šablonas priklauso nuo<span class="doc-desc-title">šablono nustatymo</span> ir yra priskiriamas kaip numatytasis, arba sutampančiomis užklausomis<span class="doc-desc-title">padalinyje</span>.
+  links:
+    - 
+      title: Valdyti uždelstus atsakymus
+      href: /scp/canned.php
+    - 
+      title: Valdyti ruošinių rinkinius
+      href: /scp/templates.php
+    - 
+      title: Naujos užklausos automatinio atsakymo šablonas
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Padalinys
+  content: >
+    Pasirinkite, kuris<span class="doc-desc-title">padalinys</span>turi būti priskirtas pagal<span class="doc-desc-title">Užklausos filtrą</span>.
+  links:
+    - 
+      title: Valdyti padalinius
+      href: /scp/departments.php
+priority:
+  title: Prioritetas
+  content: >
+    Pasirinkite<span class="doc-desc-title">prioriteto</span>lygį, kuris būtų priskirtas pagal <span class="doc-desc-title">Užklausos filtro</span> sutapimus.<br /><br /><em>Pastaba: Tai pakeis<span class="doc-desc-title">departamento </span>arba <span class="doc-desc-title">užklausos temos</span>nustatymus.</em>
+sla_plan:
+  title: SLA planas
+  content: >
+    Pasirinkite<span class="doc-desc-title">SLA planą</span>, kuris būtų priskirtas sutapus<span class="doc-desc-title">Užklausos filtrui</span>.
+  links:
+    - 
+      title: Valdyti SLA planus
+      href: /scp/slas.php
+auto_assign:
+  title: Automatinis priskyrimas
+  content: >
+    Pasirinkite Agentą arba komandą kam norite priskirti  <span class="doc-desc-title">Užklausos filtrą</span>.
+  links:
+    - 
+      title: Valdyti Agentus
+      href: /scp/staff.php
+    - 
+      title: Valdyti komandas
+      href: /scp/teams.php
+help_topic:
+  title: Pagalbos temos
+  content: >
+    Pasirinkite <span class="doc-desc-title">Užklausos temą</span>, kurią norite taikyti atitinkamam  <span class="doc-desc-title">Užklausos filtrui</span>.
+  links:
+    - 
+      title: Valdyti Užklausos Temas
+      href: /scp/helptopics.php
+admin_notes:
+  title: Administratoriaus pastabos
+  content: >
+    Šie įrašai matomi tik tiems, kurių paskyros tipas yra ‘<span class="doc-desc-title">Administratorius</span>.’

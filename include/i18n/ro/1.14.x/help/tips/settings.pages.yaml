@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Informaţii Companie
+  content: >
+    Aceasta se referă la societatea sau organizația care va beneficia de software-ul osTicket și personalul său sprijin.Informațiile de aici vor apărea în semnăturile de e-mail (de exemplu, subsol), atunci când tichetele sunt răspuns de către agenți.
+  links:
+    - 
+      title: Formular informatii companie
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Pagina de intrare
+  content: >
+    <span class="doc-desc-title">Pagina de aterizare</span> este afișată pe prima pagină a site-ului dumneavoastra de suport.
+offline_page:
+  title: Pagina offline
+  content: >
+    <span class="doc-desc-title">Pagina Offline</span> este afisata pe site-ul de suport cand personalul de asistenta nu este la birou, vezi Panoul Administratorului -&gt; Setari -&gt; Sistem -&gt; Status Asistenta(helpdesk).
+default_thank_you_page:
+  title: Pagina Multumire implicita
+  content: >
+    <span class="doc-desc-title">Pagina de Multumesc</span> este afisata clientului atunci cand <span class="doc-desc-title">Clientul</span> trimite un tichet nou. <br/><br/> <span class="doc-desc-title">Paginile Multumesc</span> pot fi asociate cu subiectele de ajutor.
+logos:
+  title: Sigle
+  content: >
+    Poti personaliza <span class="doc-desc-title">Logo-ul</span> ce va fi afisat Clientului pe Portalul de Clienti (i.e., site-ul tau de suport).
+upload_a_new_logo:
+  title: Incarca sigla noua
+  content: >
+    Alege o imagine in formatul .gif, .jpg sau .png . Noi o vom redimensiona proportional la afisarea imaginii. Nu vom redimensiona si dimensiunea imaginii efectiv. Astfel ca, pentru a reduce timpul de incarcare a paginii, este recomandat sa urcati imagini cat mai aproape de marimea imaginii standard (817px &times; 170px).
+backdrops:
+  title: Fundaluri
+  content: >
+    Poți personaliza <span class="doc-desc-title">Fundalul</span> care va fi afișat pe pagina de autentificare a echipei.
+upload_a_new_backdrop:
+  title: Încarcă un nou fundal
+  content: >
+    Alege o imagine, în format .gif, .jpg sau .png. Imaginea va fi afișată scalat, însă conținutul imaginii nu va fi redimensionat. Așadar, pentru a reduce timpul de încărcare, este recomandat să păstrezi imaginea relativ mică (sub 1 megabyte). Reține că dimensiunea fișierului nu poate depăși valoarea de server a parametrului PHP max_upload_size.

@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Sags deling
+  content: >
+    <p> Organisations sags deling gør det muligt for brugere at kunne tilgå sager ejet af andre brugere i organisationen. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Samarbejdspartnere har altid adgang til sagerne. </p>
+email_domain:
+  title: Email domæne
+  content: >
+    Brugere kan automatisk tilføjes til denne organisation baseret på deres e-mail-domæne(r). Indtast et eller flere domæner i nedenstående felt adskilt af kommaer. Indtast f.eks <code>mitfirma.dk</code> for brugere med e-mail adresser der ender på @mitfirma.dk
+

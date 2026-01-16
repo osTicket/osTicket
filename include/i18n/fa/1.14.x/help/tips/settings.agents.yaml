@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: قالب پیش فرض نمایش نام کارشناسان
+  content: >
+    قالب نمایش نامهای کارشناسان را در کل سیستم مشخص کنید. قالب های ایمیل هم از همین قالب استفاده می کنند اگر قالب دیگری برایشان تنظیم نشده باشد.
+staff_identity_masking:
+  title: پوشش هویت کارمند
+  content: >
+    اگر فعال شده باشد، نام کارمندان در طول ارتباط با مشتریان پنهان خواهد ماند.
+#Authentication settings
+password_reset:
+  title: سیاست انقضاء رمز عبور
+  content: >
+    مشخص کنید بعد از چه مدتی (به ماه) کارشناسان باید گذرواژه خود را تغییر دهند. اگر غیر فعال باشد (تنظیم کنید به بدون انقضا) ، گذرواژه منقضی نخواهد شد.
+password_expiration_policy:
+  title: سیاست انقضاء رمز عبور
+  content: >
+    انتخاب کنید بعد از چه مدتی  کارمندان باید گذرواژه خود را تغییر دهند. اگر غیر فعال باشد (<span class="doc-desc-opt"> بدون انقضا</span>) ، گذرواژه منقضی نخواهد شد.
+allow_password_resets:
+  title: اجازه بازنشانی رمز عبور 
+  content: >
+    اگر می خواهید بعد از ورود لینک اشتباه <span class="doc-desc-title">گذرواژه را فراموش کردم</span> در<span class="doc-desc-title"> صفحه ورود کاربران</span> نمایش داده شود این ویژگی را فعال کنید.
+reset_token_expiration:
+  title: پنجره تنظیم مجدد رمز عبور
+  content: >
+    زمان اعتبار <span class="doc-desc-title">رمز تغییر گذواژه</span> را (به دقیقه) مشخص کنید. وقتی کارشناس درخواست <span class="doc-desc-title">تغییر رمز </span>می دهد ، یک رمز به آنها ایمیل می شود که اجازه ی تنظیم مجدد گذرواژه را می دهد.
+staff_session_timeout:
+  title: مهلت انقضای نشست کارشناسان
+  content: >
+    حداکثر زمان بیکار(به دقیقه) برای نیاز به ورود دوباره را انتخاب کنبد.<br><br> اگر می خواهید <span class="doc-desc-title">وقفه ی نشست کارکنان</span> راذ غیر فعال کنید ، 0 وارد کنید.
+bind_staff_session_to_ip:
+  title: ثبت اطلاعات IP هر کارشناس در کنار اطلاعات Session
+  content: >
+    اگر می خواهید IP کارشناسان برای ورود بعدی به خاطر سپرده شود این قسمت را فعال کنید.<br><br> این تنظیمات برای کارشناسانی که با IP شان بصورت خودکار اختصاص داده می شود توصیه نمی شود.

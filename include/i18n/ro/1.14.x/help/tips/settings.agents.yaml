@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Format nume agent
+  content: >
+    Alege un format pentru numele agenţilor din sistem. Şabloanele de email îl vor folosi pentru nume dacă nu este specificat alt format.
+staff_identity_masking:
+  title: Mascarea Identitatii Personalului
+  content: >
+    Daca este activa, numele Agentului va fi disponibil Clientului in procesul de comunicare.
+#Authentication settings
+password_reset:
+  title: Politica de expirare a parolei
+  content: >
+    Setează cât de des (în luni) Agenții vor fi obligați să-și schimbe parola. Dacă opțiunea e dezactivata (setată pe „Nu expiră”), parolele nu vor expira.
+password_expiration_policy:
+  title: Politica de expirare a parolei
+  content: >
+    Alege cât de des li se va solicita agenților să-și schimbe parola. Dacă opțiunea e invalidată (setată pe „Nu expiră”), parolele nu vor expira.
+allow_password_resets:
+  title: Permite resetarea parolei
+  content: >
+    Bifează această opțiune dacă dorești să fie afișat link-ul <span class="doc-desc-title">„Mi-am uitat parola”</span> în <span class="doc-desc-title">panoul de autentificare a personalului</span> după o încercare eșuată de autentificare.
+reset_token_expiration:
+  title: Fereastra de resetare a parolei
+  content: >
+    Alege durata de validitate (în minute) a <span class="doc-desc-title">token-urilor de resetare a parolei</span>. Când un agent solicită <span class="doc-desc-title">resetarea parolei</span>, i se expediază prin e-mail un token care va permite operațiunea de resetare a parolei.
+staff_session_timeout:
+  title: Durata sesiunilor agenților
+  content: >
+    Alege perioada de inactivitate (în minute) după care agenții sunt forțați să se autentifice din nou.<br><br>Dacă dorești să dezactivezi <span class="doc-desc-title">Perioada de inactivitate pentru sesiunile agenților</span>, introdu 0.
+bind_staff_session_to_ip:
+  title: Leagă sesiunile agenților de IP
+  content: >
+    Activează dacă vrei ca pentru agenți să fie memorate IP-urile curente, pentru autentificările viitoare.<br><br>Nu se recomandă pentru agenții ale căror adrese IP sunt asignate dinamic (DHCP).

@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Skickas till handläggarna när ett ärende har tilldelats dem. Ärenden kan tilldelas automatiskt av systemet eller manuellt av en annan handläggare.  Använd %{assigner} för att särskilja vem som hanterat ärendet.
+subject: |
+  Ärendet är tilldelat dig
+body: |
+  <h3><strong>Hej %{assignee.name.first},</strong></h3>
+  Ärende <a href="%{ticket.staff_link}">#%{ticket.number}</a> har tilldelats
+  dig av %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Från</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Ämne</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>För att visa/besvara ärendet, vänligen <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logga in</span></a> i support systemet</div>
+  <em style="font-size: small; ">Ditt kundsupport system</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Drivs av osTicket" width="126" height="19" style="width: 126px;">

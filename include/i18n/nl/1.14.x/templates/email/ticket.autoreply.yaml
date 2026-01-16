@@ -1,0 +1,27 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Wordt naar een gebruiker verzonden wanneer een vooraf gedefinieerde reactie wordt geplaatst op een ticket wanneer deze wordt aangemaakt. Beschikbare variabelen voor vervanging: %{ticket.*}, %response}
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Beste %{recipient.name.first},</strong></h3> 
+  Een ondersteuningsverzoek is aangemaakt en toegewezen aan ticket <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> met het volgende automatische antwoord. 
+  <br>
+  <br>
+  Onderwerp: <strong>%{ticket.topic.name}</strong> 
+  <br>
+  Onderwerp: <strong>%{ticket.subject}</strong> 
+  <br>
+  <br>%{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">Uw %{company.name} Team, <br>
+  %{signature}</div>
+   <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Wij hopen dat dit antwoord uw vragen voldoende heeft beantwoord.  Indien u aanvullende opmerkingen of informatie wenst te geven, reageer dan alstublieft op deze e-mail of <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >log in op uw account</span></a> voor een volledige archief van uw ondersteuningsverzoeken.</em></div>

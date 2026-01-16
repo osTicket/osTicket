@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Хэрэглэгчийн нэрийн формат
+  content: >
+    Системд ашиглах Хэрэглэгчийн нэрийн форматыг сонгоно уу. Хэрэв өөр ямар нэг формат зааж өгөөгүй бол имэйл загварууд энэ форматыг ашиглах болно.
+#Authentication settings
+client_session_timeout:
+  title: Хэрэглэгчийн нэвтрэлтийн хугацаа
+  content: >
+    Хэрэглэгч үйлдэл хийхгүй хэдэн минут болсны дараа дахин нэвтрэх шаардлагатайг сонгоно уу. <br><br> Хэрвээ үүнийг идэвхигүй болгохыг хүсвэл <span class="doc-desc-title">Хэрэглэгчийн Session Timeout</span>-д 0 гэж оруулна.
+registration_method:
+  title: Бүртгэлийн тохируулга
+  content: >
+    <span class="doc-desc-title">Бүртгэлийн төрөл</span> болон <span class="doc-desc-title">Бүртгүүлэх шаардлагатай</span> тохиргоонууд нь хэрэглэгч хүсэлтээ хэрхэн тавих, нэвтрэх эрхүүдийг тохируулна. Доорх хүснэгтэд дээрх 2 тохиргооны боломжуудыг харууллаа. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Бүртгүүлэх шаардлагатай</th> <th>Бүртгэлийн төрөл</th> <th>Үр дүн</th></tr> <tr><td>Үгүй</td><td>Нийтийн</td> <td>Бүртгүүлэх боломжтой. Хүсэлт илгээхэд бүртгүүлэх шаардлагагүй</td></tr> <tr><td>Тийм</td><td>Нийтийн</td> <td>Хүсэлт илгээхэд бүртгүүлж, нэвтрэх шаардлагатай</td></tr> <tr><td>Үгүй</td><td>Дотоод</td> <td>Бүгд хүсэлт илгээх боломжтой. Зөвхөн ажилтан хэрэглэгч нэмэх боломжтой</td></tr> <tr><td>Тийм</td><td>Дотоод</td> <td>Зөвхөн урилгаар хэрэглэгч нэвтрэнэ</td></tr> <tr><td>Үгүй</td><td>Хаалттай</td> <td>Бүртгүүлэх боломжгүй. Бүгд хүсэлт илгээх боломжтой</td></tr> <tr><td>Тийм</td><td>Хаалттай</td> <td>Вэбээс хүсэлт авах боломжгүй</td></tr> </tbody></table>
+client_verify_email:
+  title: Имэйл баталгаажуулахыг шаардах
+  content: >
+    Идэвхигүй болгосноор хэрэглэгч "Хүсэлтийн төлөвийг шалгах" хуудсаар хүсэлтийнхээ мэдээллийг авах боломжтой. Идэвхижүүлсэн үед хэрэглэгч мэйлээр ирсэн баталгаажуулах холбоосоор дамжиж хүсэлтээ шалгана. <br><br> Идэхигүй болгосноор бусад хүн хүсэлтийн мэдээллийг харж чадах боломж бий болно.
+allow_auth_tokens:
+  title: Нэвтрэх токеныг идэвхжүүлэх
+  content: >
+    Хүсэлтийн холбоос дээр дарснаар хэрэглэгчид автоматаар нэвтрэх боломж олгох токен ашиглахыг зөвшөөрөх бол энэ сонголтыг идэвхжүүлнэ үү.

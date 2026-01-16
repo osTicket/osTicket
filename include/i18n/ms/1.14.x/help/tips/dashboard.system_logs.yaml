@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Log sistem
+  content: >
+    Ini adalah di mana anda akan mencari mana-mana penyelesaian masalah berkaitan aktiviti log (contohnya, Ralat, Amaran, atau Pepijat).
+  links:
+    - 
+      title: Menyesuaikan apa jenis aktiviti yang dilog dengan mengubah <br /><span class="doc-desc-title">Tahap Lalai Log</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Tarikh span
+  content: >
+    Pilih pelbagai kalendar yang anda ingin untuk melihat dalam <span class="doc-desc-title"> Log Sistem </span>.
+type:
+  title: Jenis
+  content: >
+    Pilih pilihan untuk merapatkan tumpuan anda pada jenis aktiviti yang spesifik. <span class="doc-desc-opt">Nyahpepijat</span> mewakili tahap paling kecil, dan <span class="doc-desc-opt">Ralat</span> mewakili tahap paling besar.
+showing_logs:
+  title: Menunjukkan&hellip;Log
+  content: >
+    Pastikan anda menyemak <span class="doc-desc-title"> Halaman </span> seksyen di bawah untuk memastikan bahawa tidak ada lebih halaman memaparkan log Sistem tersedia.
+log_title:
+  title: Tajuk Log
+  content: >
+    Klik <span class="doc-desc-title">Tajuk Log</span> kepala jadual jika anda ingin menyusun keputusan mengikut kepada <span class="doc-desc-title">Tajuk Log</span>.
+log_type:
+  title: Jenis Log
+  content: >
+    Klik <span class="doc-desc-title">Jenis Log</span> kepala jadual jika anda ingin menyusun keputusan mengikut kepada <span class="doc-desc-title">Jenis Log</span>.
+log_date:
+  title: Tarikh Log
+  content: >
+    Ini adalah tarikh yang log telah dijana oleh perisian. Jika anda ingin menyusun keputusan mengikut kepada <span class="doc-desc-title">Tarikh Log</span>, hanya klik kepala jadual <span class="doc-desc-title">Tarikh Log</span>. (Gunakan borang <span class="doc-desc-title">Span Tarikh</span> di atas untuk merapatkan span kalendar log anda.)
+ip_address:
+  title: Alamat IP
+  content: >
+    Ini merujuk kepada <span class="doc-desc-title"> IP</span> <span class="doc-desc-title"> Alamat </span> sama ada ejen atau pelanggan yang telah menggunakan osTiket pada masa log itu dihasilkan.

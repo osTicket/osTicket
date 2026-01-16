@@ -1,0 +1,60 @@
+{{#extend "example-group"}}
+  {{#content "body"}}
+    {{#extend "example"}}
+      {{#content "title"}} Enlarge the Colorpicker size {{/content}}
+      {{#content "description"}}
+        <p>This example shows how to tweak the Colorpicker styles and settings to make it look bigger.</p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp1" data-color="#6D2781"></div>
+        <style>
+          .colorpicker-2x .colorpicker-saturation {
+            width: 200px;
+            height: 200px;
+          }
+
+          .colorpicker-2x .colorpicker-hue,
+          .colorpicker-2x .colorpicker-alpha {
+            width: 30px;
+            height: 200px;
+          }
+
+          .colorpicker-2x .colorpicker-preview,
+          .colorpicker-2x .colorpicker-preview div {
+            height: 30px;
+            font-size: 16px;
+            line-height: 160%;
+          }
+
+          .colorpicker-saturation .colorpicker-guide,
+          .colorpicker-saturation .colorpicker-guide i {
+            height: 10px;
+            width: 10px;
+            border-radius: 10px;
+          }
+        </style>
+        <script>
+          $(function () {
+            $('#cp1').colorpicker({
+              inline: true,
+              container: true,
+              customClass: 'colorpicker-2x',
+              sliders: {
+                saturation: {
+                  maxLeft: 200,
+                  maxTop: 200
+                },
+                hue: {
+                  maxTop: 200
+                },
+                alpha: {
+                  maxTop: 200
+                }
+              }
+            });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+  {{/content}}
+{{/extend}}

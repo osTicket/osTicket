@@ -1,0 +1,89 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Supporto per Nuovo Ticket
+  content: >
+    Scegli un <span class="doc-desc-title">argomento</span> per associarlo automaticamente ai ticket creati attraverso questo indrizzo email. <br/><br/> I moduli collegati con l'argomento saranno aggiunti al ticket, ma non conterranno alcuna informazione.
+  links:
+    - 
+      title: Gestisci argomenti
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Priorità Nuovo Ticket
+  content: >
+    Scegli la  <span class="doc-desc-title">priorità</span> per i nuovi tickets creati attraverso quest'indirizzo Email.
+new_ticket_department:
+  title: Nuovo reparto per i ticket
+  content: >
+    Scegli il <span class="doc-desc-title"> reparto</span> a cui verranno indirizzati i nuovi ticket creati tramite questo indirizzo Email.
+  links:
+    - 
+      title: Gestisci i reparti
+      href: /scp/departments.php
+auto_response:
+  title: Risposta automatica per i nuovi ticket
+  content: >
+    Si può disattivare la risposta automatica inviata all'utente quando viene creato un nuovo ticket tramite questo indirizzo email.
+username:
+  title: Nome utente
+  0: >
+
+password:
+  title: Password
+  0: >
+
+login_information:
+  title: Informazioni per l'autenticazione tramite email
+  content: >
+    Il <span class="doc-desc-title"> nome utente</span> e la <span class="doc-desc-title"> Password</span> sono necessari per recuperare le email dalle caselle di posta IMAP / POP  e per inviare email tramite SMTP.
+mail_account:
+  title: Recupero email
+  content: >
+    Recupera le email da una casella di posta IMAP o POP remota e le converte in ticket per il tuo supporto tecnico.
+  links:
+    - 
+      title: Gestisce le impostazioni di <span class="doc-desc-title"> Polling Email</span> &amp; <span class="doc-desc-title"> AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: host remoto
+  content: >
+    Inserisci il <span class="doc-desc-title"> nome del server</span> ed il numero <span class="doc-desc-title"> della porta</span> del server di posta. Il tuo provider di hosting o l'amministratore della posta elettronica possono fornirti queste informazioni.
+protocol:
+  title: Protocollo della casella di posta
+  content: >
+    Seleziona il protocollo della casella di posta supportato dal server di posta remoto. IMAP è raccomandato e SSL è incoraggiato se possibile.
+fetch_frequency:
+  title: Frequenza di recupero
+  content: >
+    Inserisci con quale frequenza, in minuti, il sistema scaricherà dalla casella di posta. <br/> <br/> Questo definirà il ritardo medio nel ricevere una risposta automatica dopo che un utente invia una email a questa casella di posta.
+emails_per_fetch:
+  title: Email da scaricare
+  content: >
+    Inserisci il numero di email elaborate in una sola volta.
+fetched_emails:
+  title: Email scaricate
+  content: >
+    Decidi cosa fare con le email processate: <br/><br/> 
+    <span class="doc-desc-opt"><b>Sposta nella Cartella</b></span>: Questo sposterà le tue email dalla POSTA IN ARRIVO alla cartella specificata. Se la cartella non esiste ancora sul server, il sistema tenterà di crearla in automatico. (<b>Raccomandato</b>) <hr> 
+    <span class="doc-desc-opt"><b>Cancella Email</b></span>: Questo cancellerà le tue email dalla POSTA IN ARRIVO.<hr> 
+    <span class="doc-desc-opt"><b>Non fare Niente</b></span>: Questo lascerà le tue email nella tua POSTA IN ARRIVO. Il sistema salverà l'id delle tue email e tenterà di non riconsiderarle. Questa opzione potrebbe causare la duplicazione di tickets creati.  (<em>Non Consigliato</em>)
+smtp_settings:
+  title: Impostazioni SMTP
+  content: >
+    Le email inviate dall'help desk possono essere inviate attraverso un server SMTP. Questo è consigliato, se possibile, in quanto aumenterà la probabilità di consegna email e renderanno meno probabile che le email siano contrassegnate come spam.
+header_spoofing:
+  title: Permetti Header Spoofing
+  content: >
+    Permetti questo per inviare email con questa casella di posta da un indirizzo di posta diverso da quello fornito precedentemente nell'impostazione <span class="doc-desc-title">Indirizzo email</span>. <br/><br/>
+    Questa impostazione avanzata è generalmente usata per inviare email da account alias con questa casella di posta.
+

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Användarnamn
+  content: >
+    Välj handläggarens <span class="doc-desc-title">användarnamn</span> som är unikt för ditt <span class="doc-desc-title">supportsystem</span>.
+email_address:
+  title: E-postadress
+  content: >
+    Ange handläggarens e-post som ska mottaga <span class="doc-desc-title">varningar &amp; meddelanden</span> från <span class="doc-desc-title">supportsystemet</span>.
+  0: <br><br>
+  1: Personal kan logga in i kontrollpanelen för personal med antingen användarnamn eller e-postadress.
+welcome_email:
+  title: Välkomst e-brev
+  content: >
+    Skicka åtkomstlänk till den nya handläggaren från vilken den nya handläggaren kan välja sitt eget lösenord. Om ej valt så kommer du att behöva sätta ett lösenord och skicka inloggningsinformation till den nya handläggaren.
+account_password:
+  title: Användarkonto lösenord
+  content: >
+    Som en <span class="doc-desc-title">administratör</span>, så bör du ändra handläggarens lösenord.
+forced_password_change:
+  title: Forcera ändring av lösenord
+  content: >
+    Aktivera här om du vill tvinga den nya handläggaren att ändra sitt lösenord vid nästa inloggning.
+agents_signature:
+  title: Handläggarens signatur
+  content: >
+    Skapa en signatur för handläggaren som kan väljas när ett ärende besvaras.
+account_status:
+  title: Kontostatus
+  content: >
+    Om handläggarens status är <span class="doc-desc-opt">Låst</span>, så kan den inte logga in i supportsystemet.
+assigned_group:
+  title: Tilldelad grupp
+  content: >
+    <span class="doc-desc-title">Gruppen</span> som du valt till den här handläggaren kommer att avgöra vilka rättigheter personen kommer att få i <span class="doc-desc-title">supportsystemet.</span>.
+  links:
+    - 
+      title: Administrera grupper
+      href: /scp/groups.php
+primary_department:
+  title: Primär avdelning
+  content: >
+    Välj huvud <span class="doc-desc-title">avdelning</span> till vilken den här användaren tillhör och en effektiv<span class="doc-desc-title">roll</span>.
+  links:
+    - 
+      title: Administrera avdelningar
+      href: /scp/departments.php
+primary_role:
+  title: Primär Roll
+  content: >
+    Välj primär <span class="doc-desc-title">avdelning</span> för den här handläggaren.
+primary_role_on_assign:
+  title: Använd huvudregel för ärendet
+  content: >
+    Aktivera detta för att återgång till <span class="doc-desc-title">huvud rollen</span> när denna handläggare tilldelas ärenden utanför <span class="doc-desc-title">huvudavdelningen </span> och de<span class="doc-desc-title">utökade behörighetsavdelningarna</span>. Annars har handläggaren bara "tittabehörighet".
+daylight_saving:
+  title: Sommartid
+  content: >
+    Aktivera den här funktionen om du vill att systemet automatiskt ska ändra sommartid/vintertid för personens tidszon.
+limited_access:
+  title: Begränsad åtkomst
+  content: >
+    Om aktiverad, kommer handläggaren bara att ha åtkomst till ärenden som är tilldelade personen eller dennes team.
+directory_listing:
+  title: Katalog
+  content: >
+    Aktivera om du vill lista handläggare i <span class="doc-desc-title">personallistan</span>.
+  links:
+    - 
+      title: Besök personallistan
+      href: /scp/directory.php
+vacation_mode:
+  title: Semesterläge
+  content: >
+    Om du ändrar handläggarens status till <span class="doc-desc-opt">semesterläge</span>, så kommer handläggaren inte att få några <span class="doc-desc-title">varningar &amp; meddelanden</span> och kommer inte att kunna tilldelas några ärenden.
+

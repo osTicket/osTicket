@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: oprettet
+  description:
+- 
+  id: 2
+  name: lukket
+  description:
+- 
+  id: 3
+  name: genåbnet
+  description:
+- 
+  id: 4
+  name: tildelt
+  description:
+- 
+  id: 5
+  name: oprettet
+  description:
+- 
+  id: 6
+  name: overført
+  description:
+- 
+  id: 7
+  name: henvist
+  description:
+- 
+  id: 15
+  name: overtid
+  description:
+- 
+  id: 9
+  name: editeret
+  description:
+- 
+  id: 10
+  name: set
+  description:
+- 
+  id: 11
+  name: fejl
+  description:
+- 
+  id: 12
+  name: sammenfold
+  description:
+- 
+  id: 13
+  name: seneste
+  description:
+- 
+  id: 14
+  name: slettet
+  description:
+- 
+  id: 15
+  name: flettet
+  description:
+- 
+  id: 16
+  name: ikke kædet sammen
+  description:
+- 
+  id: 17
+  name: kædet sammen
+  description:

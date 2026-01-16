@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Format imena za ime agenta
+  content: >
+    Izberi format imen za agenta v sistemu. Predloge e-pošte jih bodo uporabile za imena, če ni določen drug format.
+staff_identity_masking:
+  title: Zakrivanje identitete agentov
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Politika poteka gesla
+  content: >
+    Določi kako pogosto mora agent zamenjati geslo (v mesecih). Če je opcija deaktivirana (NO EXPIRATION), gesla ne bodo potekla.
+password_expiration_policy:
+  title: Politika poteka gesla
+  content: >
+    Izberite kako pogosto bodo morali zastopniki menjati svoja gesla. Če je onemogočeno (i.e., <span class="doc-desc-opt">ni poteka</span>), geslo ne bo poteklo.
+allow_password_resets:
+  title: Dovoli ponastavitev gesla
+  content: >
+    Omogoči to opcijo,, če bi rad prikazal povezavo <span class="doc-desc-title">Pozabil sem geslo</span> na <span class="doc-desc-title">Strani za prijavi agentov</span> po neuspeli prijavi.
+reset_token_expiration:
+  title: Okno ponastavitve gesla
+  content: >
+    Izberite trajanje (v minutah) v katerih bo <span class="doc-desc-title"> bon za ponastavitev gesla</span> bil veljaven. Ko zastopnik kliče <span class="doc-desc-title"> ponastavitev gesla</span>, dobi po elektronski pošti bon, ki mu dovoli izvedbo ponastavitve.
+staff_session_timeout:
+  title: Čas neaktivnosti agenta pred odjavo
+  content: >
+    Izberi maksimalen čas neaktivnost (v minutah) preden se mora agent ponovno prijaviti. <br><br> Če želiš onemogočiti <span class="doc-desc-title">potek seje agenta</span>, vnesi 0.
+bind_staff_session_to_ip:
+  title: Zveži sejo agenta z IP naslovom
+  content: >
+    Omogoči, če želiš, da se agent zabaleži po prijavi na osnovi njegovega IP naslova. <br><br> Nastavitev ni priporočljiva če agenti dobovajo naslove dinamično.

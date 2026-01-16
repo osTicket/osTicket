@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Hilfethema für neues Ticket
+  content: >
+    Wählen Sie ein <span class="doc-desc-title">Hilfethema</span>, welches automatisch den Tickets zugewiesen wird, die über diese E-Mail-Adresse eröffnet werden. <br/><br/> Formulare, die mit diesem Hilfethema verbunden sind, werden dem Ticket hinzugefügt, enthalten aber keine Daten.
+  links:
+    - 
+      title: Hilfethemen verwalten
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Priorität für neues Ticket
+  content: >
+    Wählen Sie die <span class="doc-desc-title">Priorität</span>, die neuen Tickets zugewiesen wird, die über diese E-Mail-Adresse eröffnet werden.
+new_ticket_department:
+  title: Abteilung für neues Ticket
+  content: >
+    Wählen Sie die <span class="doc-desc-title">Abteilung</span> aus, zu der neue Tickets weitergeleitet werden, wenn sie über diese E-Mail-Adresse eröffnet werden.
+  links:
+    - 
+      title: Abteilungen verwalten
+      href: /scp/departments.php
+auto_response:
+  title: Auto-Antwort bei neuem Ticket
+  content: >
+    Sie können die Auto-Antwort deaktivieren, die an den Benutzer gesendet wird, wenn ein neues Ticket über diese E-Mail-Adresse eröffnet wird.
+username:
+  title: Benutzername
+  0: >
+
+password:
+  title: Passwort
+  0: >
+
+login_information:
+  title: E-Mail-Anmeldedaten
+  content: >
+    Der <span class="doc-desc-title">Benutzername</span> und das <span class="doc-desc-title">Passwort</span> werden benötigt, um E-Mails aus den IMAP- / POP-Postfächern abzurufen, als auch für das Versenden von E-Mails über SMTP.
+mail_account:
+  title: Abrufen der E-Mails
+  content: >
+    Ruft E-Mails von einem entfernten IMAP- oder POP-Postfach ab und wandelt diese zu Tickets im Helpdesk um.
+  links:
+    - 
+      title: <span class="doc-desc-title">E-Mail-Abruf</span> &amp; <span class="doc-desc-title">Auto-Cron</span>-Einstellungen verwalten.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Servername
+  content: >
+    Geben Sie den <span class="doc-desc-title">Hostnamen</span> und die <span class="doc-desc-title">Port</span>-Nummer für Ihren E-Mail-Server an. Sie erhalten diese Informationen aus der Dokumentation von Ihrem Hostingkonto oder von Ihrem E-Mail-Server-Administrator.
+protocol:
+  title: Postfach-Protokoll
+  content: >
+    Wählen Sie das von Ihrem E-Mail-Server unterstützte Postfach-Protokoll. IMAP wird empfohlen und SSL wird unterstützt, wenn es überhaupt verfügbar ist.
+fetch_frequency:
+  title: Abrufintervall
+  content: >
+    Geben Sie ein, wie oft (in Minuten) das Postfach abgefragt wird. <br/><br/> Diese Einstellung wird auch die durchschnittliche Verzögerung beim Empfangen von Auto-Antworten bestimmen, die auftritt, wenn ein Benutzer eine E-Mail an dieses Postfach sendet.
+emails_per_fetch:
+  title: E-Mails pro Abruf
+  content: >
+    Geben Sie die Anzahl der E-Mails an, die gleichzeitig verarbeitet werden.
+fetched_emails:
+  title: Abgerufene E-Mails
+  content: >
+    Entscheiden Sie, was mit verarbeiteten E-Mails geschehen soll: <br/><br/><span class="doc-desc-opt"><b>in Ordner verschieben</b></span>: Die E-Mails werden aus dem POSTEINGANG in einen bestimmten Ordner verschoben. Wenn der Ordner noch nicht auf dem Server vorhanden ist, wird das System versuchen ihn anzulegen. (<b>Empfohlen</b>) <hr><span class="doc-desc-opt"><b>vom Server löschen</b></span>: Nachdem die E-Mails aus dem POSTEINGANG verarbeitet wurden, werden sie vom Server gelöscht. <hr><span class="doc-desc-opt"><b>Nichts tun</b></span>: Die E-Mails werden im POSTEINGANG belassen. Das System wird die Nachrichten-IDs der E-Mails speichern und versuchen diese nicht erneut abzurufen. Diese Option kann jedoch zu doppelten Tickets führen. (<em>Nicht empfohlen</em>)
+smtp_settings:
+  title: SMTP-Einstellungen
+  content: >
+    E-Mails, die von diesem Helpdesk versendet werden, können über einen SMTP-Server versendet werden. Dies wird -wenn möglich- empfohlen, da es die Wahrscheinlichkeit der erfolgreichen E-Mail-Zustellung erhöhen wird und es weniger wahrscheinlich wird, dass E-Mails als Spam markiert werden.
+header_spoofing:
+  title: Kopfzeilen-Manipulation erlauben
+  content: >
+    Aktivieren Sie diese Funktion, um von diesem Postfach mit einer anderen Absender-Adresse, als der oben eingestellten <span class="doc-desc-title">E-Mail-Adresse</span>, versenden zu können.<br/><br/> Diese erweiterte Einstellung wird hauptsächlich beim Versenden von Alias-Adressen dieses Postfaches eingesetzt.
+

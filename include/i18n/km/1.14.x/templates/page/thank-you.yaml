@@ -1,0 +1,22 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  ពុម្ពនេះកំណត់មាតិកាដែលបានបង្ហាញនៅលើទំព័រអរគុណ Thank-You page បន្ទាប់ពី
+  ភ្ញៀវដាក់សំបុត្រថ្មីនៅក្នុងវិបផតថលអតិថិជន Client Portal ។
+name: អរគុណ!
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  សូមអរគុណសម្រាប់ការទាក់ទងពួកយើង។
+  <br>
+  <br>
+  ការស្នើរសុំសំបុត្រការគាំទ្រត្រូវបានបង្កើតឡើងនិងតំណាងមួយនឹងត្រូវបាន
+  ទទួលបានមកវិញដល់អ្នកក្នុងរយៈពេលខ្លីប្រសិនបើចាំបាច់។</p>
+  <br>
+  <br>
+  Support Team
+  </div>

@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Мэдлэгийн сангийн тохиргоо
+  0: >
+
+knowledge_base_status:
+  title: Мэдлэгийн сангийн төлөв
+  content: >
+    Үүнийг идэвхижүүлснээр хэрэглэгчид нийтийн мэдлэгийн санг ашиглах боломжтой болно. <br><br> Мэдлэгийн сангийн зарим ангилал, асуулт хариулт нь дотоод байх боломжтой.
+  links:
+    - 
+      title: Мэдлэгийн санг зохицуулах
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Бүртгэлгүй хэрэглэгчдийн Мэдлэгийн сан уруу хандах боломжийг хязгаарлах бол энэ тохируулгыг идэвхжүүлээрэй.
+  links:
+    - 
+      title: Хандах эрхийн тохируулгууд
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Бэлдсэн хариулт
+  content: >
+    Ажилтнуудад <span class="doc-desc-title">Бэлдсэн хариулт</span> ашиглахыг зөвшөөрөх бол энэ тохируулгыг идэвхжүүлнэ үү.
+  links:
+    - 
+      title: Бэлдсэн хариултуудыг засварлах
+      href: /scp/canned.php

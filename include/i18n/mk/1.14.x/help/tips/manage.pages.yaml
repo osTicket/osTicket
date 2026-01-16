@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Страници на сајтот
+  content: >
+    Страниците на сајтот може да служи како мини систем за управување со содржината. (CMS). Може да дефинирате повеќе почетни страници, недостапни страници и страници за благодарност и да ги конфигурирате во подесувањата за фирмата и во помошните теми.
+  links:
+    - 
+      title: Подесувања за компанијата
+      href: /scp/settings.php?t=pages
+type:
+  title: Тип
+  content: >
+    <span class="doc-desc-opt">Недостапени</span> се страниците кој што се прикажуваат на клиентските портали, доколку системот за поддршка и помош е исклучен. <span class="doc-desc-opt">Вчитување</span> се страниците кој што се прикажуваат на почетната страна на клиентскиот портал. <span class="doc-desc-opt">Благодарност</span> се страниците кој што се прикажуваат кога корисникот ќе прати тикет. <span class="doc-desc-opt">Други</span> се страниците кои може да се користат како едноставен систем за управување со содржината (CMS).

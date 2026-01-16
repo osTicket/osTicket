@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Төлөв
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Төрөл
+  content: >
+    Хэрэглэгчдэд энэ албыг харуулахгүй байхыг хүсвэл <span class="doc-desc-opt">Дотоод</span> болгож сонгоно уу. Мөн <span class="doc-desc-opt">Дотоод</span> гэж сонгогдсон бол <span class="doc-desc-title">Албаны гарын үсэг</span> нь мэйлийн хариунуудад харагдахгүй. <br/><br/> Ядаж нэг алба<span class="doc-desc-opt">Нийтийн</span> байх ёстой
+email:
+  title: Email
+  content: >
+    Ажилтан хүсэлтэд хариу бичихэд хэрэглэгч рүү илгээх мэйлийн хаяг.
+template:
+  title: Загварууд
+  content: >
+    Энэ албанд хуваарилагдсан хүсэлттэй холбоотой Автомат-Хариулт болон Сануулга &amp; Анхааруулгад ашиглах имэйлийн <span class="doc-desc-title">Багц Загвар</span>.
+  links:
+    - 
+      title: Загваруудыг зохицуулах
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Энэ албанд хуваарилагдсан хүсэлтийн үйлчилгээний түвшний стандарт (SLA).
+  links:
+    - 
+      title: Үйлчилгээний стандартын төлөвлөгөөг зохицуулах
+      href: /scp/slas.php
+schedule:
+  title: Хуваарь
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Хуваарийг удирдах
+      href: /scp/schedules.php
+manager:
+  title: Албаны захирал
+  content: >
+    Энэ албаны <span class="doc-desc-title">захирлыг</span> сонго. <br/><br/> Захирал нь тусгай мэдэгдэл хүлээн авах, хүсэлтийн хуваарилалт өөрчлөх эрхтэй.
+  links:
+    - 
+      title: Сануулга/Мэдэгдлийг зохицуулах
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Сануулга ба Мэдэгдэл хүлээн авагчид
+  content: >
+    <span class="doc-desc-title">Сануулга &amp; Мэдэгдэл</span> хүлээн авагчдыг сонгоно уу.
+  links:
+    - 
+      title: Сануулга &amp; Мэдэгдэл тохируулах
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Хүсэлт даалгах хязгаарлалтууд
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Хариу өгсөн нь хариуцаж авдагийг идэвхгүй болгох
+  content: >
+    Хүсэлтэд хариу өгсөн ажилтанд уг хүсэлтийг автоматаар шууд хуваарилахыг энэ албаны хувьд <strong>идэвхгүй</strong> болгох бол чагтална.<br><br>Ажилтнууд хуваарилагдаагүй хүсэлтийг гараар хуваарилж авах боломж нь нээлттэй үлдэнэ
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Автомат хариулагчийн тохиргоо
+  content: >
+    Энэ нь танд системийн үндсэн автомат хариулагчийн тохиргоог Албаны түвшинд өөрөөр тодорхойлох боломж олгоно.
+new_ticket:
+  title: Шинэ Хүсэлтийн автомат хариу
+  content: >
+    Энэ албанд шинэ хүсэлт ирэхэд хэрэглэгч уруу илгээх автомат хариултыг идэвхгүй болгож болно.
+new_message:
+  title: Шинэ мессежийн автомат хариу
+  content: >
+    Энэ албанд ирсэн хүсэлтэд шинэ мэдээлэл оруулахад хэрэглэгч рүү автомат хариу илгээдэггүй байж болно.
+auto_response_email:
+  title: Автомат хариу имэйл
+  content: >
+    Энэ Албан автомат хариу илгээх мэйл хаягийг сонгоно уу.
+department_access:
+  title: Группын хандалт
+  content: >
+    Бусад албаны агентуудад энэ албаны хүсэлт рүү хандахыг зөвшөөрөх.
+department_signature:
+  title: Албаны гарын үсэг
+  content: >
+    <span class="doc-desc-opt">Нийтийн</span> гарын үсэг нь ажилтан хариу өгөхөд сонголт хэлбэрээр харагдана.

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Deze sjabloon bepaalt de e-mail gestuurd naar klanten die selecteert u de koppeling <strong>Mijn wachtwoord vergeten</strong> op de Client Log In pagina.
+name: "%{company.name} Help Desk Access"
+body: >
+  <h3><strong>Hallo %{user.name.first},</strong></h3> <div>Een wachtwoord reset aanvraag heeft ingediend namens u voor de helpdesk op %{url}.<br / > < br / > Als u denkt dat dit heeft gedaan in fout, verwijderen en deze e-mail negeren. Uw account is nog steeds veilig en niemand heeft gekregen toegang tot het. Het is niet vergrendeld en uw wachtwoord niet is teruggezet. Iemand kan per ongeluk hebt ingevoerd uw email adres. < br / > < br / > Volg de link hieronder aan login aan de helpdesk en wijzig uw wachtwoord. < br / > < br / > <a href="%{link}"> % {koppeling}</a> < br / > < br / > <em style="font-size: small"> uw vriendelijke Customer Support systeem < br / > %{company.name}</em></div>

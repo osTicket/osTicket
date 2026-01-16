@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: スタッフの署名の行
+  content: |
+    チケットへの返信用にスタッフの署名を作成します。この署名は、チケットンの返信の下部にオプションとして表示されます。
+type:
+  title: アカウントタイプ
+  content: |
+    管理者は管理者パネルにアクセスする権限があります。スタッフは、チケットを管理するためとナレッジベースのみにアクセスできます。
+group:
+  title: アサインされたグループ
+  content: |
+    グループメンバーシップは、システムでスタッフの役割を定義します。このスタッフがヘルプデスクで持つアクセスを定義するにが、グループの管理ページをご覧ください。
+notes:
+  title: 備考
+  content: |
+    スタッフに関する備考を配置します。備考は、管理者のアカウントタイプを持つスタッフのみに表示されます。

@@ -1,0 +1,79 @@
+---
+- 
+  #Default roles defined for the system
+  #Fields:
+  #id - Primary id for the role
+  #flags - (bit mask) role flags
+  #name - (string) descriptive name for the role
+  #notes - (string) internal notes
+  #permissions: (list<keys>)
+  #NOTE: ------------------------------------
+  #---
+  id: 1
+  flags: 1
+  name: เข้าถึงได้ทั้งหมด
+  notes: |
+    บทบาท ที่ไม่จำกัดการเข้าถึง
+  permissions:
+    - ticket.create
+    - ticket.edit
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply
+    - ticket.close
+    - ticket.delete
+    - task.create
+    - task.edit
+    - task.assign
+    - task.transfer
+    - task.reply
+    - task.close
+    - task.delete
+    - canned.manage
+    - thread.edit
+- 
+  id: 2
+  flags: 1
+  name: ขยายการเข้าถึง
+  notes: |
+    บทบาท ที่ขยายการเข้าถึง
+  permissions:
+    - ticket.create
+    - ticket.edit
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply
+    - ticket.close
+    - task.create
+    - task.edit
+    - task.assign
+    - task.transfer
+    - task.reply
+    - task.close
+    - canned.manage
+- 
+  id: 3
+  flags: 1
+  name: จำกัดการเข้าถึง
+  notes: |
+    บทบาท ที่จำกัดการเข้าถึง
+  permissions:
+    - ticket.create
+    - ticket.assign
+    - ticket.release
+    - ticket.transfer
+    - ticket.refer
+    - ticket.reply task.create
+    - task.assign
+    - task.transfer
+    - task.reply
+- 
+  id: 4
+  flags: 1
+  name: ดูได้อย่างเดียว
+  notes: ตั้งสถานะเบื้องต้น ไม่มีสิทธ์
+  permissions: [ ]

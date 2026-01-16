@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Zaposleni
+  content: >
+    Sledeća tabela prikazuje rezultate filtera iznad. Ako nije izabrano podešavanje filtera, onda će svi <span class="doc-desc-title">agenti</span> (osoblje) biti prikazani i podeljeni na stranice. Videti ispod sekciju sa stranicama radi navigacije kroz više rezultata.
+status:
+  title: Status
+  content: >
+    Ovo će biti prikazano bilo da je <span class="doc-desc-title">agent</span> fiksiran, aktivan ili akvitan (na odmoru).

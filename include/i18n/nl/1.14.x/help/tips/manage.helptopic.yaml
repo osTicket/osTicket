@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Help-onderwerp informatie
+  content: >
+    <span class="doc-desc-title">Help-onderwerpen</span> houd bij welke informatie wordt verzameld van gebruikers en hoe tickets worden doorgestuurd of toegewezen.
+topic:
+  title: Naam van het onderwerp
+  content: >
+    Unieke naam ven het Help-onderwerp.
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Type
+  content: >
+    Als een <span class="doc-desc-title">Help-onderwerp</span> als Privaat wordt gelabeld, zal het alleen toegankelijk zijn voor Vertegenwoordigers die dit kunnen kiezen wanneer een nieuw Ticket geopend wordt onder het Personeel Paneel.
+parent_topic:
+  title: Hoofdonderwerp
+  content: >
+    Selecteer het hoofdonderwerp dat zal behoren tot dit<span class="doc-desc-title">Help-onderwerp</span>. Het hoofdonderwerp zal als eerste in de lijst verschijnen met dit <span class="doc-desc-title">Help-onderwerp</span> er op volgend.
+custom_form:
+  title: Aangepast formulier
+  content: >
+    Aangepaste formulieren zal u helpen om specifiekere informatie van gebruikers te verkrijgen dat relevant zijn voor dit <span class="doc-desc-title">Help-onderwerp</span>.
+  links:
+    - 
+      title: Aangepaste formulieren beheren
+      href: /scp/forms.php
+priority:
+  title: Prioriteit
+  content: >
+    Selecteer de Prioriteit dat moet toegewezen worden aan nieuwe Tickets van dit <span class="doc-desc-title">Help-onderwerp</span>.<br><br>Ticket Filters kunnen nieuwe Ticket Prioriteiten overschrijven.
+department:
+  title: Afdeling
+  content: >
+    Kies de Afdeling waaraan nieuwe tickets onder dit Help-onderwerp zullen worden doorgestuurd.
+  links:
+    - 
+      title: Afdelingen beheren
+      href: /scp/departments.php
+sla_plan:
+  title: Service niveau
+  content: >
+    Kies het Service Plan dat gekoppeld is aan dit <span class="doc-desc-title">Help-onderwerp</span>. <br><br> Deze selectie zal elke geselecteerde Afdeling zijn Service Niveau overschrijven
+  links:
+    - 
+      title: Service plannen beheren
+      href: /scp/slas.php
+thank_you_page:
+  title: Dankpagina
+  content: >
+    Kies de Dankpagina waarnaar een gebruiker doorgestuurd wordt na het openen van een Ticket onder dit <span class="doc-desc-title">Help-onderwerp</span>.
+  links:
+    - 
+      title: Dankpagina's beheren
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automatisch toewijzen van nieuwe Tickets
+  content: >
+    Kies een Vertegenwoordiger of Team  dat automatisch tickets kan toewijzen geopend met dit <span class="doc-desc-title">Help-onderwerp</span> <br><br> Ticket Filters kunnen toewijzingen overschrijven.
+  links:
+    - 
+      title: Medewerkers en Teams beheren
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Automatisch-antwoord van Ticket
+  content: >
+    Als dit is ingeschakeld, zal automatisch-antwoorden van tickets voor dit <span class="doc-desc-title">Help-onderwerp</span> uitgeschakeld worden. <br><br> Dit overschrijft zowel de automatisch-antwoord instelling van het <span class="doc-desc-title">Afdeling</span> als de globale <span class="doc-desc-title">Automatisch-antwoord instellingen</span>.
+  links:
+    - 
+      title: Automatisch antwoord instellingen
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Aangepaste Ticket Nummering
+  content: >
+    Kies "Aangepaste Nummering" om de standaard nummering van tickets te overschrijven. Zie de help-tips in de Instellingen / Tickets pagina voor meer informatie over de instellingen.

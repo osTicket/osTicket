@@ -1,0 +1,37 @@
+---
+#Email template: task.alert.yaml
+#Sent to an agent when a new task is created in the system.
+#---
+notes: |
+  Отправляется сотруднику при создании новой задачи в системе.
+subject: |
+  Оповещение о новой задаче
+body: |
+  <h2>Здравствуйте, %{recipient.name},</h2>
+  Новая задача <a href="%{task.staff_link}">#%{task.number}</a> создана
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+  <td>
+  <strong>Отдел</strong>:
+  </td>
+  <td>
+  %{task.dept.name}
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{task.description}
+  <br>
+  <br>
+  <hr>
+  <div>Для просмотра или ответа на заявку<a
+  href="%{task.staff_link}">войдите</a> в систему поддержки</div>
+  <em style="font-size: small">Ваша система поддержки клиентов</em>
+  <br>
+  <a href="http://osticket.com/"><img width="126" height="19"
+  style="width: 126px; " alt="Работает на osTicket"
+  src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

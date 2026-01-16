@@ -1,0 +1,53 @@
+---
+search_field:
+  title: حقل بحث
+  content: >
+    
+advanced:
+  title: متقدم
+  content: >
+    قم بتضييق متغيرات البحث. عند اختيارك معادلة البحث المتقدم والقيام بالبحث، فإنه بإمكانك <span class="doc-desc-title">تصدير</span> البيانات في أسفل صفحة التذاكر.
+open_tickets_table:
+  title: فتح جدول التذاكر
+  content: >
+    جميع التذاكر الحالية مفتوحة وتتطلب إهتماماً
+ticket:
+  title: التذكرة
+  content: >
+    
+date:
+  title: التاريخ
+  content: >
+    
+subject:
+  title: الموضوع
+  content: >
+    
+from:
+  title: من
+  content: >
+    
+priority:
+  title: الأولوية
+  content: >
+    
+assigned_to:
+  title: تم إسنادها إلى
+  content: >
+    
+export:
+  title: تصدير
+  content: >
+    قم بتصدير بياناتك الحالية ليتم عرضها في ملف CSV. بإمكانك فتح ملفات الـ CSV عن طريق أي برنامج جداول مثل ( Microsoft Excel, Apple Pages, OpenOffice إلخ.. ).
+advanced_search_dialog:
+  title: بحث متقدم
+  content: >
+    
+adv_keyword:
+  title: البحث عن الكلمات المفتاحية
+  content: >
+    إيجاد النتائج حسب العنوان ومحتوى الرسائل للتذكرة إضافة إلى المحتوى النصي المرتبط مع الحقول المخصصة للمستخدمين والتذاكر.
+adv_date_range:
+  title: البحث بواسطة فترة زمنية
+  content: >
+    التعريف هنا

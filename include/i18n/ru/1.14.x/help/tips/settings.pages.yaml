@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Информация о компании
+  content: >
+    Это относится к компании или организации, которые используют преимущества программного обеспечения osTicket и его персонала поддержки. Информация здесь будет появляться в подписях электронной почты (то есть, в колонтитуле), когда Сотрудники будут отвечать на Заявки.
+  links:
+    - 
+      title: Форма Информации о Компании
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Главная Страница
+  content: >
+    <span class="doc-desc-title">Главная Страница</span> отображается на первой странице Вашего сайта поддержки.
+offline_page:
+  title: Автономная Страница
+  content: >
+    <span class="doc-desc-title">Автономная Страница</span> отображается на сайте поддержки, когда отдел помощи не доступен - см. Панель Администратора -&gt; Настройки -&gt; Система -&gt; Статус Отдела Помощи.
+default_thank_you_page:
+  title: Страница благодарности по умолчанию
+  content: >
+    <span class="doc-desc-title">Страница Благодарности</span> показывается клиенту, когда <span class="doc-desc-title">Клиент</span> отправляет новую Заявку. <br/><br/> Страницы <span class="doc-desc-title">Благодарности</span> могут быть привязаны к категориям Заявок.
+logos:
+  title: Логотипы
+  content: >
+    Вы можете кастомизировать <span class="doc-desc-title">Логотип</span>, который будет показываться Клиенту в Клиентском Портале (т.е., Вашем Сайте Поддержки).
+upload_a_new_logo:
+  title: Загрузить новый логотип
+  content: >
+    Выберите изображение в форматах .gif, .jpg или .png. Мы пропорционально изменим размер отображения Вашего изображения. Однако, мы не изменим размер данных изображения. Поэтому, ради скорости загрузки, рекомендуется держать Ваше изображение близким к размеру изображения по умолчанию (817px &times; 170px).
+backdrops:
+  title: Фон
+  content: >
+    Вы можете настроить <span class="doc-desc-title">фон</span> страницы, который будет отображаться на странице входа персонала.
+upload_a_new_backdrop:
+  title: Загрузить новый фон
+  content: >
+    Выберите изображение в форматах .gif, .jpg, .png. Мы пропорционально изменим размер изображения. Однако, мы не изменим вес изображения. Поэтому, ради скорости загрузки изображения, рекомендуется уменьшить вес изображения (менее нескольких Мб) к размеру изображения по умолчанию (817px &times; 170px). Так же важно: Настройки PHP на максимальный размер вложений будет применяться в первую очередь.

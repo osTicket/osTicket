@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Timovi
+  content: >
+    Timovi su jedan ili više djelatnika udruženi zajedno radi rješavanja kartica tehničke podrške. Članstvo u timu može biti rašireno kroz više odjela.
+status:
+  title: Status
+  content: >
+    Ukoliko je <span class="doc-desc-opt">onemogućeno</span>, ovaj tim neće dobivati nove kartice kao ni upozorenja &amp; obavijesti o prijašnjim zadacima.
+lead:
+  title: Vodstvo tima
+  content: >
+    <span class="doc-desc-title">Tim</span> može imati dodjeljenog vođu tima koji može primati <span class="doc-desc-title">upozorenja &amp; obavjesti</span> odvojeno od ostalih korisnika.
+  links:
+    - 
+      title: Namjesti upozorenja &amp; obavijesti
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Obavijet o zadatku
+  content: >
+    Možete onemogućiti <span class="doc-desc-title">obavijesti o zadatku</span> za kartice koje su dodjeljene ovom timu.
+  links:
+    - 
+      title: Namjesti upozorenja &amp; obavijesti
+      href: /scp/settings.php?t=alerts
+members:
+  title: Članovi tima
+  content: >
+    Članstvo u timu se konfigurira putem djelatnikova profila.
+  links:
+    - 
+      title: Uređivanje osoblja
+      href: /scp/staff.php

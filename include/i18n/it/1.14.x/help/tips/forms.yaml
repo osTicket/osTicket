@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Titolo del modulo
+  content: >
+    Questo testo del titolo è visualizzato in una casella grigia sopra i campi del modulo
+form_instructions:
+  title: Istruzioni modulo
+  content: >
+    Puoi aggiungere ulteriori istruzioni che aiuteranno a guidare l'utente nel contesto dei campi del modulo e possibilmente evidenziare i dati richiesti.
+field_sort:
+  title: Mostra posizione campo
+  content: >
+    Clicca le frecce su e giù e trascina la riga per riordinare il modulo. Le preferenze di ordinamento non avranno effetto fino al salvataggio del modulo.
+field_label:
+  title: Etichetta campo
+  content: >
+    Questa etichetta indica il contenuto da mettere in questo campo. In genere, un campo di risposta breve dovrebbe essere impostato così&nbsp;: <br><strong>Etichetta:</strong>&nbsp; <input type="text">
+field_type:
+  title: Tipo di contenuto del campo
+  content: >
+    Questo è usato per definire il tipo di input previsto da parte dell'utente. È possibile selezionare risposta corta e lunga, numero di telefono, data e ora, checkbox, elenco a discesa o una selezione elenco personalizzato.
+  links:
+    - 
+      title: Elenchi personalizzati
+      href: /scp/lists.php
+field_visibility:
+  title: Campo Visibile
+  content: >
+    Seleziona l'opzione di visibilità e obbligatorietà per questo campo. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Impostazioni</th> <th>Risultato</th></tr> <tr><td>Opzionale</td> <td>Agenti e Utenti Finali possono visualizzare il campo ma non non sono tenuti a rispondere.</td></tr> <tr><td>Richiesto</td> <td>Agenti e Utenti Finali possono visualizzare il campo ed entrambi sono tenuti a rispondere</td></tr> <tr><td>Richiesto per gli Utenti Finali</td> <td>Agenti e Utenti Finali possono visualizzare il campo, solo gli Utenti Finali sono tenuti a rispondere.</td></tr> <tr><td>Richiesto per gli Agenti</td> <td>Agenti e Utenti Finali possono visualizzare il campo, solo gli Agenti sono tenuti a rispondere</td></tr> <tr><td>Interno, Opzionale</td> <td>Solo gli Agenti possono visualizzare il campo, ma non sono tenuti a rispondere.</td></tr> <tr><td>Interno, Richiesto</td> <td>Solo gli Agenti possono visualizzare il campo e sono tenuti a rispondere.</td></tr> <tr><td>Solo per gli Utenti Finali</td> <td>Solo gli Utenti Finali possono visualizzare il campo e sono tenuti a rispondere.</td></tr> </tbody></table>
+field_variable:
+  title: Campo automazione
+  content: >
+    I dati del campo sarà disponibili per i modelli di pagina e di posta elettronica tramite il nome utilizzato in questa colonna. Per esempio, i campi presenti su un ticket comune sono disponibili tramite <code>%{ticket.variable}</code>, dove la <strong>variabile</strong> è il nome utilizzato in questa colonna.<br><br><em>Le informazioni aziendali sono disponibile via <code>%{</code> <code>company.variable}</code> e le informazioni sull'utente sono disponibili via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Rimuovi questo Campo
+  content: >
+    Controllare e salvare il modulo per rimuovere un campo da questo modulo.<br><br><em>La cancellazione di un campo non cancella i dati inseriti precedentemente per i campi sui moduli completati. Per esempio, se un ticket aperto in precedenza ha delle informazioni su un campo, la cancellazione del campo da questo form non cancellerà l'informazione sul ticket.</em>

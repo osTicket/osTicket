@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Personel İsim Biçimlendirmesi
+  content: >
+    Personel isimleri için site genelinde geçerli olacak bir biçim seçiniz. Başka bir biçim belirtilmediği sürece eposta şablonları burada belirtilen biçimi kullanacaktır.
+staff_identity_masking:
+  title: Çalışan Kimlik Maskesi
+  content: >
+    Eğer açılırsa, Temsilicinin ismi Müşteri ile gerçekleşen her türlü haberleşmede gizlenecektir.
+#Authentication settings
+password_reset:
+  title: Parola Süresi Bitiş İlkesi
+  content: >
+    Personel şifrelerinin kaç ayda bir yenilenmesi gerektiğini belirler. Eğer kapatılırsa, personel şifreleri hiçbir zaman geçerliliklerini kaybetmeyecektir.
+password_expiration_policy:
+  title: Parola Süresi Bitiş İlkesi
+  content: >
+    Temsilcilerin ne sıklıkla şifrelerini değiştirmelerini seçin. Eğer kapatılırsa (i.e., <span class="doc-desc-opt">Sona Erme Yok</span>), şifreler geçerliliğini yitirmeyecektir. .
+allow_password_resets:
+  title: Parola Sıfırlamalarına İzin Ver
+  content: >
+    Başarısız bir giriş denemesinden sonra <span class="doc-desc-title">Personel Giriş Sayfası</span> üzerindeki <span class="doc-desc-title">Şifremi Unuttum</span> linkini aktive etmek için bu özelliği seçiniz.
+reset_token_expiration:
+  title: Parola Sıfırlama Penceresi
+  content: >
+    <span class="doc-desc-title"> Şifre Sıfırlama Anahtarlarının</span> geçerli olacağı süre (dakika olarak) girin. Bir ajan <span class="doc-desc-title">Şifre Sıfırlama</span> istediğinde, kendisine şifreleme ile ilgili anahtar eposta ile gönderilir.
+staff_session_timeout:
+  title: Temsilci Oturum Zaman Aşımı
+  content: >
+    Personelin son aktif olduğu andan itibaren kaç dakika sonra tekrar giriş yapmak zorunda olduğunu tayin ededebilirsiniz. <br><br> Eğer <span class="doc-desc-title">Personel Oturum Zamanaşımı</span> özelliğini kapatmak isterseniz, 0 girebilirsiniz.
+bind_staff_session_to_ip:
+  title: Temsilcinin oturumunu IP ye bağlayın
+  content: >
+    Eğer personelin giriş yaparken kullandığı IP adresinden hatırlanmasını isterseniz bu özelliği açabilirsiniz. <br><br>Bu durum dinamik IP adresi kullanıcıları için tavsiye edilmez.

@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  La pagina iniziale si riferisce al contenuto della visualizzazione iniziale del portale clienti. Il modello modifica il contenuto visualizzato sopra i due link per <strong>aprire un nuovo Ticket</strong> e <strong>Controllare lo stato del Ticket</strong>.
+name: Pagina di arrivo
+body: >
+  <h1>Benvenuti al centro di supporto</h1> <p>Al fine di semplificare le richieste di supporto e servirvi meglio , utilizziamo un sistema di ticket di supporto. Ad ogni richiesta di supporto viene assegnato un numero di ticket univoco che può essere utilizzato per monitorare i progressi e le risposte on-line. Per il vostro riferimento forniamo archivi completi e storia di tutte le vostre richieste di supporto. Un indirizzo email valido è richiesto per poter presentare una richiesta di assistenza. </p>

@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  當他們已經達到最大的支援案件建立數量限制將發通知給使用者。
+  此限制可由管理員控制台進行調整，並且是以電子信箱為限制基準。
+subject: |
+  已達到支援案件建立限制
+body: |
+  <h3><strong>親愛的 %{ticket.name.first},</strong></h3>
+  您已經達到最大案件申請數量。在新增其他案件前，您需要先有其他案件結案才可繼續新增案件。想要追加或新增其他詳細資訊您可 <a
+  href="%{url}/tickets.php?e=%{ticket.email}">登入我們的支援系統</a>.
+  <br>
+  <br>
+  感謝您<br/>

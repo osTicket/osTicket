@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Lịch sử hệ thống
+  content: >
+    Đây là nơi bạn sẽ tìm thấy bất cứ phương án xử lý sự cố (ví dụ như cảnh báo hay lỗi).
+  links:
+    - 
+      title: Tùy chỉnh loại hoạt động được ghi nhật ký bằng cách thay đổi các < br / > <span class="doc-desc-title"> Mức độ log mặc định</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Khoảng thời gian
+  content: >
+    Chọn khoảng thời gian mà bạn muốn xem trong <span class="doc-desc-title"> Nhật kí hệ thống</span>.
+type:
+  title: Loại
+  content: >
+    Chọn một loại log để thu hẹp của một loại hình cụ thể của hoạt động. <span class="doc-desc-opt"> Debug</span> đại diện cho mức độ nghiêm trọng thấp nhất, và <span class="doc-desc-opt"> Error</span> đại diện cho mức độ nghiêm trọng lớn nhất.
+showing_logs:
+  title: Hiển thị &hellip;Logs
+  content: >
+    Hãy chắc chắn kiểm tra<span class="doc-desc-title">phần trang</span> dưới đây để đảm bảo rằng không có trang nào hiển thị trong Nhật ký hệ thống.
+log_title:
+  title: Tiêu đề bản ghi
+  content: >
+    Nhấp vào phần tiêu đề nhật ký<span class="doc-desc-title">Phần đầu bảng</span>nếu bạn muốn sắp xếp kết quả theo<span class="doc-desc-title">Tiêu đề nhật ký</span>.
+log_type:
+  title: Loại nhật ký
+  content: >
+    Nhấp vào <span class="doc-desc-title">Loại nhật ký</span>phần đầu bảng nếu bạn muốn sắp xếp kết quả theo <span class="doc-desc-title">Loại nhật ký</span>.
+log_date:
+  title: Nhật ký ngày
+  content: >
+    Đây là ngày nhật ký được thiết lập bởi phần mềm. Nếu bạn muốn sắp xếp kết quả theo <span class="doc-desc-title">Ngày nhật ký</span>, chỉ cần nhấp vào đầu bảng  <span class="doc-desc-title">Ngày nhật ký</span>. (sử dụng <span class="doc-desc-title">Span ngày</span> phía trên để thu hẹp khoảng thời gian của các bản ghi.)
+ip_address:
+  title: Địa chỉ IP
+  content: >
+    Từ này dùng để nói đến <span class="doc-desc-title">Địa chỉ</span><span class="doc-desc-title"> IP</span> của một nhân viên hoặc khách hàng đã đang sử dụng osTicket tại thời điểm bản ghi được tạo ra.

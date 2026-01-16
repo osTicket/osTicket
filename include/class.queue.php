@@ -1598,7 +1598,7 @@ abstract class QueueColumnAnnotation {
     }
 
     function getClassName() {
-        return @$this->config['c'] ?: get_class($this);
+        return @$this->config['c'] ?: get_class();
     }
 
     static function getAnnotations($root) {
@@ -1798,7 +1798,8 @@ extends QueueColumnAnnotation {
 
     function getDecoration($row, $text) {
         if ($row['isoverdue'])
-            return '<span class="Icon overdueTicket"></span>';
+            // osta
+            return '<div class="osta show overdueTicket-container"><span class="Icon overdueTicket" data-placement="top" data-toggle="tooltip" title="' .  __('Ticket is Overdue!') . '"></span></div>';
     }
 
     function isVisible($row) {
@@ -1845,7 +1846,7 @@ extends QueueColumnAnnotation {
     function getDecoration($row, $text) {
         $flags = $row['flags'];
         $linked = ($flags & Ticket::FLAG_LINKED) != 0;
-        if ($linked)
+        if ($linked && $_REQUEST['a'] == 'search')
             return '<i class="icon-link"></i>';
     }
 
@@ -2513,6 +2514,19 @@ extends VerySimpleModel {
             if ($this->annotations
                 && ($anns = JsonDataParser::decode($this->annotations))
             ) {
+                // osta
+                $anns = array();
+                if( $this->ht["name"] == "Subject" ) { 
+                    $anns[] = ["c"=>"MergedFlagDecoration", "p"=>"<"];
+                    $anns[] = ["c"=>"LinkedFlagDecoration", "p"=>"<"]; 
+                    $anns[] = ["c"=>"OverdueFlagDecoration", "p"=>"<"];
+                    $anns[] = ["c"=>"ThreadAttachmentCount", "p"=>">"]; 
+                    $anns[] = ["c"=>"TicketThreadCount", "p"=>">"]; 
+                } 
+                if( $this->ht["name"] == "User Name" ) { 
+                    $anns[] = ["c"=>"ThreadCollaboratorCount", "p"=>">"];
+                } 
+       
                 foreach ($anns as $D)
                     if ($T = QueueColumnAnnotation::fromJson($D))
                         $this->_annotations[] = $T;
@@ -3110,7 +3124,10 @@ extends TicketLinkFilter {
 
     function filter($text, $row) {
         $link = $this->getLink($row);
-        return sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>',
+        // osta		
+        return sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>
+		<span class="icon-code-fork" data-placement="top" data-toggle="tooltip" title="" data-original-title="' .  __('Merged Ticket') . '"></span>
+		<span class="icon-code-link" data-placement="top" data-toggle="tooltip" title="" data-original-title="' .  __('Linked Ticket') . '"></span>',
             $row['ticket_id'], $link, $text);
     }
 }

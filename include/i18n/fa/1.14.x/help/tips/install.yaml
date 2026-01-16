@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: نام سیستم پشتیبانی
+  content: |
+    <p>نام سیستم پشتیبانی شما، مانند مرکز پشتیبانی [نام شرکت شما]</p>
+system_email:
+  title: ایمیل پیش فرض سیستم
+  content: |
+    <p>آدرس ایمیل پیش فرض، مانند support@yourcompany.com - شما می توانید بعدا آن را تغییر دهید.</p>
+default_lang:
+  title: زبان پيش فرض سيستم
+  content: |
+    <p>داده های اولیه برای این زبان را به پایگاه داده نصب خواهد شد. به عنوان مثال قالب ایمیل و صفحات پیش فرض سیستم برای این زبان نصب خواهد شد.</p>
+  links:
+    - 
+      title: بسته های زبان
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: نام
+  content: |
+    <p>نام مدیر سایت</p>
+last_name:
+  title: نام خانوادگی
+  content: |
+    <p>نام خانوادگی مدیر سایت</p>
+email:
+  title: آدرس ایمیل
+  content: |
+    <p>آدرس ایمیل شخصی مدیر سایت. باید با آدرس ایمیل پیش فرض سایت متفاوت باشد.</p>
+username:
+  title: نام کاربری
+  content: |
+    <p>کلمه ورود مدیر سایت.باید حداقل سه (3) کاراکتر باشد.</p>
+password:
+  title: کلمه عبور
+  content: |
+    <p>کلمه عبور مدیر سایت. باید پنج (5) کاراکتر یا بیشتر باشد.</p>
+password2:
+  title: تائید کلمه عبور
+  content: |
+    <p>کلمه عبور مدیر سایت را دو مرتبه وارد کنید. باید منطبق با هم باشد.</p>
+db_prefix:
+  title: عبارت پیشوند اسم جداول MySQL
+  content: |
+    <p>osTicket نیاز به عبارت پیشوند در نام جداول خود دارد تا بدین وسیله از تداخل جداول در یک پایگاه داده  مشترک جلوگیری نماید.</p>
+db_host:
+  title: نام میزبان MySQL
+  content: |
+    <p>
+    بیشتر میزبان ها از عبارت 'localhost' برای نام میزبان پایگاه داده محلی استفاده می نمایند. در صورت که 'localhost' با شکست مواجه شد، با میزبان پایگاه داده خود تماس بگیرید.
+    </p>
+    <p>
+    شمارۀ پورت پیش فرض، شمارۀ پورت ثبت شده در 'php.ini' فرض شده است. شماره پورت های غیر استاندارد را می توانید به صورت<code>hostname:port</code> وارد نمائید.
+    </p>
+db_schema:
+  title: پایگاه داده MySQL
+  content: |
+    <p>نام پایگاه داده ای که osTicket از آن استفاده خواهد نمود.</p>
+db_user:
+  title: نام کاربری MySQL
+  content: |
+    <p>کاربر MySQL باید دسترسی کامل به پایگاه داده داشته باشد.</p>
+db_password:
+  title: کلمه عبور MySQL
+  content: |
+    <p>کلمه عبور مربوط به کاربر MySQL بالا.</p>

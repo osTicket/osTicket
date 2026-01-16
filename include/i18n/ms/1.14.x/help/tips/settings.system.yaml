@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Status Meja Bantuan
+  content: >
+    Jika status ditukar kepada <span class = "doc-desc-opt"> Luar Talian </span>, antara muka klien akan dilumpuhkan. Hanya Pentadbir sahaja yang dapat mengakses sistem ini.
+helpdesk_url:
+  title: URL Mejabantuan
+  content: >
+    URL ini adalah asas pemasangan osTicket anda. Ia digunakan dalam komunikasi e-mel untuk mengarahkan pengguna akhir kembali ke meja bantuan anda.
+helpdesk_name_title:
+  title: Nama/Tajuk Meja Bantuan
+  content: >
+    Ini adalah tajuk yang muncul dalam tab pelayar. Jika halaman meja bantuan anda direkodkan, ini akan menjadi tajuk/nama halaman laman web tersebut.
+default_department:
+  title: Jabatan lalai
+  content: >
+    Pilih <span class="doc-desc-title">Jabatan</span> lalai untuk tiket yang tidak automatik dihantar ke jabatan. <br/><br/> Tiket boleh dihantar berdasarkan pada topik bantuan, e-mel yang masuk dan tetapan penapis tiket.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Saiz halaman lalai
+  content: >
+    Pilih bilangan item dipaparkan pada setiap halaman dalam Barisan Tiket dalam Panel Kakitangan. Setiap Ejen juga boleh menyesuaikan nombor ini untuk akaun mereka sendiri di bawah <span class="doc-desc-title">Pilihan Saya</span>.
+default_log_level:
+  title: Tahap log lalai
+  content: >
+    Menentukan tahap minimum isu-isu yang akan direkodkan dalam <span class="doc-desc-title"> log sistem </span>. <span class="doc-desc-opt"> pembetulan program </span> mewakili tahap sekurang-kurangnya teruk, dan <span class="doc-desc-opt"> Ralat </span>mewakili tahap yang terbaik. Sebagai contoh, jika anda mahu melihat semua isu-isu dalam <span class="doc-desc-title"> log Sistem </span>, pilih<span class="doc-desc-opt"> pembetulan program</span>.
+purge_logs:
+  title: Pembersihan log
+  content: >
+    Menentukan berapa lama anda ingin simpan <span class="doc-desc-title">log sistem</span> sebelum dipadam.
+enable_richtext:
+  title: Membolehkan teks kaya
+  content: >
+    Jika didayakan, ini akan membenarkan penggunaan pemformatan teks kaya di antara Pelanggan dan Ejen.
+enable_avatars:
+  title: Mengaktifkan avatar pada Thread View
+  content: >
+    Aktifkan ini untuk menunjukkan <span class="doc-desc-title">Avatars</span> pada thread surat-menyurat. <br><br> The <span class="doc-desc-title">Avatar Source</span> boleh ditetapkan dalam halaman Ejen dan Pengguna 'tetapan.
+  links:
+    - 
+      title: Tetapan ejen
+      href: /scp/settings.php?t=agents
+    - 
+      title: Tetapan Servis
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Penghindaran Pelanggaran Ejen
+  content: >
+    Masukkan panjang maksimum masa Agen dibenarkan untuk memegang kunci atas tiket atau tugas tanpa apa-apa aktiviti.<br><br> Masukkan <span class="doc-desc-opt">0</span> untuk melumpuhkan ciri sekat-masuk.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Pilihan Tarikh &amp; Masa
+  content: >
+    Tetapan berikut menentukan tetapan lalai untuk Tarikh & amp; Tetapan masa untuk meja bantuan. Anda boleh memilih untuk menggunakan piawai -tempat kejadian untuk tempat-tempat kejadian yang dipilih atau menggunakan menyesuaikan format untuk memenuhi keperluan unik anda. Merujuk kepada rentetan format ICU sebagai rujukan untuk penyesuaian. Tarikh-tarikh yang ditunjukkan di bawah hanya menggambarkan hasil daripada nilai yang berkaitan mereka.
+  links:
+    - 
+      title: Lihat Tarikh ICU Pemformatan Jadual
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Sistem Bahasa
+  content: >
+    Pilih bahasa sistem utama dan bahasa pilihan menengah untuk membuat antara muka anda berasa setempat untuk agen anda dan pengguna akhir.
+primary_language:
+  title: Sistem Bahasa Utama
+  content: >
+    Kandungan bahasa ini dipaparkan kepada ejen dan pengguna akhir jika pilihan bahasa masing-masing tidak pada masa ini. Ini termasuk kandungan antara muka, dan juga, kandungan tersuai seperti terima kasih muka surat dan mesej e-mel. <br/><br/> Ini adalah bahasa yang versi tidak diterjemahkan kandungan anda hendaklah ditulis.
+secondary_language:
+  title: Bahasa kedua
+  content: >
+    Pilih pilihan pilihan bahasa untuk agen anda dan pengguna akhir. Antara muka yang boleh didapati dalam bahasa ini, dan kandungan tersuai, seperti ucapan terima kasih muka surat dan nama topik bantuan, akan diterjemahkan kepada bahasa ini.
+#Attachments
+attachments:
+  title: Tetapan Lampiran dan Penyimpanan
+  content: >
+    Menetapkan seberapa lampiran disimpan.
+default_storage_bk:
+  title: Simpanan Fail Backend
+  content: >
+    Pilih bagaimana lampiran disimpan. <br /><br /> storan sokongan tambahan boleh ditambah dengan memasang plugin storan
+max_file_size:
+  title: Saiz Maksimum Fail
+  content: >
+    Pilih saiz fail maksimum untuk lampiran yang dimuat naik oleh ejen. Ini termasuk lampiran dalam tin, artikel asas pengetahuan dan lampiran kepada tiket dan tugas yang dihantar. Had atas dikawal oleh PHP <code>upload_max_filesize</code> tetapan.
+  links:
+    - 
+      title: Tetapan PHP
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Log masuk diperlukan
+  content: >
+    Aktifkan tetapan ini untuk melarang penggunaan lampiran kepada pengguna yang tidak disahkan. Iaitu, pengguna mesti melog masuk ke sistem (kedua-dua pengguna dan agen), untuk melihat lampiran. <br /><br /> Dari perspektif keselamatan, sila beri perhatian bahawa penyemak imbas pengguna mungkin menyimpan fail yang sebelumnya dilihat dalam cachenya. Selanjutnya, semua pautan fail pada meja bantuan anda akan tamat tempoh secara automatik selepas kira-kira 24 jam.

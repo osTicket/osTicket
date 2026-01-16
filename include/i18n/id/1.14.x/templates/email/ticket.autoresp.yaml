@@ -1,0 +1,10 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Dikirim ke pengguna ketika tiket baru dibuat
+subject: |
+  Dukungan tiket dibuka [#%{ticket.number}]
+body: |
+  <h3><strong>Dear %{recipient.name.first},</strong></h3> <p>A meminta dukungan telah dibuat dan ditetapkan #%{ticket.number}. Perwakilan akan tindak lanjut dengan Anda sesegera mungkin. Anda dapat <a href="%{recipient.ticket_link}"> melihat kemajuan tiket ini online</a>. </p> <br><div style="color: rgb(127, 127, 127)"> Anda %{company.name} tim, <br>%{signature}</div> <hr><div style="color: rgb(127, 127, 127); font-size: small;"> <em>jika Anda ingin memberikan komentar tambahan atau informasi mengenai masalah, Silakan balas ke email ini atau <a href="%{recipient.ticket_link}"> <span style="color: rgb(84, 141, 212);" > login ke account Anda</span></a> untuk arsip lengkap dari permintaan dukungan Anda.</em></div>

@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Alertas e Avisos
+  content: >
+    Alertas e avisos são notificações de e-mail automático enviadas para agentes quando vários eventos de Tikets são abertos.
+ticket_alert:
+  title: Alerta de Novo Chamado
+  content: >
+    <p>Alerta enviado para agentes quando é criado um novo Tiket.</p><p class="info-banner"> <i class="icon-info-sign"></i> este alerta não é enviado se o Tiket é atribuído automaticamente através de um Filtro de Tiktes ou o tópico da ajuda.</p>
+  links:
+    - 
+      title: Novo modelo de Alerta de Ticket padrão
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Alerta de nova mensagem
+  content: >
+    Alerta enviado para agentes quando uma nova mensagem do usuário é acrescentada um Tiket existente.
+  links:
+    - 
+      title: Novo modelo de Alerta de mensagem padrão
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Novo alerta interno de atividade
+  content: >
+    Alerta enviado aos agentes quando a atividade interna, como uma nota interna ou uma resposta do agente é anexado a um chamado.
+  links:
+    - 
+      title: Modelo padrão de Atividade de Ticket
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Alerta de atribuição de tickets
+  content: >
+    Alerta enviado para agentes na atribuição de Tikets.
+  links:
+    - 
+      title: Modelo padrão de alerta à atribuição de ticket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Alerta na transferência
+  content: >
+    Alerta enviado para agentes na transferência de Tiket entre departamentos.
+  links:
+    - 
+      title: Modelo padrão de alerta de transferência de ticket
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Alerta de tickets em atraso
+  content: >
+    Alerta enviado para agentes quando um Tiket fica em atraso com base em SLA ou data de vencimento.
+  links:
+    - 
+      title: Modelo padrão de alerta de ticket obseleto
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Gerenciar os SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: Sistema de alertas
+  content: >
+    Eventos do sistema significativos que são enviados para o administrador (%{config.admin_email}). Dependendo do <span class="doc-desc-title"> Nível de Log</span> de configurado, os eventos também são disponibilizados nos <span class="doc-desc-title"> Logs do sistema</span>
+  links:
+    - 
+      title: Exibir Logs de sistema
+      href: /scp/logs.php
+    - 
+      title: Alterar e-mail do administrador
+      href: /scp/settings.php?t=emails

@@ -75,7 +75,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
                     }
                   }
                   ?>
-              </select>
+                </select>
               &nbsp;<span class="error">*&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>
@@ -188,7 +188,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
             </td>
         </tr>
         <tr>
-          <td><?php echo __('Ticket Assignment'); ?>:</td>
+            <td><?php echo __('Ticket Assignment'); ?>:</td>
             <td>
                 <select name="assignment_flag">
                   <option value="all"<?php echo ($info['assignment_flag'] == 'all')?'selected="selected"':'';?>><?php echo __('All'); ?></option>
@@ -398,7 +398,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
                   <i class="icon-download-alt icon-fixed-width"></i>
               </span>
             </td>
-          </tr>
+        </tr>
         <?php
         if (!count($dept->members)) { ?>
         <tr><td colspan=2><em><?php

@@ -1,0 +1,14 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+notes: |
+  Offline səhifə help desk offline olanda sifarişçi portalında ortaya çıxır.
+name: Offline
+body: |
+  <div><h1>
+  <span style="font-size: medium">Sorğu sistemini offline dəstəkləyin</span>
+  </h1>
+  <p>Bizimlə əlaqə qurmaqda maraqlı olduğunuz üçün çox sağ olun.</p>
+  <p>Bizim helpdesk hal-hazırda offlinedır, xahiş edirik bir az sonra yenidən yoxlayın.</p>
+  </div>

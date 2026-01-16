@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Formulär-rubrik
+  content: >
+    Den här titel-texten visas i en grå ruta ovanför formulärfälten
+form_instructions:
+  title: Instruktioner för formuläret
+  content: >
+    Du kan lägga till instruktioner som hjälper användaren förstå vad som ska anges i respektive formulärfält.
+field_sort:
+  title: Placering av formulärfält
+  content: >
+    Klicka på upp/ner-pilarna och drag i formulärfält-raden för att sortera data i formuläret. Sorterings-inställningarna börjar inte gälla förrän formuläret sparats.
+field_label:
+  title: Fältetikett
+  content: >
+    Den här etiketten visas som beskrivning för det här formulärfältet. Så här kan ett kort svarsfält se ut som exempel: <br> <strong>Etikett:</strong>&nbsp; <input type="text">
+field_type:
+  title: Typ av formulärfält
+  content: >
+    Här anges vilket typ av innehåll som förväntas av användaren. Du kan välja mellan kort och långt svar, telefonnummer, datum och tid, kryssruta, rullist eller en egendefinierad lista med olika val.
+  links:
+    - 
+      title: Egendefinierad lista
+      href: /scp/lists.php
+field_visibility:
+  title: Fältsynlighet
+  content: >
+    Välj synlighet och alternativa krav för detta område. <table border = "1" cellpadding = "2px" cellspacing = "0" style = "margin-top: 7PX"> <tbody style = "vertikal-align: top;"> <tr> <th> Inställningar </th > <th> Resultat </th> </tr> <tr> <td> tillval </td> <td> Handläggare och slutanvändare kan se fältet, men ingen av dem behöver fylla i. </td> </tr> <tr > <td> Obligatorisk </td> <td> handläggare och slutanvändare kan se fältet, och båda måste svara </td> </tr> <tr> <td> Krävs för slutanvändare </td> <td> handläggare och slutanvändare kan se fältet kommer endast slutanvändaren måste svara </td> </tr> <tr> <td> Krävs för handläggare </td> <td> handläggare och slutanvändare kan se fältet, men det är bara handläggare som behöver svara </td> </tr> <tr> <td> Intern, tillval </td> <td> Endast handläggare kan se fältet, men inget svar behövs.</td> </tr> <tr> <td> Inre , krävs </td> <td> Endast handläggare kan se fältet och ett svar krävs. </td></tr> <tr><td> Endast för slutanvändare </td> <td> Endast slutanvändaren kan se fältet och ett svar krävs. </td></tr> </tbody></table>
+field_variable:
+  title: Fält-automatisering
+  content: >
+    Fält-data kommer att vara tillgängligt för e-post- och sid-mallar via det namn som anges i denna kolumn. Som exempel så är fält i det gemensamma ärende-formuläret tillgängliga via <code>%{ticket.variable}</code>, där <strong>variable</strong> är det namn som används i denna kolumn.<br> <br> <em>Företags uppgifter finns tillgängliga via <code>%{</code><code>company.variable}</code> och användarinformation via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Ta bort det här formulärfältet
+  content: >
+    Kryssmarkera och spara formuläret för att ta bort ett formulärfält från det här formuläret.<br><br><em>Om ett formulärfält tas bort försvinner dock inte tidigare registrerad information för det fältet, dvs för formulär som skickats då formulärfältet fortfarande fanns kvar.</em>

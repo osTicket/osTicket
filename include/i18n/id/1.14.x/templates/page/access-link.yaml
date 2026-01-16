@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Template ini mendefinisikan pemberitahuan untuk klien bahwa akses link yang dikirim ke email mereka. Tiket nomor dan alamat email memicu akses link.
+name: "Link akses tiket [#%{ticket.number}]"
+body: >
+  <h3><strong>Hai %{recipient.name.first},</strong></h3> <div>Permintaan tautan akses untuk tiket #%{ticket.number} telah dibuat atas nama Anda untuk helpdesk di %{url}.<br /> <br /> Ikuti tautan di bawah ini untuk memeriksa status tiket #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a> <br /> <br /> Jika Anda <strong>tidak</strong> membuat permintaan, silakan hapus dan abaikan email ini. Akun Anda tetap aman dan tidak ada pihak lain yang diberi akses untuk tiket ini. Seseorang mungkin tidak sengaja mengetikkan alamat email Anda. <br /> <br />--<br /> %{company.name}</div>

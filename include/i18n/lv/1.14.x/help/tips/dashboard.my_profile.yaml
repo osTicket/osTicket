@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktinformācija
+  0: >
+
+username:
+  title: Lietotāja vārds
+  content: >
+    Tikai Lietotājii ar Administratora statusu var nomainīt lietotājvārdu. Ja jūs esat Lietotājs ar Administratora privilēģijām, jūs varat to paveikt, izvēloties rediģēšanai Lietotāju no <span class="doc-desc-title">Darbinieku</span> tabulas.
+  links:
+    - 
+      title: Nomainiet lietotājvārdu kā Administrators
+      href: /scp/staff.php
+time_zone:
+  title: Laika josla
+  0: >
+
+daylight_saving:
+  title: Pāreja uz vasaras laiku
+  0: >
+
+maximum_page_size:
+  title: Maksimālais lapas izmērs
+  0: >
+
+auto_refresh_rate:
+  title: Automātiskās atsvaidzināšanas intervāls
+  0: >
+
+default_signature:
+  title: Noklusētais paraksts
+  0: >
+
+default_paper_size:
+  title: Noklusētais papīra izmērs
+  0: >
+
+show_assigned_tickets:
+  title: Parādīt piešķirtos pieteikumus
+  content: >
+    <p> Iespējojot šo opciju, tiks ignorēts globālais iestatījums slēpt piešķirtās biļetes no atvērtajām rindām. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Šis iestatījums ir pieejams tikai tad, ja piešķirtās biļetes ir izslēgtas globāli. </p>
+password:
+  title: Parole
+  0: >
+
+current_password:
+  title: Pašreizējā parole
+  0: >
+
+new_password:
+  title: Jaunā parole
+  0: >
+
+confirm_new_password:
+  title: Apstiprināt jauno paroli
+  0: >
+
+signature:
+  title: Paraksts
+  content: >
+    Izveidojiet opcionālu <span class="doc-desc-title">Parakstu</span>, kurš var pēc izvēles parādīties pie jūsu izveidotajām atbildēm uz pieteikumiem. Tas, vai šis <span class="doc-desc-title">Paraksts</span> parādīsies, ir atkarīgs no <span class="doc-desc-title">E-pasta sagataves</span>, kas tiks izmantota, veidojot atbildi uz pieteikumu.
+  links:
+    - 
+      title: Izveidot epastu sagataves administrācijas panelī
+      href: /scp/templates.php

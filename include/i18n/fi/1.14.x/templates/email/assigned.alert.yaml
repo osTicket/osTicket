@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Lähetetään henkilökunnalle kun uusi tiketti määrätään niille. Tiketit voidaan määrätä automaattisesti järjestelmän toimesta tai käsin toisen henkilöstön jäsenen toimesta. Käytä %{assigner} eriyttääksesi kuka määräsi tiketin.
+subject: |
+  Sinulle on määrätty tiketti
+body: |
+  <h3><strong>Terve %{assignee.name.first},</strong></h3>
+  Sinulle on määrätty tiketti <a href="%{ticket.staff_link}">#%{ticket.number}</a>.
+  Tiketin määräsi sinulle %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+  <td>
+  <strong>Keneltä</strong>: 
+  </td>
+  <td>
+  %{ticket.name} &lt;%{ticket.email}&gt;
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <strong>Aihe</strong>:
+  </td>
+  <td>
+  %{ticket.subject}
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Nähdäksesi/vastataksesi tikettiin käytä<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >Kirjaudu</span></a> tukitikettijärjestelmään</div>
+  <em style="font-size: small; ">tukitikettijärjestelmäsi</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Käyttää osTicket-moottoria" width="126" height="19" style="width: 126px;">

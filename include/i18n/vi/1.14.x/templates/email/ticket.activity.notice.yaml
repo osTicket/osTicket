@@ -1,0 +1,24 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Thông báo về thao tác lệnh được gửi đến cộng tác viên ví dụ như trả lời hoặc nhắn tin .
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Xin chào%{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> vừa mới gửi một tin nhắn trong yêu cầu mà bạn tham gia hỗ trợ.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Bạn nhận được email này bởi vì bạn <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  To participate, simply reply to this email
+  or <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >click here</a> for a complete archive of the ticket thread.</em>
+  </div>

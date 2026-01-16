@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Thông tin trợ giúp người dùng
+  content: >
+    <span class="doc-desc-title">H ướng dẫn trợ giúp người dùng</span> đưa ra những thông tin thu nhập từ người dùng và hướng đi cũng như cách chỉ định của các lệnh.
+topic:
+  title: Tên tiêu đề
+  content: >
+    Tên tiêu đề trợ giúp riêng.
+status:
+  title: Tình trạng
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Loại
+  content: >
+    Nếu một<span class="doc-desc-title">tiêu đề trợ giúp</span>được đánh dấu là Riêng tư, nhân viên sẽ chỉ được chọn khi một nhân viên mở lệnh mới dưới kênh nhân viên này.
+parent_topic:
+  title: Tiêu đề chính
+  content: >
+    Chọn tiêu đề chính chứa<span class="doc-desc-title">Tiêu đề trợ giúp</span>. Tiêu đề chính này sẽ xuất hiện lần đầu tiên trong danh sách này với<span class="doc-desc-title">Tiêu đề trợ giúp</span> được liệt kê dưới tiêu đề chính.
+custom_form:
+  title: Hình thức tùy chỉnh
+  content: >
+    Hình thức tùy chỉnh sẽ giúp bạn lấy được nhiều thông tin cụ thể hơn từ người dùng tương ứng với<span class="doc-desc-title">Tiêu đề trợ giúp</span>.
+  links:
+    - 
+      title: Quản lý hình thức tùy chỉnh
+      href: /scp/forms.php
+priority:
+  title: Quyền ưu tiên
+  content: >
+    Chọn Quyền ưu tiên được chỉ định cho những lệnh mới liên quan đến<span class="doc-desc-title">Tiêu đề trợ giúp</span>.<br><br>Bộ lọc lệnh có thể ghi đè lên Quyền ưu tiên lệnh mới.
+department:
+  title: Phòng ban
+  content: >
+    Chọn Phòng ban mà các lệnh mới dưới tiêu đề trợ giúp này được  định hướng.
+  links:
+    - 
+      title: Quản lý phòng ban
+      href: /scp/departments.php
+sla_plan:
+  title: Dự án SLA
+  content: >
+    Chọn dự án SLA phù hợp với<span class="doc-desc-title">Tiêu đề trợ giúp</span>.<br><br>Lựa chọn này sẽ ghi đè lên bất kì dự án SLA của phòng ban được chọn nào khác
+  links:
+    - 
+      title: Quản lý dự án SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Trang cảm ơn
+  content: >
+    Chọn trang cảm ơn tới người dùng sau khi mở một lệnh dưới<span class="doc-desc-title">tiêu đề trợ giúp này</span>.
+  links:
+    - 
+      title: Quản lý trang cảm ơn
+      href: /scp/pages.php
+auto_assign_to:
+  title: Lệnh mới tự động chỉ định
+  content: >
+    Tùy chọn một nhân viên hoặc nhóm nhân viên để tự động chỉ định lệnh được mở với<span class="doc-desc-title">tiêu đề trợ giúp này</span><br><br>Bộ lọc lệnh có thể ghi đè lên sự chỉ định này.
+  links:
+    - 
+      title: Quản lý nhân viên và đội ngũ nhân viên
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Chế độ tự động phản hồi lệnh
+  content: >
+    Nếu được kiểm tra, chế độ này sẽ vô hiệu hóa chế độ phản hồi tự động lệnh mới cho<span class="doc-desc-title">tiêu đề trợ giúp</span>.<br><br>Việc này sẽ ghi đè lên chế độ trả lời tự động của<span class="doc-desc-title">các phòng ban</span>cũng như<span class="doc-desc-title">chế độ phản hồi tự động chung</span>.
+  links:
+    - 
+      title: Chế độ phản hồi tự động
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Số lệnh tùy thích
+  content: >
+    Chọn 'Tùy thích' đề ghi đè lên định dạng số của lệnh mặc định của hệ thống cho những lệnh được tạo trong tiêu đề trợ giúp. Xem các mẹo trợ giúp trong phần Cài đặt/Trang lệnh để biết thêm chi tiết.

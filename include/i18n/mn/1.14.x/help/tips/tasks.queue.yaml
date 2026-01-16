@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Дэлгэрэнгүй
+  content: >
+    Хайлтын параметруудаа нарийсгана уу. Дэлгэрэнгүй хайлтын шүүлтүүдээ сонгож хайлт хийсний дараа гарч ирсэн үр дүнг та хуудасны доод хэсэгт <span class="doc-desc-title">Экспорт</span> хийж болно.
+export:
+  title: Экспорт
+  content: >
+    Харагдаж буй өгөгдлийг CSV файл уруу экспортлох. CSV файлыг хүснэгт боловсруулах дурын програмаар нээж болно (Microsoft Excel, Apple Pages, OpenOffice г.м.).

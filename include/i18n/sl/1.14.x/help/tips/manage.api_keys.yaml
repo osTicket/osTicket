@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: API ključ
+  content: >
+    API ključi se uporabljajo za preverjanje pristnosti novo oddanih zahtevkov strank  preko Application Programming Interface (API). API kluči se uporabljajo namesto gesel. Ker so API ključi poslani nekriptirano, so povezani z vsakim IP mrežnim naslovom stranke.
+  links:
+    - 
+      title: osTicket API dokumentacija
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: IP naslov
+  content: >
+    Strankin IP mrežni naslov. Vsak edinstven strankin IP naslov potrebuje ločene API ključe

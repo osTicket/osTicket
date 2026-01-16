@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: لیستهای سفارشی
+  content: >
+    <span class="doc-desc-title"> لیستهای سفارشی </span> شما به شما این اجازه را می دهد که  لیستهای از پیش تعریف شده ای تعیین نمایید تا یک مشتری بتواند از بین آنها یکی را در <span class="doc-desc-title"> فرمهای سفارشی </span> انتخاب نماید . اگر شما مایل به استفاده از <span class="doc-desc-title"> لیستهای سفارشی </span> به عنوان <span class="doc-desc-title"> هدف </span> در یک <span class="doc-desc-title"> فیلتر درخواست </span> دارید باید مطمن باشید که این لیست را به فرم  <span class="doc-desc-title"> جزییات درخواست </span> اضافه کرده باشید .
+name:
+  title: نام
+  0: >
+
+plural_name:
+  title: نام جمع
+  0: >
+
+sort_order:
+  title: مرتب کردن بر اساس سفارش
+  0: >
+
+list_s_initial_items:
+  title: ليست موارد اولیه
+  0: >
+
+value:
+  title: ارزش
+  0: >
+
+extra:
+  title: اضافی
+  content: >
+    اختصارات و مانند آنها . اگر شما میخواهید که از کدهای داخلی برای عناصر این لیست استفاده نمایید ان کدها و اختصارات می تواند در این ستون وارد شود اگر لیست سفارشی به عنوان <span class="doc-desc-option"> TypeAhead </span>  رندر شود این اختصارات میتوانند برای جستجو در عناصر لیست سفارشی استفاده گردند .

@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Забелешката е испратена до тимот за поддршка.
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Драг/а %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> само што е запишана е порака за тикетот во кој што учествувате.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Ја добивте оваа емаил порака бидејќи сте од тимот за оддржување <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  За да учествувате, едноставно одговорете на емаил-от или <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >кликнете тука </a> за комплетно архивирање на тикетот.</em>
+  </div>

@@ -1,0 +1,11 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  落地頁是指客戶門戶的初始視圖的內容。的模板修改上面的兩個鏈接看到內容<strong>建立新案件</strong>與<strong>查詢案件狀態</strong>。
+name: 系統進入首面
+body: >
+  <h1>歡迎進入技術支援中心</h1>
+  <p>為了完善的支援與更佳的服務，我們建立此一支援服務系統，每一服務的要求都會指派一個專有的號碼，可以讓您在線上追蹤進度與回應。我們對您所有的服務要求都提供有完整的存檔與歷史紀錄，提出服務需求必須提供一個確實的電子信箱交。 </p>

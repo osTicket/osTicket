@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Grup
+  content: >
+    Grup digunakan untuk menentukan izin Agen pada help desk. Grup juga dapat memberikan akses kepada Departemen lain selain Agen Departemen Utama.
+status:
+  title: Status
+  content: >
+    Jika <span class="doc-desc-opt">Dilumpuhkan</span>, Agen yang ditugaskan pada Group ini tidak bisa masuk dan tidak akan menerima Alert &amp; Pemberitahuan Departemen.
+department_access:
+  title: Akses Departemen
+  content: >
+    Cek semua departemen dimana anggota Grup diperbolehkan mengakses.

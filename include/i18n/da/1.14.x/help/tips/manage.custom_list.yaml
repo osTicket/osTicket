@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Brugerdefinerede lister
+  content: >
+    Din <span class="doc-desc-title">brugerdefinerede lister</span> vil tillade dig at oprette dropdown bokse med forud definerede indstillinger som en klient kan vælge i din <span class="doc-desc-title">Brugerdefinerede formularer</span>. Hvis du vil bruge denne <span class="doc-desc-title">brugerdefinerede liste</span> som et <span class="doc-desc-title"> mål</span> i en <span class="doc-desc-title">Sags Filter</span>, skal du tilføje denne liste til din <span class="doc-desc-title">Sags detaljer</span> form.
+name:
+  title: Navn
+  0: >
+
+plural_name:
+  title: Flertals Navn
+  0: >
+
+sort_order:
+  title: Sorteringsrækkefølge
+  0: >
+
+list_s_initial_items:
+  title: Indledende listeelementer
+  0: >
+
+value:
+  title: Værdi
+  0: >
+
+extra:
+  title: Ekstra
+  content: >
+    Forkortelser og sådan. Hvis du tilfældigvis kommer til at bruge interne koder for elementer på denne liste, kan disse koder og forkortelser være angivet i denne kolonne. Hvis den brugerdefinerede liste gengives som en <span class="doc-desc-option"> TypeAhead</span>, kan disse forkortelser bruges til at søge efter brugerdefinerede listeelementerne.

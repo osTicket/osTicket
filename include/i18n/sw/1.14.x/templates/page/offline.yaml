@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  The Offline Page appears in the Customer Portal when the Help Desk is offline.
+name: Haipatikani
+body: |
+  <div><h1>
+  <span style="font-size: medium">mfumo wa msaada ya tiketi offline</span>
+  </h1>
+  <p>Asante kwa maslahi yako kwa kuwasiliana nasi.</p>
+  <p>Dawati yetu haipatikani sasa, tafadhali angalia tena baadaye.</p>
+  </div>

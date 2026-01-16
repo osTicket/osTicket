@@ -1,0 +1,28 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Šalje se korisniku kada se kreira novi tiket
+subject: |
+  Otvoren tiket podrške [#%{ticket.number}]
+body: |
+  <h3><strong>Poštovani %{recipient.name.first},</strong></h3>
+  <p>
+  Zahtev za podršku je kreiran i dodeljen je tiket #%{ticket.number}.
+  Predstavnik će Vas kontaktirati u najkraćem mogućem roku. Možete
+  <a href="%{recipient.ticket_link}">videti napredovanje tiketa
+  onlajn</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Vaš %{company.name} tim,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Ako želite
+  da dodate dodatne komentare ili informacije vezane za ovaj problem,
+  molimo Vas da odgovorite na ovaj imejl ili <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >da se ulogujete na svoj nalog</span></a> kako
+  biste videli kompletnu arhivu svojih zahteva za podršku.</em></div>

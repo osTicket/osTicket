@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Campo di ricerca
+  0: >
+
+advanced:
+  title: Avanzata
+  content: >
+    Affina i tuoi parametri di ricerca. Dopo aver selezionato i criteri di ricerca avanzata ed aver eseguito la ricerca, è possibile <span class="doc-desc-title">esportare</span> i dati in fondo alla pagina.
+open_tickets_table:
+  title: Tabella dei ticket aperti
+  content: >
+    Tutti i tickets attualmente apertai e che richiedono attenzione
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Data
+  0: >
+
+subject:
+  title: Oggetto
+  0: >
+
+from:
+  title: Da
+  0: >
+
+priority:
+  title: Priorità
+  0: >
+
+assigned_to:
+  title: Assegnato a
+  0: >
+
+export:
+  title: Esporta
+  content: >
+    Esportare i dati attualmente in vista in un file CSV. I file CSV possono essere aperti con qualsiasi software di foglio di calcolo (ad esempio, Microsoft Excel, Apple Pages, OpenOffice, ecc.).
+advanced_search_dialog:
+  title: Ricerca avanzata
+  0: >
+
+adv_keyword:
+  title: Ricerca per parola chiave
+  content: >
+    Ricerca basata sui corpi soggetto e messaggio dei ticket, nonché in tutti i contenuti testuali connessi con campi personalizzati per gli operatori e i tickets.
+adv_date_range:
+  title: Ricerca per intervallo di Date
+  content: >
+    Definizione qui
+merge_types:
+  title: Tipi di fusione
+  content: >
+    <b>Combina i thread:</b> i thread da tutti i ticket verranno mostrati cronologicamente.</br> <b>Separa i thread:</b> i thread dai ticket verranno mostrati un ticket per volta.
+reply_types:
+  title: Tipi di risposta
+  content: >
+    <b>Rispondi a tutti:</b> Questa risposta viene inviata all'utente e ai collaboratori che scegli di includere.</br> <b>Rispondi all'utente:</b> Questa risposta viene inviata solo all'utente, nessun collaboratore.</br> <b>Non rispondere via email:</b> Non vengono inviati avvisi e-mail, tuttavia è visibile la risposta dell'Agente da parte di <b>TUTTI</b> gli utenti che visualizzano il ticket.

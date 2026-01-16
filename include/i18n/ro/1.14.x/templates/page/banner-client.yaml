@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Acesta defineste antetul pe pagina de login pentru Clienti. Poate fi util pentru a informa clientii despre politica de autentificare si inregistrare.
+name: "Autentifică-te în %{company.name}"
+body: >
+  Pentru a beneficia de toate facilitățile, va incurajam sa va inregistrati un cont de utilizator pe platforma noastra.

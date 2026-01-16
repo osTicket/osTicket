@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nama pengguna
+  content: >
+    Sila pilih Ejen <span class="doc-desc-title">namapengguna</span> yang unik kepada anda <span class="doc-desc-title"> Meja Bantuan</span>.
+email_address:
+  title: Alamat Email
+  content: >
+    Masukkan e-mel Ejen yang akan menerima <span class="doc-desc-title">Amaran &amp; Notis</span> daripada <span class="doc-desc-title">Meja Bantuan</span>.
+  0: <br><br>
+  1: Kakitangan boleh log masuk ke dalam panel kawalan kakitangan dengan sama ada nama pengguna atau alamat e-mel.
+welcome_email:
+  title: Email Selamat Datang
+  content: >
+    Hantar Ejen baru pautan akses akaun dari mana Ejen akan dapat untuk menetapkan kata laluan mereka sendiri. Jika tidak disemak, anda akan perlu untuk menetapkan kata laluan dan meyampaikan maklumat log masuk kepada kakitangan baru.
+account_password:
+  title: Kata Laluan Akaun
+  content: >
+    Sebagai <span class="doc-desc-title"> pentadbir</span>, anda boleh menukar kata laluan yang Ejen.
+forced_password_change:
+  title: Paksa Tukar Kata Laluan
+  content: >
+    Aktifkan ini jika anda ingin untuk memaksa Ejen baru untuk menukar kata laluan mereka sendiri pada log masuk seterusnya.
+agents_signature:
+  title: Tandatangan ejen
+  content: >
+    Buat tandatangan untuk Ejen yang mana boleh dipilih ketika menjawab tiket.
+account_status:
+  title: Status Akaun
+  content: >
+    Jika status Ejen adalah <span class="doc-desc-opt">Dikunci</span>, mereka tidak akan dapat log masuk ke meja bantuan.
+assigned_group:
+  title: Kumpulan ditugaskan
+  content: >
+    <span class="doc-desc-title">Kumpulan</span> yang anda pilih untuk Ejen ini milik akan menentukan kebenaran apa yang dimiliki Ejen dalam <span class="doc-desc-title">Meja Bantuan</span>.
+  links:
+    - 
+      title: Urus Kumpulan-kumpulan
+      href: /scp/groups.php
+primary_department:
+  title: Jabatan Utama
+  content: >
+    Pilih utama <span class="doc-desc-title">jabatan</span> yang Agent ini milik dan berkesan<span class="doc-desc-title">Peranan</span>.
+  links:
+    - 
+      title: Urus Jabatan
+      href: /scp/departments.php
+primary_role:
+  title: Peranan utama
+  content: >
+    Pilih utama <span class = " doc -desc -title "> Peranan </ span> yang ejen ini tergolong.
+primary_role_on_assign:
+  title: Gunakan Peranan Utama Untuk Tugasan
+  content: >
+    Aktifkan ini untuk sandaran kepada <span class = " doc -desc -title "> Peranan utama </ span> apabila ejen ini diberikan tiket dan tugas-tugas di luar <span class = " doc -desc -title "> jabatan utama < / span > dan <span class = " doc -desc - title" > akses lanjutan </ span> jabatan. Jika tidak ejen akan mempunyai melihat hanya akses.
+daylight_saving:
+  title: Penjimatan waktu siang
+  content: >
+    Membolehkan ciri ini jika anda ingin Waktu secara automatik mula bermain untuk zon waktu Ejen ini.
+limited_access:
+  title: Akses Terhad
+  content: >
+    Jika diaktifkan, ejen hanya akan mempunyai akses kepada tiket diberikan secara langsung atau melalui pasukan tersebut.
+directory_listing:
+  title: Senarai panduan
+  content: >
+    Aktifkan ini jika anda ingin menyenaraikan ejen ini dalam <span class="doc-desc-title"> Direktori Kakitangan</span>.
+  links:
+    - 
+      title: Lawat Direktori Kakitangan
+      href: /scp/directory.php
+vacation_mode:
+  title: Mod percutian
+  content: >
+    Jika anda menukar status Ejen kepada <span class="doc-desc-opt">Mod Bercuti</span>, Ejen tidak akan menerima apa-apa <span class="doc-desc-title">Peringatan &amp; Notis</span> dan tidak boleh didapati untuk tugasan tiket.
+

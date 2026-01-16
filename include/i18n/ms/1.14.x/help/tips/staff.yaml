@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Garisan tandatangan kakitangan
+  content: |
+    Mencipta tandatangan kakitangan untuk tindak balas kepada tiket. Tandatangan ini akan muncul sebagai pilihan di bahagian bawah tindak balas tiket
+type:
+  title: Jenis akaun
+  content: |
+    Admin mempunyai kebenaran untuk mengakses Panel Admin. Kakitangan hanya mempunyai akses untuk mengurus tiket dan asas pengetahuan
+group:
+  title: Kumpulan ditugaskan
+  content: |
+    Keahlian kumpulan mentakrifkan peranan kakitangan dalam sistem. Layari laman kumpulan pengurusan untuk menentukan akses apakah yang kakitangan ada untuk meja bantuan
+notes:
+  title: Nota-nota dalaman
+  content: |
+    Letakkan nota dalaman mengenai kakitangan; nota hanya boleh dilihat oleh kakitangan yang jenis akaun adalah Admin

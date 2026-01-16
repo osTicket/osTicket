@@ -1,0 +1,21 @@
+---
+#Email template: task.activity.notice.yaml
+#Notice sent to collaborators on task activity e.g reply or message
+#---
+notes: |
+  Даалгавартай холбоотой үйл явдалын тухай (хариу өгөх, нэмэлт мэдээлэл оруулах зэрэгт) хамтрагч нарт илгээх мэдэгдэл.
+subject: |
+  Re: %{task.title} [#%{task.number}]
+body: |
+  <h3><strong>Сайн байна уу %{recipient.name.first}?</strong></h3>
+  <div>
+  Таны оролцож буй даалгавар дээр <em>%{poster.name}</em> дөнгөж сая мессеж үлдээсэн байна.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Та #%{task.number} даалгавар дээр хамтрагчаар оролцож буй тул танд энэ имэйлийг хүргүүлж байна. Оролцох бол энэ имэйлд хариу өгнө үү.</em>
+  </div>

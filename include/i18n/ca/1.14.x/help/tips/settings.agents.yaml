@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Format de Nom d'Agent
+  content: >
+    Seleccioneu un format pels noms del sistema. Les plantilles de correu utilitzaran els noms si no s'especifica un altre format.
+staff_identity_masking:
+  title: Emmascarament d'identitat personal
+  content: >
+    Si està activat, això amagarà el nom de l'Agent del Client durant qualsevol comunicació.
+#Authentication settings
+password_reset:
+  title: Política de venciment de contrasenyes
+  content: >
+    Estableix la freqüència (en mesos) amb la que els Agents hauran de canviar la seva contrasenya. Si està deshabiltada (establida com "No caduca"), les contrasenyes no caduquen.
+password_expiration_policy:
+  title: Política de venciment de contrasenyes
+  content: >
+    Triar amb quina freqüència els Agents hauran de canviar la seva contrasenya. Si està deshabilitada (és a dir, <span class="doc-desc-opt"> Sense caducitat</span>), les contrasenyes no caduquen.
+allow_password_resets:
+  title: Permetre Restableiment de contrasenya
+  content: >
+    Activa aquesta característica si vols mostrar <span class="doc-desc-title"> He oblidat la meva contrasenya</span> en el <span class="doc-desc-title"> Panell de registre personal</span> després d'un intent de registre fallit.
+reset_token_expiration:
+  title: Finestra de reinicialització de contrasenya
+  content: >
+    Triar la durada (en minuts) per a que les <span class="doc-desc-title"> Fitxes de reinicialització de contrasenya</span> siguen vàlides. Quan un Agent demana una <span class="doc-desc-title"> Reinicialització de Contrasenya </span>, Un email es enviat a ells que permetrà resetear per tindre un lloc.
+staff_session_timeout:
+  title: Temps d'espera de sessió de l'agent
+  content: >
+    Tria el màxim temps d'inactivitat (en minuts) abans de que es requereixi registrar-se una altra vegada. <br><br>Si vol desactivar el <span class="doc-desc-title"> temps d'inactivitat de sessió d'Agent</span>, escriu 0.
+bind_staff_session_to_ip:
+  title: Unir la sessió del agent a una IP
+  content: >
+    Activar si vols que un Agent sigui recordat per la seva IP actual en el registre entrada. <br><br>Aquesta configuració no es recomana per als usuaris als que s'han assignat adreces d'IP dinàmicament.

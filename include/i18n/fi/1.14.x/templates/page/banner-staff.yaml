@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Pohja määrittää henkilöstön kirjautumissivun ylätunnisteen tekstin. Ensimmäinen kenttä on punaista tekstiä joka tulee sivun yläkulmaan. Jälkimmäinen tekstialue on otsikkokuvan sisältöä, jonka pitäisi sisältää vastuuvapauslauseke.
+name: "Kirjautuminen vaadittu"
+body: ""

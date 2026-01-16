@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Camp Cautare
+  0: >
+
+advanced:
+  title: Avansat
+  content: >
+    Rafinați opțiunile de căutare. Odata ce ati selectat parametrii de cautare avansati si rulat cautarea, veti putea sa <span class="doc-desc-title">Exportati</span> datele din butonul de la finalul pagini de tichete.
+open_tickets_table:
+  title: Tabel Tickete Deschise
+  content: >
+    Toate tichetele deschise in acest moment si care necesita atentie
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Data
+  0: >
+
+subject:
+  title: Subiect
+  0: >
+
+from:
+  title: Expeditor
+  0: >
+
+priority:
+  title: Prioritate
+  0: >
+
+assigned_to:
+  title: Atribuit lui
+  0: >
+
+export:
+  title: Exporta
+  content: >
+    Exporta datele ce pot fi vizualizate acum intr-un fisier CSV. Fisierele CSV pot fi deschise cu orice program de calcul tabelar (i.e., Microsoft Excel, Apple Pages, OpenOffice, etc.).
+advanced_search_dialog:
+  title: Cautare Avansata
+  0: >
+
+adv_keyword:
+  title: Cautare cuvinte cheie
+  content: >
+    Gaseste rezultate bazate pe subiectul si corpul tichetelor dar si pe continutul textual al campurilor personalizate pentru utilizatori si tichete.
+adv_date_range:
+  title: Cautare dupa Data
+  content: >
+    Definiție aici
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Tipuri de răspuns
+  content: >
+    <b>Răspundeți tuturor:</b> Acest răspuns este trimis utilizatorilor și colaboratorilor pe care alegeți să îl includeți. </br> <b>Răspundeți utilizatorului:</b> Acest răspuns este trimis numai utilizatorului, nu și colaboratorilor.</br> <b>Nu răspundeți prim e-mail:</b> Nu sunt expediate alerte prin e-mail; cu toate acestea, răspunsul agentului este vizibil pentru <b>toți</b> utilizatorii care deschid tichetul.

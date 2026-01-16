@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: Clau d'API
+  content: >
+    Claus d'API són utilitzades per autenticar clients  presentant nous Tickets mitjançant l'aplicació de programació interfície (API). Claus API s'utilitzen en comptes de contrasenyes. Des de que les claus de API poden ser enviades sense xifrar, estan lligades a l'adreça d'IP de xarxa de cada client.
+  links:
+    - 
+      title: Documentació de API osTicket
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: Adreça IP
+  content: >
+    Adreça d'IP del client a la xarxa. Cada adreça única d'IP de client requerirà claus API separades

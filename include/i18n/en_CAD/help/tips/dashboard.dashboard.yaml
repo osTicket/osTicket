@@ -1,0 +1,91 @@
+#
+# This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+ticket_activity:
+    title: Ticket Activity
+    content: >
+        Select a date range to cause both the graph and the table (cf. <span
+        class="doc-desc-title">Statistics</span>) below to focus on any
+        corresponding data for those dates. The graph below will always reflect  a
+        broad overview of the whole system’s data (i.e., population). However, you
+        may navigate through the <span class="doc-desc-title">Statistics
+        </span> table below to focus on a narrower subject of interest (e.g.,
+        Department, Topics, or Staff). Additionally, you may export any data
+        currently displayed in the <span class="doc-desc-title">Statistics
+        </span> table.
+
+report_timeframe:
+    title: Report timeframe
+    content: >
+        Choose a start date for the desired data sample using the date picker.
+        Then, choose the length of time from that date to
+        define the end date for your data sample.
+
+statistics:
+    title: Statistics
+    content: >
+        Navigate to the subject of interest by clicking on the appropriate tab in
+        order to view the specific sample of data. Within the table, the circles
+        represent the size of the nominal data. Therefore, the larger the number in
+        a particular cell, the larger the adjacent circle will be.
+
+opened:
+    title: Opened
+    content: >
+        Tickets that were originally opened having the Department or Help Topic
+        on the ticket, or the number of tickets an Agent has opened on behalf of a
+        User.
+
+assigned:
+    title: Assigned
+    content: >
+        Tickets that have been assigned to either an Agent or a Team. The number
+        reflects tickets that are manually assigned to agents or teams, claimed
+        tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+
+overdue:
+    title: Overdue
+    content: >
+        Tickets that have been marked ‘Overdue’ by the system. Tickets are marked
+        Overdue when they have violated the SLA Plan to which they belonged, causing
+        them to have a status of ‘Open’ past their Due Date.
+
+closed:
+    title: Closed
+    content: >
+        The number of Tickets that are currently in the Closed status.
+
+reopened:
+    title: Reopened
+    content: >
+        The total number of times a ticket was Reopened. Tickets
+        are reopened whenever their status is changed from Closed to Open.
+
+deleted:
+    title: Deleted
+    content: >
+        The amount of tickets that have been deleted.
+
+service_time:
+    title: Service Time
+    content: >
+        Refers to the duration of time that begins at the opening of a ticket and ends
+        when the ticket is closed. The Service Time column measures the average Service
+        Time per ticket, in hours.
+
+response_time:
+    title: Response Time
+    content: >
+        Shows an average response time by an Agent, in hours, to ticket correspondence.

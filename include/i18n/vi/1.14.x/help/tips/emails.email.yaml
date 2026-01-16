@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Chủ điểm yêu cầu trợ giúp mới
+  content: >
+    Chọn <span class="doc-desc-title">Tiêu đề trợ giúp </span> để tự động liên kết với lệnh được tạo qua địa chỉ Email này. <br/><br/>. Các biểu mẫu liên kết với phần Tiêu đề trợ giúp sẽ được thêm vào lệnh mà không có bất cứ dữ liệu nào.
+  links:
+    - 
+      title: Quản lý Tiêu đề trợ giúp
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Phân quyền lệnh mới
+  content: >
+    Chọn<span class="doc-desc-title"> quyền ưu tiên</span> cho các lệnh mới được tạo ra qua địa chỉ Email này.
+new_ticket_department:
+  title: Phòng ban phân quyền lệnh mới
+  content: >
+    Chọn <span class="doc-desc-title">phòng ban</span>mà các lệnh mới được tạo thông qua địa chỉ Email này.
+  links:
+    - 
+      title: Quản lý phòng ban
+      href: /scp/departments.php
+auto_response:
+  title: Chế độ tự động phản hồi lệnh mới
+  content: >
+    Bạn có thể hủy chế độ tự động phản hồi tới người sử dụng khi một lệnh mới được tạo qua địa chỉ Email này.
+username:
+  title: Tên đăng nhập
+  0: >
+
+password:
+  title: Mật khẩu
+  0: >
+
+login_information:
+  title: Thông tin đăng nhập Email
+  content: >
+    <span class="doc-desc-title">Username</span> và <span class="doc-desc-title">Mật khẩu</span> cần phải truy cập email từ hộp thư IMAP / POP cũng như gửi mail thông qua SMTP.
+mail_account:
+  title: Truy cập Email
+  content: >
+    Truy cập Email từ hộp thư từ xa IMAP hoặc POP và chuyển chúng thành các lệnh trong phần hỗ trợ.
+  links:
+    - 
+      title: Quản lý<span class="doc-desc-title">lượt Email<span class="doc-desc-title">chế độ AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Máy chủ từ xa
+  content: >
+    Nhập<span class="doc-desc-title">tên máy chủ</span>và<span class="doc-desc-title">dữ liệu cổng</span> cho mail server của bạn. Nó có thể nằm trong phần dữ liệu tài khoản máy chủ hoặc từ phần quản trị email của bạn.
+protocol:
+  title: Biên bản hộp thư
+  content: >
+    Chọn một biên bản hộp thư được hỗ trợ bởi mail server từ xa của bạn như IMAP hoặc SSL.
+fetch_frequency:
+  title: Truy cập thường xuyên
+  content: >
+    Nhập mức độ thường xuyên mà hệ thống truy cập vào hộp thư mỗi phút.<br/>Điều này sẽ cho biết mức độ hoãn trung bình việc nhận phản hồi tự động sau khi người dùng gửi email tới hộp thư này.
+emails_per_fetch:
+  title: Số lượng Email mỗi lần truy cập
+  content: >
+    Nhập số lượng email được xử lý tại một thời điểm
+fetched_emails:
+  title: Truy cập Email
+  content: >
+    Lựa chọn cách xử lý email<br/><span class="doc-desc-opt"><b>Rời tới thư mục</b></span>: Chuyển email của bạn từ Hộp thư thoại tới thư mục mong muốn. nếu thư mục đó chưa tồn tại trên server, hệ thống sẽ tự động tạo thư mục. (<b>Khuyến khích</b>)<hr><span class="doc-desc-opt"><b>Xóa Email</b></span>: Xóa email của bạn từ Hộp thư thoại một khi đã được xử lý.<hr><span class="doc-desc-opt"><b>Không xử lý</b></span>:Bỏ email trong Hộp thư thoại. Hệ thống sẽ ghi lại id của các tin nhắn trong email của bạn và không truy cập vào nó. Tuy nhiên, lựa chọn này có thể gây lặp lệnh. (<em>Không khuyến khích</em>)
+smtp_settings:
+  title: Cài đặt SMTP
+  content: >
+    Email được gửi từ phần hỗ trợ có thể được gửi qua server của SMTP. Việc này nên được khuyến khích làm, nếu có thể, vì nó sẽ làm tăng mức độ chuyển phát email và giúp email không bị đánh dấu spam.
+header_spoofing:
+  title: Cho phép làm sai tiêu đề
+  content: >
+    Cho phép gửi email thông qua hộp thư này từ một địa chỉ thay vì email<span class="doc-desc-title">từ phần cài đặt địa chỉ email</span> phía trên.<br/><br/>Chế độ nâng cấp này được sử dụng rộng rãi khi gửi email bằng tên giả trong hộp thư này.
+

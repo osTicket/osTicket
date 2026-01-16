@@ -1,0 +1,28 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Послато кориснику кад је нови тикет креиран
+subject: |
+  Отворен тикет за подршку [#%{ticket.number}]
+body: |
+  <h3><strong>Поштовани %{recipient.name.first},</strong></h3>
+  <p>
+  Захтјев зс подршку је креиран и прихваћен #%{ticket.number}.
+  Неко од наших запослених ће Вас контактирати у најраћем могућем року. Ви можете
+  <a href="%{recipient.ticket_link}">погледати напредак рјешавања Ваших захтјева
+  </a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Ваш %{company.name} тим,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Ако Ви
+  желите да оставите коментаре или информације у вези са проблемом,
+  молимо Вас одговорите на ову еМаил поруку или <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >де пријавите на Ваш налог</span></a> за
+  приступ комплетној архиви ваших захтјева за подршку.</em></div>

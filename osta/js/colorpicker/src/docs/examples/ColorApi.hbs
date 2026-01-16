@@ -1,0 +1,56 @@
+{{#extend "example-group"}}
+  {{#content "description"}}
+    <p>
+      The colorpicker Color class extends <a href="https://github.com/bgrins/TinyColor">tinycolor</a>,
+      a great color parsing library with a friendly API that allows you to adjust the color and find
+      complementary ones, triads, etc.
+      <br>
+      So basically all you can do with tinycolor you can also do it with the color objects.
+    </p>
+  {{/content}}
+  {{#content "body"}}
+    {{#extend "example"}}
+      {{#content "title"}} Tetrad color swatches {{/content}}
+      {{#content "description"}}
+        <p>In this example we use the Color API to add color swatches based on a tetrad of the selected color.</p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp1" data-color="#6D2781">
+          <input type="text" class="form-control" style="width:auto"/> <br>
+        </div>
+        <script>
+          $(function () {
+            $('#cp1')
+              .colorpicker({
+                inline: true,
+                container: true,
+                extensions: [
+                  {
+                    name: 'swatches',
+                    colors: {
+                      'tetrad1': '#000',
+                      'tetrad2': '#000',
+                      'tetrad3': '#000',
+                      'tetrad4': '#000'
+                    },
+                    namesAsValues: false
+                  }
+                ]
+              })
+              .on('colorpickerChange colorpickerCreate', function (e) {
+                e.color.tetrad().forEach(function (color, i) {
+                  var colorStr = color.toString(e.color.format);
+
+                  e.colorpicker.picker.find('.colorpicker-swatch[data-name="tetrad' + (i + 1) + '"]')
+                    .css('background-color', colorStr)
+                    .attr('data-value', colorStr)
+                    .attr('title', colorStr);
+                });
+              });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+
+  {{/content}}
+{{/extend}}

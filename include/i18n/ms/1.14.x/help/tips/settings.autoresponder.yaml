@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Tiket baru
+  content: >
+    Bolehkan ini jika anda ingin tindak balas auto dihantar kepada Pengguna pada tiket baru.
+  links:
+    - 
+      title: Templat Baru Auto-respon Tiket
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Tiket baru oleh staf
+  content: >
+    Notis dihantar apabila Ejen mewujudkan tiket bagi pihak pengguna. <em> Ejen boleh menolak ini apabila mewujudkan tiket baru. </em>
+  links:
+    - 
+      title: Templat notis tiket baru
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Pengesahan masej baru
+  content: >
+    Notis pengesahan dihantar apabila mesej baru dilampirkan pada tiket yang sedia ada.
+  links:
+    - 
+      title: Templat pengesahan mesej baru
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Notis masej baru
+  content: >
+    Mesej siaran yang diterima daripada mesej penyerah kepada semua peserta lain pada tiket.
+  links:
+    - 
+      title: Templat Notis aktiviti baru
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Notis lebih had
+  content: >
+    Tiket menafikan notis yang dihantar kepada Pengguna pada <span class="doc-desc-title">Maksimum Tiket Terbuka</span> pelanggaran.
+  links:
+    - 
+      title: Templat notis lebih had
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Tetapkan <em>Maksimum Tiket Terbuka</em>
+      href: /scp/settings.php?t=tickets

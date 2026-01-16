@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Utførelsesrekkefølgen
+  content: >
+    Angi et tall som styrer prioriteten til filteret. Jo lavere tall, jo høyere prioritet vil dette filteret ha i utførelsen over et annet filter som kan ligge tidligere i rekkefølgen for kjøringen. <br><br>Hvis du ønsker at dette filteret skal være siste filter brukt på en matchen, aktiver <span class="doc-desc-title"> Stopp behandling på treff</span>.
+target_channel:
+  title: Kanal
+  content: >
+    Velg mål <span class="doc-desc-title"> kanal</span> for <span class="doc-desc-title"> saks Filter</span>. <span class="doc-desc-title"> kanalen</span> er som saken kom inn i systemet. <br><br>For eksempel hvis du velger <span class="doc-desc-opt"> Webskjemaer</span>, sier du at du vil bruke <span class="doc-desc-title"> saks Filter</span> på disse sakene som stammer fra klient portalens webskjema.
+rules_matching_criteria:
+  title: Reglene passer kriteriene
+  content: >
+    Velg hvor elastisk treffene på <span class="doc-desc-title"> saks filteret</span> skal være. Hvis du vil ha <span class="doc-desc-title"> saks Filter</span> som samsvarer med noen av reglene, og deretter slutter, velg <span class="doc-desc-opt"> samsvarer med noen</span>. Hvis du vil at <em><strong>alle reglene</strong></em> for <span class="doc-desc-title"> saks filteret</span> oppfylles, velg <span class="doc-desc-opt"> Passer alle</span>.
+reject_ticket:
+  title: Avvise sak
+  content: >
+    Hvis dette er aktivert, vil videre behandling bli stoppet og alle andre valg av handlingen under ignoreres på treff.
+reply_to_email:
+  title: Svar til e-post
+  content: >
+    Aktiver dette hvis du vil hjelpe pulten å hedre en brukers e-postprogram <span class="doc-desc-title"> Svar til</span> overskrift. Dette feltet er bare relevant hvis <span class="doc-desc-title"> kanalen</span> ovenfor inkluderer <span class="doc-desc-opt"> e-post</span>.
+ticket_auto_response:
+  title: Deaktiver automatisk svar på sak
+  content: >
+    <em>Merk: Dette vil overstyre alle <span class="doc-desc-title"> avdelinger</span> eller <span class="doc-desc-title"> autosvar innstillinger</span>.</em>
+canned_response:
+  title: automatisk svar
+  content: >
+    Velg et <span class="doc-desc-title"> automatisk svar</span> skal sendes til brukeren når <span class="doc-desc-title"> saks Filter</span> gir treff.  <span class="doc-desc-title"> Ny sak autosvar -</span> malen som brukes, avhenger av hvilken <span class="doc-desc-title"> mal sett</span> som tilordnes som standard, eller en samsvarende sak <span class="doc-desc-title"> avdeling</span>.
+  links:
+    - 
+      title: Administrere forhåndsdefinerte svar
+      href: /scp/canned.php
+    - 
+      title: Administrere mal sett
+      href: /scp/templates.php
+    - 
+      title: Ny sak autosvar-mal
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Avdeling
+  content: >
+    Velg hvilken <span class="doc-desc-title"> avdeling</span> du vil at matchende<span class="doc-desc-title"> saks-Filter</span> skal tilordnes.
+  links:
+    - 
+      title: Administrer avdelinger
+      href: /scp/departments.php
+priority:
+  title: Prioritet
+  content: >
+    Velg <span class="doc-desc-title"> prioritetsnivået som skal brukes på matchende <span class="doc-desc-title"> saks-Filter</span></span>. < br / > < br / > <em>Merk: Dette overstyrer <span class="doc-desc-title"> avdeling</span> eller <span class="doc-desc-title"> hjelpeemnet</span>.</em>
+sla_plan:
+  title: SLA Plan
+  content: >
+    Velg en <span class="doc-desc-title"> SLA Plan</span> skal brukes på matchende <span class="doc-desc-title"> saks-Filter</span>.
+  links:
+    - 
+      title: Administrere SLA planer
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-tildele
+  content: >
+    Velg en Agent eller et lag du vil matchende <span class="doc-desc-title"> saks-Filter</span> skal tilordnes.
+  links:
+    - 
+      title: Administrere agenter
+      href: /scp/staff.php
+    - 
+      title: Administrere lag
+      href: /scp/teams.php
+help_topic:
+  title: Hjelpeemne
+  content: >
+    Velg en <span class="doc-desc-title"> SLA Plan</span> skal brukes på matchende <span class="doc-desc-title"> saks-Filter</span>.
+  links:
+    - 
+      title: Administrer hjelpeemner
+      href: /scp/helptopics.php
+admin_notes:
+  title: Administrative notater
+  content: >
+    Disse notatene er bare synlige for de med kontotypen '<span class="doc-desc-title"> Admin</span>.'

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  이 템플릿은 고객 로그인 페이지에 <strong>패스워드 분실</strong> 링크를 통해 고객에게 전송되는 이메일을 정의합니다.
+name: "%{company.name} 헬프데스크 접속"
+body: >
+  <h3> <strong>안녕하세요 %{user.name.first}</strong>님</h3><div>귀하를 대신하여 %{url}의 헬프데스크로 비밀번호 재설정을 요청하였습니다.<br/><br/>이 이메일이 잘못된 것이라 생각된다면 이 이메일을 무시하고 삭제하세요. 당신의 계정은 아직 안전하며, 아무도 당신의 계정으로 접근하지 않았습니다. 계정이 잠기지 않았으며 비밀번호도 초기화되지 않았습니다. 누군가 실수로 당신의 이메일 주소를 입력했을 수 있습니다. <br/> <br/>헬프 데스크에 로그인하여 패스워드를 변경하려면 아래 링크를 클릭하세요.<br/><br/><a href="%{link}">%{link}</a> <br/> <br/> <em style = "font-size : small">고객 지원 시스템<br/>%{company.name}</em></div>

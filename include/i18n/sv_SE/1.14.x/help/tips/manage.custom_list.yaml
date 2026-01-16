@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Egendefinierad lista
+  content: >
+    Dina <span class="doc-desc-title">anpassade listor</span> låter dig skapa rullister med fördefinierade alternativ som kunden kan välja mellan i dina  <span class="doc-desc-title">Anpassade formulär</span>. Om du vill använda denna <span class="doc-desc-title">anpassade lista</span> som <span class="doc-desc-title">mål</span> i ett <span class="doc-desc-title">Ärendefilter</span>, ser du till att lägga till denna lista i <span class="doc-desc-title">Ärendedetaljer</span>-formuläret.
+name:
+  title: Namn
+  0: >
+
+plural_name:
+  title: Namn
+  0: >
+
+sort_order:
+  title: Sorteringsordning
+  0: >
+
+list_s_initial_items:
+  title: De första posterna i listan
+  0: >
+
+value:
+  title: Värde
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Förkortningar och liknande. Om du använder interna koder för posterna i denna lista, så kan dessa koder och förkortningar anges i denna kolumn. Om den anpassade listan är av typen <span class="doc-desc-option"> TypeAhead</span>, så kan förkortningarna användas för att söka efter posterna i den anpassade listan.

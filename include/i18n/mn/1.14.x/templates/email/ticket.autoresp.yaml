@@ -1,0 +1,22 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Шинэ хүсэлт үүсэхэд хэрэглэгч рүү илгээгдэнэ
+subject: |
+  Тусламж авах хүсэлт нээгдлээ [#%{ticket.number}]
+body: |
+  <h3><strong>Сайн байна уу, %{recipient.name.first}?</strong></h3>
+  <p>
+  Тусламж авах тухай таны хүсэлтийг хүлээн авч #%{ticket.number} бүртгэлийн дугаар олгосон байна. Манай ажилтан удахгүй тантай холбогдоно. Та хүсэлийн явцыг <a href="%{recipient.ticket_link}">онлайнаар харах</a> боломжтой.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Хүндэтгэсэн, %{company.name} баг,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Хэрэв та асуудлын талаар нэмэлт мэдээлэл, тайлбар өгөх бол энэ имэйлд хариу өгөх буюу эсвэл <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >нэвтэрч орон</span></a> өөрийн бүх хүсэлтийн түүхтэйгээ танилцах боломжтой.</em></div>

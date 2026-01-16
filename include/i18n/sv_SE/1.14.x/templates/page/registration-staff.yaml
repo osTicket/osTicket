@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Den här mallen definierar det mail (valfritt) som skickas till agenter när ett konto skapas för deras räkning.
+name: "Välkommen till osTicket"
+body: >
+  <h3><strong>Hej %{recipient.name.first},</strong></h3> <div> Vi har skapat ett konto åt dig på vår helpdesk %{url}.<br /> <br /> Vänligen följ länken nedan för att bekräfta ditt konto och få tillgång till ärenden.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ditt vänliga ärendehanteringssystem<br /> %{company.name}</em> </div>

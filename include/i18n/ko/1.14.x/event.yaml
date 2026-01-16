@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: 생성됨
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: 다시 열림
+  description:
+- 
+  id: 4
+  name: 할당됨
+  description:
+- 
+  id: 5
+  name: 출시됨
+  description:
+- 
+  id: 6
+  name: 이관됨
+  description:
+- 
+  id: 6
+  name: 참조됨
+  description:
+- 
+  id: 8
+  name: 기한초과
+  description:
+- 
+  id: 9
+  name: 편집됨
+  description:
+- 
+  id: 10
+  name: 이미 봄
+  description:
+- 
+  id: 11
+  name: 에러
+  description:
+- 
+  id: 12
+  name: 공동작업
+  description:
+- 
+  id: 13
+  name: 반송
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: merged
+  description:
+- 
+  id: 16
+  name: unlinked
+  description:
+- 
+  id: 17
+  name: linked
+  description:

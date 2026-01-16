@@ -109,9 +109,9 @@ else
                 $default=($defaultTplId==$row['tpl_id'])?'<small class="faded">('.__('System Default').')</small>':'';
                 ?>
             <tr id="<?php echo $row['tpl_id']; ?>">
-                <td align="center">
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['tpl_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?> <?php echo $default?'disabled="disabled"':''; ?> >
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['tpl_id']; ?>"
+                            <?php echo $sel?'checked="checked"':''; ?> <?php echo $default?'disabled="disabled"':''; ?> ><label></label></p>
                 </td>
                 <td>&nbsp;<a href="templates.php?tpl_id=<?php echo $row['tpl_id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>
                 &nbsp;<?php echo $default; ?></td>

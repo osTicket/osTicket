@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Tema pomoči novega zahtevka
+  content: >
+    Izberi <span class="doc-desc-title">temo pomoči</span>, ki bo samodejno povezana z zahtevkom vnešenim iz tega naslova e-sporočila. <br/><br/> Obrazci povezani z izbrano temo pomoči bodo dodani zahtevku, vendar ne bodo imeli nobenih podatkov.
+  links:
+    - 
+      title: Urejanje tem pomoči
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Prioriteta novega zahtevka
+  content: >
+    Izberi <span class="doc-desc-title">prioriteto</span> za nov zahtevek ustvarjen preko tega naslova e-sporočila.
+new_ticket_department:
+  title: Oddelek novega zahtevka
+  content: >
+    Izberi <span class="doc-desc-title">Oddelek</span> kateremu bo usmerjen nov zahtevek ustvarjen preko tega naslova e-sporočila.
+  links:
+    - 
+      title: Urejanje oddelkov
+      href: /scp/departments.php
+auto_response:
+  title: Samodejni-odgovor na nov zahtevek
+  content: >
+    Lahko izklopite samodejni odgovor na nov zahtevek, ki je poslan stranki preko tega naslova e-sporočila.
+username:
+  title: Uporabniško ime
+  0: >
+
+password:
+  title: Geslo
+  0: >
+
+login_information:
+  title: Informacije prijave e-sporočila
+  content: >
+    <span class="doc-desc-title">uporabniško ime</span> in <span class="doc-desc-title">geslo</span> sta potrebna za pridobivanje e-sporočil iz IMAP / POP poštnih predalov kot tudi za pošiljanje e-sporočil skozi SMTP.
+mail_account:
+  title: Pridobivanje e-sporočila
+  content: >
+    Pridobivanje e-sporočil iz oddaljenih IMAP ali POP poštnih predalov in pretvorba v zahtevke na tvojo mizo pomoči.
+  links:
+    - 
+      title: Urejanje <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> nastavitev.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Oddaljen gost
+  content: >
+    Vnesi <span class="doc-desc-title">ime gostitelja</span> in <span class="doc-desc-title">port</span> številko poštnega strežnika. Te nastavitve so verjetno na voljo v dokumentaciji za vaš račun kjer gostujete ali pri poštnem skrbniku.
+protocol:
+  title: Protokol poštnega predala
+  content: >
+    Izberite protokol poštnega predala vašega oddaljenega poštnega strežnika. IMAP protokol in varnost SSL je priporočena če je le mogoče.
+fetch_frequency:
+  title: Frekvenca pridobivanja
+  content: >
+    Vnesite v minutah, kako pogosto bo sistem preverjal vaš poštni predal. <br/><br/> To bo določilo povprečni časovni zamik v prejemanju samodejnega odgovora po poslanem sporočilu na ta poštni predal.
+emails_per_fetch:
+  title: E-sporočil na pridobivanje
+  content: >
+    Vnesite število e-sporočil, ki bodo obdelana na enkrat.
+fetched_emails:
+  title: Pridobljena e-sporočila
+  content: >
+    Določite, kaj se stori z obdelanimi sporočili: <br/><br/> <span class="doc-desc-opt"><b>Premakni v mapo</b></span>: To bo premaknilo e-sporočilo iz INBOX mape v mapo, ki jo vi določite. Če mapa na strežniku še ne obstaja, jo bo sistem poskušal samodejno ustvariti. (<b>Priporočeno</b>) <hr> <span class="doc-desc-opt"><b>Izbriši e-sporočilo</b></span>: To bo izbrisalo vaše e-sporočilo iz INBOX mape, ko bo obdelano. <hr> <span class="doc-desc-opt"><b>Ne stori ničesar</b></span>: To bo pustilo e-sporočilo v INBOX mapi. Sistem bo zabeležil ID sporočila vašega e-sporočila in ne bo poskusil ponoviti pridobivanja. Vendar, ta opcija lahko povzroči ustvarjanje podvojenih zahtevkov. (<em>Ni priporočeno</em>)
+smtp_settings:
+  title: SMTP nastavitve
+  content: >
+    E-sporočilo poslano iz mize pomoči je lahko poslano preko SMTP strežnika. To je priporočljivo, če je mogoče, saj tako povečate verjetnost dostave e-sporočila in zmanjšate verjetnost označbe e-sporočila kot spam.
+header_spoofing:
+  title: Dovoli spreminjanje glave
+  content: >
+    Omogoči, da je dovoljeno pošiljanje e-sporočil preko tega poštnega predala z naslova, ki je drugačen kot  <span class="doc-desc-title">naslov e-sporočila</span> v nastavitvah zgoraj. <br/><br/> Te napredne nastavitve se uporabljajo v primeru če pošiljamo e-sporočilo iz aliasa tega poštnega predala.
+

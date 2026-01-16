@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Поле пошуку
+  0: >
+
+advanced:
+  title: Додатково
+  content: >
+    Звузьте параметри пошуку. Після того, як Ви вибрали додаткові критерію пошуку і виконали пошук - Ви можете <span class = "doc-desc-title"> Експортувати </span> дані внизу сторінки заявок.
+open_tickets_table:
+  title: Таблиця відкритих заявок
+  content: >
+    Всі заявки, які зараз відкриті і вимагають уваги
+ticket:
+  title: Заявка
+  0: >
+
+date:
+  title: Дата
+  0: >
+
+subject:
+  title: Тема
+  0: >
+
+from:
+  title: Від
+  0: >
+
+priority:
+  title: Пріоритет
+  0: >
+
+assigned_to:
+  title: Відповідальний
+  0: >
+
+export:
+  title: Експорт
+  content: >
+    Експортувати дані, які зараз відображаються, в CSV-файл. CSV-файли можуть бути відкриті будь-яким редактором таблиць (наприклад, Microsoft Excel, Apple Pages, OpenOffice Calc і ін.).
+advanced_search_dialog:
+  title: Розширений пошук
+  0: >
+
+adv_keyword:
+  title: Пошук за ключовими словами
+  content: >
+    Знайти збіги на підставі теми і повідомлень зв'зків заявки, а також всього текстового вмісту, пов'язаного з налаштованим полями користувачів і заявок.
+adv_date_range:
+  title: Пошук по діапазону дат
+  content: >
+    Визначення тут
+merge_types:
+  title: Типи злиття
+  content: >
+    <b> Об'єднати потоки: </b> Потоки заявок будуть відображатися в хронологічному порядку. </br> <b> Розділити потоки: </ b> Потоки заявок будуть відображатися окремо - по одному за раз.
+reply_types:
+  title: Типи відповідей
+  content: >
+    <b>Відповісти Всім:</b> Ця відповідь надсилається Користувачу та Колегам, яких ви обрали.</br> <b>Відповідь Користувачу:</b> Ця відповідь надсилається лише Користувачу, без Колег.</br> <b>Не надсилати відповідь електронною поштою:</b> Повідомлення електронною поштою не надсилається, проте відповідь Працівника видима <b>УСІМ</b> Користувачам при перегляді Заявки.

@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: Тип на списъка
+  content: >
+    Изберете <span class="doc-desc-opt">публичен (публикуван)</span>, ако желаете този <span class="doc-desc-title"> ЧЗВ</span> да бъде публикуван в общодостъпната база от знания, ако главната му категория е публична.
+  links:
+    - 
+      title: Разрешава достъпа до публичната база от знания от клиентския портал
+      href: /scp/settings.php?t=kb

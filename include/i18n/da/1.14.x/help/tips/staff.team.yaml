@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Hold
+  content: >
+    Hold er en eller flere agenter gået sammen med henblik på sag tildelingen. Hold medlemskab kan spænde over afdelingen.
+status:
+  title: Status
+  content: >
+    Hvis <span class="doc-desc-opt"> deaktiveret</span>, kan dette hold ikke vil være tilgængelig for sags tildelinger eller modtage påmindelser &amp; bekendtgørelser på tidligere opgaver.
+lead:
+  title: Hold leder
+  content: >
+    Et <span class="doc-desc-title">Hold</span> kan have en udnævnt leder, der kan modtage <span class="doc-desc-title">Påmindelser &amp; Meddelelser</span> adskilt fra medlemmerne.
+  links:
+    - 
+      title: Konfigurer påmindelser &amp; Meddelelser
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Tildelings alarm
+  content: >
+    Du kan deaktivere den <span class="doc-desc-title"> sags tildeling Alarm</span> for bestilling tildeles dette hold.
+  links:
+    - 
+      title: Konfigurer påmindelser &amp; Meddelelser
+      href: /scp/settings.php?t=alerts
+members:
+  title: Hold medlemmer
+  content: >
+    Hold medlemskab er konfigureret via Medarbejder profil.
+  links:
+    - 
+      title: Administrer personale
+      href: /scp/staff.php

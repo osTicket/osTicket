@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Šis ruošinys nurodo elektroninio laiško, siunčiamo klientams turinį, kuomet jų paskyra būna sukurta Kliento portale arba Agento vardu. Šis elektroninis laiškas tarnauja kaip elektronininio pašto adreso patikrinimas. Naudokite %{link} kur nors laiško turinyje.
+name: "Sveiki prisijungę prie %{company.name}"
+body: >
+  <h3><strong>Sveiki %{recipient.name.first},</strong></h3> <div> Mes jums sukūrėme paskyra prie mūsų pagalbos sistemos  %{url}.<br /> <br /> Prašome sekti nuorodą e-laiške, kad patvirtintumėte savo paskyrą ir gautumėte teises prie bilietų.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Jūsų draugiška klientų aptarnavimo sistema <br /> %{company.name}</em> </div>

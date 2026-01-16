@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Μορφωποίηση Ονόματος Εκπροσώπου
+  content: >
+    Επιλέξτε μια μορφή για το όνομα εκπροσώπου σε όλο το σύστημα. Θα χρησιμοποιηθούν τα πρότυπα ηλεκτρονικού ταχυδρομείου εάν δεν έχει καθοριστεί άλλη μορφή ονόματος.
+staff_identity_masking:
+  title: Απόκρυψη Ταυτότητας Προσωπικού
+  content: >
+    Εάν ενεργοποιηθεί, αυτή η επιλογή θα προκαλέσει την απόκρυψη του ονόματος του Εκπροσώπου από τον Πελάτη κατά την διάρκεια οποιασδήποτε επικοινωνίας.
+#Authentication settings
+password_reset:
+  title: Πολιτική Λήξης Κωδικού Πρόσβασης
+  content: >
+    Καθορίζει πόσο συχνά (σε μήνες) οι εκπρόσωποι απαιτείται να αλλάζουν τον κωδικό πρόσβασής τους. Εάν απενεργοποιηθεί (ρυθμιστεί σε "Χωρίς Λήξη"), οι κωδικοί δεν λήγουν.
+password_expiration_policy:
+  title: Πολιτική Λήξης Κωδικού Πρόσβασης
+  content: >
+    Επιλέξτε πόσο συχνά οι Εκπρόσωποι απαιτείται να αλλάζουν τον κωδικό πρόσβασής τους. Εάν απενεργοποιηθεί (δηλ., <span class="doc-desc-opt">Χωρίς Λήξη</span>), οι κωδικοί δεν θα λήγουν.
+allow_password_resets:
+  title: Να Επιτρέπονται οι Αλλαγές Κωδικού Πρόσβασης
+  content: >
+    Ενεργοποιήστε αυτή την επιλογή εάν επιθυμείτε να εμφανίζεται ο σύνδεσμος <span class="doc-desc-title">Ξέχασα τον Κωδικό μου</span> στον <span class="doc-desc-title">Πίνακα Σύνδεσης Προσωπικού</span> μετά από μια αποτυχημένη προσπάθεια σύνδεσης.
+reset_token_expiration:
+  title: Παράθυρο Αλλαγής Κωδικού
+  content: >
+    Επιλέξτε την διάρκεια (σε λεπτά) για την οποία τα <span class="doc-desc-title">Αναγνωριστικά Αλλαγής Κωδικού</span> θα έχουν ισχύ. Όταν ένας Εκπρόσωπος ζητήσει μια <span class="doc-desc-title">Αλλαγή Κωδικού Πρόσβασης</span>, του ταχυδρομείται ηλεκτρονικά ένα αναγνωριστικό που θα επιτρέψει την αλλαγή.
+staff_session_timeout:
+  title: Λήξη Χρόνου Συνεδρίας Εκπροσώπου
+  content: >
+    Επιλέξτε τον μέγιστο χρόνο έλλειψης δραστηριότητας (σε λεπτά) μετά την παρέλευση του οποίου θα ζητηθεί από ένα Εκπρόσωπο να επανασυνδεθεί. <br><br> Εάν θέλετε να απενεργοποιήσετε <span class="doc-desc-title">την Λήξη της Περιόδου Εκπρόσωπου</span>, επιλέξτε την τιμή 0.
+bind_staff_session_to_ip:
+  title: Δέσμευση Συνεδρίας Εκπροσώπου στην IP Διεύθυνση
+  content: >
+    Ενεργοποιήστε αυτό εάν θέλετε ο Εκπρόσωπος να παραμένει γνωστός με βάση την Διεύθυνση IP μετά την Σύνδεσή του. <br><br> Αυτή η ρύθμιση δεν συνιστάται για χρήστες που χρησιμοποιούν δυναμικές IP διευθύνσεις.

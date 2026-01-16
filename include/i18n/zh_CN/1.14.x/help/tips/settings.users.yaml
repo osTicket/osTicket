@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: 用户姓名格式
+  content: >
+    为系统中的用户姓名选择一个格式。如果没有指定其他格式，邮件模板在姓名处将使用此格式。
+#Authentication settings
+client_session_timeout:
+  title: 用户会话超时
+  content: >
+    选择用户需要重新登录前的最大空闲时间（以分钟为计量单位）。<br><br>如果要禁用<span class="doc-desc-title">用户会话超时</span>，请输入 0。
+registration_method:
+  title: 注册选项
+  content: >
+    通过搭配使用<span class="doc-desc-title">注册方式</span>和<span class="doc-desc-title">注册条件</span>以配置用户注册方式和帮助中心网页入口访问方式。以下表格概述了系统解释执行两种设置的方式。<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>注册条件</th> <th>注册方式</th> <th>结果</th></tr> <tr><td>否</td><td>公共</td> <td>鼓励注册，但对于新咨询则无此要求。</td></tr> <tr><td>是</td><td>公共</td> <td>新咨询需要注册和登录。</td></tr> <tr><td>否</td><td>私有</td> <td>所有人均可创建咨询，但仅有代理可注册账户</td></tr> <tr><td>是</td><td>私有</td> <td>用户仅可在受邀请时才可访问</td></tr> <tr><td>否</td><td>已禁用</td> <td>没有人可注册账户，但所有人均可创建咨询。<em>这是 osTicket 1.9 版前的功能。</em></td></tr> <tr><td>是</td><td>已禁用</td> <td>通过网站入口禁用新咨询</td></tr> </tbody></table>
+client_verify_email:
+  title: 需要电子邮件验证
+  content: >
+    禁用此选项，用户即可通过客户入口中的“验证咨询状态“登陆页立即访问咨询。如果启用此选项（默认设置），用户将需要接收一封电子邮件并遵循随附的链接以查看咨询。<br><br>禁用电子邮件验证可能导致第三方（例如，咨询合作伙伴）冒充咨询所有人。
+allow_auth_tokens:
+  title: 启用身份验证令牌
+  content: >
+    启用此选项以允许在用户点击工单链接后使用身份验证令牌自动登录。

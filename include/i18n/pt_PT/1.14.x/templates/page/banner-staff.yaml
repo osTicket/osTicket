@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Esta é a mensagem inicial mostrada na página de autenticação de funcionários. O primeiro campo refere-se ao texto formatado a vermelho que aparece no topo. A última caixa de texto é para o destaque que deve servir como "disclaimer".
+name: "Autenticação obrigatória"
+body: ""

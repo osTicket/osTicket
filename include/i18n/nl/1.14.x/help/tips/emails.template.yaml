@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: E-mailsjablonen
+  content: >
+    E-mail sjablonen worden gebruikt voor het verzenden van Automatische antwoorden  en waarschuwingen voor verschillende acties die tijdens de levenscyclus van een Ticket  plaatsvinden kunnen.
+template_to_clone:
+  title: Kopiëer template
+  content: >
+    Kies een sjabloon om te kopiëren of start met de standaard e-mailtemplates.
+language:
+  title: Taal
+  content: >
+    Selecteer de gewenste taal voor de <span class="doc-desc-opt"> voorraad</span> <span class="doc-desc-title"> E-mail sjabloon instellen</span>. Taalpakketten zijn beschikbaar op osTicket.com.
+  links:
+    - 
+      title: osTicket taalpakketten
+      href: https://osticket.com/download
+status:
+  title: Status
+  content: >
+    <span class="doc-desc-opt">ingeschakeld</span> Sjabloon Sets zijn beschikbaar om te worden gekoppeld aan afdelingen en ingesteld op de standaardwaarden van het systeem.  Sjabloon Sets welke momenteel in gebruik zijn kunnen niet worden <span class="doc-desc-opt">uitgeschakelt</span>.

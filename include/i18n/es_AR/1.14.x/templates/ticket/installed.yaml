@@ -1,0 +1,48 @@
+---
+#Welcome ticket template
+#When the system if first installed and the installer finishes setting up
+#the database, it creates a first ticket with a welcome message to the
+#administrator
+#---
+deptId: 1 #support
+topicId: 1 #support
+name: Soporte de osTicket
+email: support@osticket.com
+source: Web #notrans
+subject: osTicket ha sido instalado!
+message: |
+  <p>
+  Gracias por elegir osTicket.
+  </p><p>
+  Asegúrese de unirse a <a
+  href="https://forum.osticket.com">osTicket forums</a> y nuestro <a
+  href="https://osticket.com">mailing list</a> para mantenerte al día
+  en las últimas noticias, aletas de seguridad y actualizaciones. Los foros
+  de oTicket También es un gran lugar para obtener ayuda, orientación,
+  consejos y ayuda de otros usuarios de osTicket.  Además de los foros,
+  la wiki osTicket proporciona una colección útil de materiales educativos,
+  documentación, y notas de la comunidad. Agradecemos sus contribuciones
+  a la comunida osTicket.
+  </p><p>
+  Si está buscando un mayor nivel de soporte, le brindamos
+  servicios profesionales y soporte comercial con respuesta garantizada.
+  veces, y acceso al equipo central de desarrollo. También podemos ayudar
+  personalizar osTicket o incluso agregar nuevas funciones al sistema para
+  cumplir con sus necesidades únicas.
+  </p><p>
+  Si la idea de administrar y actualizar esta instalación de osTicket es
+  desalentadora, puede probar osTicket como un servicio alojado en <a
+  href="https://supportsystem.com"> https://supportsystem.com/ </a> -
+  ¡no requiere instalación y podemos importar sus datos! Con
+  la infraestructura llave en mano de SupportSystem, obtienes osTicket en su mejor punto,
+  dejándote libre para concentrarte en tus clientes sin la carga de
+  asegurarse de que la aplicación sea estable, mantenida y segura.
+  </p><p>
+  Saludos,
+  </p><p>
+  -<br/>
+  Equipo osTicket https://osticket.com/
+  </p><p>
+  <strong>PS.</strong> ¡No solo haz feliz a los clientes, haz clientes
+  felices!
+  </p>

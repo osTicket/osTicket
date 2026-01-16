@@ -1,0 +1,79 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: แจ้งเตือนและแจ้งให้ทราบ
+  content: >
+    เมื่อเกิดเหตุการณ์ต่างๆ ของ Ticket ระบบจะส่งอีเมลแจ้งเตือนและอีเมลบอกกล่าวไปยังเจ้าหน้าที่
+ticket_alert:
+  title: การแจ้งเตือน Ticket ใหม่
+  content: >
+    <p> การแจ้งเตือนจะส่งออกไปยังเจ้าหน้าที่เมื่อ Ticket ใหม่ถูกสร้างขึ้น </p><p class="info-banner"> <i class="icon-info-sign"></i> การแจ้งเตือนนี้จะไม่ถูกส่งออกถ้าเป็น Ticket อัตโนมัติที่ได้รับมอบหมายผ่านตัวกรอง Ticket หรือหัวข้อการช่วยเหลือ </p>
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบการแจ้งเตือน Ticket ใหม่
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: แจ้งเตือนข้อความใหม่
+  content: >
+    ส่งแจ้งเตือนไปยังเจ้าหน้าที่เมื่อมีข้อความใหม่จากผู้ใช้ถูกเพิ่มเข้ากับ Ticket ที่มีอยู่
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบการแจ้งเตือนข้อความใหม่
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: New Internal Activity Alert
+  content: >
+    การแจ้งเตือนจะถูกส่งไปยังเจ้าหน้าที่ เมื่อเกิดเหตุการณ์ เช่น มีการบันทึกภายใน หรือเจ้าหน้าที่ตอบกลับทิคเก็ต
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบกิจกรรม Ticket ใหม่
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: แจ้งเตือนเมื่อมอบหมาย Ticket
+  content: >
+    การแจ้งเตือนการส่งออกไปยังเจ้าหน้าที่ที่ได้รับมอบหมาย Ticket
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบแจ้งเตือนการมอบหมาย Ticket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: การแจ้งเตือนการโอนความรับผิดชอบ
+  content: >
+    ส่งแจ้งเตือนไปยังเจ้าหน้าที่เมื่อโอน Ticket ระหว่างแผนก
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบส่งแจ้งเตือนเมื่อโอน Ticket
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: เตือน Ticket เกินกำหนดเวลา
+  content: >
+    ส่งแจ้งเตือนถึงเจ้าหน้าที่เมื่อ Ticket จะพ้นกำหนดตาม SLA หรือวันที่ครบกำหนด
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบแจ้งเตือน Ticket เก่า
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: จัดการ SLA
+      href: /scp/slas.php
+system_alerts:
+  title: ระบบแจ้งเตือน
+  content: >
+    เหตุการณ์ของระบบที่สําคัญที่มีการส่งออกไปยังผู้ดูแลระบบ (%{config.admin_email}). 
+    ขึ้นอยู่กับการตั้งค่าไว้ใน <span class="doc-desc-title">ระดับล็อก</span>, เหตุการณ์นั้นจะอยู่ใน <span class="doc-desc-title">ล็อกของระบบ</span>
+  links:
+    - 
+      title: ดูบันทึกล็อกของระบบ
+      href: /scp/logs.php
+    - 
+      title: เปลี่ยนอีเมลผู้ดูแลระบบ
+      href: /scp/settings.php?t=emails

@@ -1,28 +1,10 @@
 {
     "name": "myclabs/deep-copy",
-    "description": "Create deep copies (clones) of your objects",
-    "license": "MIT",
     "type": "library",
-    "keywords": [
-        "clone",
-        "copy",
-        "duplicate",
-        "object",
-        "object graph"
-    ],
-    "require": {
-        "php": "^7.1 || ^8.0"
-    },
-    "require-dev": {
-        "doctrine/collections": "^1.6.8",
-        "doctrine/common": "^2.13.3 || ^3.2.2",
-        "phpspec/prophecy": "^1.10",
-        "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
-    },
-    "conflict": {
-        "doctrine/collections": "<1.6.8",
-        "doctrine/common": "<2.13.3 || >=3 <3.2.2"
-    },
+    "description": "Create deep copies (clones) of your objects",
+    "keywords": ["clone", "copy", "duplicate", "object", "object graph"],
+    "license": "MIT",
+
     "autoload": {
         "psr-4": {
             "DeepCopy\\": "src/DeepCopy/"
@@ -33,10 +15,23 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "DeepCopyTest\\": "tests/DeepCopyTest/",
-            "DeepCopy\\": "fixtures/"
+            "DeepCopy\\": "fixtures/",
+            "DeepCopyTest\\": "tests/DeepCopyTest/"
         }
     },
+
+    "require": {
+        "php": "^7.1 || ^8.0"
+    },
+    "require-dev": {
+        "doctrine/collections": "^1.0",
+        "doctrine/common": "^2.6",
+        "phpunit/phpunit": "^7.1"
+    },
+    "replace": {
+        "myclabs/deep-copy": "self.version"
+    },
+
     "config": {
         "sort-packages": true
     }

@@ -1,0 +1,29 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Enviat a membres del personal de suport quan una resposta a un Ticket està fora de termini.
+  L'expiració del termini de vigència es produeix en funció de la data d'alta del tiquet i l'SLA definit per al Ticket.
+subject: |
+  Alerta d'expiració de termini de Ticket
+body: |
+  <h3><strong>Hi %{recipient.name}</strong>,</h3>
+  El Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> ha superat el termini definit per al Ticket.
+  <br>
+  <br>
+  Caldria fer un esforç per tal de garantir que els Tickets siguin contestats dins del termini definit.
+  <br>
+  <br>
+  Signat,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Per veure o respondre el Ticket, si us plau <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >entreu</span></a> al sistema de suport. Esteu rebent aquesta notificació perquè el Ticket ha estat assignat directament a vos o al  departament del que formeu part.</div>
+  <em style="font-size: small">El vostre estimat <span style="font-size: smaller"
+  >(malgrat que amb paciència limitada)</span> Sistema de Suport</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Generat per osTicket" width="126" style="width: 126px;">

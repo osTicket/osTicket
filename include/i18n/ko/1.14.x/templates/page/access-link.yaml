@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  이 템플릿은, 메일주소의 접근링크가 송신되는 클라이언트에 통지를 정의합니다. 티켓번호와 메일주소가 접근링크의 트리거가 됩니다.
+name: "티켓 [#%{ticket.number}] 접근링크"
+body: >
+  <h3><strong>%{recipient.name.first}님</strong></h3> <div> 고객님 대신 티켓 #%{ticket.number} 으로의 접근링크의 요청을 헬프데스크 %{url} 로 송신하였습니다. <br /> <br /> 이하의 링크에 접근하시어 티켓 #%{ticket.number} 의 대응상황을 확인해주십시오.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> 고객님이 이 <strong>요청을 하지 않았을 경우</strong>에는, 이 메일을 삭제하여 무시해 주십시오. 고객님의 계정은 계속 안전하게 보관되어 있으며, 타인의 접근이 되고 있지는 않습니다만, 다른 누군가가 잘못하여 고객님의 메일주소를 입력하였을 가능성이 있습니다.<br /> <br /> --<br /> %{company.name} </div>

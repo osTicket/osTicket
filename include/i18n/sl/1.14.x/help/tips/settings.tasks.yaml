@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Oblika številke naloge
+  content: >
+    Ta nastavitev se uporablja za generiranje številke nalog. Uporabi znak # na mestih s števili. Vsi ostali teksti v formatu bodo ohranjeni. <br/><br/> Primer, šestmestno številčenje <code>######</code>.
+sequence_id:
+  title: Zaporedje številk nalog
+  content: >
+    Izberi zaporedje za kreiranje številke nove naloge. Sistem privzeto pozna zaporedno in naključno zaporedje. Lahko kreiraš kolikor zaporedij hočeš.
+default_sla:
+  title: Privzeta SLA
+  content: >
+    Izberi privzet novo zagotavljanja storitev SLA za upravljanje kako dolgo lahko naloga ostane odprta preden označena kot Prekoračena.
+  links:
+    - 
+      title: Ustvarite več SLAjev
+      href: /scp/slas.php
+default_priority:
+  title: Privzeta pomembnost
+  content: >
+    Izberi privzeto <span class="doc-desc-title">prioriteto</span> za naloge, ki se jim prioriteta ne dodeli avtomatsko.
+task_attachment_settings:
+  title: Priponke v zgodovini naloge
+  content: >
+    Uredi nastavitve za priponke polju z <span class="doc-desc-title">opisom</span>. Te nastavitve se uporabljajo za vse nove naloge in sporočila, brez ozira na vir (web portal, e-pošta, API. itd...).
+page_title:
+  title: Opozorila in Zaznamki
+  content: >
+    Alarm iin opozorila so avtomatizirana sporočila poslana agentom ob različnih dogodkih.
+task_alert:
+  title: Novo o novem zahtevku
+  content: >
+    <p> Opozorilo poslano agentu ob novi nalogi. </p><p class="info-banner"> <i class="icon-info-sign"></i> Opozorilo se ne pošlje, če je naloga dodeljena samemu sebi. </p>
+  links:
+    - 
+      title: Privzeta predloga za opozorilo ob novi nalogi
+      href: /scp/templates.php?default_for=task.alert
+activity_alert:
+  title: Opozorilo ob novi aktivnosti
+  content: >
+    Opozorila poslana agentom, kadar je novo sporočilo dodano k obstoječi nalogi.
+  links:
+    - 
+      title: Privzeta predloga za opozorilo ob novi aktivnosti
+      href: /scp/templates.php?default_for=task.activity.alert
+assignment_alert:
+  title: Opozorilo dodeljene naloge
+  content: >
+    Opozorilo poslano agentom ob dodelitvi naloge.
+  links:
+    - 
+      title: Privzeta predloga za dodelitev naloge
+      href: /scp/templates.php?default_for=task.activity.alert
+transfer_alert:
+  title: Opozorilo za prenos naloge
+  content: >
+    Opozorilo poslano agentom ob prenosu naloge med oddelki.
+  links:
+    - 
+      title: Privzeta predloga za prenos naloge
+      href: /scp/templates.php?default_for=task.activity.alert
+overdue_alert:
+  title: Opozorilo zapadlosti naloge
+  content: >
+    Opozorilo poslano agentu, kadar naloga zapade zaradi SLA ali datuma zapadlosti.
+  links:
+    - 
+      title: Privzeta predloga za opozorilo ob zapadli nalogi
+      href: /scp/templates.php?default_for=task.activity.alert
+    - 
+      title: Upravljanje SLA-jev
+      href: /scp/slas.php
+

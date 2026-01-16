@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nombre de usuario
+  content: >
+    Por favor, elija un agente <span class="doc-desc-title"> nombre de usuario</span> el cual es único para su <span class="doc-desc-title"> sistema de soporte</span>.
+email_address:
+  title: Correo Electrónico
+  content: >
+    Introduzca el correo electrónico del agente que recibirá <span class="doc-desc-title"> alertas &amp; avisos</span> del <span class="doc-desc-title"> sistema de soporte</span>.
+  0: <br><br>
+  1: Personal puede entrar en el panel de control de personal con la dirección o nombre de usuario o correo electrónico.
+welcome_email:
+  title: Email de bienvenida
+  content: >
+    Enviar un link de acceso de cuenta a un nuevo agente la cual el agente será capaz de poner su propia contraseña. Si no es revisada, necesitará poner la contraseña y comunicar el servicio de registro con el nuevo personal.
+account_password:
+  title: Contraseña de la cuenta
+  content: >
+    Como <span class="doc-desc-title"> Administrador</span>, puede cambiar la contraseña de un agente.
+forced_password_change:
+  title: Cambio de contraseña forzada
+  content: >
+    Marque esto si desea forzar el nuevo agente para cambiar su propia contraseña al registro siguiente.
+agents_signature:
+  title: Firma del agente
+  content: >
+    Crear una firma para el agente que puede ser seleccionado al responder a un Ticket.
+account_status:
+  title: Estado de cuenta
+  content: >
+    Si el estado del agente es <span class="doc-desc-opt"> bloqueado</span>, no podrán iniciar sesión en el sistema de soporte.
+assigned_group:
+  title: Grupo asignado
+  content: >
+    El <span class="doc-desc-title"> Grupo</span> que usted elige para que este agente para pertenecer determinará qué permisos tendrá el agente <span class="doc-desc-title"> sistema de soporte</span>.
+  links:
+    - 
+      title: Gestionar grupos
+      href: /SCP/groups.php
+primary_department:
+  title: Departamento primario
+  content: >
+    Escoge el <span class="doc-desc-title">departamento</span>principal al que pertenece un Agente junto a su <span class="doc-desc-title">Rol</span>.
+  links:
+    - 
+      title: Administrar departamentos
+      href: /scp/departments.php
+primary_role:
+  title: Rol Principal
+  content: >
+    Escoge el <span class="doc-desc-title">rol</span> principal al que pertenece el agente.
+primary_role_on_assign:
+  title: Usar Rol Principal Para Asignaciones
+  content: >
+    Active esta opción para derivar al  <span class="doc-desc-title">rol principal</span> cuando a este agente se le asigne un ticket que esté fuera de su <span class="doc-desc-title">departamento principal</span> y los departamentos de  <span class="doc-desc-title">acceso extendido</span>. De otro modo, el agente solo tendrá acceso de lectura.
+daylight_saving:
+  title: Horario de Verano
+  content: >
+    Activar esta función si desea activar el horario de verano automáticamente cuando entre en la zona horaria del este agente.
+limited_access:
+  title: Acceso limitado
+  content: >
+    Si está habilitado, el agente sólo tendrá acceso a los Ticket asignados directamente o a través del equipo.
+directory_listing:
+  title: Listado en el directorio
+  content: >
+    Marque esto si desea listar a este agente en el <span class="doc-desc-title"> Directorio personal</span>.
+  links:
+    - 
+      title: Visite el directorio de personal
+      href: /SCP/Directory.php
+vacation_mode:
+  title: Modo de vacaciones
+  content: >
+    Si cambia a <span class="doc-desc-opt"> Modo de vacaciones</span> del estado del agente, el agente no recibirá cualquier <span class="doc-desc-title"> alertas&amp;  avisos</span> ni estará disponible para la asignación de Tickets.
+

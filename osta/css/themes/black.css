@@ -1,0 +1,16 @@
+@charset "utf-8";
+/* CSS Document */
+/* BLACK THEME */
+:root {
+    --header-bg: #000; 
+    --header-title: #EEE;
+    --header-title-hover: #ffffff;	
+
+    --nav-bar-bg: #BBB; 
+    --nav-bar-link: #000; 
+	--nav-bar-link-hover: #000000; 	
+
+    --mobile-menu-bg: #BBB; 	
+    --mobile-menu-link-color: #000;
+    --stickybar: #000;	
+}

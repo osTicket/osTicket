@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: カスタム リスト
+  content: >
+    <span class="doc-desc-title">カスタムリスト</span>は、クライアントが<span class="doc-desc-title">カスタムフォーム</span>で送信できる事前定義されたオプションを使用して、ドロップダウンボックスを作成することを許可します。この<span class="doc-desc-title">カスタムリスト</span>を <span class="doc-desc-title">チケットフィルター</span>で<span class="doc-desc-title">ターゲット</span>として使用する場合は、必ずこのリストを<span class="doc-desc-title">チケットの詳細</span>フォームに追加してください。
+name:
+  title: 名前
+  0: >
+
+plural_name:
+  title: 複数形の名前
+  0: >
+
+sort_order:
+  title: 並べ変え
+  0: >
+
+list_s_initial_items:
+  title: リストの初期項目
+  0: >
+
+value:
+  title: 値
+  0: >
+
+extra:
+  title: 追加事項
+  content: >
+    略語など。このリストで項目に内部コードを使用する場合、これらのコードと略語をこの列に入力できます。カスタムリストが<span class="doc-desc-option"> TypeAhead</span>として表されている場合は、これらの略語を使用してカスタムリストの項目を検索できます。

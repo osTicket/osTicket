@@ -1,0 +1,11 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Templat ini merujuk kepada emel dihantar ke pengguna yang memilih pautan <strong>Lupa Kata Laluan</strong> pada halaman Log masuk pengguna.
+name: "%{company.name} Akses meja bantuan"
+body: >
+  <h3><strong>Hi %{user.name.first},</strong></h3> <div> Permintaan set semula kata laluan telah dikemukakan bagi pihak anda untuk meja bantuan di %{url}.<br /> <br /> Jika anda merasakan bahawa ini telah dilakukan dalam kesilapan, padam dan tidak mengambil kira e-mel ini. Akaun anda masih selamat dan tidak ada sesiapa pun yang diberikan akses kepada akaun anda. Ia tidak dikunci dan kata laluan anda belum ditetapkan semula. Seseorang boleh tersilap memasukkan alamat e-mel anda.<br /> <br /> Ikuti pautan di bawah untuk log masuk ke meja bantuan dan menukar kata laluan anda. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small"> 
+  Sistem Sokongan Pelanggan anda yang mesra <br /> %{company.name}</em> </div>

@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Ovaj šablon definiše stranicu prikazanu klijentima nakon izvršene registracije. On naglašava da će sistem nakon registracije poslati imejl sa verifikacionim linkom u sledećem koraku.
+name: "Registracija naloga"
+body: >
+  <div><strong>Uspešno ste kreirali nalog.</strong><br/> <br /> Na unetu email adresu poslat Vam je email koji sadrži verifikacioni link.</div>

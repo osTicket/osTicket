@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Information om ärendeaktivitet skickad till medarbetare t.e.x svar/meddelande.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Hej %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em>uppdaterade precis ett ärende som du medverkar i med ett nytt meddelande.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Du får detta e-postmeddelande för att du står som medarbetare i supportärende <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  För att delta i kommunikationen svara på detta e-postmeddelande eller <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >klicka här</a> för ett komplett arkiv av ärendetråden.</em>
+  </div>

@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  The Landing Page refers to the content of the Customer Portal's initial view. The template modifies the content seen above the two links <strong>Open a New Ticket</strong> and <strong>Check Ticket Status</strong>.
+name: หน้าแรกที่จะเห็น
+body: >
+  <h1>ยินดีต้อนรับสู่ศูนย์ช่วยเหลือ</h1>
+  <p>
+  ในการทำให้คำขอการช่วยเหลือของคุณกระชับและดีสำหรับการบริการให้คุณ เราได้สร้างระบบทิคเก็ตสนบสนุน ซึ่งทุกๆคำขอช่วยเหลือ จะกำหนดเป็นเลขที่ทิคเก็ตซึ่งไม่ซ้ำกัน ซึ่งคุณสามารถใช้ในการติดตามกระบวนการและตอบกลับออนไลน์ เพื่อการใ้ช้อ้างอิงของคุณ เราเปิดให้คุณได้เรียกดูประวัติของทิคเก็ตที่คุณได้ขอเข้ามา เฉพาะที่อยู่อีเมลล์ที่ใช้งานได้จริง เท่านั้นที่จะใช้ในการสร้างทิคเก็ตใหม่
+  </p>

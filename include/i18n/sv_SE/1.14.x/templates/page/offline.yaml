@@ -1,0 +1,13 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Offlinesidan visas i kundportalen, när Ärendehanteringssystemet är Offline.
+name: Offline
+body: |
+  <div><h1> 
+  <span style="font-size: medium"> Ärendehanteringssystemet är Offline</span>
+  </h1> 
+  <p>Tack för att du kontaktat oss.</p> <p>Vår helpdesk är offline för tillfället, vänligen återkom vid ett senare tillfälle.</p> </div>

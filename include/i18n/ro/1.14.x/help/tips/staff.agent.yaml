@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nume de utilizator
+  content: >
+    Te rugam sa alegi un <span class="doc-desc-title">username</span> de Agent care sa fie unic pentru  <span class="doc-desc-title">Platforma de HelpDesk</span>.
+email_address:
+  title: Adresa de e-mail
+  content: >
+    Introdu adresa de email a Agentului care va primi <span class="doc-desc-title">Alertele &amp; Notificarile</span> de la <span class="doc-desc-title">Platforma de Suport</span>.
+  0: <br><br>
+  1: Angajatii pot sa se autentifice in panoul de angajat cu numele de utilizator sau adresa de email.
+welcome_email:
+  title: Email de bun venit
+  content: >
+    Trimite noului agent un link de acces al contului din care agentul va fi în măsură să stabilească propria parolă. Dacă optiunea este debifată, va trebui să setați parola și comunicati informațiile de autentificare noului angajat.
+account_password:
+  title: Parola cont
+  content: >
+    Ca si <span class="doc-desc-title">administrator</span>, puteti schimba parola unui agent.
+forced_password_change:
+  title: Forteaza Schimbarea Parolei
+  content: >
+    Activati daca doriti sa fortati un agent nou sa isi schimbe parola la urmatoarea autentificare.
+agents_signature:
+  title: Semnatura Agentului
+  content: >
+    Creaza o semnatura pentru un Agent care poate fi selectata la raspunsul pentru un tichet.
+account_status:
+  title: Status cont
+  content: >
+    Daca statusul unui Agent este <span class="doc-desc-opt">Blocat</span>, acesta nu va putea sa se autentifice in platforma de suport.
+assigned_group:
+  title: Grup Alocat
+  content: >
+    Apartenenta Agentului la <span class="doc-desc-title">Grupul</span> definit aici va determina permisiunile Agentului in cadrul  <span class="doc-desc-title">Help Desk-ului</span>.
+  links:
+    - 
+      title: Administreaza Grupuri
+      href: /scp/groups.php
+primary_department:
+  title: Departament Principal
+  content: >
+    Alegeți principalul <span class="doc-desc-title"> departament </span> căruia îi aparține acest Agent și un <span class="doc-desc-title"> Rol </span> efectiv.
+  links:
+    - 
+      title: Administreaza Departamente
+      href: /scp/departments.php
+primary_role:
+  title: Rolul principal
+  content: >
+    Alegeți principalul <span class="doc-desc-title>> rol </span> de care aparține acest agent.
+primary_role_on_assign:
+  title: Utilizați Rolul Principal pentru Alocări
+  content: >
+    Activați opţiunea pentru a reveni la <span class="doc-desc-title">rolul principal</span> atunci când agentului i se atribuie tichete și sarcini în afara <span class="doc-desc-title">departamentului principal</span> și <span class="doc-desc-title">departamentele de acces extins </span>. În caz contrar, agentul va avea acces doar de vizializare.
+daylight_saving:
+  title: Ora de vara
+  content: >
+    Activeaza aceasta functionalitate daca doresti trecerea la Ora de Vara sa se execute automat bazat pe fusul orar al Agentului.
+limited_access:
+  title: Limiteaza Access
+  content: >
+    Odata activat, Agentul va avea acces doar la tichetele alocate catre el sau catre echipa lui.
+directory_listing:
+  title: Lista Director
+  content: >
+    Activeaza daca doresti ca acest Agent sa apara in <span class="doc-desc-title">Registrul de Personal</span>.
+  links:
+    - 
+      title: Acceseaza Catalogul de Angajati
+      href: /scp/directory.php
+vacation_mode:
+  title: Mod de vacanta
+  content: >
+    Daca schimbati statusul unui Agent in <span class="doc-desc-opt">Mod de Vacanta</span>, Agentul nu va mai primi <span class="doc-desc-title">Alerte &amp; Notificari</span> si nici nu va mai fi disponibil pentru alocarea de tichete.
+

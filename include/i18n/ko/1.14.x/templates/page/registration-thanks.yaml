@@ -1,0 +1,12 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  이 템플릿은 고객이 계정을 확인하여 회원 등록을 성공적으로 완료 한 후 표시되는 내용을 정의합니다. 이 페이지는 회원가입을 완료한 고객이 티켓을 제출하거나 기존의 티켓에 액세스 할 수 있다는 것을 사용자에게 알려줍니다.
+name: "계정이 확인되었습니다!"
+body: >
+  <div><strong>회원으로 가입을 감사드립니다. </strong> <br/> <br/>
+  귀하의 이메일 주소가 확인되어 계정이 성공적으로 활성화되었습니다. 새 티켓을 오픈하거나 기존의 티켓에 접근할 수 있습니다. <br/> <br/> <em>지원 센터</em> <br/>%{company.name}</div>

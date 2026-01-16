@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  See mall määrab, milline email saadetakse töötajale, kui ta on vajutanud lingile <strong>unustasin salasõna</strong> töötajate juhtpaneeli sisselogimise lehel.
+name: "osTicket töötaja salasõna lähtestamine"
+body: >
+  <h3><strong>Tere %{staff.name.first}!</strong></h3> <div> Oled soovinud muuta oma kasutajatoe salasõna lehel %{url}.<br /> <br /> Kui sa pole salasõnavahetust tellinud, siis kustuta see email ja ignoreeri seda. Sinu konto on turvaline ja keegi teine pole saanud sellele ligipääsu. Sinu konto pole lukustatud ja salasõna pole lähtestatud. Keegi on ekslikult sisestanud sinu emaili aadressi. <br /> <br />Salasõna muutmiseks mine allpool olevale lehele.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Sinu sõbralik kasutajatugi</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

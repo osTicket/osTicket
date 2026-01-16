@@ -1,0 +1,25 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Obaveštenje vezano za aktivnost tiketa poslato saradnicima, na primer odgovor ili poruka.
+subject: |
+  Odgovor: %{ticket.subject}
+body: |
+  <h3><strong>Poštovani %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> je poslao/la poruku u tiketu u kome ste učesnik.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Dobili ste ovaj imejl zato što ste učesnik
+  u tiketu <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Da biste učestvovali, odgovorite na ovaj imejl
+  ili <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >kliknite ovde</a> da biste otvorili celu arhivu tiketa.</em>
+  </div>

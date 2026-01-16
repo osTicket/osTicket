@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informații de contact
+  0: >
+
+username:
+  title: Nume de utilizator
+  content: >
+    Doar acei Agenti cu statut de Admin pot modifica numele de utilizator. Daca esti Agent cu privilegii de Admin, poti modifica un nume de utilizator selectand Agent-ul pe care vrei sa-l editezi din tabelul cu <span class="doc-desc-title">Membrii Personalului</span>.
+  links:
+    - 
+      title: Modifică un nume de utilizator ca Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Fusul orar
+  0: >
+
+daylight_saving:
+  title: Ora de vara
+  0: >
+
+maximum_page_size:
+  title: Dimensiunea maxima a paginii
+  0: >
+
+auto_refresh_rate:
+  title: Perioada de autoreimprospatare
+  0: >
+
+default_signature:
+  title: Semnatura implicita
+  0: >
+
+default_paper_size:
+  title: Dimensiunea implicita a hartiei
+  0: >
+
+show_assigned_tickets:
+  title: Arata tichete atribuite
+  content: >
+    <p> Activarea acestei optiuni va suprascrie setarea globala care ascunde tichetele atribuite din cozile deschise. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Aceasta setare este disponibila doar cand tichetele atribuite sunt dezactivate global. </p>
+password:
+  title: Parola
+  0: >
+
+current_password:
+  title: Parola Curenta
+  0: >
+
+new_password:
+  title: Parola Noua
+  0: >
+
+confirm_new_password:
+  title: Confirma Parola
+  0: >
+
+signature:
+  title: Semnatura
+  content: >
+    Crează o <span class="doc-desc-title">Semnatură</span> opțională care poate apărea la sfârșitul Răspunsurilor tale la Tichete. Dacă această Semnatură apare sau nu, depinde de Șablonul Email care va fi utilizat în Răspunsul la Tichet.
+  links:
+    - 
+      title: Creează șabloane pentru email în Panoul de Administrare
+      href: /scp/templates.php

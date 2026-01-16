@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Sistemski logi
+  content: >
+    Tukaj je mesto, kjer boš našel vse logiranje povezano z odpravljanjem napak (npr. Napake, Opozorila ali Hrošče).
+  links:
+    - 
+      title: Prilagodi katero stopnjo aktivnosti se logira s spremembo <br /><span class="doc-desc-title">Privzeta stopnja logiranja</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Časovni okvir
+  content: >
+    Izberi okvir koledarja, za katerega bi rad videl <span class="doc-desc-title">Sistemske loge</span>.
+type:
+  title: Tip
+  content: >
+    Izberi možnost, da zožiš svoje zanimanje na določen tip aktivnosti.  <span class="doc-desc-opt">Razhroščevanje</span> predstavlja zadnjo stopnjo in  <span class="doc-desc-opt">Napaka</span> predstavlja največjo stopnjo.
+showing_logs:
+  title: Prikaži&hellip;loge
+  content: >
+    Obvezno spodaj preveri izbor <span class="doc-desc-title">Stran</span> in se prepričaj, da ni več na voljo strani sistemskega loga.
+log_title:
+  title: Naslov loga
+  content: >
+    Pritisni na glavo tabele <span class="doc-desc-title">Naslov loga</span>, če bi želel razvrstiti rezultate glede na <span class="doc-desc-title">Naslov loga</span>.
+log_type:
+  title: Tip loga
+  content: >
+    Pritisni na  glavo tabele <span class="doc-desc-title">Tip loga</span>, če bi želel razvrstiti rezultate glede na <span class="doc-desc-title">Tip loga</span>.
+log_date:
+  title: Čas loga
+  content: >
+    To je čas, ko je bil log ustvarjen z aplikacijo. Če bi želeli razvrstiti rezultate glede na <span class="doc-desc-title">Čas loga</span>, klikni na glavo tabele <span class="doc-desc-title">čas loga</span>. (Iz forme zgoraj uporabi <span class="doc-desc-title">Časovni okvir</span>, da zožiš svoj časovni okvir logov.)
+ip_address:
+  title: IP naslov
+  content: >
+    To se nanaša na <span class="doc-desc-title">IP</span><span class="doc-desc-title"> naslov</span> agenta ali stranke, ki je uporabljal osTicket v času ustvarjanja loga.

@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Sent to a user when a new ticket is created
+subject: |
+  Support Ticket Opened [#%{ticket.number}]
+body: |
+  <h3><strong>Kæri/a %{recipient.name.first},</strong></h3>
+  <p>
+  Beiðni um aðstoð hefur verið skráð með verknúmerið #%{ticket.number}.
+  Erindinu verður fylgt eftir eins fljótt og auðið er. Þú getur
+  <a href="%{recipient.ticket_link}">skoðað hvernig afgreiðslan gengur hér</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Kveðja %{company.name} tölvuumsjón,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Ef þú ert með athugasemdir eða meiri upplýsingar tengt málinu, svaraðu þessu skeyti eða smelltu <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >hér til að tengjast þjónustukerfinu</span></a> til að fá aðgang að beiðnum þínum í kerfinu.</em></div>

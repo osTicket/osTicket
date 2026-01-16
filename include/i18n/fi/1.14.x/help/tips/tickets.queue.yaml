@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Hakukenttä
+  0: >
+
+advanced:
+  title: Laajennettu
+  content: >
+    Tarkenna hakuehtojasi. Kun olet tehnyt hakuvalinnat ja suorittanut haun voit <span class="doc-desc-title">Viedä </span> datan tikettisivun alareunasta.
+open_tickets_table:
+  title: Avoimien Tikettien Taulukko
+  content: >
+    Kaikki avoimet tiketit jotka tarvitsevat toimenpiteitä
+ticket:
+  title: Tiketti
+  0: >
+
+date:
+  title: Päivämäärä
+  0: >
+
+subject:
+  title: Aihe
+  0: >
+
+from:
+  title: Lähettäjä
+  0: >
+
+priority:
+  title: Prioriteetti
+  0: >
+
+assigned_to:
+  title: Käsittelijä
+  0: >
+
+export:
+  title: Vie
+  content: >
+    Vie näkyvät tiedot CSV-tiedostoon. CSV-tiedoston voi avata missä tahansa taulukkolaskentaohjelmassa (esim. Microsoft Excel, Apple Pages tai OpenOffice).
+advanced_search_dialog:
+  title: Laajennettu haku
+  0: >
+
+adv_keyword:
+  title: Avainsana haku
+  content: >
+    Etsi osumia tikettien otsikoista, viesteistä sekä asiakkaiden ja tikettien muokatuista kentistä.
+adv_date_range:
+  title: Etsi ajanjaksolta
+  content: >
+    Määrittely tähän
+merge_types:
+  title: Yhdistämistyypit
+  content: >
+    <b> Yhdistä ketjut: </b> Kaikkien tikettien säikeet näytetään kronologisesti. </br> <b> Erilliset ketjut: </b> Tikettien säikeet näytetään yksi tiketti kerrallaan.
+reply_types:
+  title: Vastaustyypit
+  content: >
+    <b>Vastaa kaikille:</b>Tämä vastaus lähetetään valitsemillesi käyttäjälle ja yhteistyökumppaneille.</br> <b>Vastaa käyttäjälle:</b> Tämä vastaus lähetetään vain käyttäjälle, ei yhteistyökumppaneille. </br> <b>Älä lähetä sähköpostivastausta:</b>Sähköpostihälytyksiä ei lähetetä, mutta käsittelijän vastaus näytetään<b>KAIKKI</b> Käyttäjät näkevät tiketin.

@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktné informácie
+  0: >
+
+username:
+  title: Používateľské meno
+  content: >
+    Len agenti s Admin právami môžu zmeniť užívateľské meno. Ak ste Agent s Admin právami, môže tak urobiť výberom Agenta a voľbou upraviť v <span class="doc-desc-title">Personál</span>.
+  links:
+    - 
+      title: Zmeniť používateľské meno ako Administrátor
+      href: /scp/staff.php
+time_zone:
+  title: Časové pásmo
+  0: >
+
+daylight_saving:
+  title: Letný čas
+  0: >
+
+maximum_page_size:
+  title: Maximálna veľkosť strany
+  0: >
+
+auto_refresh_rate:
+  title: Automatické obnovenie
+  0: >
+
+default_signature:
+  title: Predvolený podpis
+  0: >
+
+default_paper_size:
+  title: Predvolená veľkosť papiera
+  0: >
+
+show_assigned_tickets:
+  title: Zobraziť aj priradené tikety
+  content: >
+    <p> Povolením tejto voľby, prepíšete systémové nastavenie pre skrytie priradených tiketov v zozname otvorených tiketov. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Toto nastavenie je dostupné len v prípade, ak sú priradené tikety globálne nastavené ako skryté. </p>
+password:
+  title: Heslo
+  0: >
+
+current_password:
+  title: Súčasné heslo
+  0: >
+
+new_password:
+  title: Nové heslo
+  0: >
+
+confirm_new_password:
+  title: Potvrdiť nové heslo
+  0: >
+
+signature:
+  title: Podpis
+  content: >
+    Vytvoriť voliteľný <span class="doc-desc-title"> podpis</span>, ktorý sa môže zobraziť na konci vašej odpovede na tiket. Či sa tento <span class="doc-desc-title"> podpis</span> zobrazí, alebo nie, závisí na <span class="doc-desc-title">šablóne emailu</span>, ktorá bude použitá v odpovedi na tiket.
+  links:
+    - 
+      title: Vytvorenie šablón emailov v Admin paneli
+      href: /scp/templates.php

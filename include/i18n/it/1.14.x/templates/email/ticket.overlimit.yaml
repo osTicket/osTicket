@@ -1,0 +1,12 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Inviata agli utenti quando essi hanno superato il limite massimo di ticket aperti. Il limite è configurabile nel pannello Admin ed è definito dal numero di biglietti aperti da un indirizzo email specifico.
+subject: |
+  Raggiunto limite di biglietti aperti
+body: |
+  <h3><strong>Ciao %{ticket.name.first},</strong></h3> Hai raggiunto il numero massimo di ticket aperti. Per poter aprire un altro ticket, uno dei tuoi ticket in sospeso deve essere chiuso. Per aggiornare o aggiungere commenti a un ticket aperto semplicemente fai il <a href="%{url}/tickets.php?e=%{ticket.email}"> login al nostro helpdesk</a>. <br><br>Ti ringrazio, <br/> Help desk

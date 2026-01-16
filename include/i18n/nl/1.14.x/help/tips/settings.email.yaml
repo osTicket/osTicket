@@ -1,0 +1,97 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Standaard emailtemplate set
+  content: >
+    Selecteer <span class="doc-desc-title">Email Voorbeeld Set</span> te gebruiken om te verzenden <span class="doc-desc-title">Automatische antworden</span> en <span class="doc-desc-title">Waarschuwingen</span> voor verschillende acties die kunnen voorkomen tijden de doorloop tijd van de ticket. <br><br> Afdelingen kunnen een speciaal Email Voorbeeld Set worden toegewezen.
+  links:
+    - 
+      title: Beheer emailtemplate sets
+      href: /scp/templates.php
+default_system_email:
+  title: Standaard uitgaande E-mail
+  content: >
+    Kies een uitgaande email adres. <br><br> <span class="doc-desc-title">Afdeling</span> kan zijn eigen <span class="doc-desc-title">email adres instellen</span>welke dan de hier gekozen zal overschrijven.
+  links:
+    - 
+      title: Wijzig email adressen
+      href: /scp/emails.php
+default_alert_email:
+  title: Standaard e-mailadres voor meldingen
+  content: >
+    Kies een email adres waar van <span class="doc-desc-title">Waarschuwingen &amp; Berichten</span> kunnen worden verzonden naar medewerkers.
+  links:
+    - 
+      title: Wijzig email adressen
+      href: /scp/emails.php
+admins_email_address:
+  title: Administrator e-mailadres
+  content: >
+    Geef hier een admin email adres op waar naar <span class="doc-desc-title">Systeem Fouten</span> en <span class="doc-desc-title">Nieuwe Tickets waarschuwingen</span> (indien voor gekozen) worden verzonden.
+  links:
+    - 
+      title: Beheren van waarschuwingen & Notities
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: E-mail ophalen
+  content: >
+    Stem toe IMAP/POP polling voor instellignen en aanzetten van <span class="doc-desc-title">email box</span>.
+  links:
+    - 
+      title: Mailboxen beheren
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Haal emails op via Auto-cron
+  content: >
+    Maakt het mogelijk om peridoiek email op te halen, gebruikmakend van intern taakbeheer, aangewakkerd door de activiteit van de agenten. <br><br>Let er wel op dat er geen email wordt opgehaald op het moment dat niemand is ingelocht in het ticketsysteem. Extern taakbeheer wordt wel aangeraden als je op gezette tijden mail wilt binnenhalen.
+  links:
+    - 
+      title: Gebruik en externe taken agenda
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Beperk quote antwoord
+  content: >
+    Als deze optie aan staat, zal er geen originele berichtgeving worden bijgesloten in de emailcommunicatie.<br><br>Deze optie heeft ook verband met onderstaande <span class="doc-desc-title">bericht scheidingsteken<span> instelling.
+reply_separator_tag:
+  title: Antwoord afscheidingsregel
+  content: >
+    Dit is het teken waaraan de gebruiker kan zien wat nieuw is aan een bericht en wat voor de volledigheid is ingesloten.<Br><br><strong>Notitie:</strong>Dit is alleen van toepassing als de bovenstaande optie om originele correpsondentie in de nieuwe berichten op te nemen, is ingeschakeld.
+emailed_tickets_priority:
+  title: Gemailed Ticket Prioriteit
+  content: >
+    Vink aan om de prioriteit van een ticket af te laten hangen van de prioriteit van de ingezonden email.<br><br>Deze instelling kan worden genegeerd met een <span class="doc-desc-title">ticket filter</span>.
+  links:
+    - 
+      title: Aanmaken &amp; onderhoud ticket filters
+      href: /scp/filters.php
+accept_all_emails:
+  title: Accepteer alle emails
+  content: >
+    Accepteer emails van onbekende gebruikers. <br><br> Indien niet selecteerd zal ticket niet worden verwerkt.
+accept_email_collaborators:
+  title: Accepteer emailteams
+  content: >
+    Voeg alle medewerkers die zijn bijgevoegd in de email toe als ticket medewerkers. <br /><br /><em>Medewerkers kunnen altijd door agenten worden toegevoegd aan het ticket, bij het bekijken ervan.</em>
+
+default_mta:
+  title: Standaard Mailserver
+  content: >
+    De <span class="doc-desc-title">Standaard Mailserv</span> zorgt voor aflevering van uitgaande emails zonder SMTP instelling.
+ticket_response_files:
+  title: Bestanden ticket antwoord
+  content: >
+    Indien ingeschakeld wordt elke bijlage die een medewerker toevoegt aan een ticket, ook toegevoegd aan de email naar de gebruiker.
+verify_email_addrs:
+  title: Controleer email adressen
+  content: >
+    Zet deze optie aan om te controleren of het emailadres overeenkomt met de instellingen van een mailserver die namens dat domein mag mailen (een mx-server in de DNS) Dit is handig om foutieve emailadressen te controleren. Deze optie is een toevoeging op het technisch checken van de opmaak van een email-adres.

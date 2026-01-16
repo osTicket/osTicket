@@ -1,0 +1,47 @@
+---
+- 
+  #Default groups defined for the system
+  #Fields:
+  #id - Primary id for the group
+  #role_id - (int)  default role for the group
+  #flags - (bit mask) group flags
+  #name - (string) descriptive name for the group
+  #notes - (string) administrative notes (viewable internally only)
+  #depts: (list<Department<id>>) id's of the departments to which the group
+  #should initially have access
+  #NOTE: ------------------------------------
+  #The very first group listed in this document will be the primary group of
+  #the initial staff member -- the administrator.
+  #---
+  id: 1
+  role_id: 1
+  flags: 1
+  name: ライオンテイマー
+  notes: |
+    システムの最高権威者。これらの人々は（初期状態では）全ての部門へのフルコントロール権限を持っています。
+  depts:
+    - 1
+    - 2
+    - 3
+- 
+  id: 2
+  role_id: 2
+  flags: 1
+  name: エレファントウォーカー
+  notes: |
+    Inhabitants of the ivory tower
+  depts:
+    - 1
+    - 2
+    - 3
+- 
+  id: 3
+  role_id: 2
+  flags: 1
+  name: フレアトレーナー
+  notes: |
+    少ないスタッフメンバー
+  depts:
+    - 1
+    - 2
+    - 3

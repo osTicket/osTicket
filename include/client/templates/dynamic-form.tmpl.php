@@ -51,12 +51,12 @@ $isCreate = (isset($options['mode']) && $options['mode'] == 'create');
             <?php
             }
             if ($field->isEditableToUsers() || $isCreate) {
-                $field->render(array('client'=>true));
-                ?></label><?php
-                foreach ($field->errors() as $e) { ?>
-                    <div class="error"><?php echo $e; ?></div>
-                <?php }
-                $field->renderExtras(array('client'=>true));
+            $field->render(array('client'=>true));
+            ?></label><?php
+            foreach ($field->errors() as $e) { ?>
+                <div class="error"><?php echo $e; ?></div>
+            <?php }
+            $field->renderExtras(array('client'=>true));
             } else {
                 $val = '';
                 if ($field->value)

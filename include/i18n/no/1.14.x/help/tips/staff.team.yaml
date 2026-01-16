@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Grupper
+  content: >
+    Lag er en eller flere agenter satt sammen for saks tildeling. Medlemskap i lag kan omfatte flere avdelinger.
+status:
+  title: Status
+  content: >
+    Hvis <span class="doc-desc-opt"> deaktivert</span>, vil dette teamet ikke vil være tilgjengelig for tildeling av saker eller motta varsler og meldinger på tidligere oppdrag.
+lead:
+  title: Gruppeleder
+  content: >
+    Et <span class="doc-desc-title"> Team</span> kan ha en utpekt leder som kan motta <span class="doc-desc-title"> varsler og merknader</span> atskilt fra medlemmene.
+  links:
+    - 
+      title: Konfigurere varsler og meldinger
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Tildelings varsel
+  content: >
+    Du kan deaktivere den <span class="doc-desc-title"> saks tildelings varsel</span> for saker som er tilordnet dette teamet.
+  links:
+    - 
+      title: Konfigurere varsler og meldinger
+      href: /scp/settings.php?t=alerts
+members:
+  title: Gruppemedlemmer
+  content: >
+    Gruppemedlemskap konfigureres via Agent profilen.
+  links:
+    - 
+      title: Administrere ansatte
+      href: /scp/staff.php

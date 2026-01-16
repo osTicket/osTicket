@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: การจัดรูปแบบชื่อ
+  content: >
+    เลือกรูปแบบทั้งระบบสำหรับชื่อของเจ้าหน้าที่ แม่แบบของอีเมล์จะถูกนำมาใช้ในกรณีที่ไม่ได้มีการกำหนดแม่แบบอื่น
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    ถ้าเปิด ระบบจะซ่อนชื่อของ Staff จากไคลเอนต์ในระหว่างการสื่อสารใด ๆ
+#Authentication settings
+password_reset:
+  title: นโยบายรหัสผ่านหมดอายุ
+  content: >
+    Sets how often (in months) Agents will be required to change their password. If disabled (set to "No expiration"), passwords will not expire.
+password_expiration_policy:
+  title: นโยบายรหัสผ่านหมดอายุ
+  content: >
+    เลือกความถี่ที่เจ้าหน้าที่จะต้องเปลี่ยนรหัสผ่าน หากปิดการใช้งาน (เช่น <span class="doc-desc-opt">ไม่มีวันหมดอายุ</span>) รหัสผ่านจะไม่หมดอายุ
+allow_password_resets:
+  title: อนุญาตให้ตั้งค่ารหัสผ่านใหม่
+  content: >
+    Enable this feature if you would like to display the <span class="doc-desc-title">Forgot My Password</span> link on the <span class="doc-desc-title">Staff Log-In Page</span> after a failed log in attempt.
+reset_token_expiration:
+  title: หน้าต่างตั้งค่ารหัสผ่าน
+  content: >
+    เลือกระยะเวลา (นาที) สำหรับการ<span class="doc-desc-title"> เตือนการรีเซ็ตรหัสผ่าน</span> ที่จะหมดอายุ เมื่อเจ้าหน้าที่ร้องขอ <span class="doc-desc-title">รีเซ็ตรหัสผ่าน</span>พวกเขาจะส่งอีเมลในทำนองที่จะอนุญาตให้รีเซ็ต
+staff_session_timeout:
+  title: หมดเวลาของ Session
+  content: >
+    Choose the maximum idle time (in minutes) before an Agent is required to log in again. <br><br> If you would like to disable <span class="doc-desc-title">Agent Session Timeouts</span>, enter 0.
+bind_staff_session_to_ip:
+  title: ไม่แสดง IP ของ Staff
+  content: >
+    Enable this if you want Agent to be remembered by their current IP upon Log In. <br><br> This setting is not recommened for users assigned IP addresses dynamically.

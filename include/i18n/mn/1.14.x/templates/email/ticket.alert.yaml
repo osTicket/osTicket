@@ -1,0 +1,46 @@
+---
+#Email template: ticket.alert.yaml
+#Sent to a staff member when a new ticket is created in the system. This
+#applies to tickets created via email, the web portal, or the api.
+#---
+notes: |
+  Системд шинэ Хүсэлт үүсэхэд Тусламжийн албаны ажилтан уруу илгээх имэйлийн загвар. Энэ нь имэйл, вэб хуудас болон API ашиглаж үүсгэсэн хүсэлтүүдэд хамааралтай.
+subject: |
+  Шинэ Хүсэлтийн Сануулга
+body: |
+  <h2>Сайн байна уу, %{recipient.name} ?</h2>
+  #%{ticket.number} дугаартай хүсэлт шинээр үүссэн байна
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>Хэнээс</strong>:
+      </td>
+      <td>
+          %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <strong>Алба</strong>:
+      </td>
+      <td>
+          %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Хүсэлтийг үзэх эсвэл хариу өгөх бол систем уруу<a
+  href="%{ticket.staff_link}">нэвтэрнэ үү</a></div>
+  <em style="font-size: small">Тусламж Үйлчилгээний Алба</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      style="width: 126px; " alt="Powered By osTicket"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

@@ -1,0 +1,9 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+notes: >
+  Açılış səhifəsi müştəri portalının ilkin görünüşünün kontentinə aiddir. Şablon iki linkin - <strong>yeni sorğu aç</strong> və <strong>sorğu statusunu yoxla</strong> yuxarıda görünən kontentini dəyişir.
+name: Açılış
+body: >
+  <h1>Dəstək mərkəzinə xoş gəlmisiniz</h1> <p> Sizə daha yaxşı xidmət göstərmək üçün biz sorğu dəstək sistemindən istifadə edirik. Hər bir dəstək təklifi xüsusi sorğu nömrəsiylə müəyyən olunur. Siz bu nömrəylə sorğunun dəyişikliklərini və cavablarını online görə bilərsiniz. Rahat müraciətiniz üçün sizi bütün dəstək təkliflərinizin tam arxiv və tarixi ilə təmin edirik. Sorğunu təqdim etmək üçün doğru e-poçt ünvanı tələb olunur. </p>

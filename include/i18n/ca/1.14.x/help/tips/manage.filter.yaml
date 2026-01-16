@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ordre d'execució
+  content: >
+    Introduïxca un número que controle la prioritat del filtre. La més baixa és el número, i la prioritat més alta  aquest filtre que serà executat en comptes d'un altre filtre que podria tindre un ordre d'execució més alt. <br><br>Si vol que aquest filtre sigui el darrer filtre aplicat a un partit, permeta <span class="doc-desc-title"> Aturar processament a més en el partit</span>.
+target_channel:
+  title: Canal
+  content: >
+    Trie la targeta de <span class="doc-desc-title"> canal</span> pel seu <span class="doc-desc-title"> filtre de Tickets</span>. El <span class="doc-desc-title"> canal</span> és la font a través de la qual el Ticket va arribar a el sistema. <br><br>Per exemple, si selecciona <span class="doc-desc-opt"> Formularis Web</span>, vostè està dient que vol aplicar el <span class="doc-desc-title"> filtre de Tickets </span> a aquestos Tickets que es van originar des del Portal Client webform.
+rules_matching_criteria:
+  title: Regles coincideixen amb els criteris
+  content: >
+    Trie com d'elàstica vol els criteris de coincidència del seu <span class="doc-desc-title"> filtre de Tickets</span> a ser. Si li agrada el <span class="doc-desc-title"> filtre d'e tickets</span> perquè coincideixixquen amb qualsevol de les normes i llavors parar, trie <span class="doc-desc-opt"> qualsevol partit</span>. Si li agradaria que <em><strong>totes les normes</strong></em> del <span class="doc-desc-title"> filtre d'entrada</span> que s'ajusten, trie <span class="doc-desc-opt"> Tots els partits</span>.
+reject_ticket:
+  title: Rebutjar Ticket
+  content: >
+    Si açò està activat, el processament posterior s'atura i totes les altres opcions d'actuació següent seràn ignorades a el partit.
+reply_to_email:
+  title: Respon un E-mail
+  content: >
+    Permetre això si vol el seu sistema de suport per honorar la capçalera <span class="doc-desc-title"> Resposta</span> de aplicació de de un usuari correu electrònic. Aquest camp només és rellevant si el <span class="doc-desc-title"> canal</span> anterior inclou <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: Desactivar Resposta automática de Ticket
+  content: >
+    <em>Nota: aquesta acció substituirà qualsevol <span class="doc-desc-title"> Departament</span> o <span class="doc-desc-title"> escenes de Autoresposta</span>.</em>
+canned_response:
+  title: Resposta automàtica predefinida
+  content: >
+    Trie una <span class="doc-desc-title"> Resposta predefinida</span> que vol enviar a l'usuari el <span class="doc-desc-title"> Filtre d'entrada</span> coincidix.  La plantilla <span class="doc-desc-title"> Nou Ticket de resposta automática</span> utilitzat depèn de quin <span class="doc-desc-title"> conjunt de plantilles </span> està assignat per defecte, o per de un Ticket coincident <span class="doc-desc-title"> Departament</span>.
+  links:
+    - 
+      title: Gestionar Respostes predefinides
+      href: /scp/canned.php
+    - 
+      title: Gestionar la plantilla establida
+      href: /scp/templates.php
+    - 
+      title: Plantilla de Auto-resposta nova de Ticket
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Departament
+  content: >
+    Trie quin <span class="doc-desc-title"> Departament</span> desitja les coincidencies en el <span class="doc-desc-title"> Filtre d'entrada</span> per a ser assignats.
+  links:
+    - 
+      title: Gestionar Departaments
+      href: /scp/departments.php
+priority:
+  title: Prioritat
+  content: >
+    Trie el nivell de <span class="doc-desc-title"> prioritat</span>amb la qual que vol aplicar les coincidències del <span class="doc-desc-title"> Filtre de Tickets</span>. < br / > < br / > <em>Nota: aquesta acció substituirà escenes <span class="doc-desc-title"> Departament</span> o <span class="doc-desc-title">Ajustos del tema ajuda</span>.</em>
+sla_plan:
+  title: pla SLA
+  content: >
+    Trie el <span class="doc-desc-title"> Pla SLA</span> vole aplicar les coincidències del <span class="doc-desc-title"> Filtre de Tickets</span>.
+  links:
+    - 
+      title: Gestionar Plans de SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Assignació automàtica
+  content: >
+    Escollir un Agent o una coincidencia a que vol els partits del <span class="doc-desc-title"> Filtre de Tickets </span> que s'assignarà.
+  links:
+    - 
+      title: Administrar Agents
+      href: /scp/staff.php
+    - 
+      title: Gestió d'equips
+      href: /scp/teams.php
+help_topic:
+  title: Tema d'ajuda
+  content: >
+    Trie el <span class="doc-desc-title"> Pla SLA</span> vole aplicar les coincidències del <span class="doc-desc-title"> Filtre de Tickets</span>.
+  links:
+    - 
+      title: Gestionar els temes d'ajuda
+      href: /scp/helptopics.php
+admin_notes:
+  title: Notes de administració
+  content: >
+    Aquestes notes són només visibles a aquells el tipus de compte és "<span class="doc-desc-title"> Administrador</span>."

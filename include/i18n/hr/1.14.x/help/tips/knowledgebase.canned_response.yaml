@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Pripremljeni odgovor
+  content: >
+    Izradite <span class="doc-desc-title">Pripremljeni odgovor</span>koji se može unjeti u odgovor na karticu (Ticket). Također se može koristiti kao <span class="doc-desc-title">automatski odgovor na karticu (Ticket)</span> Postavi po <span class="doc-desc-title">Odabir kartica</span>.
+  links:
+    - 
+      title: Postavi filter(odabir) kartica 
+      href: /scp/filters.php
+canned_attachments:
+  title: Pripremljeni prilozi
+  content: >
+    Dodajte te datoteku koju biste htijeli automatski priložiti u odgovor na karticu koja će koristiti <span class="doc-desc-title"> Pripremljeni odgovor</span>.

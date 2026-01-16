@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: এজেন্টের নামের কাঠামো
+  content: >
+    পুরো সিস্টেমজুড়ে এজেন্টের নামের কাঠামো কেমন হবে তা নির্বাচন করুন। অন্য কোন কিছু না থাকলে ইমেইলের টেমপ্লেটে এটি ব্যবহার করা হবে।
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Password Expiration Policy
+  content: >
+    কত সময় (মাস হিসেবে) পরপর এজেন্টদেরকে তাদের পাসওয়ার্ড পরিবর্তন করতে হবে - তা ঠিক করুন। যদি অপশনটি বন্ধ থাকে ("কখনই মেয়াদ শেষ হবেনা" দিলে), পাসওয়ার্ডের মেয়াদ কখনোই শেষ হবেনা।
+password_expiration_policy:
+  title: Password Expiration Policy
+  content: >
+    Choose how often Agents will be required to change their password. If disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords will not expire.
+allow_password_resets:
+  title: Allow Password Resets
+  content: >
+    যদি <span class="doc-desc-title">কর্মচারীদের লগিন পাতায়</span> লগিন করতে ব্যর্থ হওয়ার পর <span class="doc-desc-title">পাসওয়ার্ড ভুলে গিয়েছি</span> লিঙ্কটি দিতে চান তাহলে এই ফিচারটি চালু করুন।
+reset_token_expiration:
+  title: Password Reset Window
+  content: >
+    Choose the duration (in minutes) for which the <span class="doc-desc-title"> Password Reset Tokens</span> will be valid. When an Agent requests a <span class="doc-desc-title">Password Reset</span>, they are emailed a token that will permit the reset to take place.
+staff_session_timeout:
+  title: Agent Session Timeout
+  content: >
+    Choose the maximum idle time (in minutes) before an Agent is required to log in again. <br><br> If you would like to disable <span class="doc-desc-title">Agent Session Timeouts</span>, enter 0.
+bind_staff_session_to_ip:
+  title: Bind Agent Session to IP
+  content: >
+    Enable this if you want Agent to be remembered by their current IP upon Log In. <br><br> This setting is not recommened for users assigned IP addresses dynamically.

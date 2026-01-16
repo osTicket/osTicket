@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Στοιχεία Τομέα Βοήθειας
+  content: >
+    Οι <span class="doc-desc-title">Τομείς Βοήθειας</span> παρέχουν καθοδήγηση για το είδος πληροφοριών που συλλέγεται από τους Χρήστες και το πώς δρομολογούνται ή ανατίθενται τα δελτία.
+topic:
+  title: Όνομα Τομέα
+  content: >
+    Μοναδικό όνομα Τομέα Βοήθειας.
+status:
+  title: Κατάσταση
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Τύπος
+  content: >
+    Εάν ένας <span class="doc-desc-title">Τομέας Βοήθειας</span> σημανθεί ως Ιδιωτικός, θα είναι διαθέσιμος μόνο για Εκπροσώπους έτσι ώστε να μπορούν να τον επιλέξουν όταν ανοίγουν ένα νέο Δελτίο στον Πίνακα Προσωπικού.
+parent_topic:
+  title: Γονικός Τομέας
+  content: >
+    Επιλέξτε τον Γονικό Τομέα στον οποίο θα ανήκει ο παρών <span class="doc-desc-title">Τομέας Βοήθειας</span>. Ο Γονικός Τομέας θα εμφανίζεται πρώτος στην λίστα και ο παρών <span class="doc-desc-title">Τομέας Βοήθειας</span> θα εμφανίζεται πίσω από τον γονικό.
+custom_form:
+  title: Ειδική Φόρμα
+  content: >
+    Οι Ειδικές Φόρμες σας βοηθούν στην συγκέντρωση πιο συγκεκριμένων πληροφοριών για τους Χρήστες οι οποίες είναι σχετικές με αυτόν τον <span class="doc-desc-title">Τομέα Βοήθειας</span>.
+  links:
+    - 
+      title: Διαχείριση Ειδικών Φορμών
+      href: /scp/forms.php
+priority:
+  title: Προτεραιότητα
+  content: >
+    Επιλέξτε την Προτεραιότητα που θα δίδεται σε νέα Δελτία που σχετίζονται με αυτόν τον <span class="doc-desc-title">Τομέα Βοήθειας</span>. <br><br> Τα Φίλτρα Δελτίων μπορούν να παρακάμψουν την Προτεραιότητα των νέων Δελτίων.
+department:
+  title: Τμήμα
+  content: >
+    Επιλέξτε το Τμήμα στο οποίο θα δρομολογούνται τα νέα αιτήματα που υπάγονται σε αυτόν τον Τομέα Βοήθειας.
+  links:
+    - 
+      title: Διαχείριση Τμημάτων
+      href: /scp/departments.php
+sla_plan:
+  title: Σχέδιο SLA
+  content: >
+    Επιλέξτε το σχέδιο SLA που συνδέεται με αυτόν τον <span class="doc-desc-title">Τομέα Βοήθειας</span>. <br><br> Αυτή η επιλογή θα υπερισχύσει του οποιουδήποτε επιλεγμένου σχεδίου SLA Τμήματος
+  links:
+    - 
+      title: Διαχείριση Σχεδίων SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Ευχαριστήρια Σελίδα
+  content: >
+    Επιλέξτε την Ευχαριστήρια Σελίδα στην οποία θέλετε να οδηγηθεί ο Χρήστης μετά το άνοιγμα ενός Δελτίου που υπάγεται σε αυτόν τον <span class="doc-desc-title">Τομέα Βοήθειας</span>.
+  links:
+    - 
+      title: Διαχείριση Ευχαριστηρίων Σελίδων
+      href: /scp/pages.php
+auto_assign_to:
+  title: Αυτόματη Αναθέση Νέων Αιτημάτων
+  content: >
+    Επιλέξτε προαιρετικά έναν Εκπρόσωπο ή μια Ομάδα όπου θα αντίθενται αυτόματα τα Δελτία που ανοίγονται με αυτόν τον <span class="doc-desc-title">Τομέα Βοήθειας</span> <br><br> Τα Φίλτρα Δελτίων μπορούν να παρακάμψουν την ανάθεση.
+  links:
+    - 
+      title: Διαχείριση Προσωπικού και Ομάδων
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Αυτόματη Απόκριση Αιτήματος
+  content: >
+    Εάν επιλεγεί, αυτή η ρύθμιση θα απενεργοποιήσει τις αυτόματες αποκρίσεις σε νέα Δελτία για αυτόν τον <span class="doc-desc-title">Τομέα Βοήθειας</span>. <br><br> Αυτή η ρύθμιση υπερισχύει της ρύθμισης αυτόματων αποκρίσεων για το <span class="doc-desc-title">Τμήμα</span> καθώς και τις γενικές ρυθμίσεις <span class="doc-desc-title">Αυτόματων Αποκρίσεων</span>.
+  links:
+    - 
+      title: Ρυθμίσεις Αυτόματης Απόκρισης
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Ειδικοί Αριθμοί Δελτίων
+  content: >
+    Επιλέξτε "Ειδικό" για να παρακάμψετε την προεπιλεγμένη μορφή αρίθμησης δελτίων για τα αιτήματα που δημιουργούνται σε αυτόν τον Τομέα Βοήθειας. Δείτε τις συμβουλές Βοήθειας στη σελίδα Ρυθμίσεις / Αιτήματα για περισσότερες λεπτομέρειες επί των ρυθμίσεων.

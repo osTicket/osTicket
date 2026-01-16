@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: ทีม
+  content: >
+    ทีมคือเจ้าหน้าทตั้งแต่หนึ่งคนหรือมากกว่ามารวมตัวกันเพื่อทำ ticket ที่ได้รับมอบหมาย สมาชิกในทีมอาจจะขยายไปยังแผนกอื่นได้
+status:
+  title: สถานะ
+  content: >
+    ถ้า<span class="doc-desc-opt">ปิดการใช้งาน</span> ทีมงานนี้จะไม่สามารถประกาศและแจ้งเตือนจาก Ticket  &amp; ที่ถูกมอบหมายเอาไว้ก่อนหน้านี้
+lead:
+  title: หัวหน้าทีม
+  content: >
+    A <span class="doc-desc-title">Team</span> can have an appointed leader who can receive <span class="doc-desc-title">Alerts &amp; Notices</span> separate from the members.
+  links:
+    - 
+      title: แจ้งเตือนการตั้งค่า &amp;
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: กำหนดข้อความแจ้งเตือน
+  content: >
+    คุณสามารถปิดการ<span class="doc-desc-title">แจ้งเตือนการมอบหมาย Ticket</span>สำหรับ Ticket ที่กำหนดให้กับทีมนี้
+  links:
+    - 
+      title: แจ้งเตือนการตั้งค่า &amp;
+      href: /scp/settings.php?t=alerts
+members:
+  title: สมาชิกในทีม
+  content: >
+    สมาชิกทีมมีการกำหนดค่าผ่านโปรไฟล์ Staff
+  links:
+    - 
+      title: จัดการพนักงาน
+      href: /scp/staff.php

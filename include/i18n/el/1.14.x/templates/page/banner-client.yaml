@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Το παρόν αποτελεί την κεφαλίδα στη σελίδα Σύνδεσης Πελατών. Μπορεί να είναι χρήσιμη στο να πληροφορήσει τους Πελάτες σας σχετικά με την πολιτική εγγραφής και σύνδεσης.
+name: "Σύνδεση στο %{company.name}"
+body: >
+  Για να σας εξυπηρετήσουμε καλύτερα, ενθαρρύνουμε τους Πελάτες μας να εγγραφούν για να αποκτήσουν λογαριασμό.

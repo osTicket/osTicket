@@ -1,0 +1,24 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Saadetakse agentidele, kui ülesandele lisatakse uus sõnum/märkus. See võib juhtuda, kui kaastöötaja või agent vastab süsteemist emailile või külastab veebiportaali ja postitab sealt uues sõnumi.
+subject: |
+  Ülesande aktiivsus [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Tere %{recipient.name},</strong></h3>
+  Ülesannet <a href="%{task.staff_link}">#%{task.number}</a> on uuendatud: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Ülesande vaatamiseks või sellele vastamiseks, palun <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);">logi sisse</span></a> piletite haldussüsteem</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Sinu sõbralik kasutajatugi</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Гүйцэтгэх дараалал
+  content: >
+    Шүүлтийн дарааллын зэрэглэлийг тохируулна уу. Тоо нь бага шүүлтүүр их тоотой шүүлтүүрийн өмнө ажиллана. <br><br>Хэрвээ энэ шүүлтийг сүүлийн шүүлт болгож тохируулах бол <span class="doc-desc-title">Тохирох хүсэлт олдвол бусад шүүлтийг зогсоох</span> сонгоно уу.
+target_channel:
+  title: Суваг
+  content: >
+    Тухайн <span class="doc-desc-title">шүүлтүүрт</span> тохирох <span class="doc-desc-title">Сувгийг</span> сонгоно уу. <span class="doc-desc-title">Суваг</span> нь тухайн хүсэлт ямар замаар системд орж ирсэн болохыг илэрхийлнэ. <br><br>Жишээ нь, Хэрэглэгчийн вэб дээрх формыг ашиглан хүсэлт илгээсэн бол тухайн <span class="doc-desc-title">Шүүлтүүрт</span> тохирох хүсэлтэд <span class="doc-desc-opt">Вэб Форм</span> сонголтыг сонгоно.
+rules_matching_criteria:
+  title: Шалгуурт нийцэх дүрмүүд
+  content: >
+    Таны <span class="doc-desc-title">шүүлтүүр</span> хэр уян хатан үйлчлэхийг тохируулна. Хэрвээ та <span class="doc-desc-title">уг шүүлтүүрт</span> ямар нэг нөхцлийг хангаж байвал зогсоох бол <span class="doc-desc-opt">Аль нэг нь таарах</span> гэж сонгоно. Хэрвээ <em><strong>бүх нөхцлийг</strong></em> хангаж байх <span class="doc-desc-title">шүүлтүүр</span> бол <span class="doc-desc-opt">Бүгд таарах</span> гэж сонгоно.
+reject_ticket:
+  title: Хүсэлтийг татгалзах
+  content: >
+    Хэрэв үүнийг идэвхжүүлбэл цаашдын боловсруулалт зогсох бөгөөд үүнээс доошхи дүрмүүдэд тохирч байсан ч харгалзах үйлдлүүд нь хийгдэхгүй.
+reply_to_email:
+  title: Хариу өгөх имэйл
+  content: >
+    Хэрвээ системээс хэрэглэгчийн мэйлийн <span class="doc-desc-title">Reply To</span> талбарыг анхаарах бол идэвхижүүлнэ үү. Энэ талбарыг <span class="doc-desc-title">Суваг</span> нь <span class="doc-desc-opt">Мэйл</span> байх үед ажиллана.
+ticket_auto_response:
+  title: Хүсэлтэд автоматаар хариу өгөхийг идэвхгүй болгох
+  content: >
+    <em>Анхааруулга: Энэ тохиргоо нь <span class="doc-desc-title">Алба</span> эсвэл <span class="doc-desc-title">Автомат хариулагч</span>-ийн тохируулгуудыг хэрэгсэхгүй болгоно.</em>
+canned_response:
+  title: Бэлдсэн автомат хариулт
+  content: >
+    <span class="doc-desc-title">Хүсэлтийн шүүлтүүрт</span> тохирох хүсэлтэд илгээх <span class="doc-desc-title">Бэлтгэсэн хариултыг</span> сонгоно.  <span class="doc-desc-title">Шинэ хүсэлтэд илгээх автомат хариу</span> нь үндсэн эсвэл тохирох <span class="doc-desc-title">Албанд</span> хамаарах <span class="doc-desc-title">загварын багцыг</span> ашиглана.
+  links:
+    - 
+      title: Бэлдсэн хариултуудыг засварлах
+      href: /scp/canned.php
+    - 
+      title: Загваруудыг зохицуулах
+      href: /scp/templates.php
+    - 
+      title: Шинэ хүсэлтэд өгөх автомат хариуны загвар
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Алба
+  content: >
+    Энэхүү <span class="doc-desc-title">Хүсэлтийн шүүлтүүрт</span> тохирох хүсэлтүүдийг аль <span class="doc-desc-title">Алба</span> уруу хуваарилахаа сонгоно уу.
+  links:
+    - 
+      title: Алба зохицуулах
+      href: /scp/departments.php
+priority:
+  title: Зэрэглэл
+  content: >
+    Энэ <span class="doc-desc-title">Хүсэлтийн шүүлтүүрт</span> тохирох хүсэлтүүдэд ямар <span class="doc-desc-title">Зэрэглэл</span> оноохыг сонгоно уу.<br /> <br /> <em>Санамж: Ингэснээр <span class="doc-desc-title">Алба</span> эсвэл <span class="doc-desc-title">Тусламжийн сэдвийн</span> тохиргоо хамааралгүй болно.</em>
+sla_plan:
+  title: Үйлчилгээний стандартын төлөвлөгөө
+  content: >
+    <span class="doc-desc-title">Хүсэлтийн шүүлтүүрт</span> тохирох хүсэлтүүдэд ашиглах <span class="doc-desc-title">Үйлчилгээний түвшний стандартыг</span> сонгоно уу.
+  links:
+    - 
+      title: Үйлчилгээний стандартын төлөвлөгөөг зохицуулах
+      href: /scp/slas.php
+auto_assign:
+  title: Автоматаар оноох
+  content: >
+    <span class="doc-desc-title">Хүсэлтийн шүүлтүүрт</span> тохирсон хүсэлтүүдийг хуваарилах ажилтан, эсвэл багийг сонгоно уу.
+  links:
+    - 
+      title: Ажилтнуудыг удирдах
+      href: /scp/staff.php
+    - 
+      title: Багуудыг удирдах
+      href: /scp/teams.php
+help_topic:
+  title: Тусламжийн сэдэв
+  content: >
+    <span class="doc-desc-title">Хүсэлтийн шүүлтүүрт</span> тохирсон хүсэлтүүдэд хамаарах <span class="doc-desc-title">Тусламжийн сэдвийг</span> сонгоно.
+  links:
+    - 
+      title: Тусламжийн сэдвүүдийг зохицуулах
+      href: /scp/helptopics.php
+admin_notes:
+  title: Админы тэмдэглэл
+  content: >
+    Эдгээр тэмдэглэл нь зөвхөн ‘<span class="doc-desc-title">Админ</span>’ эрхтэй хэрэглэгчдэд харагдана

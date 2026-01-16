@@ -1,0 +1,11 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  در هنگام ایجاد درخواست جدید برای کاربر ارسال می شود
+subject: |
+  درخواست پشتیبانی به شماره [#%{ticket.number}] باز شد
+body: |
+  <h3><strong>%{recipient.name.first} عزیز،</strong></h3><p> یک درخواست برای پشتیبان ایجاد و شماره درخواست #%{ticket.number} به آن اختصاص داده شده است. یک نماینده در اسرع وقت کار شما را پیگیری خواهد کرد. شما می‌توانید <a href="%{recipient.ticket_link}"> پیشرفت این درخواست را به صورت آن‌لاین مشاهده کنید</a>.</p><br><div style="color: rgb(127, 127, 127)"> تیم %{company.name} شما، <br>%{signature}</div><hr><div style="color: rgb(127, 127, 127); font-size: small; "><em>اگر می‌خواهید اطلاعات یا توضیحات بیشتری در مورد این موضوع ارائه دهید، لطفا به این ایمیل پاسخ دهید یا برای تکمیل سابقه درخواست‌های پشتیبانی خود <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >وارد حساب کاربری خود شوید</span></a></em></div>

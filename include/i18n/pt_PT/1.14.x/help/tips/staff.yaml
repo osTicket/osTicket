@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Linha de Assinatura do Funcionário
+  content: |
+    Crie a assinatura do funcionário para a resposta aos pedidos de assistência. Esta assinatura irá aparecer como uma opção no fim da resposta ao pedido de assistência
+type:
+  title: Tipo de Conta
+  content: |
+    Os administradores têm o privilegio de acesso ao Painel de Administração. Os funcionários têm apenas acesso à gestão de pedidos de assistência e base de informação
+group:
+  title: Grupo atribuído
+  content: |
+    O membro de um grupo define o papel da função do funcionário no sistema. Visite a página da gestão de grupos para definir qual o acesso que este funcionário tem no serviço de apoio
+notes:
+  title: Notas Internas
+  content: |
+    Coloque as notas internas relacionadas com os funcionários; estas só estão visiveis para o funcionário cujo tipo de conta é de Administrador

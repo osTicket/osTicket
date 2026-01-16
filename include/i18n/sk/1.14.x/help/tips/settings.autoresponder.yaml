@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nový tiket
+  content: >
+    Označte, ak chcete užívateľovi poslať automatickú odpoveď po vytvorení nového tiketu.
+  links:
+    - 
+      title: Štandardný vzhľad automatickej odpovede (šablona emailu)
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nový tiket vytvorený pracovníkom (agentom)
+  content: >
+    Oznámenie, ktoré je posielané keď agent vytvoril tiket namiesto užívateľa. <em>Agent môže toto nastavenie zmeniť v momente vytvárania tiketu.</em>
+  links:
+    - 
+      title: Štandardný vzhľad oznámenia (šablona emailu)
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Potvrdenie novej správy
+  content: >
+    Potvrdzujúce oznámenie, posielané keď je k tiketu pripojená nová správa.
+  links:
+    - 
+      title: Štandardný vzhľad oznámenia (šablona emailu)
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Oznámenie o novej správe
+  content: >
+    Správy odoslané všetkým ostatným účastníkom tiketu na základe prijatia správy od ľubovolného odosielateľa .
+  links:
+    - 
+      title: Štandardný vzhľad odoslanej správy (šablona emailu)
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Oznámenie o prekročení limitu
+  content: >
+    Oznámenie o prekročení limitu posielané užívateľovi na základe prekročenia <span class="doc-desc-title">max.počtu otvorených tiketov</span>
+  links:
+    - 
+      title: Štandardný vzhľad oznámenia o prekročení limitu (šablona emailu)
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: <em>Maximálny počet otvorených tiketov</em>
+      href: /scp/settings.php?t=tickets

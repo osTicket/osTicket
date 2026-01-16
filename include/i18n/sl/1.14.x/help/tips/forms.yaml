@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Glavna vrstica obrazca
+  content: >
+    To besedilo naslova je prikazano v sivem okvirju nad polji obrazca
+form_instructions:
+  title: Navodila obrazca
+  content: >
+    Lahko dodate dodatna navodila, ki bodo pomagala voditi uporabnika skozi vsebino obrazca in verjetno osvetlila potrebne podatke.
+field_sort:
+  title: Položaj prikaza polja
+  content: >
+    Klikni na gor-in-dol ikono kurzorja in premakni vrstico polja, da poravnaš z obrazcem. Izbrana poravnava ne stopi v veljavo, dokler obrazec ni shranjen.
+field_label:
+  title: Oznaka polja
+  content: >
+    Ta oznaka je vidna kot poziv za to polje. Značilno bo polje kratkega odgovora opravilo kot ta: <br> <strong>oznaka:</strong>&nbsp; <input type="text">
+field_type:
+  title: Tip vsebine polja
+  content: >
+    To se uporablja za določitev tipa pričakovanega vnosa uporabnika. Lahko izbirate med kratkim in dolgim odgovorom, telefonsko številko, datumon in časom, potrditvenim poljem, spustnim seznamom ali izbiri po meri.
+  links:
+    - 
+      title: Seznami po meri
+      href: /scp/lists.php
+field_visibility:
+  title: Vidljivost polja
+  content: >
+    Izberite vidnost in možnost zahtev za to polje. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Nastavitve</th> <th>Rezultat</th></tr> <tr><td>Dodatno</td> <td>Skrbniki in končni uporabniki lahko vidijo to polje, toda za nobenega ni obvezen odgovor.</td></tr> <tr><td>Obvezen</td> <td>Skrbniki in končni uporabniki, Agents and EndUsers can see the field, and both are required to answer</td></tr> <tr><td>Required for EndUsers</td> <td>Agents and EndUsers can see the field, only EndUsers are required to answer</td></tr> <tr><td>Required for Agents</td> <td>Agents and EndUsers can see the field, only Agents are required to answer</td></tr> <tr><td>Internal, Optional</td> <td>Only Agents can see the field, but no answer is required.</td></tr> <tr><td>Internal, Required</td> <td>Only Agents can see the field, and an answer is required.</td></tr> <tr><td>For EndUsers Only</td> <td>Only EndUsers can see the field, and an answer is required.</td></tr> </tbody></table>
+field_variable:
+  title: Avtomatizacija polja
+  content: >
+    Podatek polja bo na voljo e-sporočilu in predlogam strani preko imena uporabljenega v tej koloni. Na primer, polja na skupnem obrazcu zahtevka so na voljo preko <code>%{ticket.variable}</code>, kjer je ime <strong>spremenljivke</strong> uporabljeno v tej koloni.<br> <br> <em>Podatki o podjetju so na voljo preko <code>%{</code><code>company.variable}</code> in podatki o uporabniko so na voljo preko <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Odstrani to polje
+  content: >
+    Preveri in shrani obrazec, da odstraniš polje iz tega obrazca. <br> <br> <em> Brisanje tega polja ne odstrani predhodno vnešenih podatkov za to polje v že izpolnjenem obrazcu. Na primer, če ima že obdelan zahtevek vpisan podatek v tem polju, izbris polja iz tega obrazca ne bo odstranil podatkov na tem zahtevku.</em>

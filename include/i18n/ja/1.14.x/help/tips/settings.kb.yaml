@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: ナレッジベース設定
+  0: >
+
+knowledge_base_status:
+  title: ナレッジベースステータス
+  content: >
+    パブリックナレッジベースの記事にユーザーが自分でアクセスできるようにするには、この設定を有効にします。 <br><br> ナレッジベースのカテゴリとFAQは内部用 (エージェントのみが表示可能) に設定できます。
+  links:
+    - 
+      title: ナレッジベースの管理
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    クライアント・インタフェース上のナレッジベースの記事へ未登録ユーザーのアクセスを制限するために、この設定を有効にします。
+  links:
+    - 
+      title: アクセスコントロール設定
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Canned Response
+  content: >
+    エージェントがチケットに返信するときに<span class="doc-desc-title">Canned Response</span>を使用できるようにするには、この設定を有効にします。
+  links:
+    - 
+      title: Canned Responsesの管理
+      href: /scp/canned.php

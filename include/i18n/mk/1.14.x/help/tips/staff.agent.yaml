@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Корисничко име
+  content: >
+    Ве молиме одберете уникатно <span class="doc-desc-title">корисничко име</span> на агент, за вашето<span class="doc-desc-title">Помошно биро</span>.
+email_address:
+  title: Емаил адреса
+  content: >
+    Внеси ја емаил адресата на Агентот кој ќе го прими <span class="doc-desc-title">Известувањето </span> од <span class="doc-desc-title">техничката поддршка</span>.
+  0: <br><br>
+  1: Персоналот може да се најави на панелот за персоналот со корисничкото име или емаил адресата.
+welcome_email:
+  title: Емаил за добредојде
+  content: >
+    Испрати до нов Агент акаунт со линк за пристап со кој Агентот ќе може да постави своја лозинка. Ако не е чекирано, ќе мора да се постави лозинка и да се испрати информацијата до новиот персонал.
+account_password:
+  title: Лозинка за профилот
+  content: >
+    Како <span class="doc-desc-title">администратор</span>, можеш да ја промениш лозинката на Агентот.
+forced_password_change:
+  title: Насилна примена на лозинка
+  content: >
+    Овозможи го ова ако сакаш да присилиш новиот Агент да ја примени неговата лозинка на следното логирање.
+agents_signature:
+  title: Потпис на агентот
+  content: >
+    Креирај потпис за Агентот кој може да биде одбран кога одговара на тикетот.
+account_status:
+  title: Статус на акаунтот
+  content: >
+    Ако статусот на Агентот е <span class="doc-desc-opt">Заклучен</span>, тогаш нема да може да се најави на техничката поддршка.
+assigned_group:
+  title: Доделена група
+  content: >
+    Оваа  <span class="doc-desc-title">Група</span> која ја одбра за овај Агент да припаѓа, одредува какви пермисии ќе има Агентот на <span class="doc-desc-title">техничката поддршка</span>.
+  links:
+    - 
+      title: Управување на групи
+      href: /scp/groups.php
+primary_department:
+  title: Основен Оддел
+  content: >
+    Choose the primary <span class="doc-desc-title">department</span> to which this Agent belongs and an effective <span class="doc-desc-title">Role</span>.
+  links:
+    - 
+      title: Управување на оддели
+      href: /scp/departments.php
+primary_role:
+  title: Primary Role
+  content: >
+    Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
+primary_role_on_assign:
+  title: Use Primary Role For Assignments
+  content: >
+    Enable this to fallback to the <span class="doc-desc-title">primary role</span>  when this agent is assigned tickets and tasks outside of the <span class="doc-desc-title">primary department</span> and <span class="doc-desc-title">extended access</span> departments. Otherwise the agent will have view only access.
+daylight_saving:
+  title: Летно сметање на времето
+  content: >
+    Овозможи го ова ако сакаш Летното сметање на времето автоматски да стапи на сила за овај Агент во оваа временска зона.
+limited_access:
+  title: Ограничен пристап
+  content: >
+    Ако е овозможено, Агентот ќе има пристап само до тикетите доделени дирекно преку Тимот.
+directory_listing:
+  title: Изминување на директориум
+  content: >
+    Овозможи го ова ако сакаш да го прикажиш овај Агент во <span class="doc-desc-title">Директориумот на персоналот</span>.
+  links:
+    - 
+      title: Посети го директориумот на пресоналот
+      href: /scp/directory.php
+vacation_mode:
+  title: Период на одмор
+  content: >
+    Ако го промениш статусот на Агентот во <span class="doc-desc-opt">Период на одмор</span>, Агентот нема да прима никакви <span class="doc-desc-title">Известувања</span> ниту ќе биде достапен за доделување на тикети.
+

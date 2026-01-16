@@ -1,0 +1,30 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Inviate ai membri del personale quando un ticket risulta in scadenza nel sistema. I ticket in scadenza in ritardo si verificano in base alla data di scadenza del biglietto, così come definiti dal SLA  per il ticket.
+subject: |
+  Avviso di Ticket in scadenza
+body: |
+  <h3><strong>Hi %{recipient}</strong>,</h3>
+  Un ticket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> è
+  in scadenza.
+  <br>
+  <br>
+  Dovremmo tutti lavorare sodo per garantire che tutti i ticket vengano affrontati in modo tempestivo.
+  <br>
+  <br>
+  Firmato,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>PEr visualizzare o rispondere a questo ticket, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >collegati </span></a> al sistema di supporto. Ricevi questo avviso perchè il ticket viene assegnato a te o al tuo reparto.</div>
+  <em style="font-size: small">Your friendly <span style="font-size: smaller"
+  >(although with limited patience)</span> Customer Support
+  System</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

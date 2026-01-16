@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Κατάσταση
+  content: >
+    Εάν απενεργοποιηθεί, αυτό το <span class="doc-desc-title">Τμήμα</span> δεν θα είναι διαθέσιμο.
+type:
+  title: Τύπος
+  content: >
+    Επιλέξτε <span class="doc-desc-opt">Ιδιωτικό</span> εάν επιθυμείτε να κρύψετε τις αναθέσεις σε αυτό το Τμήμα ή στον Ιστοχώρο Πελατών.  Επιπλέον, όταν έχει χαρακτηριστεί <span class="doc-desc-opt">Ιδιωτικό</span>, η <span class="doc-desc-title">Υπογραφή Τμήματος</span> δεν θα εμφανίζεται στις απαντήσεις μέσω email. <br/><br/> Τουλάχιστον ένα τμήμα πρέπει να είναι <span class="doc-desc-opt">Δημόσιο</span>
+email:
+  title: Email
+  content: >
+    Η ηλεκτρονική διεύθυνση χρησιμοποιείται όταν αποστέλλονται αποκρίσεις στους Χρήστες όποτε οι Εκπρόσωποι αποστέλλουν αποκρίσεις σε Δελτία.
+template:
+  title: Σετ Προτύπων
+  content: >
+    <span class="doc-desc-title">Σετ Προτύπων</span> email που χρησιμοποιείται για αυτόματες αποκρίσεις και Ειδοποιήσεις &amp; Ενημερώσεις για δελτία που έχουν δρομολογηθεί στο παρόν Τμήμα.
+  links:
+    - 
+      title: Διαχείριση Προτύπων
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Σύμβαση Επιπέδου Υπηρεσιών για δελτία αιτημάτων που δρομολογούνται στο παρόν Τμήμα.
+  links:
+    - 
+      title: Διαχείριση Σχεδίων SLA
+      href: /scp/slas.php
+schedule:
+  title: Πρόγραμμα
+  content: >
+    Το πρόγραμμα που χρησιμοποιείται από το SLA κατά την εμφάνιση αιτημάτων, που έχουν δρομολογηθεί στο Τμήμα και είναι καθυστερημένα.<br><br>Η ρύθμιση αυτή υπερισχύει των ρυθμίσεων προγράμματος του Συστήματος και του SLA.
+  links:
+    - 
+      title: Διαχείριση Προγραμμάτων
+      href: /scp/schedules.php
+manager:
+  title: Υπεύθυνος Τμήματος
+  content: >
+    Επιλέξτε ένα <span class="doc-desc-title">Υπεύθυνο</span> για το παρόν τμήμα. <br/><br/> Οι Υπεύθυνοι μπορούν να ρυθμιστούν να λαμβάνουν ειδικές ειδοποιήσεις και επίσης έχουν το δικαίωμα να αναιρούν την ανάθεση δελτίων.
+  links:
+    - 
+      title: Διαχείριση Ειδοποιήσεων &amp; και Ενημερώσεων
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Παραλήπτες Ειδοποιήσεων &amp; Ενημερώσεων
+  content: >
+    Επιλέξτε τους παραλήπτες των <span class="doc-desc-title">Ειδοποιήσεων &amp; Ενημερώσεων</span> που έχετε διαμορφώσει.
+  links:
+    - 
+      title: Διαμόρφωση Ειδοποιήσεων &amp; Ενημερώσεων
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Περιορισμοί Ανάθεσης Δελτίων
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Απενεργοποίηση Αυτόματης Αξίωσης
+  content: >
+    Επιλογή αυτού για <strong>απενεργοποίηση</strong> αυτόματης αξίωσης σε ανταπόκριση/απάντηση για το τμήμα. <br><br> Οι πράκτορες ακόμη, μπορούν να αξιώσουν χειροκίνητα τα αιτήματα
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Ρυθμίσεις Αυτόματης Απόκρισης
+  content: >
+    Αυτό σας επιτρέπει να παρακάμψετε τις γενικές ρυθμίσεις Αυτόματων Αποκρίσεων για το παρόν Τμήμα.
+new_ticket:
+  title: Αυτόματη Απόκριση σε Νέο Αίτημα
+  content: >
+    Μπορείτε να απενεργοποιήσετε την Αυτόματη Απόκριση που αποστέλλεται στον Χρήστη όταν δημιουργείται ένα νέο δελτίο αιτήματος και δρομολογείται στο παρόν Τμήμα.
+new_message:
+  title: Αυτόματη Απόκριση σε Νέο Μήνυμα
+  content: >
+    Μπορείτε να απενεργοποιήσετε την Αυτόματη Απόκριση που αποστέλλεται στον Χρήστη για να επιβεβαιώσει ένα νέο υποβληθέν μήνυμα για δελτία στο παρόν Τμήμα.
+auto_response_email:
+  title: Ηλ. Διεύθυνση Aυτόματης Απόκρισης
+  content: >
+    Επιλέξτε μια ηλεκτρονική διεύθυνση από την οποία στέλνονται οι Αυτόματες Αποκρίσεις για το παρόν Τμήμα.
+department_access:
+  title: Πρόσβαση Κλάσεων
+  content: >
+    Να επιτρέπεται η πρόσβαση στα δελτία του παρόντος Τμήματος από τους Εκπροσώπους άλλων Τμημάτων.
+department_signature:
+  title: Υπογραφή Τμήματος
+  content: >
+    Η υπογραφή είναι διαθέσιμη ως επιλογή, για <span class="doc-desc-opt">Δημόσια</span> Τμήματα, κατά τις αποκρίσεις των Εκπροσώπων.

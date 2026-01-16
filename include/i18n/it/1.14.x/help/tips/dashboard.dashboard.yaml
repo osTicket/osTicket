@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Stato Ticket
+  content: >
+    Selezionare un intervallo di date per generare nel grafico e nella tabella (cf. <span class="doc-desc-title"> Statistics</span>) qui sotto qualsiasi informazione corrispondente per quelle date. Il grafico sottostante rifletterà sempre un'ampia panoramica dei dati di tutto il sistema (cioè, la popolazione). Tuttavia, puoi navigare nella la tabella <span class="doc-desc-title"> statistica</span> sottostante per mettere a fuoco un soggetto più ristretto di interesse (ad es., dipartimento, argomenti o personale). Inoltre, si possono esportare tutti i dati attualmente visualizzati nella tabella <span class="doc-desc-title"> statistiche</span>.
+report_timeframe:
+  title: Rapporto del periodo compreso nell'intervallo di date
+  content: >
+    Scegli una data di inizio per i dati di esempio desiderati, utilizzando il selezionatore data. Poi, scegli l'intervallo di tempo a partire da quella data per definire la data di fine per i dati di esempio.
+statistics:
+  title: Statistiche
+  content: >
+    Visualizza l'argomento di interesse cliccando sulla scheda appropriata per mostrare l'esempio specifico di dati. All'interno della tabella, i cerchi rappresentano le dimensioni dei dati nominali. Pertanto, più grande è il numero in una cella particolare, più grande sarà il circolo adiacente.
+opened:
+  title: Aperto
+  content: >
+    Ticket originariamente aperti con il Reparto o l'Argomento della Guida sul ticket o il numero di ticket aperti da un Agente per conto di un Utente.
+assigned:
+  title: Assegnato
+  content: >
+    Ticket che sono stati assegnati a un agente o a una squadra. Il numero riflette i ticket assegnati manualmente agli agenti o ai team, i ticket rivendicati e i ticket assegnati dai filtri ticket / altre regole di assegnazione automatica.
+overdue:
+  title: Scadute
+  content: >
+    Ticket che sono stati contrassegnati come "In ritardo" dal sistema. I ticket sono contrassegnati come scaduti quando hanno violato il piano SLA a cui appartenevano, causando loro uno stato di "Aperto" oltre la loro data di scadenza.
+closed:
+  title: Chiuso
+  content: >
+    Il numero di ticket che sono attualmente nello stato di chiuso.
+reopened:
+  title: Riaperto
+  content: >
+    Il numero totale di volte in cui è stato riaperto un ticket. I ticket vengono riaperti ogni volta che il loro stato viene modificato da Chiuso a Aperto.
+deleted:
+  title: Eliminato
+  content: >
+    La quantità di ticket che sono stati cancellati.
+service_time:
+  title: Tempo di lavorazione
+  content: >
+    Si riferisce al periodo di tempo che inizia all'apertura di un ticket e termina quando il ticket è chiuso. La colonna Ora servizio misura il tempo medio di assistenza per ticket, in ore.
+response_time:
+  title: Tempo di risposta
+  content: >
+    Mostra un tempo medio di risposta da un agente, in ore, alla corrispondenza del ticket.

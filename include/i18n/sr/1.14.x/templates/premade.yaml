@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Шта је osTicket (пример)?
+  response: |
+    osTicket је често коришћен систем за подршку корисницима отвореног кода, интересантна алтернатива скупим и компликованим системима за подршку - једноставан, не оптерећује ресурсе, поуздан, web-оријентисан и лак за инсталацију и употребу.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Унапред припремљени одговори/додаци су феноменални!
+- 
+  isenabled: 1
+  title: Пример (са променљивама/варијаблама)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

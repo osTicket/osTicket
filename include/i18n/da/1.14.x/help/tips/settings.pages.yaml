@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Virksomhedsinformation
+  content: >
+    Dette henviser til den virksomhed eller organisation, der vil drage fordel af OsTicket's software og dens support personale. Oplysningerne her vises i Email signaturer (dvs. sidefoden) hvornår sager er besvaret af en medarbejder.
+  links:
+    - 
+      title: Firma oplysninger formular
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Landings side
+  content: >
+    <span class="doc-desc-title">Landings siden</span> vises på forsiden af du din support side.
+offline_page:
+  title: Offlineside
+  content: >
+    <span class = "doc-desc-title"> Offline siden </span> vises i supportsiden når helpdesken er offline, se Admin Panel - &gt; Indstilling - &gt; System - &gt; Helpdesk status.
+default_thank_you_page:
+  title: Standard Tak Side
+  content: >
+    <span class="doc-desc-title"> tak siden</span> vises til kunden, når en <span class="doc-desc-title"> klient</span> sender en ny bestilling. <br/> <br/> <span class="doc-desc-title"> tak</span> sider kan være forbundet med hjælp-emner.
+logos:
+  title: Logoer
+  content: >
+    Du kan tilpasse det <span class="doc-desc-title"> Logo</span>, der vil blive vist til klienten i klient portalen (dvs. dit Support websted).
+upload_a_new_logo:
+  title: Upload et nyt logo
+  content: >
+    Vælg et billede i .gif, .jpg eller .png formater. Vi vil proportionalt ændre størrelsen på visning af dit billede. Vi vil ikke, ændre størrelsen af billeddata. Derfor, for at fremskynde belastningstid, det kan anbefales at du holder dit billede tæt på standardbilledstørrelse (817px &times; 170px).
+backdrops:
+  title: Baggrunde
+  content: >
+    Du kan tilpasse <span class="doc-desc-title"> Baggrunden </span>, som vil blive vist på personale login siden.
+upload_a_new_backdrop:
+  title: Upload en ny baggrund
+  content: >
+    Vælg et billede i .gif, .jpg eller .png format. Vi vil skalere visningen af dit billede. Vi vil dog ikke ændre størrelsen på billedets data. Det anbefales derfor at du holder dit billede relativt lille (under en megabyte). Bemærk også, at PHP max upload indstillinger gælder.

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Ce modèle définit le courriel envoyé aux Clients qui cliquent sur le lien <strong>J'ai oublié mon mot de passe</strong> sur la page de connexion du Client.
+name: "%{company.name} Accès au support d'assistance"
+body: >
+  <h3><strong>Bonjour %{user.name.first},</strong></h3><div> Une demande de réinitialisation de mot de passe a été faite pour vous pour le service d'assistance à %{url}.<br/><br/>Si vous pensez que cela a été fait par erreur, veuillez supprimer et ignorer ce message. Votre compte est toujours sécurisé et personne n'y a eu accès. Il n'est pas verrouillé et votre mot de passe n'a pas été réinitialisé. Quelqu'un pourrait avoir entré votre courriel par erreur. <br/><br/>Suivez le lien ci-dessous pour vous connecter au support d'assistance et changer votre mot de passe. <br/><br/><a href="%{link}">%{link}</a><br/><br/><em style="font-size: small">Amicalement, votre système d'assistance <br/>%{company.name}</em></div>

@@ -1,0 +1,359 @@
+input:focus {
+    border: 1px solid orange;
+    box-shadow: 0 0 4px orange;
+    outline: none;
+}
+
+:-webkit-input-placeholder {
+    color:#888;
+    font-style:italic;
+}
+
+:-moz-placeholder {
+    color:#888;
+    font-style:italic;
+}
+
+html {
+    height:100%;
+    font-size: 100%;
+    overflow-y: scroll;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    -webkit-font-smoothing:antialiased;
+    font-size: 16px;
+    font-smoothing:antialiased;
+    height:100%;
+    line-height: 1.5em;
+    margin: 0;
+    text-align: center;
+}
+
+#brickwall {
+    background-image: url(../logo.php?backdrop);
+    -webkit-background-size: cover;
+       -moz-background-size: cover;
+         -o-background-size: cover;
+            background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#background-compat {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 165, 0, 0.7);
+}
+#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-image: url(../logo.php?backdrop);
+    -webkit-background-size: cover;
+       -moz-background-size: cover;
+         -o-background-size: cover;
+            background-size: cover;
+    background-attachment: fixed;
+    mix-blend-mode: normal;
+    filter:"progid:DXImageTransform.Microsoft.Blur(PixelRadius='6')";
+    -ms-filter:"progid:DXImageTransform.Microsoft.Blur(PixelRadius='6')";
+}
+
+#blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-filter: blur(7px);
+    filter: url("data:image/svg+xml;utf9,<svg%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'><filter%20id='blur'><feGaussianBlur%20stdDeviation='5'%20/></filter></svg>#blur");
+    filter: blur(7px);
+    overflow: hidden;
+    z-index: -1;
+}
+
+body, input {
+    font-family: helvetica, arial, sans-serif;
+    color: #000;
+}
+
+#loginBox {
+    box-shadow:0 0 50px 5px rgba(0,0,0,0.3), 0 0 5px -1px white;
+    mix-blend-mode: normal;
+    isolation: isolate;
+    width:400px;
+    padding:1em;
+    padding-bottom: 1em;
+    text-align:center;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    position: fixed;
+    left: 50%;
+    top: 15%;
+    margin-left: -200px;
+    border-radius: 5px;
+}
+
+#loginBox:after {
+    content: " ";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.6);
+    border-radius: 5px;
+    z-index: -1;
+    mix-blend-mode: normal;
+    border: 1px solid rgba(0,0,0,0.3);
+}
+/* IE 9-10 */
+@media screen\0 {
+    #loginBox:after {
+        background-color: white;
+    }
+}
+
+h1 {
+    margin:0;
+}
+
+#logo a {
+    display:block;
+    text-decoration:none;
+    height: 100px;
+}
+
+#logo a img {
+    max-height:66px;
+    max-width: 300px;
+    height: auto;
+    width: auto;
+    vertical-align: middle;
+    outline: none;
+    border: none;
+}
+.valign-helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+h3 {
+    margin:1em 0;
+    text-align:center;
+    font-size:0.8em;
+    font-weight:normal;
+    color:#d00;
+}
+
+form {
+    width:220px;
+    margin:0 auto;
+}
+
+fieldset {
+    border:none;
+    margin:0.25em;
+    padding:0;
+}
+
+fieldset input {
+    display:block;
+    margin-bottom:1em;
+    border:1px solid #ccc;
+    border:1px solid rgba(0,0,0,0.3);
+    background: white;
+    background: rgba(255, 255, 255, 0.5);
+    padding:2px 4px;
+    width: 100%;
+}
+
+hr {
+    margin: 20px;
+    border: none;
+    height: 0;
+    border-bottom: 1px solid #eee;
+}
+
+div.banner {
+    color: #666;
+    line-height: 1.2em;
+}
+div.banner:not(:empty) {
+    margin-bottom: 1em;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+.action-button,
+.button {
+    cursor: pointer;
+    display:inline-block;
+    vertical-align:bottom;
+    height:24px;
+    line-height: 22px;
+    border: none;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
+    padding:2px 11px;
+    color: #555;
+    background-color: #f0f0f0;
+    background-color: rgba(0,0,0,0.02);
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 0.8em;
+    text-decoration: none;
+-webkit-user-select: none;
+   -moz-user-select: none;
+    -ms-user-select: none;
+        user-select: none;
+-webkit-transition: opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, background 0.1s ease;
+        transition: opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, background 0.1s ease;
+}
+input[type="submit"] i,
+input[type="reset"] i,
+input[type="button"] i,
+.action-button i,
+.button i {
+  margin-right: 0.1em;
+}
+
+.button:hover {
+  text-decoration: none;
+}
+
+button[type=submit], input[type="submit"], .primary.button {
+    font-weight: bold;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
+    background-color: rgba(0,0,0,0.07);
+}
+
+button[type=submit]:hover, input[type=submit]:hover, input[type=submit]:active {
+  color: white;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.7) inset;
+  background-color: #888;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+input.submit:hover, input.submit:active {
+    background-position:bottom left;
+}
+
+#poweredBy {
+    font-size:0.8em;
+    color:#ccc;
+    padding:5px 15px;
+    text-align:center;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    box-shadow: inset 0 0 3px white, 0 0 2px black, inset 0 0 4px black;
+    text-shadow: 0 0 2px black;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.3)
+}
+
+#poweredBy a {
+    color:inherit;
+}
+
+#poweredBy .osticket-logo {
+    height: auto;
+    width: 55px;
+    vertical-align: baseline;
+    border: none;
+    -webkit-filter: drop-shadow(0 0 4px black);
+    filter: drop-shadow(0 0 4px black);
+    ms-filter: progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444');
+    filter: progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444');
+}
+
+#company {
+    position:absolute;
+    left: 50%;
+    width: 400px;
+    margin-left: -200px;
+    bottom: -40px;
+    font-size: 0.8em;
+    color: #ccc;
+    text-align: center;
+}
+
+#company .content {
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.3);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
+    text-shadow: 0 0 2px black;
+    display: inline-block;
+    padding: 0 15px;
+    color: white;
+}
+
+.external-auth {
+    display:inline-block;
+    margin-bottom: 4px;
+}
+.external-auth + .external-auth {
+    margin-top: 4px;
+}
+
+a.external-sign-in {
+    text-decoration: none;
+}
+.external-auth-box {
+    vertical-align: middle;
+    border-radius: 4px;
+    border: 1px solid #777;
+}
+.external-auth-icon {
+    display: inline-block;
+    color: #333;
+    width: 30px;
+    padding: 5px 10px;
+    border-right: 1px solid #ddd;
+}
+.external-auth-name {
+    color: #333;
+    width: 100px;
+    padding: 5px 10px;
+    line-height:30px;
+    font-size: 11pt;
+}
+img.sign-in-image {
+    border: none;
+    max-height: 40px;
+    max-width: 200px;
+    width: auto;
+    height: auto;
+}
+
+input[type=text],
+input[type=password] {
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 0.75em;
+}
+.hidden {
+    display: none;
+}

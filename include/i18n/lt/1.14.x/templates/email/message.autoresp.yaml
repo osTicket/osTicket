@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Pranešimas vartotojui, kuomet jis bilietui paskelbia naują žinutę. Taip atsitinka kai naudotojas atsako į sistemos el. laišką arba apsilanko klientų interneto portale ir ten paskelbia naują žinutę.
+subject: |
+  Pranešimo patvirtinimas
+body: |
+  <h3><strong>%{recipient.name.first},</strong></h3>
+  Jūsų atsakymas į pagalbos centro užklausą <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> buvo pažymėtas
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Jūsų %{company.name} Komanda,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Galite peržiūrėti pagalbos tarnybos užklausos eigą <a
+  href="%{recipient.ticket_link}">tiesiogiai čia</a></em>
+  </div>

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Aktivita Tiketu
+  content: >
+    Vyberte rozsah dat grafu a tabulky (viz <span class="doc-desc-title"> statistiky</span>) k zaměření se na všechny odpovídající údaje pro tato data. Níže uvedený graf bude vždy odrážet široký přehled dat celého systému (tj. počet obyvatel). Nicméně můžete procházet <span class="doc-desc-title"> tabulku statistiky</span> níže a zaměřit se na užší předmět zájmu (např. oddělení, témata nebo personál). Kromě toho můžete exportovat všechny aktuálně zobrazená data v tabulce <span class="doc-desc-title"> statistiky</span>.
+report_timeframe:
+  title: Zpráva časového rámce
+  content: >
+    Vyberte počáteční datum pro vzorek požadovaných dat pomocí ovládacího prvku Výběr data. Vyberte dobu, od tohoto data a definujte koncové datum pro vzorek dat.
+statistics:
+  title: Statistiky
+  content: >
+    Chcete-li zobrazit konkrétní vzorek údajů, přejděte na předmět zájmu klepnutím na příslušnou kartu. Kruhy v tabulce představují velikost jmenovitých údajů. Tedy čím větší bude číslo v určité buňce, tím větší bude sousední kruh.
+opened:
+  title: Otevřeno
+  content: >
+    Tikety, které byly původně otevřeny v oddělení, nebo v tématu nápovědy tiketu, nebo počet tiketů, které agent otevřel jménem uživatele.
+assigned:
+  title: Přiřazené
+  content: >
+    Tikety které jsou přiděleny agentovi, nebo Týmu. Číslo odpovídá tiketům, které jsou agentovi nebo týmu přiřazeny ručně, nárokované tikety a tikety přidělené filtrem / jiných pravidel automatického přiřazení.
+overdue:
+  title: Zpožděné
+  content: >
+    Tikety, které systém označil "po termínu". Tikety jsou označeny jako po termínu, když poruší plán SLA, ke kterému patřili, z toho důvodu mají status "Otevřen" i po uplynutí jejich termínu zpracování.
+closed:
+  title: Uzavřené
+  content: >
+    Počet tiketů, které jsou aktuálně ve stavu Uzavřeno.
+reopened:
+  title: Znovu otevřené
+  content: >
+    Celkový počet znovu otevřených tiketů. Tikety jsou vždy znovu otevřeny, když se jejich status změní z Uzavřen na Otevřen.
+deleted:
+  title: Smazáno
+  content: >
+    Počet tiketů, které byly odstraněny.
+service_time:
+  title: Délka vypořádání
+  content: >
+    Referuje dobu trvání, která začíná otevřením tiketu a končí, když je tiket uzavřen. Ve sloupci Servisní čas je průměrná doba zpracování na tiket v hodinách.
+response_time:
+  title: Reakční doba
+  content: >
+    Zobrazuje průměrnou dobu odezvy agenta v hodinách na přiřazený tiket.

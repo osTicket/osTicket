@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Nama Petugas
+  content: |
+    <p>Nama sistem dukungan Anda misalnya: Dukungan [Nama Perusahaan]</p>
+system_email:
+  title: Standar Sistem Email
+  content: |
+    <p>Standar alamat surel, misalnya: dukungan@perusahaananda.com - Anda dapat menambahkan lebih banyak nanti!</p>
+default_lang:
+  title: Bahasa Sistem Standar
+  content: |
+    <p>data awal untuk bahasa ini akan di instal ke database.untuk contoh template email dan halaman system standar akan di instal untuk bahasa ini.</p>
+  links:
+    - 
+      title: Paket Bahasa osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Nama Depan
+  content: |
+    <p>Nama awal Admin</p>
+last_name:
+  title: Nama Belakang
+  content: |
+    <p>Nama akhir Admin</p>
+email:
+  title: Alamat Email
+  content: |
+    <p>Alamat surel pribadi Admin. Harus berbeda dengan standar alamat surel sistem.</p>
+username:
+  title: Nama pengguna
+  content: |
+    <p>Nama login Admin. Harus mengandung sedikitnya tiga (3) karakter.</p>
+password:
+  title: Kata Sandi
+  content: |
+    <p>Kata sandi Admin.  Harus terdiri dari lima (5) karakter atau lebih.</p>
+password2:
+  title: Konfirmasikan Kata Sandi
+  content: |
+    <p>Ketik ulang kata sandi Admin. Harus cocok.</p>
+db_prefix:
+  title: Awalan Tabel MySQL
+  content: |
+    <p>osTicket membutuhkan awalan nama tabel untuk menghindari terjadinya konflik dalam sebuah basis data yang digunakan bersama-sama.</p>
+db_host:
+  title: Nama host MySQL
+  content: |
+    <p>
+    Umumnya host mempunyai 'localhost' untuk nama host basis data lokal. Periksa localhost Anda jika gagal.
+    </p>
+    <p>
+    Standar port yang ditentukan di dalam berkas php.ini. Nomor port yang tidak standar dapat dibuat seperti <code>namahost:port</code>
+    </p>
+db_schema:
+  title: Basis Data MySQL
+  content: |
+    <p>Nama basis data osTicket yang akan digunakan.</p>
+db_user:
+  title: Nama pengguna MySQL
+  content: |
+    <p>Pengguna MySQL harus memiliki hak akses penuh ke basis data.</p>
+db_password:
+  title: Kata Sandi MySQL
+  content: |
+    <p>Kata sandi MySQL yang terkait dengan pengguna di atas.</p>

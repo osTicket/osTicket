@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: 用户名
+  content: >
+    请选择代理<span class="doc-desc-title">用户名</span>，此用户名应为<span class="doc-desc-title">帮助中心</span>的唯一用户名。
+email_address:
+  title: 电子邮件地址
+  content: >
+    输入代理电子邮件地址，此电子邮件地址将用于接收<span class="doc-desc-title">服务中心</span>的<span class="doc-desc-title">提醒 &amp; 通知</span>。
+  0: <br><br>
+  1: 工作人员可使用用户名或电子邮件地址登录工作人员控制面板。
+welcome_email:
+  title: 欢迎电子邮件
+  content: >
+    发送账户访问链接至新代理，使其可设置密码。如果未勾选，您需要设置密码并与新工作人员交流登录信息。
+account_password:
+  title: 账户密码
+  content: >
+    作为<span class="doc-desc-title">管理员</span>，您可更改代理的密码。
+forced_password_change:
+  title: 强制密码更改
+  content: >
+    启用此功能，即可强制使新代理在下次登录时更改密码。
+agents_signature:
+  title: 代理签名
+  content: >
+    创建代理签名，可在回复咨询时选择使用。
+account_status:
+  title: 账户状态
+  content: >
+    如果代理处于<span class="doc-desc-opt">锁定</span>状态，其无法登录至帮助中心。 
+assigned_group:
+  title: 已分配组
+  content: >
+    选中用于此代理的<span class="doc-desc-title">组</span>所属类别将决定代理在<span class="doc-desc-title">帮助中心</span>内拥有的权限。
+  links:
+    - 
+      title: 管理组
+      href: /scp/groups.php
+primary_department:
+  title: 主要部门
+  content: >
+    选择一个此代理隶属的主要<span class="doc-desc-title">部门</span>，和一个有效的<span class="doc-desc-title">角色</span>。
+  links:
+    - 
+      title: 管理部门
+      href: /scp/departments.php
+primary_role:
+  title: 主要角色
+  content: >
+    选择一个代理隶属的主要<span class="doc-desc-title">角色</span>。
+primary_role_on_assign:
+  title: 分派时使用主要角色
+  content: >
+    启用此会作为当代理被分配在<span class="doc-desc-title">主要部门</span>和<span class="doc-desc-title">扩展权限</span>部门之外的工单和任务时的<span class="doc-desc-title">主要角色</span>的备用。否则代理只有读的权限。
+daylight_saving:
+  title: 夏令时
+  content: >
+    启用此功能，即可使此代理时区的夏令时自动生效。
+limited_access:
+  title: 限制访问
+  content: >
+    如果启用此功能，代理仅拥有直接分配或通过团队分配咨询的权限。
+directory_listing:
+  title: 目录列表
+  content: >
+    启用此功能，即可将此代理列入<span class="doc-desc-title">工作人员目录</span>。
+  links:
+    - 
+      title: 访问工作人员目录
+      href: /scp/directory.php
+vacation_mode:
+  title: 休假模式
+  content: >
+    如果您将代理状态更改为<span class="doc-desc-opt">休假模式</span>，代理将无法接收任何<span class="doc-desc-title">提醒 &amp; 通知</span>以及分配咨询。
+

@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: פרטי התקשרות
+  0: >
+
+username:
+  title: שם משתמש
+  content: >
+    רק משתמשים בעלי הרשאות מנהל יכול לשנות שם משתמש. אם אתה משתמש עם הרשאות מנהל, הינך יכול לבצע זאת ע"י בחירה של המשתמש מטבלת <span class="doc-desc-title">משתמשים</span>.
+  links:
+    - 
+      title: שנה שם משתמש כמנהל
+      href: /scp/staff.php
+time_zone:
+  title: אזור זמן
+  0: >
+
+daylight_saving:
+  title: שעון קיץ
+  0: >
+
+maximum_page_size:
+  title: גודל דף מקסימלי
+  0: >
+
+auto_refresh_rate:
+  title: קצב רענון אוטומטי
+  0: >
+
+default_signature:
+  title: חתימת ברירת מחדל
+  0: >
+
+default_paper_size:
+  title: גודל נייר ברירת מחדל
+  0: >
+
+show_assigned_tickets:
+  title: הצג קריאות פעילות
+  content: >
+    <p>הפעלת אופציה זו תדרוס את ההגדרה הגלובלית להסתיר קריאות שרות שהוקצו מהתור הכללי.</p> <p class="info-banner"> <i class="icon-info-sign"></i>הגדרה זו זמינה רק כאשר קריאות שרות מוקצות אינן נכללות בהגדרה הכללית</p>
+password:
+  title: סיסמה
+  0: >
+
+current_password:
+  title: הסיסמה הנוכחית
+  0: >
+
+new_password:
+  title: סיסמה חדשה
+  0: >
+
+confirm_new_password:
+  title: אשר סיסמא חדשה
+  0: >
+
+signature:
+  title: חתימה
+  content: >
+    צור <span class="doc-desc-title">חתימה</span> אופציונאלית שתוצג בסוף התגובות שלך לקריאות. ההופעה של ה<span class="doc-desc-title">חתימה</span> תלויה ב<span class="doc-desc-title">תבנית הדוא"ל</span> שבה תשתמש בעת התגובה לקריאה.
+  links:
+    - 
+      title: צור תבניות דוא"ל בלוח הבקרה
+      href: /scp/templates.php

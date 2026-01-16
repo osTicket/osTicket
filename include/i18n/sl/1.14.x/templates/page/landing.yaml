@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Pristajalna stran se nanaša na vsebino osnovne strani "Portala za stranke". Predloga spreminja vsebino, ki je vidna nad dvemi povezavami <strong>Odpri nov zahtevek</strong> in <strong>Poglej status zahtevka</strong>.
+name: Pristajalna
+body: >
+  <h1>Pozdravljeni v našemu podpornem centru.</h1><p>Da bi vam najhitreje in najlažje pomagali rešiti težavo, uporabljamo podporni ticketing sistem. Vsak vaš zahtevek dobi unikatno številko preko katere lahko vi in mi lažje vodimo napredek razreševanja vašega zahtevka. Za vas ponujamo celoten arhiv zahtevkov in zgodovino vseh vaših vprašanj. Za oddajanje zahtevka potrebujete veljaven elektronski naslov.</p>

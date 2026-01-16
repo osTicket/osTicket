@@ -1,0 +1,11 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  このテンプレートは、スタッフコントロールパネルのログインページに <strong>パスワードを忘れました</strong> リンクからスタッフに送信されるメールを定義します。
+name: "osTicketのスタッフパスワードリセット"
+body: >
+  <h3><strong>%{staff.name.first}様</strong></h3> <div> %{url} のヘルプデスク宛にお客様の代理でパスワードリセットの要請が送信されました。<br /> <br /> 
+  これが誤りであると思われる場合は、、このメールを削除して無視してください。お客様のアカウントはセキュアで、アクセスを与えられた者はいません。アカウントはロックされておらず、パスワードはリセットされていません。他の者がお客様のメールアドレスを誤って入力したこともありえます。<br /> <br /> 以下のリンクにアクセスして、ヘルプデスクにログインしてパスワードを変更してください。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">カスタマーサポートシステム</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

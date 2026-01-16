@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Jurnale de sistem
+  content: >
+    Aici vei găsi jurnalizate activitățile legate de depanare (de ex. erori, avertizări sau bug-uri)
+  links:
+    - 
+      title: Personalizează tipurile de activități jurnalizate, modificând<br /><span class="doc-desc-title">Nivelul Implicit de Jurnalizare</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Interval de timp
+  content: >
+    Selectează intervalul calendaristic pe care vrei să-l inspectezi în <span class="doc-desc-title">Jurnalele de Sistem</span>.
+type:
+  title: Tip
+  content: >
+    Alege o opțiune pentru a concentra atenția pe un tip de activitate specific. <span class="doc-desc-opt">Depanare</span> reprezintă gravitatea minimă iar <span class="doc-desc-opt">Eroare</span> reprezintă gravitatea maximă.
+showing_logs:
+  title: Prezint&hellip;înregistrări
+  content: >
+    Vezi secțiunea <span class="doc-desc-title">Pagină</span> de mai jos pentru a verifica dacă mai sunt disponibile și alte pagini ce conțin jurnale de sistem.
+log_title:
+  title: Titlul jurnalului
+  content: >
+    Fă click pe capul de tebel <span class="doc-desc-title">Titlu Jurnal</span> dacă dorești să sortezi rezultatele după criteriul <span class="doc-desc-title">Titlu Jurnal</span>.
+log_type:
+  title: Tipul jurnalului
+  content: >
+    Fă click pe capul de tebel <span class="doc-desc-title">Tip Jurnal</span> dacă dorești să sortezi rezultatele după criteriul <span class="doc-desc-title">Tip Jurnal</span>.
+log_date:
+  title: Data jurnalului
+  content: >
+    Aceasta e data la care jurnalul a fost generat de aplicație. Dacă dorești să sortezi rezultatele după <span class="doc-desc-title">Data Jurnal</span>, fă click pe capul de tabel <span class="doc-desc-title">Data Jurnal</span>. (Folosește formularul <span class="doc-desc-title">Interval Calendaristic</span> de mai sus ca să îngustezi întinderea calendaristică a jurnalelor).
+ip_address:
+  title: Adresa IP
+  content: >
+    Se referă la <span class="doc-desc-title">Adresa</span> <span class="doc-desc-title">IP</span> agentului sau a clientului care folosea aplicația osTicket în momentul în care a fost creată înregistrarea în jurnal.

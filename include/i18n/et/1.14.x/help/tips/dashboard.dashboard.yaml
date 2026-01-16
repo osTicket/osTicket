@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Pileti tegevused
+  content: >
+    Vali ajavahemik kuvamaks (cf. <span class="doc-desc-title">Statistikat</span>) nii tabeli kui graafilisel kujul. Allpool olevas graafikus on kõik süsteemi andmed  (st üldkogum). Samas navigeerides läbi <span class="doc-desc-title">Statistika</span>, saad keskenduda üksikasjadele ja kitsendada valiku kriteeriumeid (nt osakond, teema, meeskond). Lisaks saate eksportida kõiki andmeid, mis hetkel tabelis <span class="doc-desc-title">Statistika</span> kuvatakse.
+report_timeframe:
+  title: Aruande ajavahemik
+  content: >
+    Vali kalendrist soovitud alguskuupäev, seejärel vali aruandeperioodi pikkus.
+statistics:
+  title: Statistika
+  content: >
+    Navigeeri soovitud teemal ja vajuta sobial sakil, et näha konkreetse valimi näidisandmeid. Ringjooned tabelis märgivad andmete hulka. Mida suurem on arv lahtris, seda suurem on vastav ringjoon.
+opened:
+  title: Avatud
+  content: >
+    Piletid, mis algupärselt avades olid suunatud osakonna või abiteema alla, või piletite number, mille agent on avanud kasutaja nimel.
+assigned:
+  title: Suunatud
+  content: >
+    Piletid, mis on suunatud agendile või meeskonnale. Arv kajastab pileteid, mis on suunatud agentidele või meeskondadele käsitsi, hõivatud pileteid ja pileteid, mis on suunatud pileti filtri või muu automaatse suunamise reegli poolt.
+overdue:
+  title: Üle tähtaja
+  content: >
+    Piletid, mis on süsteemi poolt märgitud töhtaja ületanuks. Piletid märgitakse tähtaja ületanuks juhul, kui neile seatud TTL plaani järgi tähtaeg möödub, mis põhjustab nende staatuse muutuse.
+closed:
+  title: Suletud
+  content: >
+    Suletud staatusega piletite arv.
+reopened:
+  title: Taas avatud
+  content: >
+    Kokku number, mitu korda pilet oli taasavatud. Piletid taasavatakse iga kord, kui nende staatus muutub suletust avatuks.
+deleted:
+  title: Kustutatud
+  content: >
+    Kustutatud piletite hulk.
+service_time:
+  title: Teenindusaeg
+  content: >
+    Viitab ajakulule, mis algab pileti avamisest ja lõppeb selle sulgemisega. Teenuse aja veerg mõõdab keskmiselt ühele piletile kulunud aega.
+response_time:
+  title: Vastamise aeg
+  content: >
+    Näitab agendi keskmist ajakulu tundides pileti kirjavahetusel.

@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Trimis unui utilizator la crearea unui tichet nou
+subject: |
+  Cerere de suport deschisa [#%{ticket.number}]
+body: |
+  <h3><strong>Draga %{recipient.name.first},</strong></h3>
+  <p>
+  O cerere de suport a fost creata careia i s-a alocat numarul #%{ticket.number}.
+  Un reprezentant va va raspunde in cel mai scurt timp posibil. Puteti urmarii 
+  <a href="%{recipient.ticket_link}">progresl tichetului online</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Cu drag echipa %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Daca doriti sa oferiti detalii sau informatii suplimentare legate de aceasta cerere, va rugam sa raspundeti la acest email sau sa va <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >logati in contul dumneavoastra</span></a> pentru o arhiva completa a cereriilor de suport trimise de dumneavoastra.</em></div>

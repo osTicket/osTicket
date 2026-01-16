@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Grupuri
+  content: >
+    Grupurile sunt utilizate pentru a defini permisiunile agenților în helpdesk. Prin intermediul grupurilor poate fi acordat unui agent acces și la departemente care nu sunt departamentul primar al agentului respectiv.
+status:
+  title: Stare
+  content: >
+    Dacă opțiunea e <span class="doc-desc-opt">invalid</span>ată, agenții asignați acestui grup nu se pot autentifica în sistem (nu se pot loga) și nu vor primi alerte și notificări ale departamentului.
+department_access:
+  title: Acces departament
+  content: >
+    Bifează toate departamentele în care membrilor acestui grup li se permite accesul.

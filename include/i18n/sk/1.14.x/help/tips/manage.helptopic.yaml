@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informácie k predmetu tiketu (nápovedy)
+  content: >
+    Sprievodca  <span class="doc-desc-title"> predmetom tiketov </span> aké informácie sú získavané od užívateľov a ako sú tikety smerované a priraďované.
+topic:
+  title: Názov témy
+  content: >
+    Jednoznačné meno pre predmet tiketu.
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Typ
+  content: >
+    Ak je označený ako súkromý, potom bude k dispozícii len pre pracovníkov (agentov) keď budú vytvárať nový tiket.
+parent_topic:
+  title: Nadradený predmet
+  content: >
+    Vyberte nadradený predmet, ku ktorému bude tento predmet tiketu patriť. Nadradený predmet sa bude zobrazovať v zozname predmetov pred týmto predmetom.
+custom_form:
+  title: Užívateľsky definovaný formulár
+  content: >
+    Užívateľské  formuláre Vám pomôžu  získať ďalšie informácie od uživateľov, ktoré sa vzťahujú k tomuto predmetu.
+  links:
+    - 
+      title: Definícia užívateľských formulárov
+      href: /scp/forms.php
+priority:
+  title: Priorita
+  content: >
+    Vyberte prioritu, ktorá bude priradená k tiketom s týmto predmetom.  Filter tiketov môže túto prioritu zmeniť.
+department:
+  title: Oddelenie
+  content: >
+    Vyberte oddelenie, do ktorého budú tikety s týmto predmetom presmerované.
+  links:
+    - 
+      title: Spravovať oddelenia
+      href: /scp/departments.php
+sla_plan:
+  title: SLA plán
+  content: >
+    Vyberte SLA priradené tomuto predmetu.  Táto voľba prepíše SLA definované na oddelení.
+  links:
+    - 
+      title: Definícia SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Stránka "Ďakujeme"
+  content: >
+    Vyberte stránku "Ďakujem", na ktorú bude užívateľ presmerovaný po vytvorení tiketu.
+  links:
+    - 
+      title: Definícia stránky "Ďakujeme"
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automatické priradenie nový tiketov
+  content: >
+    Ak chcete, vyberte pracovníka (agenta) alebo tím, ktorému bude priradený nový tiket. Filtre tiketov môžu toto priradenie zmeniť.
+  links:
+    - 
+      title: Definícia pracovníkov a tímov
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Automatická odpoveď
+  content: >
+    ak je zaškrtnuté, vypne sa automatická odpoveď.  Toto prepíše nastavenie automatickej odpovede, ktorá je definovaná na oddelení a tiež globálne nastavenie automatickej odpovede.
+  links:
+    - 
+      title: Definícia automatickej odpovede
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Užívateľsky definované číslovanie tiketov
+  content: >
+    Nastavením "užívateľsky" sa prepíše základné nastavenie číslovania tiketov. Viac informácií k číslovaniu tiketov je v nápovede k nastavení tiketov.

@@ -1,0 +1,24 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Wird an Agenten versendet, wenn eine neue Nachricht/Notiz zu einer Aufgabe erstellt wird. Das kann geschehen, wenn eine beteiligte Person oder ein Agent auf eine E-Mail des Systems antwortet oder das Webportal besucht und dort eine neue Nachricht erstellt.
+subject: |
+  Aufgaben-Aktivität [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hallo %{recipient.name},</strong></h3>
+  die Aufgabe <a href="%{task.staff_link}">%{task.number}</a> wurde aktualisiert: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Um die Aufgabe zu betrachten/beantworten, bitte am Support-Ticket-System <a href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);">anmelden</span></a></div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Ihr freundliches Support-Ticket-System</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

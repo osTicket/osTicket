@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Görevlere yeni bir mesaj/not gönderildiğinde aracılara gönderilir. Bu durum, ortak çalışan bir temsilcinin sistemden gelen bir e-postaya web portalını ziyaret ederek yeni bir ileti yayınladığında ortaya çıkabilir.
+subject: |
+  %{activity.title} - [#%{task.number}] Görev Etkinliği
+body: |
+  <h3><strong>Merhaba %{recipient.name},</strong></h3>
+  <a href="%{task.staff_link}">#%{task.number}</a> görevi güncellendi: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Görevi görüntülemek veya cevap yazmak için <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >oturum açın</span></a></div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Kullanıcı dostu destek sistemi</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

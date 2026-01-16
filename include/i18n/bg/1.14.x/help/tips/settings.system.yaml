@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Състояние на системата
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: URL адрес на системата
+  content: >
+    Този URL адрес е базов за инсталацията на osTicket. Той ще се ползва в съобщенията, които се изпращат по електронната поща, за насочване на потребителите към системата за поддръжка.
+helpdesk_name_title:
+  title: Име на системата
+  content: >
+    Това е заглавието, което се изобразява в прозорците на браузъра. Ако добавите към любими си сайтове страницата на системата за поддръжка, това ще е името, което ще се показва там.
+default_department:
+  title: Отдел по подразбиране
+  content: >
+    Изберете <span class="doc-desc-title">отдел</span> по подразбиране, за заявки, които не се насочват автоматично към отдел. <br/><br/> Заявката може да бъде изпратена въз основа на настройките в помощната тема, входящата поща и филтъра за заявки.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Брой елементи на страница по подразбиране
+  content: >
+    Изберете броя на елементите, които се показват на страница в опашките със тикети в на панела за служители. Всеки сътрудник също така може да настрои това количество и за собствения си акаунт, в раздела <span class="doc-desc-title">Моите настройки</span>.
+default_log_level:
+  title: Ниво на системни записи по подразбиране
+  content: >
+    Определете минималното ниво на проблемите, които ще бъдат записвани в <span class="doc-desc-title">системните записи</span>. <span class="doc-desc-opt">Дебъг</span> е най-ниското ниво на сериозност, а <span class="doc-desc-opt">Грешка</span> е най-високото. Например, ако искате да виждате всички проблеми в <span class="doc-desc-title">системните записи</span> - изберете <span class="doc-desc-opt">дебъг</span>.
+purge_logs:
+  title: Изчистване на записите
+  content: >
+    Задайте, колко дълго искате да съхранявате <span class="doc-desc-title">системните записи</span>, преди те да бъдат изтрити.
+enable_richtext:
+  title: Активиране на Rich Text
+  content: >
+    Ако това е включено, то ще позволи да се ползва допълнително форматиране, в комуникацията между потребителите и сътрудниците.
+enable_avatars:
+  title: Активиране на изображения в дървовиден изглед
+  content: >
+    Активирайте това, за да се показват <span class="doc-desc-title">Avatars</span> по дървовидната кореспонденция. <br><br> източника на изображението <span class="doc-desc-title">Avatar Source</span> може да бъде настроен в страницата с настройки на съдружници и потребители.
+  links:
+    - 
+      title: Agents Settings
+      href: /scp/settings.php?t=agents
+    - 
+      title: Потребителски настройки
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Продължителност на сесията на сътрудник
+  content: >
+    Въведете максималната продължителност от време, в което сътрудника има право да държи блокирана заявка, без никаква активност. <br><br> Enter <span class="doc-desc-opt">0</span>, за да изключите функцията за блокиране.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Настройка на дата &amp; час
+  content: >
+    Следните настройки определят настройките по подразбиране за дата &amp; Настройки за часа за помощното бюро. Можете да изберете да използвате настройките по подразбиране за избраното място или да персонализирате форматите, за да отговарят на вашите уникални изисквания. Обърнете се към струнните структури на ICU като референция за персонализиране. Датите, показани по-долу, само илюстрират резултата от съответните им стойности.
+  links:
+    - 
+      title: Погледнете таблицата за форматиране на ICU Date
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Езици на системата
+  content: >
+    Изберете основен език на системата и по избор вторични езици, за да направите интерфейса си като локализиран за вашите сътрудници и крайни потребители.
+primary_language:
+  title: Основен системен език
+  content: >
+    Съдържанието на този език се показва на сътрудниците и крайните потребители, ако понастоящем не им е зададено съответното езиково предпочитание. Това включва съдържанието на интерфейса, както и персонализирано съдържание, като например страници с благодарност и имейл съобщения. <br/> <br/> Това е езикът, на който трябва да бъдат написани непроменените версии на вашето съдържание.
+secondary_language:
+  title: Вторични езици
+  content: >
+    Изберете опциите за предпочитания за език за Вашите агенти и крайни потребители. Интерфейсът ще бъде достъпен на тези езици, както и персонализирано съдържание, като например страници с благодарност и имена на помощни теми, които ще могат да се превеждат на тези езици.
+#Attachments
+attachments:
+  title: Настройки и съхранение на прикачени файлове
+  content: >
+    Конфигуриране на начина на съхранение на прикачените файлове.
+default_storage_bk:
+  title: Файл за съхранение
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Максимален размер на файла
+  content: >
+    Изберете максималния размер на прикачените файлове, качени от сътрудниците. Това включва прикачени файлове, файлове, базирани на знания и прикачени файлове към отговорите на билетите и задачите. Горната граница се контролира от настройката <code>upload_max_filesize</code> на PHP.
+  links:
+    - 
+      title: Настройки на PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

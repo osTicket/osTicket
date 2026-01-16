@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Innstillinger for kunnskaps Base
+  0: >
+
+knowledge_base_status:
+  title: Kunnskapsbasen Status
+  content: >
+    Aktiver denne innstillingen slik at brukerne får selvbetjent tilgang til din offentlige kunnskapsbaseartikkler. <br><br>Kunnskapsbase kategorier og spørsmål kan lages internt (vises bare av agenter).
+  links:
+    - 
+      title: Administrere kunnskaps base
+      href: /scp/kb.php
+restrict_kb:
+  title: Begrens tilgang til kunnskapsbasen
+  content: >
+    Skru på for å sperre uregistrerte brukeres tilgang til artikler i kunnskapsbasen fra klient siden.
+  links:
+    - 
+      title: Innstillingene for tilgangskontroll
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: forhånds definerte svar
+  content: >
+    Aktiver denne innstillingen slik at agenter kan bruke <span class="doc-desc-title"> forhåndsdefinerte svar</span> når de svarer på saker.
+  links:
+    - 
+      title: Administrere forhåndsdefinerte svar
+      href: /scp/canned.php

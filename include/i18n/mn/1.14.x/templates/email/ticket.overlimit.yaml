@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Нээлттэй хүсэлтийн тоо лимитээс хэтэрсэн үед хэрэглэгчид илгээх имэйлийн загвар. Лимитийг Удирдлагын самбарт тохируулж болох бөгөөд тухайн имэйл хаягаас нээсэн хүсэлтийн тоогоор тодорхойлогдоно.
+subject: |
+  Нээлттэй хүсэлтийн тоо хэтэрсэн байна
+body: |
+  <h3><strong>Сайн байна уу, %{ticket.name.first},</strong></h3>
+  Таны нээлттэй хүсэлтийн тоо хэтэрсэн байна. Шинэ хүсэлт үүсгэхийн тулд та өмнө нь үүсгэсэн хүсэлтүүдээсээ хаана уу. Нээлттэй байгаа хүсэлтийг шинэчлэх эсвэл нэмэлт тайлбар оруулах бол <a
+  href="%{url}/tickets.php?e=%{ticket.email}">Тусламжийн Алба уруу нэвтэрнэ үү</a>.
+  <br>
+  <br>
+  Баярлалаа,<br/>
+  Тусламжийн Алба

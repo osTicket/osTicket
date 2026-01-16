@@ -269,7 +269,7 @@ var scp_prep = function() {
 
     /* Typeahead tickets lookup */
     var last_req;
-    $('input.basic-search:not([id])').typeahead({
+    $('input.basic-search').typeahead({
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
             var $el = this.$element;
@@ -512,6 +512,10 @@ var scp_prep = function() {
     });
     // Ensure the "new ticket" link is never in the drop-down menu
     $('#new-ticket').parent('li').addClass('primary-only');
+	
+	//osta Ensure *all nav items* are never in the drop-down menu (for rtl)
+    $('a.Ticket').parent('li').addClass('primary-only');
+	
     $('#customQ_nav').overflowmenu({
       guessHeight: false,
       // items: 'li.top-queue',
@@ -1180,17 +1184,17 @@ $(document).on('pjax:complete', function() {
     $('#overlay').removeAttr('style');
 });
 
-// Enable PJAX for the staff interface
-if ($.support.pjax) {
-  $(document).on('click', 'a', function(event) {
-    var $this = $(this);
-    var href = $this.attr('href');
-    if (!$this.hasClass('no-pjax')
-        && !$this.closest('.no-pjax').length
-        && href && href.charAt(0) != '#')
-      $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
-  })
-}
+// Enable PJAX for the staff interface - breaks osta
+// if ($.support.pjax) {
+//   $(document).on('click', 'a', function(event) {
+//     var $this = $(this);
+//     var href = $this.attr('href');
+//     if (!$this.hasClass('no-pjax')
+//         && !$this.closest('.no-pjax').length
+//         && href && href.charAt(0) != '#')
+//       $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
+//   })
+// }
 
 $(document).on('click', '.link:not(a):not(.button)', function(event) {
   var $e = $(event.currentTarget);

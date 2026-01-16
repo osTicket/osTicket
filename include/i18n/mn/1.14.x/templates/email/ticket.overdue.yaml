@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Хүсэлт шийдвэрлэх хугацаа хэтэрсэн тохиолдолд ажилтан руу илгээнэ. Хүсэлтийн шийдвэрлэх хугацаа нь хүсэлтэд сонгогдсон SLA-р тодорхойлогдоно.
+subject: |
+  Хуучирсан хүсэлтийн сануулга
+body: |
+  <h3><strong>Сайн байна уу, %{recipient.name} ?</strong></h3>
+  <a href="%{ticket.staff_link}">#%{ticket.number}</a> дугаартай хүсэлтийн шийдвэрлэх хугацаа хэтэрсэн байна.
+  <br>
+  <br>
+  Та бид бүгдээрээ хүсэлтэд цаг тухайд нь хариу өгч шийдвэрлэхийн тулд шаргуу ажиллах хэрэгтэй.
+  <br>
+  <br>
+  Хүндэтгэсэн,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Та хүсэлтээ харах эсвэл хариу өгөх бол систем рүү <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >нэвтэрнэ үү</span></a>. Та энэ мэдэгдлийг хүлээн авсан бол энэхүү хүсэлт нь шууд танд юмуу таны багт эсвэл таны бүртгэлтэй албанд хувиарилагдсан байна гэсэн үг.</div>
+  <em style="font-size: small">Таны нөхөрсөг<span style="font-size: smaller"
+  >(боловч тэвчээр нь бас хязгаартай)</span> Тусламж Үйлчилгээний Алба</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

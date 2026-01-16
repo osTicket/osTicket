@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Neues Ticket
+  content: >
+    Aktivieren Sie diese Funktion, wenn bei der Eröffnung eines neuen Tickets eine Auto-Antwort an den Benutzer versendet werden soll.
+  links:
+    - 
+      title: Vorlage für Auto-Antwort bei neuem Ticket
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Neues Ticket von Agent
+  content: >
+    Benachrichtigung, die versendet wird, wenn ein Agent im Namen eines Benutzers ein Ticket eröffnet.<em>Der Agent kann bei der Eröffnung eines neuen Tickets diese Einstellung überschreiben.</em>
+  links:
+    - 
+      title: Vorlage für Benachrichtigung bei neuem Ticket
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Benachrichtigung über den Erhalt einer neuen Nachricht
+  content: >
+    Benachrichtigung, die versendet wird, wenn eine neue Nachricht zu einem bestehenden Ticket eingegangen ist.
+  links:
+    - 
+      title: Vorlage für Benachrichtigung über den Erhalt einer neuen Nachricht
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Benachrichtigung bei neuer Nachricht
+  content: >
+    Die Nachricht des Nachrichtenübermittlers an alle beteiligten Personen des Tickets weiterleiten.
+  links:
+    - 
+      title: Vorlage für Benachrichtigung bei neuer Aktivität
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Benachrichtigung bei Limitüberschreitung
+  content: >
+    Benachrichtigung über Annahmeverweigerung neuer Tickets, die an den Benutzer versendet wird, wenn das Limit für <span class="doc-desc-title">Maximal Offene Tickets</span> überschritten wird.
+  links:
+    - 
+      title: Vorlage für Benachrichtigung bei Limitüberschreitung
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Anzahl an <em>Maximal Offenen Tickets</em> festlegen
+      href: /scp/settings.php?t=tickets

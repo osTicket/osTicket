@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Agent Name Formatting
+  content: >
+    Choose a format for Agents names throughout the system. Email templates will use it for names if no other format is specified.
+staff_identity_masking:
+  title: Анонимност на вработениот
+  content: >
+    Доколку е овозможена, со оваа опција нема да се прикаже името на агентот при комуникацијата со клиентот.
+#Authentication settings
+password_reset:
+  title: Политика на истекување на лозинката
+  content: >
+    Sets how often (in months) Agents will be required to change their password. If disabled (set to "No expiration"), passwords will not expire.
+password_expiration_policy:
+  title: Политика на истекување на лозинката
+  content: >
+    Избери колку често Агентите ќе побараат да им биде порменета нивната лозинка. Ако е оневозможено (пр. <span class="doc-desc-opt">без истекување</span> ), лозинката нема да истече.
+allow_password_resets:
+  title: Овозможи ресетирање на лозинка
+  content: >
+    Enable this feature if you would like to display the <span class="doc-desc-title">Forgot My Password</span> link on the <span class="doc-desc-title">Staff Log-In Page</span> after a failed log in attempt.
+reset_token_expiration:
+  title: Прозорец за промена на лозинката
+  content: >
+    Одвери интервал (во минути) за кој <span class="doc-desc-title">токен за ресетирање на лозинка </span> ќе биде валидно. Кога Агент побарува <span class="doc-desc-title">ресетирање на лозинка</span>, до нив е испратен емаил токен кој ќе овозможи рестартирањето да се изврши.
+staff_session_timeout:
+  title: Истечено време на сесијата на агент
+  content: >
+    Choose the maximum idle time (in minutes) before an Agent is required to log in again. <br><br> If you would like to disable <span class="doc-desc-title">Agent Session Timeouts</span>, enter 0.
+bind_staff_session_to_ip:
+  title: Врзување на сесијата на агентот до IP адресата
+  content: >
+    Enable this if you want Agent to be remembered by their current IP upon Log In. <br><br> This setting is not recommened for users assigned IP addresses dynamically.

@@ -1,0 +1,10 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Melding sendt til medarbeidere om saks aktivitet f.eks svar eller melding.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Kjære %{recipient.name.first},</strong></h3> <div><em>%{poster.name}</em> har sendt en melding til en sak du deltar  i.</div> <br>%{message} <br><br><hr><div style="color: rgb(127, 127, 127); font-size: small; text-align: center;"> <em>Du får denne e-posten fordi du er deltager i saken <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" > #%{ticket.number}</a>.  For å delta, svar på denne e-posten eller <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" > Klikk her</a> for en komplett oversikt i saks tråden.</em> </div>

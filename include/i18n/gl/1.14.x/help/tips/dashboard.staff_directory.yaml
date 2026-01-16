@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Membros do equipo
+  content: >
+    A seguinte táboa amosa os resultados do filtro situado enriba dela. Se non estableceron filtros, todos os <span class="doc-desc-title">Membros do Equipo</span> son amosados e separados por páxinas. Vexa a sección de páxinas embaixo para navegar a través de máis resultados.
+apply_filtering_criteria:
+  title: Aplicar criterios de filtrado
+  content: >
+    Elixa un <span class="doc-desc-title">Departamento</span> que sexa relevante para os seus intereses actuais. Tamén pode realizar una procura dun axente específico.

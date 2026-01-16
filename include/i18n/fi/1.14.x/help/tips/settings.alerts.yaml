@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Ilmoitukset ja Muistutukset
+  content: >
+    Ilmoitukset ja muistutukset ovat automaattisia sähköpostiviestejä jotka lähetetään Käsittelijöille, kun tiketin tapahtumat käynnistyvät.
+ticket_alert:
+  title: Uusi tiketti ilmoitus
+  content: >
+    <p>Ilmoitus lähetetään Käsittelijöille, kun uusi tiketti luodaan.</p><p class="info-banner"> <i class="icon-info-sign"></i> Ilmoitusta ei lähetetä, jos tiketti automaattisesti siirretään Tikettisuodattimen tai Ohjeotsikon perusteella.</p>
+  links:
+    - 
+      title: Uuden Tiketin oletusilmoituspohja
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Uusi viestihälytys
+  content: >
+    Ilmoitus lähetetään Käsittelijöille, kun uusi viesti Asiakkaalta liitetään olemassa olevaan tikettiin.
+  links:
+    - 
+      title: Uuden Viestin oletusilmoituspohja
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Uusi sisäinen tapahtuma -ilmoitus
+  content: >
+    Ilmoitus lähetetään Käsittelijöille kun sisäinen muistiinpano tai Käsittelijän vastaus lisätään tikettiin.
+  links:
+    - 
+      title: Tiketin Tapahtuman oletusilmoituspohja
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Tiketin Kohdistusilmoitus
+  content: >
+    Lähetettävä ilmoitus Käsittelijöille tikettien kohdistamisesta.
+  links:
+    - 
+      title: Tiketin Kohdistuksen oletusilmoituspohja
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Ilmoita siirrosta
+  content: >
+    Ilmoitus joka lähetetään Käsittelijöille kun tiketti siirretään Osastojen välillä.
+  links:
+    - 
+      title: Oletusmalli lipunsiirron hälytykseen
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Myöhästyneen tiketin hälytys
+  content: >
+    Ilmoitus joka lähetetään Käsittelijöille kun tiketti on myöhässä Palvelutason tai Valmistumispäivän mukaan.
+  links:
+    - 
+      title: Vanhentuvan Tiketin oletusilmoituspohja
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Hallinnoi Palvelutasoja
+      href: /scp/slas.php
+system_alerts:
+  title: Järjestelmähälytykset
+  content: >
+    Merkittävät järjestelmätapahtumat jotka lähetetään Järjestelmänvalvojalle (%{config.admin_email}). Pohjautuvat asetettuihin <span class="doc-desc-title">Lokitasoihin</span>, tapahtumia voidaan myös määrittää <span class="doc-desc-title">Järjestelmälokissa</span>
+  links:
+    - 
+      title: Näytä järjestelmäloki
+      href: /scp/logs.php
+    - 
+      title: Muuta Järjestelmänvalvojan sähköpostiosoite
+      href: /scp/settings.php?t=emails

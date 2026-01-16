@@ -1,0 +1,29 @@
+{
+  "Basics": {
+    "title": "Getting started"
+  },
+  "ColorApi": {
+    "title": "Color manipulation"
+  },
+  "ColorSwatches": {
+    "title": "Color swatches"
+  },
+  "CustomSize": {
+    "title": "Custom size"
+  },
+  "CustomTemplate": {
+    "title": "Custom template"
+  },
+  "DebugMode": {
+    "title": "Debug mode"
+  },
+  "Events": {
+    "title": "Event handling"
+  },
+  "ExtensionApi": {
+    "title": "Extensions"
+  },
+  "legacy_docs": {
+    "title": "Legacy documentation"
+  }
+}

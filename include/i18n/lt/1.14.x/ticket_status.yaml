@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Atidaryti
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Atidarytos užklausos.
+- 
+  id: 2
+  name: Išspręsta
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Išspręstos užklausos
+- 
+  id: 3
+  name: Uždaryta
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Uždarytos užklausos. Užklausos vis dar bus prieinamos klientams ir darbuotojams valdymo panelėje.
+- 
+  id: 4
+  name: Archyvuota
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Užklausas leidžiama peržiūrėti administracijai, tačiau jos daugiau nepasiekiamos užklausų eilės sąraše.
+- 
+  id: 5
+  name: Ištrinta
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Užklausos yra paruoštos ištrinti. Nepasiekamos bendrame kataloge.

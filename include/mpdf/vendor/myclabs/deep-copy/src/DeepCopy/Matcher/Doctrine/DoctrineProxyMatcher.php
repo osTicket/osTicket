@@ -3,7 +3,7 @@
 namespace DeepCopy\Matcher\Doctrine;
 
 use DeepCopy\Matcher\Matcher;
-use Doctrine\Persistence\Proxy;
+use Doctrine\Common\Persistence\Proxy;
 
 /**
  * @final

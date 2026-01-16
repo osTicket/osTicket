@@ -1,18 +1,42 @@
 <?php
 include_once(INCLUDE_DIR.'staff/login.header.php');
-defined('OSTSCPINC') or die('Invalid path');
+// osta
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
+require_once $_SERVER['DOCUMENT_ROOT'] . ROOT_PATH . "/osta/php/functions.php"; 
+$opt = get_config();
 ?>
-
 <div id="brickwall"></div>
 <div id="loginBox">
     <div id="blur">
         <div id="background"></div>
     </div>
-    <h1 id="logo"><a href="index.php">
-        <span class="valign-helper"></span>
-        <img src="logo.php?login" alt="osTicket :: <?php echo __('Agent Password Reset');?>" />
-    </a></h1>
+<!--osta-->
+	<a id="header-logo" href="<?php echo ROOT_PATH; ?>scp/">
+	<div id="login-title">
+
+		<div id="header-text">
+			<div id="header-title">
+				<?php				
+				$file_name = ROOT_DIR ."osta/opt/text/title.txt";
+				echo file_get_contents($file_name);
+				?>     
+			</div>
+		</div>
+		
+		<div id="header-image">
+			<img src="<?php echo get_logo( $opt, "staff" )?>?<?php echo strtotime($cfg->lastModified('staff_logo_id')); ?>" alt="osTicket &mdash; <?php echo __('Customer Support System'); ?>"/> 
+		</div>	
+
+		<div id="header-default">
+			<?php				
+			$file_name = ROOT_DIR ."osta/inc/default-logo.html";
+			echo file_get_contents($file_name);
+			?>		
+		</div>			
+
+	</div>
+	</a>
+
     <h3><?php echo Format::htmlchars($msg); ?></h3>
     <form action="pwreset.php" method="post">
         <?php csrf_token(); ?>

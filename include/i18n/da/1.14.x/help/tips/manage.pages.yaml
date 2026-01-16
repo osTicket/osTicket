@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Arbejdsplads sider
+  content: >
+    Arbejdsplads sider kan tjene som en mini Content Management System (CMS). Du kan definere flere landing, offline, og tak sider og konfigurere dem i virksomheden indstillinger og Hjælp Emner.
+  links:
+    - 
+      title: Virksomheden Indstillinger
+      href: /scp/settings.php?t=pages
+type:
+  title: Type
+  content: >
+    <span class="doc-desc-opt">Offline</span> sider ses på klient portalen, hvis din help desk er deaktiveret. <span class="doc-desc-opt">Landing</span> sider ses på startsiden for din klient  portal. <span class="doc-desc-opt">Tak</span> sider ses på en bruger sender en sags. <span class="doc-desc-opt">Andre</span> sider kan bruges som et simpelt content management system (CMS).

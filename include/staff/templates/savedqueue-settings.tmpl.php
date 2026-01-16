@@ -30,7 +30,7 @@
 <?php
           }
          foreach ($queue->getSupportedFilters() as $path => $f) {
-            list($label, $field) = $f;
+        list($label, $field) = $f;
 ?>
           <option value="<?php echo $path; ?>"
             <?php if ($path == $queue->filter) echo 'selected="selected"'; ?>

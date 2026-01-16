@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Prioriteit en Meest actuele
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: Prioriteit en Meest actueel aangemaakt
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: Prioriteit en verloopdatum
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: Vervaldatum
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: Sluitdatum
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: Aanmaakdatum
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

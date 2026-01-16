@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Contact Information
+  0: >
+
+username:
+  title: Username
+  content: >
+    Somentes os Axentes con permisos de Administrador poderán mudar un nome de usuario. Se vostede é un Axente con permisos de Administrador, poderá facelo seleccionando o Axente a editar dende a <span class="doc-desc-title">lista de usuarios</span>.
+  links:
+    - 
+      title: Cambia o nome dun usuario como administrador
+      href: /scp/staff.php
+time_zone:
+  title: Zona Horaria
+  0: >
+
+daylight_saving:
+  title: Horario de Verán
+  0: >
+
+maximum_page_size:
+  title: Tamaño máximo de páxina
+  0: >
+
+auto_refresh_rate:
+  title: Frecuencia de actualización automática
+  0: >
+
+default_signature:
+  title: Sinatura predeterminada
+  0: >
+
+default_paper_size:
+  title: Tamaño de Papel Predeterminado
+  0: >
+
+show_assigned_tickets:
+  title: Mostra os Tickets Asignados
+  content: >
+    <p> Activar esta opción vai substituír a configuración global para esconder os tíckets atribuídos das listas abertas. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Esta definición só está dispoñíbel cando os tíckets atribuídos son excluídos globalmente. </p>
+password:
+  title: Password
+  0: >
+
+current_password:
+  title: Contrasinal Actual
+  0: >
+
+new_password:
+  title: Novo Contrasinal
+  0: >
+
+confirm_new_password:
+  title: Confirme o Novo Contrasinal
+  0: >
+
+signature:
+  title: Sinatura
+  content: >
+    Crear una <span class="doc-desc-title">Sinatura Opcional</span> que pode aparecer ó final das súas respostas ós Tickets. Se esta <span class="doc-desc-title">Sinatura</span> aparece ou non, depende da <span class="doc-desc-title">Plantilla de correo electrónico</span> que se empregara na resposta dos Tickets.
+  links:
+    - 
+      title: Cria Plantillas de Emails no Panel de Administrador
+      href: /scp/templates.php

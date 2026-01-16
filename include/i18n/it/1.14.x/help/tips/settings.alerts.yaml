@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Avvisi e Comunicazioni
+  content: >
+    Avvisi e comunicazioni vengono automaticamente inviati agli agenti via email quando gli eventi dei ticket sono attivati.
+ticket_alert:
+  title: Avviso nuovo ticket
+  content: >
+    <p>Avviso inviato agli agenti quando viene creato un nuovo ticket.</p><p class="info-banner"> <i class="icon-info-sign"></i> Questo avviso non viene inviato se il ticket è assegnato automaticamente tramite un filtro o una categoria di supporto</p>
+  links:
+    - 
+      title: Template predefinito per l'Avviso di un nuovo Ticket
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Avviso di nuovo messaggio
+  content: >
+    Avviso inviato agli agenti quando un nuovo messaggio da parte dell'utente viene aggiunto a un ticket esistente.
+  links:
+    - 
+      title: Template predefinito per l'avviso di un nuovo messaggio
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Nuovo Avviso di Attività Interna
+  content: >
+    Avviso inviato agli Agenti quanto un'attività interna come una nota interna o la risposta di un agente è aggiunta ad un ticket.
+  links:
+    - 
+      title: Template di default di Attività Ticket
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Avviso di assegnazione ticket
+  content: >
+    Avviso inviato agli agenti all'assegnazione di un ticket.
+  links:
+    - 
+      title: Template predefinito per l'avviso di assegnazione di un Ticket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Avviso su Trasferimento
+  content: >
+    Avviso inviato agli agenti al trasferimento del ticket tra reparti.
+  links:
+    - 
+      title: Template di Default di Avviso Trasferimento del Ticket
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Avviso di ticket scaduto
+  content: >
+    Avviso inviato agli agenti quando un ticket è scaduto in base agli SLA o data di scadenza.
+  links:
+    - 
+      title: Modello di avviso predefinito di ticket obsoleti
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Gestire contratti SLA
+      href: /scp/slas.php
+system_alerts:
+  title: Avvisi di sistema
+  content: >
+    Eventi di sistema significativi che vengono inviati all'Amministratore (%{config.admin_email}). A seconda del <span class="doc-desc-title">Livello di Log</span> configurato, gli eventi sono resi disponibili anche nel <span class="doc-desc-title">Log di Sistema</span>
+  links:
+    - 
+      title: Guarda il log di sistema
+      href: /scp/logs.php
+    - 
+      title: Cambiare Email Admin
+      href: /scp/settings.php?t=emails

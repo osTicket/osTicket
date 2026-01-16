@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Ovaj predložak definira obavijest za klijente da je pristupni link poslan na njihovu email adresu. Broj kartice i e-mail adresa aktiviraju pristupnu vezu .
+name: "Kartica [#%{ticket.number}] pristupni link"
+body: >
+  <h3><strong>Pozdrav %{recipient.name.first},</strong></h3> <div>Zahtjev za pristupnim linkom za karticu#%{ticket.number} poslan je od Vaše strane za tehničku podršku na %{url}.<br /> <br /> Kliknite na link niže kako biste provjerili status kartice #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Ukoliko <strong> niste </strong> poslali ovaj zahtjev, molimo Vas da obrišete i zanemarite ovu email poruku. Vaš korisnički račun je jeoš uvjek siguran i nitko nema pristum Važem računu osim vas. Netko je možda greškom unio vašu email adresu.<br /> <br /> --<br /> %{company.name} </div>

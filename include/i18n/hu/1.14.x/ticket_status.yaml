@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Nyitott
+  state: open
+  mode: 3
+  sort: 1
+  flags: 1
+  properties:
+    description: >
+      Nyitott hibajegyek.
+- 
+  id: 2
+  name: Megoldott
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 1
+  properties:
+    allowreopen: true
+    reopenstatus: 1
+    description: >
+      Megoldott hibajegyek
+- 
+  id: 3
+  name: Lezárt
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 1
+  properties:
+    allowreopen: true
+    reopenstatus: 1
+    description: >
+      Lezárt hibajegyek. Csak az admin vagy ügyfél oldalon érhető el.
+- 
+  id: 4
+  name: Archivált
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 1
+  properties:
+    description: >
+      A hibajegyek csak adminisztrációs célokból érhetőek el, a többi jegy között már nem érhető el.
+- 
+  id: 5
+  name: Törölt
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 1
+  properties:
+    description: >
+      Hibajegyek a törlési várólistán vannak. Nem érhetőek el a többi jegy között.

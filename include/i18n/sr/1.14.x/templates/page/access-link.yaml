@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Овај шаблон дефинише обавјештење за Клијента којем је на еМаил адресу послат приступни линк. Број тикета и еМаил адреса дефинишу линк за приступ.
+name: "Тикет [#%{ticket.number}] Линк за приступ"
+body: >
+  <h3><strong>Здраво %{recipient.name.first},</strong></h3> <div> Захтјев за приступни линк за тикет #%{ticket.number} је достављен у Ваше име у систем за пружање помоћи %{url}.<br /> <br /> Пратите сљедећи линк да исконтролишете статус тикета #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Ако Ви <strong>нисте</strong> направили захтјев, молимо Вас обришите и занемарите ову еМаил поруку. Ваш начог је и даље сигуран и нико неће имати приступ Вашим тикетима. Неко је грешком унио Вашу еМаил адресу.<br /> <br /> --<br /> %{company.name} </div>

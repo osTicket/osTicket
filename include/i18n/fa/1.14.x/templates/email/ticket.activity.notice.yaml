@@ -1,0 +1,15 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  اعلان پاسخ ارسال شده به مخاطبین تیکت
+subject: |
+  پاسخ: % {ticket.subject}
+body: |
+  <h3><strong>%{recipient.name.first} عزیز،</strong></h3><div>
+  <em>%{poster.name}</em> هم‌اکنون یک پیام به درخواست شما اضافه کرده است.</div><br>
+  %{message}<br><br><hr><div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em> شما این ایمیل را دریافت کرده‌اید چون یکی از شرکت‌کننده ها در درخواست <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a> هستید. برای مشارکت، به این ایمیل پاسخ دهید یا برای تکمیل سابقه درخواست <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  > اینجا </a>را کلیک کنید.</em></div>

@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Prioritetas + Pagal atnaujinimą
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: Prioritetas + Naujausi
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: Prioritetas + Termino data
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: Terminas iki
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: Uždarymo data
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: Sukūrimo data
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

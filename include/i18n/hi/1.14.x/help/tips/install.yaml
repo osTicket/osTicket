@@ -1,0 +1,69 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: सहायता प्रणाली के लिये नाम
+  content: |
+    <p>अापकी समर्थन प्रणाली का नाम जैसे "[कंपनी का नाम] समर्थन"</p>
+system_email:
+  title: डिफ़ॉल्ट/मूल सिस्टम ईमेल
+  content: |
+    <p>डिफ़ॉल्ट/मूल ईमेल पता जैसे support@yourcompany.com - आप बाद में और भी जोड़ सकते हैं !</p>
+default_lang:
+  title: सिस्टम की डिफ़ॉल्ट/मूल भाषा
+  content: |
+    <p>इस भाषा के लिए प्रारंभिक डेटा, जैसे ईमेल टेम्पलेट्स और डिफ़ॉल्ट/मूल सिस्टम पृष्ठ, डेटाबेस में स्थापित किये जाएंगे।</p>
+  links:
+    - 
+      title: osTicket भाषा पैक्स
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: प्रथम नाम
+  content: |
+    <p>ऎडमिन/व्यवस्थापक का प्रथम नाम</p>
+last_name:
+  title: अंतिम नाम
+  content: |
+    <p>ऎडमिन/व्यवस्थापक का अंतिम नाम</p>
+email:
+  title: ईमेल पता
+  content: |
+    <p>ऎडमिन/व्यवस्थापक का व्यक्तिगत ईमेल पता। यह सिस्टम के डिफ़ॉल्ट/मूल ईमेल पते से अलग होना चाहिए।</p>
+username:
+  title: उपयोगकर्ता का नाम
+  content: |
+    <p>ऎडमिन/व्यवस्थापक का लाॅग-इन नाम। यह कम से कम तीन (3) वर्ण होना चाहिए।</p>
+password:
+  title: पासवर्ड
+  content: |
+    <p>ऎडमिन/व्यवस्थापक का पासवर्ड।  यह पांच (5) वर्ण या अधिक होना चाहिए।</p>
+password2:
+  title: पासवर्ड की पुष्टि करें
+  content: |
+    <p>ऎडमिन/व्यवस्थापक का पासवर्ड दोबारा लिखें। यह पहले लिखे पासवर्ड से मिलना चाहिए।</p>
+db_prefix:
+  title: MySQL टेबल प्रि्फिक्स
+  content: |
+    <p>एक साझा डेटाबेस में तालिकाओँ के बीच संघर्ष से बचने के लिए osTicket को तालिका उपसर्ग (टेबल प्रिफिक्स) की आवश्यकता होति है।</p>
+db_host:
+  title: MySQL होस्ट-नाम
+  content: |
+    <p> अधिक्तर होस्ट लोकल डेटाबेस होस्ट-नाम के लिए 'लोकलहोस्ट' का प्रयोग करते हैं। यदि लोकलहोस्ट का प्रयोग करना विफल रहता है तो अपने होसट के साथ जाँच करें। </p>
+    <p>Php. ini में निर्धारित डिफ़ॉल्ट पोर्ट का प्रयोग एक मानक पोर्ट के तौर पर किया जाता है। एक गैर मानक (नाॅन-स्टैंडर्ड) पोर्ट नंबर <code>hostname:port</code> के रूप में निर्दिष्ट किया जा सकता है</p>
+db_schema:
+  title: MySQL डाटाबेस
+  content: |
+    <p>उस डेटाबेस का नाम जिसका उपयोग osTicket करेगा।</p>
+db_user:
+  title: MySQL उपयोगकर्ता का नाम
+  content: |
+    <p>MySQL उपयोगकर्ता के पास डेटाबेस पर पूर्ण अधिकार होने चाहिए।</p>
+db_password:
+  title: MySQL पासवर्ड
+  content: |
+    <p>ऊपर दिये गये उपयोगकर्ता से संबंद्धित MySQL पासवर्ड।</p>

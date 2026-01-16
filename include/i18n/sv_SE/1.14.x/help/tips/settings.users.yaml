@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Formatering för användarnamn
+  content: >
+    Välj format för användarnamn i systemet. E-postmallar använder dessa format för namn om inget annat format är angivet för variabeln.
+#Authentication settings
+client_session_timeout:
+  title: Tidsgräns för utloggning av användare
+  content: >
+    Välj maximal tid av inaktivitet (i minuter) innan en användare loggas ut. <br><br>Om du önskar inaktivera <span class="doc-desc-title">Automatisk utloggning vid inaktivitet av användare</span>, anger du värdet 0.
+registration_method:
+  title: Inställningar för inregistrering
+  content: >
+    Inställningarna <span class="doc-desc-title">Metod för inregistrering</span> samt <span class="doc-desc-title">Inregistrering krävs</span> används tillsammans för att bestämma hur användare registrerar sig och kommer åt webb portalen i ärendehanteringssystemet. Tabellen nedan sammafattar hur hur de två inställningarna tolkas av systemet. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Registrering krävs</th> <th>Metod för registrering</th> <th>Resultat</th></tr> <tr><td>Nej</td><td>Publik</td> <td>Registrering rekommenderas, men är inte nödvändig för att anmäla nya ärenden.</td></tr> <tr><td>Ja</td><td>Publik</td> <td>Registrering och inloggning krävs för att anmäla ärenden</td></tr> <tr><td>Nej</td><td>Privat</td> <td>Vem som helst kan anmäla ärenden, men endast personer i supportpersonalen kan skapa konton</td></tr> <tr><td>Ja</td><td>Privat</td> <td>Access för användare fås endast genom inbjudan</td></tr> <tr><td>Nej</td><td>Inaktiverat</td> <td>Ingen kan skapa nytt konto, men vem som helst kan anmäla nytt ärende. <em>Så här var funktionaliteten i osTicket före version 1.9</em></td></tr> <tr><td>Ja</td><td>Inaktiverat</td> <td>Inaktivera anmälning av nya ärenden via webbportalen</td></tr> </tbody></table>
+client_verify_email:
+  title: Kräv e-postverifikation
+  content: >
+    Inaktivera detta val för att ge dina användare mellan-access till ärenden via inloggninssidan "Kontrollera ärendestatus" i webbportalen för kunderna. Om funktionen aktiveras (vilket är standard), krävs att användaren tar emot ett e-postmeddelande med en länk som denne klickar på för att visa ärendet. <br><br> Genom att inaktivera e-postverifiering så kan det hända att tredje part (t ex ärendehanterare) att agera som/låtsas vara ärendets ägare.
+allow_auth_tokens:
+  title: Aktivera autentiseringstoken
+  content: >
+    Aktivera denna inställning för att tillåta autentiserings-token till att automatiskt logga in användare via ärendelänk.

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Ettevõtte info
+  content: >
+    See viitab ettevõttele või organisatsioonile, mis kasutab osTicket tarkvara ja kasutajatoe meeskonda. See info kuvatakse emaili allkirjas (nt jaluses) kui agendid vastavad piletitele.
+  links:
+    - 
+      title: Ettevõtte info vorm
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Avakuva
+  content: >
+    <span class="doc-desc-title">Avalehte</span> kuvatakse Sinu kasutajatoe saidi esilehena.
+offline_page:
+  title: Offline leht
+  content: >
+    <span class="doc-desc-title">Offline lehte</span> kuvatakse kasutajatoe lehel, kui kasutajatugi on offline, vaata adminsitraatori juhtpaneel -&gt; Seaded -&gt; Süsteem -&gt; Kasutajatoe staatus.
+default_thank_you_page:
+  title: Vaikimisi tänu leht
+  content: >
+    <span class="doc-desc-title">Tänu leht</span> kuvatakse kliendile, kui <span class="doc-desc-title">klient</span> registreerib uue pileti. <br/><br/> <span class="doc-desc-title">Tänu</span> lehte saab siduda abiteemadega.
+logos:
+  title: Logod
+  content: >
+    Saad kohandada <span class="doc-desc-title">logo</span>, mida kuvatakse kliendi portaalis (nt sinu kasutajatoe leht).
+upload_a_new_logo:
+  title: Laadi üles uus logo
+  content: >
+    Vali pilt .gif, .jpg või .png vormingus. Me vähendame proportsionaalselt sinu pildi kuva. Me ei muuda pildil suurust. Selleks, et kiirendada laadimist, on soovituslik hoida pildi suurus lähenane vaikesuurusele (817px &times; 170px).
+backdrops:
+  title: Taustad
+  content: >
+    Võid muuta meeskonna logimislehele kuvatavat <span class="doc-desc-title">tagatausta</span>.
+upload_a_new_backdrop:
+  title: Laadi uus taust
+  content: >
+    Vali .gif, .jpg või .png formaadis pilt. Me vähendame proportsionaalselt selle pildi kuva. Me ei muuda selle pildi suurust. Veebilehe kiiremaks laadimiseks kasuta väikesemahulisi pilte (alla megabaidi). Pööra tähelepanu PHP üleslaadimispiiri seadele.

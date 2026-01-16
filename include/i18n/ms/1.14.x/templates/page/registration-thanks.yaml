@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Templat ini mentakrifkan kandungan yang dipaparkan selepas pelanggan berjaya mendaftar dengan mengesahkan akaun mereka. Laman ini perlu memaklumkan kepada pengguna bahawa pendaftaran telah selesai dan Pelanggan kini boleh mengemukakan tiket atau akses tiket sedia ada.
+name: "Akaun Disahkan!"
+body: >
+  <div> <strong>Terima kasih kerana mendaftar untuk akuan</strong><br /> <br /> Anda telah mengesahkan alamat e-mel anda dan berjaya mengaktifkan akaun anda. Anda boleh meneruskan untuk membuka tiket baru atau menguruskan tiket sedia ada.<br /> <br /> <em>Pusat sokongan mesra anda</em><br /> %{company.name} </div>

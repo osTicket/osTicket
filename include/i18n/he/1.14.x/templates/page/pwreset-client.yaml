@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  תבנית זו מגדירה את המלל שישלח ללקוחות אשר לחצו על הקישור<strong>שכחתי את הסיסמה שלי</strong> במסך הכניסה.
+name: "גישת מרכז תמיכה %{company.name}"
+body: >
+  <h3><strong>היי %{user.name.first},</strong></h3> <div> בקשה לאיפוס סיסמא הוגשה בשמך עלידי מוקד התמיכה בכתובת %{url}.<br /> <br /> אם אתה מרגיש שזה נעשה בטעות, מחק והתעלם מהודעה זו.. החשבון שלך עדיין מאובטח, ולאף אחד לא הוענקה גישה אליו. החשבון אינו ננעל, והסיסמה שלך לא אופסה. מישהו הזין בטעות את כתובת הדוא ל שלך.<br /> <br /> לחץ על הקישור שלהלן כדי להתחבר ולשנות את הסיסמה שלך.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">בברכה, פורטל התמיכה <br /> %{company.name}</em> </div>

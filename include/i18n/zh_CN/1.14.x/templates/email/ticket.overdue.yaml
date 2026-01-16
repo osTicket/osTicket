@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  当系统里面有某条咨询快要过期的时候，通知工作人员。咨询过期日期是系统管理员为咨询定义的，一旦超过该日期，咨询就会过期。
+subject: |
+  过期咨询警告
+body: |
+  <h3><strong>您好 %{recipient}</strong>,</h3>
+  有一条咨询, <a href="%{ticket.staff_link}">#%{ticket.number}</a>已经严重过期.
+  <br>
+  <br> 
+  我们需要共同努力，确保所有咨询都能够得到及时解决。
+  <br>
+  <br>
+  Signed,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>若要查看或回复咨询, 请<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >登录</span></a> 客户支持咨询系统. 您收到此通知是因为该咨询被直接指派给您，或者您所在的团队和部门.</div>
+  <em style="font-size: small">您友好 <span style="font-size: smaller"
+  >(但有时耐心稍嫌不足)</span> 的客户支持系统</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

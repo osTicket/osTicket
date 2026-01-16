@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Ini boleh menggubah pengepala di Halaman Log masuk pengguna. Ini adalah berguna untuk memaklumkan Pengguna berkenaan log masuk mereka dan polisi pendaftaran.
+name: "Log masuk ke %{company.name}"
+body: >
+  Untuk lebih baik kepada anda, kami menggalakkan pelanggan kami untuk mendaftar untuk akaun.

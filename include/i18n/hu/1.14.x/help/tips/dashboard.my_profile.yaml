@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Elérhetőség
+  0: >
+
+username:
+  title: Felhasználónév
+  content: >
+    Csak rendszergazda joggal rendelkező munkatársak módosíthatnak felhasználónevet. Ha Ön egy rendszergazda joggal rendelkező munkatárs, akkor kiválaszthat egy munkatársat szerkesztésre a <span class="doc-desc-title">Munkatársak</span> táblából.
+  links:
+    - 
+      title: Felhasználónév módosítása rendszergazdaként
+      href: /scp/staff.php
+time_zone:
+  title: Időzóna
+  0: >
+
+daylight_saving:
+  title: Nyári időszámítás
+  0: >
+
+maximum_page_size:
+  title: Maximális lapméret
+  0: >
+
+auto_refresh_rate:
+  title: Automatikus frissítési gyakoriság
+  0: >
+
+default_signature:
+  title: Alapértelmezett aláírás
+  0: >
+
+default_paper_size:
+  title: Alapértelmezett papírméret
+  0: >
+
+show_assigned_tickets:
+  title: Hozzárendelt hibajegyek megjelenítése
+  content: >
+    <p>Ezen beállítás engedélyezése felülírja azt a globális beállítást ami elrejti a kirendelt hibajegyeket a nyitott várólistákról. </p><p class="info-banner"><i class="icon-info-sign"></i>Ez a beállítás csak akkor érhető el ha a kirendelt hibajegyek globálissan el vannak rejtve.</p>
+password:
+  title: Jelszó
+  0: >
+
+current_password:
+  title: Jelenlegi jelszó
+  0: >
+
+new_password:
+  title: Új jelszó
+  0: >
+
+confirm_new_password:
+  title: Új jelszó megerősítése
+  0: >
+
+signature:
+  title: Aláírás
+  content: >
+    Hozzon létre egy opcionális <span class="doc-desc-title">Aláírást</span>, mely a válaszainak az alján lesz látható. Az <span class="doc-desc-title">Aláírás</span> megjelenése attól függ, hogy melyik a használt <span class="doc-desc-title">Email sablon</span> a válaszban.
+  links:
+    - 
+      title: Emailek sablonok létrehozása az Admin felületen
+      href: /scp/templates.php

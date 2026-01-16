@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: API 키
+  content: >
+    API 키는 Application Programming Interface (API)를 통해 티켓을 접수할 때 클라이언트를 인증하기 위해 사용됩니다. API 키는 비밀번호를 대신하여 사용됩니다. API 키는 전송될 때 암호화 되지 않기 때문에, 각 클라이언트들의 네트워크 IP 주소와 링크되어 사용됩니다.
+  links:
+    - 
+      title: osTicket API 문서
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: IP 주소
+  content: >
+    클라이언트의 네트워크 IP 주소입니다. 각각의 중복되지 않는 IP 주소마다 별개의 API 키가 필요합니다.

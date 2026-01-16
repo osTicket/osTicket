@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Ticket Sharing
+  content: >
+    <p> Compartir tíckets da organización permite o acceso aos tíckets que pertencen a outros membros da organización. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Os colaboradores sempre teñen acceso aos tíckets. </p>
+email_domain:
+  title: Email Domain
+  content: >
+    Os usuarios poden ser engadidos automaticamente a esta organización en base ao dominio do seu correo electrónico. Use a caixa de abaixo para introducir un ou máis dominios separados por vírgulas. Por exemplo, escriba <code>mycompany.com</code> para usuarios con enderezos de correo electrónico que terminen en @mycompany.com
+

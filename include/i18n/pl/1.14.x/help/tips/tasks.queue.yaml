@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Zaawansowany
+  content: >
+    Zawęź kryteria wyszukiwania. Po wybraniu zaawansowanych kryteriów i uruchomieniu wyszukiwania, można <span class="doc-desc-title">Wyeksportować</span> dane zgłoszeń na dole strony.
+export:
+  title: Eksport
+  content: >
+    Eksport danych aktualnie widocznych do pliki CSV. Pliki CSV można otworzyć za pomocą dowolnego arkusza kalkulacyjnego (np. Microsoft Excel, Apple Pages, OpenOffice itd.).

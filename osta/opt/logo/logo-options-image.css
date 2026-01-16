@@ -1,0 +1,12 @@
+#header-text,
+#header-default {
+	display: none;
+}
+#header-image img {
+	display: inline-block !important;
+    /* height: 34px; */
+}
+#header-constrain #header-image img {
+    height: 34px;
+}
+

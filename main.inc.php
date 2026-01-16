@@ -64,4 +64,14 @@ if (isset($_SESSION['::sysmsgs'])) {
     extract($_SESSION['::sysmsgs']);
     unset($_SESSION['::sysmsgs']);
 }
+
+// osta
+//require_once $_SERVER['DOCUMENT_ROOT'] . ROOT_PATH . "/osta/php/functions.php"; 
+require_once ROOT_DIR . "osta/php/functions.php"; 
+$custom = get_config() ;
+
+ini_set('display_errors', filter_var($custom["show-errors"] , FILTER_VALIDATE_BOOLEAN)  ? 1 : 0 ); // Set by installer
+ini_set('display_startup_errors',filter_var($custom["show-errors"] , FILTER_VALIDATE_BOOLEAN)  ? 1 : 0 ); // Set by installer
+if ( filter_var($custom["show-errors"] , FILTER_VALIDATE_BOOLEAN) ) set_error_handler("error_handler");
+ie_check($custom);
 ?>

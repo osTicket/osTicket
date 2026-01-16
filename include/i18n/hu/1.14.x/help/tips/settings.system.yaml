@@ -1,0 +1,123 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk állapota
+  content: >
+    Ha a státusz <span class="doc-desc-opt">Offline-ra</span> váltja, az ügyfél csatlakozása tiltva lesz. Ugyanakkor ez nem befolyásol bármely más normális kezelői tevékenységet a kezelő kezelőpanelen keresztül.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Az osTicket telepítés alap URL-címe. Az e-mail kommunikációban használjuk végfelhasználók visszairányítására az ügyfélszolgálathoz.
+helpdesk_name_title:
+  title: Ügyfélszolgálat neve
+  content: >
+    Ez a cím jelenik meg a böngésző lapfülén. Ha az ügyfélszolgálat lapja be van állítva könyvjezőként, ezt a nevet fogja kapni a honlap.
+default_department:
+  title: Alapértelmezett részleg
+  content: >
+    Válasszon egy alapértelmezett <span class="doc-desc-title">Részleget</span> azoknak a hibajegyeknek, amik nem irányítódnak automatikusan egy előre definiált részleghez. <br/><br/> A hibajegyek átirányítása a súgó témák, a beérkező emailek és a hibajegy szűrő beállításaiban állíthatóak be.
+default_schedule:
+  title: Alapértelmezett ütemezés
+  content: >
+    Válassza ki az alapértelmezett ütemezést, amelyet az SLA használ a jegyek lejártakor.
+  links:
+    - 
+      title: Ütemezések kezelése
+      href: /scp/schedules.php
+default_page_size:
+  title: Alapértelmezett oldal mérete
+  content: >
+    Válassza ki hány tételt szeretne egy oldalon megjeleníteni a feldolgozásra váró hibajegyek közül a kezelő panelen. Minden egyes kezelő beállíthat tetszése szerint eltérő számot a <span class="doc-desc-title">Saját beállításaim</span> menüpont alatt.
+default_log_level:
+  title: Alapértelmezett naplózási szint
+  content: >
+    Határozza meg azt a legalacsonyabb súlyossági szintet, amitől a <span class="doc-desc-title">rendszer naplóban</span> rögzíteni kívánja a problémát. A <span class="doc-desc-opt">Hibakeresés</span> jelenti a legkevésbé súlyos szintet és a <span class="doc-desc-opt">Hiba</span> a legsúlyosabbat. Például, ha minden problémát szeretne nyomon követni a <span class="doc-desc-title">Rendszer naplóban</span>, válassza a <span class="doc-desc-opt">Hibakeresést</span>.
+purge_logs:
+  title: Naplók törlése
+  content: >
+    Határozza meg, mennyi ideig szeretné megtartani a <span class="doc-desc-title">Rendszer naplófájlokat</span>mielőtt törlésre kerülnek.
+enable_richtext:
+  title: Formázott szöveg engedélyezése
+  content: >
+    Bekapcsolás esetén engedélyezi a rich text formátum használatát az ügyfél és a kezelő között.
+enable_avatars:
+  title: Profilképek engedélyezése szálnézetben
+  content: >
+    Engedélyezze ezt, hogy a <span class="doc-desc-title">profilképek</span> megjelenítésre kerüljenek a fűzött levelezési nézetben. <br><br> A <span class="doc-desc-title">profilképek forrása</span> a munkatársak és felhasználók beállításai alatt módosíthatók.
+  links:
+    - 
+      title: Munkatársak beállításai
+      href: /scp/settings.php?t=agents
+    - 
+      title: Felhasználók beállításai
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Munkatársak ütközésének elkerülése
+  content: >
+    Adja meg, hogy a munkatársak maximum mennyi ideig foglalhatják a hibajegyet vagy feladatot tétlenség mellett. <br><br> A funkció kikapcsolásához adjon meg <span class="doc-desc-opt">0</span>-t.
+allow_iframes:
+  title: IFramek engedélyezése
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources\n"
+acl:
+  title: ACL (Access Control List)
+  content: >
+
+    Írja be vesszővel elválasztott IP-címek listáját a rendszerhez való hozzáférés engedélyezéséhez. Négy lehetőség van annak kiválasztására, hogy mely panelekre / panelekre kell alkalmazni az ACL-t.  <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Alkalmazás ide </ th> <th> Leírás</th> </tr> <tr> <td>letilt</td> <td> Összesen letiltja az ACL-t. </td> </tr> <tr> <td> All </ td > <td> Az ACL minden panelen érvényes. (azaz: ügyfélportál, személyzeti panel, adminisztrátori panel) </td> </tr> <tr> <td> ügyfélportál </td> <td> Az ACL-t csak az ügyfélportálra alkalmazza. </td> </tr> <tr> <td> Személyzeti panel </td> <td> Az ACL-t csak a Személyzeti panelre és a Felügyeleti panelre alkalmazza. </td> </tr> </tbody> </table>
+
+#Date and time options
+date_time_options:
+  title: Dátum és Idő beállítások
+  content: >
+    A következő beállítások határozzák meg az alapértelmezett dátum- és időbeállításokat a rendszer számára. Használhatja a helyi régiónak megfelelő alapértelmezéseket, vagy személyre szabhatja a formátumokat, hogy megfeleljenek az Ön egyedi szügségleteinek. Hivatkozzon az ICU formasorokra a személyre szabáshoz. A lentebb megjelenített dátumok csupán az eredményeket ábrázolják.
+  links:
+    - 
+      title: Lásd az ICU dátum formázó táblán
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Rendszer nyelvek
+  content: >
+    Válassza ki arendszer elsődleges nyelvét és a további másodlagos nyelveket, hogy lokalizáltá tegye a felhasználói felületet a felhasználók és munkatársak számára.
+primary_language:
+  title: Rendszer elsődleges nyelve
+  content: >
+    Amennyiben a felhsználó vagy munkatárs előnyben részesített nyelve nem elérhető, ez a nyelv lesz megjelenítésre használva. Ebbe bele tartozik a felhasználói felület, továbbá az egyedi tartalom mint a köszönőoldalak és email üzenetek.<br/><br/> A nem lefordított tartalmat ezen a nyelven írja.
+secondary_language:
+  title: Másodlagos nyelv
+  content: >
+    Válassza ki a munkatársak és felhasználók számára elérhető nyelvi beállításokat. A felhasználói felület elérhető lesz ezen a nyelven, és az egyedi tartalmak, mint a köszönőoldalak és témakörök, fordíthatóvá válnak.
+#Attachments
+attachments:
+  title: Csatolmány beállítások és tárolás
+  content: >
+    Konfigurálja, hogy a csatolmányok hogyan vannak tárolva.
+default_storage_bk:
+  title: Háttértároló
+  content: >
+    Válassza ki hogy a csatolmányok hogyan lesznek tárolva. <br<br> További háttértárolók bővítmények telepítésével adhatóak a rendszerhez
+max_file_size:
+  title: Maximális fájl méret
+  content: >
+    Adja meg a munkatársak által feltölthető csatolt fájlok maximális méretét. Beleértve az előkészített csatolmányokat, a tudásbázis szócikkeket, és a hibajegyek és feladatok csatolmányait. A legmagasabb beállítható értéket a PHP <code>upload_max_filesize</code> beállítása szabja meg.
+  links:
+    - 
+      title: PHP ini beállítások
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Bejelentkezés szükséges
+  content: >
+    Engedélyezze ezt a beállítást a mellékletek nem hitelesített felhasználók számára történő kiszolgálásának tiltására. Ez azt jelenti, hogy a mellékleteket a felhasználóknak mind a végfelhasználóknak, mind az ügynököknek be kell jelentkezniük. <br> <br> Biztonsági szempontból vegye figyelembe, hogy a felhasználó böngészője megőrzi a korábban megtekintett fájlokat a gyorsítótárában. Ezen túlmenően a helpdesken lévő összes fájlhivatkozás körülbelül 24 óra elteltével lejár.

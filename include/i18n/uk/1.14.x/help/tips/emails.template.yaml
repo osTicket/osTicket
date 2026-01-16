@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Шаблони електронної пошти
+  content: >
+    Набори шаблонів електронних листів використовується для відправки автовідповіді на різні події, які можуть відбуватися за час життя заявки.
+template_to_clone:
+  title: Шаблон для клонування
+  content: >
+    Виберіть набір шаблонів для клонування або просто почніть зі стандартних шаблонів електронних листів.
+language:
+  title: Мова
+  content: >
+    Виберіть бажану мову під <span class="doc-desc-opt"> стандартний </span> <span class="doc-desc-opt"> набір шаблонів електронних листів </span>. Мовні пакети доступні на osTicket.com.
+  links:
+    - 
+      title: Мовний пакет osTicket
+      href: https://osticket.com/download
+status:
+  title: Статус
+  content: >
+    <span class="doc-desc-opt"> Включені </span> набори шаблонів доступні для прив'язки до відділів і встановлення в системі за замовчуванням. Використовувані шаблони не можуть бути <span class="doc-desc-opt"> відключені </span>.

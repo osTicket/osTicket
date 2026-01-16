@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Užklausos temos informacija
+  content: >
+    <span class="doc-desc-title">Pagalbos temos</span>nurodo kokia informacija yra surinkta iš Vartotojų ir kaip užklausos yra nukreipiamos ar priskiriamos.
+topic:
+  title: Temos pavadinimas
+  content: >
+    Unikalus pagalbos temos pavadinimas.
+status:
+  title: Būsena
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Tipas
+  content: >
+    Jeigu<span class="doc-desc-title">Pagalbos tema</span>yra paženklinta kaip privati, ji bus prieinama tik agentų pasirinkime, kai agentas atidaro naują užklausą per darbuotojų aplinką.
+parent_topic:
+  title: Patronuojanti tema
+  content: >
+    Pasirinkite patronuojančią temą, kuriai<span class="doc-desc-title">Pagalbos tema</span>priklausys. Patruojanti tema bus rodoma sąraše su  šia <span class="doc-desc-title">Pagalbos tema</span> įvardyta už tėvinės.
+custom_form:
+  title: Individualizuota forma
+  content: >
+    Individualios formos jums padės įgyti daugiau specifinės informacijos iš vartotojų kurie yra susiję su šia  <span class="doc-desc-title">Pagalbos tema</span>.
+  links:
+    - 
+      title: Valdyti individualizuotas formas
+      href: /scp/forms.php
+priority:
+  title: Prioritetas
+  content: >
+    Pasirinkite prioritetą priskiriamą naujoms užklausoms, susietą su<span class="doc-desc-title"> Užklausos tema</span>.<br><br>Užklausos filtrai gali pakeisti naujos užklausos prioritetą.
+department:
+  title: Padalinys
+  content: >
+    Pasirinkite padalinį, kuriam bus priskiriamos naujos užklausos šioje kategorijoje.
+  links:
+    - 
+      title: Valdyti padalinius
+      href: /scp/departments.php
+sla_plan:
+  title: SLA planas
+  content: >
+    Pasisrinkite SLA planą susieta su šia<span class="doc-desc-title">Pagalbos tema</span>.<br><br>Šis pasirinkimas pakeis bet kurį pasirinktą padalinio SLA planą
+  links:
+    - 
+      title: Valdyti SLA planus
+      href: /scp/slas.php
+thank_you_page:
+  title: Padėkos puslapis
+  content: >
+    Pasirinkite padėkos puslapį į kurį vartotojas yra nukreipiamas atidaręs užklausa su šia<span class="doc-desc-title">Pagalbos tema</span>.
+  links:
+    - 
+      title: Valdyti padėkos puslapius
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automatinis naujų užklausų priskyrimas
+  content: >
+    Papildomai pasirinkite agentą arba komandą kam bus automatiškai priskiriama užklausa su šia <span class="doc-desc-title">Pagalbos tema</span><br><br>Užklausos filtrai gali pakeisti priskyrimą.
+  links:
+    - 
+      title: Darbuotojų ir komandų valdymas
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Užklausos automatinis atsakymas
+  content: >
+    Jei pažymėta, nustatymas išjungs automatinius atsakymus naujai užklausai su šia <span class="doc-desc-title">Pagalbos tema</span>.<br><br>Šis nustatymas nepaisys automatinio atsakiklio nustatymų <span class="doc-desc-title">padaliniui</span> taip pat globalių<span class="doc-desc-title">Automatinio atsakiklio nustatymų</span>.
+  links:
+    - 
+      title: Automatino atsakiklio nustatymai
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Individualizuoti užklausos numeriai
+  content: >
+    Pasirinkite čia "Individualizuotas" norėdami pakeisti užklausų numeravimą pagal nutylėjimą sukurtai šia temai. Peržiūrėkite pagalbos patarimus nustatymų/užklausų puslapyje, kad gautumėte daugiau informacijos apie nustatymus.

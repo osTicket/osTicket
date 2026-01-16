@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  これは、クライアントログインページでヘッダーを構成します。クライアントにログインと登録ポリシーを知らせるのに便利です。
+name: "%{company.name} にサインインします。"
+body: >
+  より良いサービスを提供するために、我々は我々のクライアントにアカウントを登録することをお勧めします。

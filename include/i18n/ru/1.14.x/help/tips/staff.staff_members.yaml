@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Персонал
+  content: >
+    Таблица ниже отображает результаты фильтрации вверху. Если никаких настроек фильтра не выбрано - тогда отображаются все <span class="doc-desc-title">Сотрудники</span> с разбитием на страницы. Обратите внимание на секцию с номерами страниц для навигации по всем результатам.
+status:
+  title: Статус
+  content: >
+    Здесь будет показываться, является ли <span class="doc-desc-title">Сотрудник</span> Заблокированным, Активным, или Активным (в Отпуске).

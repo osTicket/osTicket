@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Rexistros de eventos do sistema
+  content: >
+    Aqui é onde podes atopar información dos problemas de rexistro (erros, alertas...).
+  links:
+    - 
+      title: Personaliza o tipo de actividade rexistrado cambiando o <br /><span class="doc-desc-title">Nivel de rexistro predeterminado</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Período de tempo
+  content: >
+    Escolla o rango de datas que se mostraran no<span class = "doc-desc-title"> Rexistro do Sistema</ span>.
+type:
+  title: Tipo
+  content: >
+    Escolla unha opción para centrarse nun tipo específico de actividade.<Span class = "doc-desc-opt">Depurar</ span> representa a menor gravidade, e <span class = "doc-desc-opt">Error</ span> representa a maior gravidade.
+showing_logs:
+  title: Visionado&hellip; Rexistros
+  content: >
+    Asegúrese de comprobar na<span class = "doc-desc-title">sección inferior da páxina </ span>para asegurarse de que non hai máis páxinas que mostren os Sistema de Rexistros dispoñibles.
+log_title:
+  title: Título de rexistro
+  content: >
+    Pinche na cabeceira da taboa en <span class="doc-desc-title">nome de rexistro</span>se quere filtrar segundo o <span class="doc-desc-title"> nome de rexistro</span>.
+log_type:
+  title: Tipo de Rexistro
+  content: >
+    Pinche na cabeceira da taboa en <span class="doc-desc-title"> tipo de rexistro</span>se quere filtrar segundo o <span class="doc-desc-title"> tipo de rexistro</span>.
+log_date:
+  title: Data de Rexistro
+  content: >
+    Esta é a data na que se xerou o rexistro polo programa. Se vostede quere filtrar os resultados segundo a<span class="doc-desc-title">Data de Rexistro</span>, simplemente pincha sobre <span class="doc-desc-title">Data de Rexistro</span> Encabezado da táboa. (Use o <span class = "doc-desc-title"> Periodo de Tempo </span> dende arriba para limitar a extensión do calendario de rexistros.)
+ip_address:
+  title: Dirección IP
+  content: >
+    Esto refierese á <span class="doc- desc -title">Dirección IP</span><span class="doc- desc -title"></span> do usuario ou cliente que estaba a usar osTicket no momento no que o rexistro se xerou.

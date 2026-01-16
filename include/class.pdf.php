@@ -19,6 +19,9 @@ define('THIS_DIR', str_replace('\\', '/', Misc::realpath(dirname(__FILE__))) . '
 
 require_once(INCLUDE_DIR.'mpdf/vendor/autoload.php');
 
+// unregister phar stream to mitigate vulnerability in mpdf library
+@stream_wrapper_unregister('phar');
+
 class mPDFWithLocalImages extends Mpdf {
     function WriteHtml($html, $sub = 0, $init = true, $close = true) {
         static $filenumber = 1;
@@ -26,32 +29,25 @@ class mPDFWithLocalImages extends Mpdf {
         $self = $this;
         $images = $cids = array();
         // Try and get information for all the files in one query
-        if (preg_match_all('/\bsrc\s*=\s*(["\'])\s*cid:\s*([\w._-]{32})\s*\1/i', $html, $cids)) {
+        if (preg_match_all('/"cid:([\w._-]{32})"/', $html, $cids)) {
             foreach (AttachmentFile::objects()
-                ->filter(array('key__in' => $cids[2]))
+                ->filter(array('key__in' => $cids[1]))
                 as $file
             ) {
                 $images[strtolower($file->getKey())] = $file;
             }
         }
-        $args[0] = preg_replace_callback('/\bsrc\s*=\s*(["\'])\s*cid:\s*([\w._-]{32})\s*\1/i',
+        $args[0] = preg_replace_callback('/"cid:([\w.-]{32})"/',
             function($match) use ($self, $images, &$filenumber) {
-                if (!($file = @$images[strtolower($match[2])]))
-                    return $match[0]; // leave unchanged if not resolvable
+                if (!($file = @$images[strtolower($match[1])]))
+                    return $match[0];
                 $key = "__attached_file_".$filenumber++;
                 $self->imageVars[$key] = $file->getData();
-                // Preserve attribute formatting: src="var:..."
-                return 'src='.$match[1].'var:'.$key.$match[1];
+                return 'var:'.$key;
             },
             $html
         );
-        // unregister phar stream to mitigate vulnerability in mpdf library
-       @stream_wrapper_unregister('phar');
-       @stream_wrapper_unregister('php');
-       call_user_func_array(array('parent', 'WriteHtml'), $args);
-       // restore phar stream
-       @stream_wrapper_restore('phar');
-       @stream_wrapper_restore('php');
+        return call_user_func_array(array('parent', 'WriteHtml'), $args);
     }
 
     function output($name = '', $dest = '') {
@@ -77,7 +73,7 @@ class Ticket2PDF extends mPDFWithLocalImages
         $this->includenotes = $notes;
         $this->includeevents = $events;
 
-        parent::__construct(['mode' => 'utf-8', 'format' => $psize, 'tempDir'=>sys_get_temp_dir(), 'autoLangToFont' => true, 'autoScriptToLang' => true]);
+	parent::__construct(['mode' => 'utf-8', 'format' => $psize, 'tempDir'=>sys_get_temp_dir()]);
 
         $this->_print();
 	}
@@ -101,7 +97,7 @@ class Ticket2PDF extends mPDFWithLocalImages
             return;
         $html = ob_get_clean();
 
-        $this->autoScriptToLang = true;
+        $this->autoScriptToLang;
         $this->WriteHtml($html, 0, true, true);
     }
 }
@@ -118,7 +114,7 @@ class Task2PDF extends mPDFWithLocalImages {
         $this->task = $task;
         $this->options = $options;
 
-        parent::__construct(['mode' => 'utf-8', 'format' => $this->options['psize'], 'tempDir'=>sys_get_temp_dir(), 'autoLangToFont' => true, 'autoScriptToLang' => true]);
+        parent::__construct(['mode' => 'utf-8', 'format' => $this->options['psize'], 'tempDir'=>sys_get_temp_dir()]);
         $this->_print();
     }
 
@@ -131,7 +127,7 @@ class Task2PDF extends mPDFWithLocalImages {
         ob_start();
         include STAFFINC_DIR.'templates/task-print.tmpl.php';
         $html = ob_get_clean();
-        $this->autoScriptToLang = true;
+        $this->autoScriptToLang;
         $this->WriteHtml($html, 0, true, true);
 
     }

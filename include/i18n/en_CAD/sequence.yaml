@@ -1,0 +1,30 @@
+#
+# Sequences installed with the system
+#
+# Fields:
+# id:           PK
+# name:         Name of the sequence
+# next:         Next value of the sequence
+# padding:      Padding character
+# increment:    Distance between two numbers of the sequence
+# flags:        Bitmask of flag settings. Currently known values are
+#               INTERNAL:=0x0001 (restrict delete)
+#
+---
+# ID:1 is reserved for upgrades. When transitioning to osTicket 1.10, the
+# sequence ID:1 will be configured to start counting from the current
+# MAX(ticket.ticket_id). The upgrade will miss this step if there is no
+# sequence with ID:1
+- id: 1
+  name: "General Tickets"
+  next: 1
+  padding: '0'
+  increment: 1
+  flags: 1
+
+- id: 2
+  name: "Tasks Sequence"
+  next: 1
+  padding: '0'
+  increment: 1
+  flags: 1

@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: ค่าเริ่มต้นชุดแม่แบบอีเมล
+  content: >
+    เลือก<span class="doc-desc-title">อีเมล์เทมเพลต</span>used to send<span class="doc-desc-title">การตอบอัตโนมัติ</span>และ<span class="doc-desc-title">แจ้งเตือน</span>สำหรับการดำเนินการต่าง ๆ ที่จะเกิดขึ้นในระหว่างอายุการใช้งานของ Ticket <br><br>สามารถกำหนด ชุดอีเมล์ต้นแบบเฉพาะของแผนกได้ 
+  links:
+    - 
+      title: จัดการชุดแม่แบบอีเมล
+      href: /scp/templates.php
+default_system_email:
+  title: ค่าเริ่มต้นอีเมลขาออก
+  content: >
+    เลือกอีเมลจากอีเมลที่ส่งออก<br><br> <span class="doc-desc-title">แผนก</span> สามารถตั้งค่า <span class="doc-desc-title">อีเมล</span> ของตัวเองได้ ซึ่งจะแทนที่สิ่งที่มีการตั้งค่าที่นี่
+  links:
+    - 
+      title: จัดการอีเมล์
+      href: /scp/emails.php
+default_alert_email:
+  title: อีเมลล์แจ้งเตือนเริ่มต้น
+  content: >
+    เลือกอยู่อีเมล์จากที่<span class="doc-desc-title">Alerts &amp; Notices</span>ส่งไปยัง Staff
+  links:
+    - 
+      title: จัดการอีเมล์
+      href: /scp/emails.php
+admins_email_address:
+  title: อีเมล์ของ Admin
+  content: >
+    ป้อนที่อยู่อีเมล์ของผู้ดูแลระบบซึ่ง<span class="doc-desc-title">ข้อผิดพลาดระบบ</span>และ<span class="doc-desc-title">แจ้งเตือน Ticket ใหม่</span> (ถ้าเปิด) จะถูกส่งออก
+  links:
+    - 
+      title: จัดการการแจ้งเตือน & ประกาศ
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: ดึงข้อมูลอีเมล์
+  content: >
+    อนุญาตให้ใช้ IMAP/POP สำรวจสำหรับการตั้งค่าคอนฟิก และเปิดใช้<span class="doc-desc-title">กล่องจดหมาย</span>
+  links:
+    - 
+      title: จัดการกล่องจดหมาย
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: ดึงอีเมล์ที่ใช้ cron อัตโนมัติ
+  content: >
+    Enables periodic email fetching using an internal task manager triggered by Agents' activity.  <br><br> Please note that emails will not be fetched if no one is logged in to Staff Control Panel. External task scheduler is highly recommended for predictable fetch intervals.
+  links:
+    - 
+      title: ใช้ตัวจัดกำหนดการงานภายนอก
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: ยังมิได้ตอบ
+  content: >
+    If enabled, this will remove preceding correspondence between email communications. <br><br> This feature is relationally dependent on the <span class="doc-desc-title">Reply Separator Tag</span> below.
+reply_separator_tag:
+  title: ตอบแยกแท็ก
+  content: >
+    This is a token indicating to the User to reply above the line. <br><br> <strong>Note:</strong> this is only relevant if <span class="doc-desc-title">Strip Quoted Reply</span> is enabled above.
+emailed_tickets_priority:
+  title: Emailed Tickets Priority
+  content: >
+    Choose whether you would like the priority/importance option of the User's email (e.g. OutLook) to dictate the new ticket’s priority. <br><br> This setting can be overridden by a <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: สร้าง  &amp; และจัดการตั๋วกรอง
+      href: /scp/filters.php
+accept_all_emails:
+  title: ยอมรับอีเมล์ทั้งหมด
+  content: >
+    ยอมรับอีเมล์จากผู้ใช้ที่ไม่รู้จัก <br><br>ไม่เลือกการตั้งค่านี้จะส่งผลให้ Ticket ถูกปฏิเสธ
+accept_email_collaborators:
+  title: ยอมรับอีเมล์ผู้เข้าร่วม
+  content: >
+    Add email participants included in the <code><strong>To</strong></code> and <code><strong>CC</strong></code> fields as ticket collaborators. <br /><br /> <em>Collaborators can always be added manually by Agents when viewing a ticket.</em>
+default_mta:
+  title: MTA เริ่มต้น
+  content: >
+    ดูแล <span class="doc-desc-title">MTA ที่เริ่มต้น</span>ของกระบวนการจัดส่งอีเมล์อีเมล์ขาออกโดยไม่ต้องตั้งค่า SMTP
+ticket_response_files:
+  title: Ticket Response Files
+  content: >
+    If enabled, any attachments an Agent may attach to a ticket response will be also included in the email to the User.
+verify_email_addrs:
+  title: Verify Email Addresses
+  content: >
+    Enable this option to check if the email address has a mail exchanger (MX) in the domain's DNS. This is useful to detect incorrectly typed email addresses. This is perfomed in addition to checking the email address wellformedness.

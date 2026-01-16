@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Dikirim ke Agen ketika sebuah pesan/catatan baru ditambahkan ke sebuah tugas. Ini akan terjadi jika seorang Kolaborator atau Agen merespon email dari sistem atau mengunjungi portal web dan mengirim sebuah pesan baru dari sana.
+subject: |
+  Aktivitas Tugas [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hai %{recipient.name},</strong></h3>
+  Tugas <a href="%{task.staff_link}">#%{task.number}</a> telah diperbarui: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Untuk melihat atau merespon tugas, silahkan <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> ke sistem tiket.</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Salam,</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

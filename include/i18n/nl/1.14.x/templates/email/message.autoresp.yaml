@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Wordt naar een gebruiker verzonden wanneer de gebruiker een nieuw bericht in een ticket heeft geplaatst. Dit kan gebeuren als de gebruiker antwoordt op een systeem e-mail of via het klantenportaal een nieuw bericht heeft plaatst.
+subject: |
+  Bevestiging van bericht
+body: |
+  <h3><strong>Beste %{recipient.name.first},</strong></h3>
+  Uw reactie op support verzoek <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> is genoteerd.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Uw %{company.name} Team,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>U kunt de voortgang van uw support verzoek <a
+  href="%{recipient.ticket_link}">hier online volgen</a></em>
+  </div>

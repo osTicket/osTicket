@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  このテンプレートは、登録フォームを完了後にクライアントに表示されるページを定義します。テンプレートには、システムがメールアドレスの確認リンクを送信していることと、登録処理の次のプロセスは何かを記載してください。
+name: "アカウント登録"
+body: >
+  <div><strong>アカウントのご登録ありがとうございます。</strong><br/> <br />入力したアドレスにメールを送信しました。そのメールに記載されているリンクにアクセスして、アカウントを確認してチケットにアクセスしてください。 </div>

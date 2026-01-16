@@ -86,9 +86,9 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
             if($ids && in_array($form->get('id'),$ids))
                 $sel=true; ?>
         <tr>
-            <td align="center"><?php if ($form->isDeletable()) { ?>
-                <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $form->get('id'); ?>"
-                    <?php echo $sel?'checked="checked"':''; ?>>
+            <td align="center"><?php if ($form->isDeletable()) { ?><!--osta-->
+                <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $form->get('id'); ?>"
+                    <?php echo $sel?'checked="checked"':''; ?>><label></label></p>
             <?php } ?></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>"><?php echo $form->get('title'); ?></a></td>
             <td><?php echo $form->get('updated'); ?></td>

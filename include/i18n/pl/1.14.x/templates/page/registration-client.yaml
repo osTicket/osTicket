@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Ten szablon definiuje e-mail wysyłany do klientów, gdy ich konto zostało utworzone w Portalu Klienta lub przez przedstawiciela w ich imieniu. Wiadomość ta służy do weryfikacji adresu e-mail. Proszę użyć %{link} gdziekolwiek w treści wiadomości.
+name: "Witamy w %{company.name}"
+body: >
+  <h3><strong>Witam %{recipient.name.first},</strong></h3> <div> Utworzono dla Ciebie konto w naszym systemie pomocy pod adresem %{url}.<br /> <br /> Prosimy kliknąć w poniższy link aby potwierdzić rejestracje i uzyskać pełny dostęp do zgłoszenia.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Twój przyjazny System Obsługi Klienta <br /> %{company.name}</em> </div>

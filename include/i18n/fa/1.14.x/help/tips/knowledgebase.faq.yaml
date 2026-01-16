@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: نوع قرارداد
+  content: >
+    انتخاب <span class="doc-desc-opt"> عمومی (منتشر)</span> اگر شما می خواهید این <span class="doc-desc-title"> پرسش و پاسخ</span> به صورت عمومی منتشر شود در اطلاعات پایه اگر دسته اصلی عمومی باشد.
+  links:
+    - 
+      title: پایگاه دانش عمومی برای پرتال مشتری فعال شود
+      href: /scp/settings.php?t=kb

@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  这是工作人员登陆页显示的初始信息和标语。首个输入栏即出现在顶部的红色文本。后面的文本区用于标语内容，一般作为免责声明。
+name: "需要身份验证"
+body: ""

@@ -1,0 +1,26 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  این قالب، ایمیل فرستاده شده به افرادی را مشخص می‌کند که گزینه  <strong> فراموشی رمز</strong> را در صفحه ورود کنترل پنل کارکنان انتخاب کرده‌اند.
+name: "<h3><strong>سلام %{staff.name.first},</strong></h3>\nدرخواست تنظیم مجدد کلمه عبور شما در سیستم ثبت شده است\n %{url}.\n<br>\n<br>\nاگر فکر می‌کنید این اتفاق بر اثر خطا یا اشتباه رخ داده است این ایمیل را در نظر نگیرید. حساب شما همچنان ایمن است و شخص دیگری به آن دسترسی نخواهد داشت و همچنین کلمه عبور قبلی شما همچنان در سیستم محفوظ است.\n<br>\n<br>لینک زیر را برای ورود به سیستم و تغییر کلمه عبور خود دنبال کنید.\n<br>\n<br>\n<a href=\"%{reset_link}\">%{reset_link}</a>\n<br>\n<br>\n<em style=\"font-size: small\"></em>\n<br>\n<img src=\"cid:b56944cb4722cc5cda9d1e23a3ea7fbc\" alt=\"Powered by osTicket\"\nwidth=\"126\" height=\"19\" style=\"width: 126px;\">"
+body: >
+  <h3><strong>سلام %{staff.name.first},</strong></h3>
+  درخواست تنظیم مجدد کلمه عبور شما در سیستم ثبت شده است
+   %{url}.
+  <br>
+  <br>
+  اگر فکر می‌کنید این اتفاق بر اثر خطا یا اشتباه رخ داده است این ایمیل را در نظر نگیرید. حساب شما همچنان ایمن است و شخص دیگری به آن دسترسی نخواهد داشت و همچنین کلمه عبور قبلی شما همچنان در سیستم محفوظ است.
+  <br>
+  <br>لینک زیر را برای ورود به سیستم و تغییر کلمه عبور خود دنبال کنید.
+  <br>
+  <br>
+  <a href="<a href="%{link}">">%{link}</a>
+  <br>
+  <br>
+  <em style="font-size: small"></em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
+  width="126" height="19" style="width: 126px;">

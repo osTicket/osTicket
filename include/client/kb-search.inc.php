@@ -1,7 +1,7 @@
 <div class="row">
 <div class="span8">
     <h1><?php echo __('Frequently Asked Questions');?></h1>
-    <div><strong><?php echo __('Search Results'); ?></strong></div>
+    <div><h2><!--osta--><?php echo __('Search Results'); ?></h2></div>
 <?php
     if ($faqs->exists(true)) {
         echo '<div id="faq">'.sprintf(__('%d FAQs matched your search criteria.'),
@@ -9,7 +9,7 @@
             .'<ol>';
         foreach ($faqs as $F) {
             echo sprintf(
-                '<li><a href="faq.php?id=%d" class="previewfaq">%s</a></li>',
+                '<li><!--osta--><i class="icon-file-alt"></i><a href="faq.php?id=%d" class="previewfaq">%s</a></li>',
                 $F->getId(), $F->getLocalQuestion(), $F->getVisibilityDescription());
         }
         echo '</ol></div>';
@@ -21,14 +21,7 @@
 
 <div class="span4">
     <div class="sidebar">
-    <div class="searchbar">
-        <form method="get" action="faq.php">
-        <input type="hidden" name="a" value="search"/>
-        <input type="text" name="q" class="search" placeholder="<?php
-            echo __('Search our knowledge base'); ?>"/>
-        <input type="submit" style="display:none" value="search"/>
-        </form>
-    </div>
+    <!--osta-->
     <div class="content">
         <section>
             <div class="header"><?php echo __('Help Topics'); ?></div>
@@ -54,6 +47,15 @@ foreach (Category::objects()
 <?php } ?>
         </section>
     </div>
+    <!--osta-->
+    <div class="searchbar">
+        <form method="get" action="faq.php">
+        <input type="hidden" name="a" value="search"/>
+        <input type="text" name="q" class="search" placeholder="<?php
+            echo __('Search our knowledge base'); ?>"/>
+        <input type="submit" style="display:none" value="<?php echo __('Search'); ?>"/>
+        </form>
+    </div>	
     </div>
 </div>
 </div>

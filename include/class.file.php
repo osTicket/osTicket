@@ -366,7 +366,6 @@ class AttachmentFile extends VerySimpleModel
                 case IMAGETYPE_GIF:
                 case IMAGETYPE_JPEG:
                 case IMAGETYPE_PNG:
-                case IMAGETYPE_WEBP:
                     break;
                 default:
                     $error = __('Invalid image file type');
@@ -388,7 +387,6 @@ class AttachmentFile extends VerySimpleModel
                 case IMAGETYPE_GIF:
                 case IMAGETYPE_JPEG:
                 case IMAGETYPE_PNG:
-                case IMAGETYPE_WEBP:
                     break;
                 default:
                     $error = __('Invalid image file type');
@@ -633,7 +631,7 @@ class AttachmentFile extends VerySimpleModel
             return static::$keyCache[$hash];
         // Cache a negative lookup if no such file exists
         try {
-            return parent::lookup(array('key' => $hash));
+        return parent::lookup(array('key' => $hash));
         } catch (ObjectNotUnique $e) {
             // TODO: Figure out why key collission might be happening AND
             // make key (hash) unique field in the file table as a

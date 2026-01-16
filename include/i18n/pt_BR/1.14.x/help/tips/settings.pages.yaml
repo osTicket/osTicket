@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Informação da Empresa
+  content: >
+    Isto refere-se à empresa ou organização que se beneficiarão com o software do osTicket e seu pessoal de suporte. As informações aqui aparecerão nas assinaturas de e-mail (ou seja, o rodapé) quando os Tikets são respondidos pelos agentes.
+  links:
+    - 
+      title: Formulário de informações da empresa
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Página Inicial
+  content: >
+    O <span class="doc-desc-title"> Página Inicial </ span> é exibido na página principal do seu seu site de suporte.
+offline_page:
+  title: Página Offline
+  content: >
+    A <span class="doc-desc-title"> Página Offline</span> é exibido no site de suporte quando o help desk está offline, consulte o painel de Administração -&gt; Configuração -&gt; sistema -&gt; Status do Helpdesk.
+default_thank_you_page:
+  title: Página Padrão de Agradecimento
+  content: >
+    A <span class="doc-desc-title">página de agradecimento</span> é exibida para o cliente quando um <span class="doc-desc-title">cliente</span> envia um novo Tiket. <br/> <br/> <span class="doc-desc-title">Obrigado</span> páginas podem ser associadas a tópicos da ajuda.
+logos:
+  title: Logos
+  content: >
+    Você pode personalizar o <span class="doc-desc-title"> logotipo</span> que será exibido ao cliente no Portal do cliente (ou seja, seu Site de Suporte).
+upload_a_new_logo:
+  title: Fazer upload de um novo logotipo
+  content: >
+    Escolha um logotipo nos formatos. gif,. jpg ou. png. o sistema redimensionará proporcionalmente a exibição de seu logotipo, no entanto, é recomendável que você mantenha seu logotipo perto do tamanho  padrão de: (817px × 170px).
+backdrops:
+  title: Cenários
+  content: >
+    Você pode customizar o <span class="doc-desc-title">Cenário</span> que será mostrado na página de login de Agente.
+upload_a_new_backdrop:
+  title: Carregar um Novo Cenário
+  content: >
+    Escolha uma imagem nos formatos .gif, .jpg ou .png. Nós iremos redefinir o tamanho de exibição da imagem. Nós não iremos, todavia, redefinir o tamanho do arquivo da imagem. Portanto, para acelerar o tempo de carregamento, é recomendado que você mantenha sua imagem relativamente pequena (menos de um megabyte). Note, também, que a configuração de upload máximo do PHP ainda se aplica.

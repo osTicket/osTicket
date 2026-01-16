@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: 團隊
+  content: >
+    團隊可以由一個或兩個以上專員組成，用來分配諮詢。跨部門的成員可以在同一個團隊裡。
+status:
+  title: 狀態
+  content: >
+    如果<span class="doc-desc-opt">禁用</span>，此團隊將無法分配諮詢，接收提醒 &amp; 關於上一次分配的通知。
+lead:
+  title: 團隊主管
+  content: >
+    一個<span class="doc-desc-title">團隊</span>主管能准許誰能接受<span class="doc-desc-title">警告&amp;通知</span>
+  links:
+    - 
+      title: 設定警示與通知
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: 分配警報
+  content: >
+    你可以關閉<span class="doc-desc-title">案件分配警告</span>從案件分配給團隊
+  links:
+    - 
+      title: 設定警示與通知
+      href: /scp/settings.php?t=alerts
+members:
+  title: 團隊成員
+  content: >
+    從專員檔案頁面設定團隊成員。
+  links:
+    - 
+      title: 員工管理
+      href: /scp/staff.php

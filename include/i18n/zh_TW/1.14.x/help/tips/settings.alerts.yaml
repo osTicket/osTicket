@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: 警報和通知
+  content: >
+    當各種ticket事件觸發時、警報和通知透過自動電子郵件通知發送到代理商。
+ticket_alert:
+  title: 新事件通知
+  content: >
+    <p>當建立一張新ticket時, 警報會發送通知給代理商。</p><p class="info-banner"> <i class="icon-info-sign"></i> 如果這ticket是透過 ticket篩選器 或 說明主題 的自動分配, 此警報將不會發送出去。</p>
+  links:
+    - 
+      title: 預設新ticket通知範本
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: 新訊息通知
+  content: >
+    當新訊息來自於使用者追加已有ticket時、會向代理商發出的警報。
+  links:
+    - 
+      title: 預設新訊息通知範本
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: 新的内部活動警報
+  content: >
+    通知專員關於案件內部活動，如內部備註或有其他專員回覆。
+  links:
+    - 
+      title: 預設逾期Ticket 通知範本
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Ticket 分配通知
+  content: >
+    向代理商發出Ticket轉讓的警報。
+  links:
+    - 
+      title: 預設Ticket指派通知範本
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Ticket轉讓通知
+  content: >
+    發給代理商Ticket轉讓各部門之間的警報。
+  links:
+    - 
+      title: 預設Ticket 轉讓通知範本
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Ticket 逾期通知
+  content: >
+    基於 SLA 或截止日期、已逾期ticket警報發送到代理商。
+  links:
+    - 
+      title: 預設逾期ticket通知範本
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: 管理的 SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: 系統通知
+  content: >
+    重大事件就會發送到管理員（%{config.admin_email}）。根據 <span class="doc-desc-title"> 日誌級別</span>，事件也可在 <span class="doc-desc-title"> 系統日誌</span> 配置中。
+  links:
+    - 
+      title: 查看系統日誌
+      href: /scp/logs.php
+    - 
+      title: 更改管理員的電子郵件
+      href: /scp/settings.php?t=emails

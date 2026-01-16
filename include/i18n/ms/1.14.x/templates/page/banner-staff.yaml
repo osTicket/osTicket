@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Ini adalah mesej awal dan banner yang ditunjukkan pada halaman Log Masuk Staf. Medan input pertama merujuk kepada teks yang berformat warna merah yang muncul di bahagian atas. Ruangan teks kedua adalah untuk kandungan banner yang seharusnya menjadi penafian.
+name: "Pengesahan Diperlukan"
+body: ""

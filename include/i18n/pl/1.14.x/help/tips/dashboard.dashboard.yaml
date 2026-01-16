@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Aktywność zgłoszeń
+  content: >
+    Wybierz przedział czasowy dla wykresu i tabeli znajdującej się poniżej (patrz <span class="doc-desc-title">Statystyki</span>), aby zdefiniować żądany zakres czasowy. Domyślnie wykres odzwierciedla przegląd całego systemu (od założenia). Używając tabeli <span class="doc-desc-title">Statystyki</span> można zawęzić interesujący nas obszar (np. Dział, Tematy lub pracownik). Dodatkowo, można wyeksportować dane aktualnie wyświetlane w tabeli <span class="doc-desc-title">Statystyki </span> .
+report_timeframe:
+  title: Raport za okres
+  content: >
+    Wybierz datę początkową za pomocą kalendarza. Następnie wybierz okres czasu od tej daty, aby wyznaczyć datę końcową zbioru danych.
+statistics:
+  title: Statystyki
+  content: >
+    Przejdź do przedmiotu twojego zainteresowania klikając odpowiednią kartę, aby wyświetlić konkretne próbki danych. W tabeli, koła odpowiadają wielkością nominalnym danych. W związku z tym, im większa liczba w określonej komórce, tym większe będzie obok koło.
+opened:
+  title: Otwarte
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Przypisane
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Przedawnione
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Zamknięte
+  content: >
+    Liczba zgłoszeń, które są obecnie Zamknięte.
+reopened:
+  title: Ponownie otwarte
+  content: >
+    Ogólna liczba ponowego otwarcia zgłoszenia. Zgłoszenie jest ponownie otwierane za każdym rezem kiedy jego status zmiania się z Zamknięte na Otwarte.
+deleted:
+  title: Usunięte
+  content: >
+    Ilość zgłoszeń, które były usunięte.
+service_time:
+  title: Czas obsługi
+  content: >
+    Odnosi się do czasu, który rozpoczyna się w momencie otwarcia zgłoszenia i kończy się po zamknięciu. Kolumna Czas usługi mierzy średni Czas Obsługi w godzinach na zgłoszenie.
+response_time:
+  title: Czas reakcji
+  content: >
+    Pokazuje średni czas odpowiedzi agenta w godzinach na korespondencję.

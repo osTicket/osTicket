@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Σειρά Εκτέλεσης
+  content: >
+    Πληκτρολογήστε έναν αριθμό που ελέγχει την προτεραιότητα του φίλτρου. Όσο χαμηλότερος ο αριθμός, τόσο υψηλότερη θα είναι η προτεραιότητα αυτού του φίλτρου όταν εκτελείται έναντι ενός άλλου φίλτρου που μπορεί να έχει υψηλότερη σειρά εκτέλεσης. <br><br> Αν θέλετε αυτό το φίλτρο να είναι το τελευταίο φίλτρο που εφαρμόζεται εάν το φίλτρο επιτύχει εντοπισμό, ενεργοποιήστε την επιλογή<span class="doc-desc-title">Διακοπή Περαιτέρω Επεξεργασίας σε περίπτωση εντοπισμού</span>.
+target_channel:
+  title: Κανάλι
+  content: >
+    Επιλέξτε το <span class="doc-desc-title">Κανάλι</span> προορισμού για το <span class="doc-desc-title">Φίλτρο Δελτίων</span>. Το <span class="doc-desc-title">Κανάλι</span> είναι η πηγή μέσω της οποίας το αίτημα έφθασε στο σύστημά σας. <br><br> Για παράδειγμα, εάν επιλέξετε <span class="doc-desc-opt">Φόρμες Ιστοχώρου</span>, εννοείτε ότι θέλετε να εφαρμόσετε το <span class="doc-desc-title">Φίλτρο δελτίων</span> σε εκείνα τα αιτήματα που προήλθαν από την φόρμα στην ιστοσελίδα του Ιστοχώρου Πελατών.
+rules_matching_criteria:
+  title: Κριτήρια Συμφωνίας με τους Κανόνες
+  content: >
+    Επιλέξτε πόσο ελαστικός επιθυμείτε να είναι ο εντοπισμός αποτελεσμάτων του <span class="doc-desc-title">Φίλτρου Δελτίων</span> που δημιουργείτε. Εάν θέλετε το <span class="doc-desc-title">Φίλτρο δελτίων</span> να εντοπίζει με βάση οποιονδήποτε από τους κανόνες, και κατόπιν να σταματά, επιλέξτε <span class="doc-desc-opt">Εντοπισμός Οποιουδήποτε</span>. Εάν επιθυμείτε εντοπισμό με βάση <em><strong>όλους τους κανόνες</strong></em> του <span class="doc-desc-title">Φίλτρου δελτίων</span>, επιλέξτε <span class="doc-desc-opt">Εντοπισμός Όλων</span>.
+reject_ticket:
+  title: Απόρριψη Αιτήματος
+  content: >
+    Αν αυτή η επιλογή είναι ενεργοποιημένη, η περαιτέρω επεξεργασία διακόπτεται και όλες οι άλλες παρακάτω επιλογές ενεργειών θα αγνοηθούν σε περίπτωση επιτυχούς εντοπισμού.
+reply_to_email:
+  title: Ηλ. Διεύθυνση στο πεδίο "Απάντηση Προς"
+  content: >
+    Ενεργοποιήστε αυτή την επιλογή εάν επιθυμείτε το Σύστημα Υποστήριξής σας να λαμβάνει υπ' όψιν του την κεφαλίδα <span class="doc-desc-title">Απάντηση Προς</span> της εφαρμογής ηλεκτρονικού ταχυδρομείου του χρήστη. Αυτό το πεδίο έχει σημασία μόνο εάν το παραπάνω <span class="doc-desc-title">Κανάλι</span> περιλαμβάνει το <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: Απενεργοποίηση Αυτόματης Απόκρισης σε Αίτημα
+  content: >
+    <em>Σημείωση: Αυτή η επιλογή θα υπερισχύσει οποιωνδήποτε ρυθμίσεων <span class="doc-desc-title">Τμήματος</span> ή <span class="doc-desc-title">Αυτόματης Απόκρισης</span>.</em>
+canned_response:
+  title: Τυποποιημένη Αυτόματη Απάντηση
+  content: >
+    Επιλέξτε μια <span class="doc-desc-title">Τυποποιημένη Απόκριση</span> που επιθυμείτε να σταλεί με email στον χρήστη κατά τον επιτυχή εντοπισμό με βάση το <span class="doc-desc-title">Φίλτρο Δελτίων</span>.  Το πρότυπο <span class="doc-desc-title">Αυτόματης Απόκρισης σε Νέο Αίτημα</span> που χρησιμοποιείται εξαρτάται από το ποιο <span class="doc-desc-title">Σετ Προτύπων</span> έχει οριστεί ως προεπιλεγμένο, ή από το <span class="doc-desc-title">Τμήμα</span> ενός δελτίου που εντοπίστηκε από το φίλτρο.
+  links:
+    - 
+      title: Διαχείριση Τυποποιημένων Αποκρίσεων
+      href: /scp/canned.php
+    - 
+      title: Διαχείριση Σετ Προτύπων
+      href: /scp/templates.php
+    - 
+      title: Πρότυπο Αυτόματης Απάντησης σε Νέο Αίτημα
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Τμήμα
+  content: >
+    Επιλέξτε σε ποιο <span class="doc-desc-title">Τμήμα</span> επιθυμείτε να ανατεθούν τα αποτελέσματα εντοπισμού του <span class="doc-desc-title">Φίλτρου Δελτίων</span>.
+  links:
+    - 
+      title: Διαχείριση Τμημάτων
+      href: /scp/departments.php
+priority:
+  title: Προτεραιότητα
+  content: >
+    Επιλέξτε το επίπεδο <span class="doc-desc-title">Προτεραιότητας</span> που επιθυμείτε να εφαρμοστεί στα αποτελέσματα εντοπισμού του <span class="doc-desc-title">Φίλτρου Δελτίων</span>.<br /> <br /> <em>Σημείωση: Αυτή η επιλογή θα υπερισχύσει των ρυθμίσεων <span class="doc-desc-title">Τμήματος</span> ή <span class="doc-desc-title">Τομέα Βοήθειας</span>.</em>
+sla_plan:
+  title: Σχέδιο SLA
+  content: >
+    Επιλέξτε το <span class="doc-desc-title">Σχέδιο SLA</span> που επιθυμείτε να εφαρμοστεί στα αποτελέσματα εντοπισμού του <span class="doc-desc-title">Φίλτρου Δελτίων</span>.
+  links:
+    - 
+      title: Διαχείριση Σχεδίων SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Αυτόματη Ανάθεση
+  content: >
+    Επιλέξτε ένα Εκπρόσωπο στον οποίο ή μια Ομάδα στην οποία θέλετε να ανατεθούν τα αποτελέσματα εντοπισμού του <span class="doc-desc-title">Φίλτρου Δελτίων</span>.
+  links:
+    - 
+      title: Διαχείριση Εκπροσώπων
+      href: /scp/staff.php
+    - 
+      title: Διαχείριση Ομάδων
+      href: /scp/teams.php
+help_topic:
+  title: Τομέας Βοήθειας
+  content: >
+    Επιλέξτε τον <span class="doc-desc-title">Τομέα Βοήθειας</span> που θέλετε να εφαρμοστεί στα αποτελέσματα εντοπισμού του <span class="doc-desc-title">Φίλτρου Δελτίων</span>.
+  links:
+    - 
+      title: Διαχείριση Τομέων Βοήθειας
+      href: /scp/helptopics.php
+admin_notes:
+  title: Σημειώσεις Διαχειριστή
+  content: >
+    Οι σημειώσεις αυτές είναι ορατές μόνο σε εκείνους των οποίων ο λογαριασμός είναι τύπου '<span class="doc-desc-title">Διαχειριστή</span>. '

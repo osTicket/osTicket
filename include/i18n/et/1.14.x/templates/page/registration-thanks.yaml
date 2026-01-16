@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  See mall määrab, millist sisu kuvatakse kliendile peale õnnestunud konto registreerimist. See leht peaks kasutajale teada andma, et konto on loodud ning ta saab nüüdsest luua uusi pileteid või vaadata olemasolevaid.
+name: "Konto on kinnitatud!"
+body: >
+  <div> <strong>Täname konto registreerimise eest.</strong><br /> <br /> Oled kinnitanud oma emaili aadressi ja edukalt aktiveerinud oma konto. Võid nüüd luua uue pileti või hallata olemasolevaid pileteid.<br /> <br /> <em>Sinu sõbralik kasutajatugi</em><br /> %{company.name} </div>

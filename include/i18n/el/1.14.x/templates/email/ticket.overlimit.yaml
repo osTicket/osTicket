@@ -1,0 +1,12 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Αποστέλλεται στους χρήστες, όταν αυτοί έχουν υπερβεί το μέγιστο όριο ανοιχτών αιτημάτων. Το όριο αυτό ρυθμίζεται στον Πίνακα Διαχείρισης, και ορίζεται από τον αριθμό των ανοιχτών αιτημάτων που έχουν γίνει από μια συγκεκριμένη ηλεκτρονική διεύθυνση.
+subject: |
+  Συμπλήρωση Ορίου Ανοικτών Αιτημάτων
+body: |
+  <h3><strong>Αγαπητέ/ή %{ticket.name.first},</strong></h3> Έχετε φθάσει στον μέγιστο επιτρεπόμενο αριθμό ανοικτών αιτημάτων. Για να μπορέσετε να ανοίξετε άλλο δελτίο, ένα από τα εκκρεμή δελτία σας πρέπει να κλείσει. Για να τροποποιήσετε ή να προσθέσετε σχόλια σε ένα ανοικτό δελτίο απλά <a href="%{url}/tickets.php?e=%{ticket.email}"> συνδεθείτε στο Κέντρο Υποστήριξης</a>. <br><br>Ευχαριστούμε, <br/> Το Κέντρο Υποστήριξης

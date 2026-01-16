@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    Wenn deaktiviert oder archiviert, ist dieses <span class="doc-desc-title">Hilfethema</span> nicht verfügbar.
+type:
+  title: Typ
+  content: >
+    Wählen Sie <span class="doc-desc-opt">Privat</span> aus, wenn die Abteilungszuweisungen im Benutzerportal nicht angezeigt werden sollen.  Ausserdem wird bei einer <span class="doc-desc-opt">Privaten</span> Abteilung <span class="doc-desc-title">die Abteilungssignatur</span> nicht in E-Mail-Antworten angezeigt. <br/> <br/> Mindestens eine Abteilung muss <span class="doc-desc-opt">Öffentlich</span> sein
+email:
+  title: Email
+  content: >
+    Diese E-Mail-Adresse wird beim Versenden von Antworten an Benutzer verwendet, wenn Agenten Tickets beantworten.
+template:
+  title: Vorlagensatz
+  content: >
+    E-Mail-<span class="doc-desc-title">Vorlagensatz</span>, der für Auto-Antworten und Benachrichtigungen verwendet wird, die zu dieser Abteilung weitergeleitet wurden.
+  links:
+    - 
+      title: Vorlagen verwalten
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Service Level Agreement für Tickets, die an diese Abteilung weitergeleitet wurden.
+  links:
+    - 
+      title: SLA-Pläne verwalten
+      href: /scp/slas.php
+schedule:
+  title: Zeitplan
+  content: >
+    Zeitplan der für die SLA-Berechnung dieser Abteilung verwendet wird. <br><br> Diese Einstellung hat Vorrang vor den Zeitplänen des Systems und des SLA.
+  links:
+    - 
+      title: Zeitpläne verwalten
+      href: /scp/schedules.php
+manager:
+  title: Abteilungsleiter
+  content: >
+    Wählen Sie einen <span class="doc-desc-title">Leiter</span> für diese Abteilung. <br/> <br/>Leiter können so konfiguriert werden, dass Sie spezielle Benachrichtigungen empfangen und zudem das Recht erhalten Ticketzuweisungen aufzuheben.
+  links:
+    - 
+      title: Benachrichtigungen verwalten
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Empfänger von Benachrichtigungen
+  content: >
+    Empfänger der konfigurierten <span class="doc-desc-title">Benachrichtigungen</span> auswählen.
+  links:
+    - 
+      title: Benachrichtigungen konfigurieren
+      href: "/scp/settings.php?t=alerts"
+sandboxing:
+  title: Einschränkungen bei Ticket-Zuweisung
+  content: >
+    Legen Sie fest, ob Tickets allen Agenten, Agenten mit Zugriff auf die primäre oder erweiterte Abteilung oder nur Agenten mit Zugriff auf die primäre Abteilung zugeordnet werden können.
+disable_auto_claim:
+  title: Auto-Übernahme deaktivieren
+  content: >
+    Setzen Sie den Haken, um die Auto-Übernahme mit Antwort/Auto-Antwort für diese Abteilung zu <strong>deaktivieren</strong>. <br><br> Agenten können weiterhin manuell unzugewiesene Tickets übernehmen
+disable_reopen_auto_assign:
+  title: Deaktiviere die Autozuweisung bei Wiedereröffnung
+  content: >
+    Aktivieren, um die Autozuweisung von erneut geöffneten Ticket für diese Abteilung zu <strong>deaktivieren</strong>. <br><br> Andernfalls wird das Ticket dem zuletzt antwortenden Agenten zugewiesen
+auto_response_settings:
+  title: Einstellungen für Auto-Antworten
+  content: >
+    Hier wird Ihnen das Überschreiben der gobalen Auto-Antwort-Einstellungen für diese Abteilung ermöglicht.
+new_ticket:
+  title: Auto-Antwort bei neuem Ticket
+  content: >
+    Sie können die Auto-Antwort deaktivieren, die bei der Eröffnung eines Tickets, welches an diese Abteilung weitergeleitet wurde, versendet wird.
+new_message:
+  title: Auto-Antwort bei neuer Nachricht
+  content: >
+    Sie können die Auto-Antworten, die an Benutzer versendet werden, um über den Eingang einer neuen Nachricht zu einem bestehenden Ticket dieser Abteilung zu informieren, deaktivieren.
+auto_response_email:
+  title: Auto-Antwort E-Mail-Adresse
+  content: >
+    Wählen Sie eine E-Mail-Adresse aus, von der Auto-Antworten für diese Abteilung versendet werden.
+department_access:
+  title: Gruppenzugang
+  content: >
+    Erlaube Agenten anderer Abteilungen den Zugang zu Tickets dieser Abteilung.
+department_signature:
+  title: Abteilungssignatur
+  content: >
+    Die Signatur kann in <span class="doc-desc-opt">Öffentlichen</span> Abteilungen bei Antworten von Agenten optional ausgewählt werden.

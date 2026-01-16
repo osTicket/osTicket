@@ -1,0 +1,25 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Tiket perkongsian
+  content: >
+    <p>Perkongsian tiket organisasi membenarkan ahli mengakses tiket yang hak miliknya adalah dari ahli organisasi yang lain. </p><p class=info-banner"><i class="icon-info-sign"></i> Rakan kolaborasi akan sentiasa mempunyai akses kepada tiket. </p>
+email_domain:
+  title: Domain e-mel
+  content: >
+    Pengguna boleh ditambah secara automatik kepada organisasi ini berdasarkan domain e-mel mereka. Gunakan kotak di bawah untuk memasukkan satu atau lebih domain dipisahkan dengan tanda koma. Sebagai contoh, masukkan <code>mycompany.com</code> untuk pengguna dengan alamat e-mel yang berakhir dengan @ mycompany.com
+     
+    Context | Request Context
+    email_domain -> content
+

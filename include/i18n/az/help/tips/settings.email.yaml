@@ -1,0 +1,95 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+default_email_templates:
+  title: Cari e-poçt şablonu quraşdırılması
+  content: >
+    Sorğu müddətində yer alacaq müxtəlif fəaliyyətlər üçün <span class="doc-desc-title">avtomatik cavablar</span> və <span class="doc-desc-title">siqnallar</span> göndərəcək <span class="doc-desc-title">e-poçt şablon quraşdırması</span> seçin. <br><br>Şöbələr xüsusi e-poçt şablon quraşdırması təyin edə bilər.
+  links:
+    - 
+      title: E-poçt şablon quraşdırmasını idarə edin
+      href: /scp/templates.php
+default_system_email:
+  title: Cari gedən e-poçtlar
+  content: >
+    Göndərilən e-poçtlardan e-poçt ünvanı seçin. <br><br> <span class="doc-desc-title">Şöbə</span> burada quraşdırılanlardan imtina edən öz şəxsi <span class="doc-desc-title">e-poçt ünvanını</span> yarada bilər.
+  links:
+    - 
+      title: E-poçt ünvanlarını idarə edin
+      href: /scp/emails.php
+default_alert_email:
+  title: Cari e-poçt siqnalı
+  content: >
+    Agentlərə <span class="doc-desc-title">siqnallar &amp; qeydlərin</span> hansı e-poçt ünvanından göndərildiyini seçin.
+  links:
+    - 
+      title: E-poçt ünvanlarını idarə edin
+      href: /scp/emails.php
+admins_email_address:
+  title: Adminin e-poçt ünvanı
+  content: >
+    Administratora <span class="doc-desc-title">Sistem xətaları</span> və <span class="doc-desc-title">yeni sorğu siqnallarının</span> göndərildiyi e-poçt ünvanını (mövcuddursa) daxil edin.
+  links:
+    - 
+      title: Siqnal və qeydləri idarə edin
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: E-poçt alınması
+  content: >
+    <span class="doc-desc-title">Poçt qutularının</span> konfiqurasiyası və aktiv edilməsi üçün seçilmiş IMAP/POP qəbul edin.
+  links:
+    - 
+      title: Poçt qutularını idarə edin
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Auto-crondan istifadə edərək e-poçtların alınması
+  content: >
+    Agentlərin aktivliyi ilə daxili tapşırıq menecerindən istifadə edərək periodik e-poçtları seçməyi aktiv edir. <br><br> Xahiş edirik qeyd edin ki, heç kim heyət idarə panelinə daxil olmasa e-poçtlar qəbul olunmayacaq. Əvvəlcədən intervalları almaq üçün xarici tapşırıq istifadəsi xüsusilə məsləhət görülür.
+  links:
+    - 
+      title: Xarici tapşırıq cədvəlini istifadə
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Cavaba istinad edilən zolaq
+  content: >
+    Əgər aktivdirsə, e-poçt əlaqələri arasındakı bir əvvəlki yazışmanı siləcək. <br><br> Bu xüsusiyyət aşağıdakı <span class="doc-desc-title">cavab ayırıcı nişanında</span> asılıdır.
+reply_separator_tag:
+  title: Cavab ayırıcı nişanı
+  content: >
+    Bu əlamət istifadəçiyə xəttin yuxarısında cavab vermək üçün göstərilir. <br><br> <strong>Qeyd:</strong> bu, ancaq <span class="doc-desc-title">cavaba istinad edilən zolaq</span> yuxarıda aktivdirsə münasibdir.
+emailed_tickets_priority:
+  title: E-poçtla göndərilmiş sorğuların prioriteti
+  content: >
+    İstifadəçinin e-poçtunun (məs., OutLook) prioritetinin/vacibliyinin yeni sorğu prioritetini göstərməyini istəyirsinizsə seçin. <br><br> Bu tənzimləmə <span class="doc-desc-title">sorğu filteri</span> tərəfindən ləğv edilə bilər.
+  links:
+    - 
+      title: '&amp; Sorğu filteri idarəetməsi yarat'
+      href: /scp/filters.php
+accept_all_emails:
+  title: Bütün e-poçtları qəbul edin
+  content: >
+    Bilinməyən istifadəçilərdən e-poçtlar qəbul edin. <br><br> Bu tənzimləməni yoxlamamaq sorğuların alınmasının rədd edilməsi ilə nəticələnəcək.
+accept_email_collaborators:
+  title: E-poçt əməkdaşları qəbul edin
+  content: >
+    <code><strong>Kimə</strong></code> və <code><strong>CC</strong></code> sahələrinə sorğu müəllifləri kimi daxil olan e-poçt iştirakçıları əlavə edin. <br /><br /> <em>Müəlliflər sorğuya baxanda həmişə agentlər tərəfindən əlavə oluna bilərlər.</em>
+default_mta:
+  title: Cari MTA
+  content: >
+    <span class="doc-desc-title">Cari MTA</span> SMTP tənzimləməsiz gedən e-poçtlar üçün çatma prosesinə baxacaq.
+ticket_response_files:
+  title: Sorğu cavab faylları
+  content: >
+    Əgər aktivdirsə, istifadəçiyə göndərilən e-poçta hər hansı əlavələri agent sorğunun cavabına  yükləyə bilər.
+verify_email_addrs:
+  title: Verify Email Addresses
+  content: >
+    Enable this option to check if the email address has a mail exchanger (MX) in the domain's DNS. This is useful to detect incorrectly typed email addresses. This is perfomed in addition to checking the email address wellformedness.

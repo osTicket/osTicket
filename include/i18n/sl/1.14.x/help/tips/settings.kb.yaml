@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Osnovne nastavitve znanja
+  0: >
+
+knowledge_base_status:
+  title: Stanje knjižnice znanja
+  content: >
+    Omogočite, če želite da je knjižnica znanja na voljo zunanjim uporabnikom.<br><br>Kategorije knjižnice znanja in pogosto zastavljena vpršanja so lahko vidni le interno (agentom).
+  links:
+    - 
+      title: Urejaj bazo znanja
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Vklopi, da onemogočiš dostop do knjižnice znanja neregistriranim uporabnikom.
+  links:
+    - 
+      title: Nastavitve dostopa
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Klasičen odgovor
+  content: >
+    Vklopite, če želite agentom omogočiti uporabo <span class="doc-desc-title">klasičnih odgovorov</span>pri odgovarjanju e-pošte.
+  links:
+    - 
+      title: Upravljaj samodejne odgovore
+      href: /scp/canned.php

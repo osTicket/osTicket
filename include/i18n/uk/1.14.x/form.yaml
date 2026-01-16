@@ -1,0 +1,223 @@
+---
+- 
+  #Default (dynamic) form configuration. This data is used as the initial,
+  #minimal data for dynamic forms that ships with the system.
+  #Fields:
+  #id:       Used only if associated with a help topic
+  #title:    Bold section title of the form
+  #instructions: Title deck, detailed instructions on entering form data
+  #notes:    Notes for the form, shown under the fields
+  #flags:
+  #0x0001  If the form can be removed from the system
+  #fields:   List of fields for the form
+  #type:       Field type (short name) (eg. 'text', 'memo', 'phone', ...)
+  #label:      Field label shown to the user
+  #name:       Name used with the data internally. This is especially
+  #useful for page and email templates, where %{ ticket.<name> }
+  #will be used to retrieve the data from the field.
+  #hint:       Help text shown with the field
+  #flags:      Bit mask for settings & options
+  ## From class DynamicFormField
+  #const FLAG_MASK_CHANGE      = 0x0010;     # Type cannot change
+  #const FLAG_MASK_DELETE      = 0x0020;     # Cannot be deleted
+  #const FLAG_MASK_EDIT        = 0x0040;     # Data cannot be edited
+  #const FLAG_MASK_DISABLE     = 0x0080;     # Field cannot be disabled
+  #const FLAG_MASK_REQUIRE     = 0x10000;    # Requirement cannot be changed
+  #const FLAG_MASK_VIEW        = 0x20000;    # View settings cannot be changed
+  #const FLAG_MASK_NAME        = 0x40000;    # Name cannot be changed
+  #configuration: Field-specific configuration
+  #size:     (text) width of the field
+  #length:   (text) maximum size of the data in the field
+  #cols:     (memo) width of the textarea
+  #rows:     (memo) height of the textarea
+  #---
+  id: 1
+  type: U #notrans
+  title: Контактна інформація
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: email #notrans
+      label: Адреса ел.пошти
+      sort: 1
+      flags: 489395
+      configuration:
+        size: 40
+        length: 64
+        validator: email #notrans
+    - 
+      type: text #notrans
+      name: name #notrans
+      label: Ім'я
+      sort: 2
+      flags: 489395
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: phone #notrans
+      name: phone #notrans
+      label: Телефон
+      sort: 3
+      flags: 13057
+    - 
+      type: memo #notrans
+      name: notes
+      label: Внутрішні нотатки
+      sort: 4
+      flags: 12289
+      configuration:
+        rows: 4
+        cols: 40
+- 
+  id: 2
+  type: T #notrans
+  title: Подробиці заявки
+  instructions: Будь-ласка, опишіть свою проблему
+  notes: |
+    Ця форма буде прикріплена до кожної заявки незалежно від її джерела. Ви можете додати будь-які поля до цієї форми і вони будуть доступні для всіх заявок. Також вони будуть доступні в розширеному пошуку та фільтруванні.
+  flags: 0
+  fields:
+    - 
+      id: 20
+      type: text #notrans
+      name: subject #notrans
+      label: Короткий опис
+      sort: 1
+      flags: 489265
+      configuration:
+        size: 40
+        length: 50
+    - 
+      id: 21
+      type: thread #notrans
+      name: message #notrans
+      label: Деталі проблеми
+      hint: Детальна інформація про проблему.
+      sort: 2
+      flags: 480547
+    - 
+      id: 22
+      type: priority #notrans
+      name: priority #notrans
+      label: Рівень пріоритету
+      flags: 274609
+      sort: 3
+- 
+  type: C #notrans
+  title: Інформація про компанію
+  instructions: Подробиці в шаблонах електронної пошти
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: name #notrans
+      label: Назва компанії
+      sort: 1
+      flags: 291249
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: text #notrans
+      name: website #notrans
+      label: Веб-сайт
+      sort: 2
+      flags: 274705
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: phone #notrans
+      name: phone #notrans
+      label: Телефон
+      sort: 3
+      flags: 274705
+      configuration:
+        ext: false
+    - 
+      type: memo #notrans
+      name: address
+      label: Адреса
+      sort: 4
+      flags: 12545
+      configuration:
+        rows: 2
+        cols: 40
+        html: false
+        length: 100
+- 
+  type: O #notrans
+  title: Відомості про організацію
+  instructions: Докладна інформація щодо організації користувача
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: name #notrans
+      label: Ім'я
+      sort: 1
+      flags: 489395
+      configuration:
+        size: 40
+        length: 64
+    - 
+      type: memo
+      name: address
+      label: Адреса
+      sort: 2
+      flags: 13057
+      configuration:
+        rows: 2
+        cols: 40
+        length: 100
+        html: false
+    - 
+      type: phone
+      name: phone
+      label: Телефон
+      sort: 3
+      flags: 13057
+    - 
+      type: text
+      name: website
+      label: Веб-сайт
+      sort: 4
+      flags: 13057
+      configuration:
+        size: 40
+        length: 0
+    - 
+      type: memo #notrans
+      name: notes
+      label: Внутрішні нотатки
+      sort: 5
+      flags: 12289
+      configuration:
+        rows: 4
+        cols: 40
+- 
+  type: A #notrans
+  title: Деталі заявки
+  instructions: Будь-ласка опишіть проблему
+  notes: |
+    Ця форма використовується для створення заявки.
+  flags: 0
+  fields:
+    - 
+      type: text #notrans
+      name: назва #notrans
+      flags: 290993
+      sort: 1
+      label: Заголовок
+      configuration:
+        size: 40
+        length: 50
+    - 
+      type: thread #notrans
+      name: description #notrans
+      flags: 282867
+      sort: 2
+      label: Опис
+      hint: Детальні причини створення завдання.

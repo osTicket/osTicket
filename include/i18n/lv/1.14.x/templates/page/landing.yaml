@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Šī vestule tiek radīta galvenā lapā kur ir <strong>Atvert pieprasījumu</strong> un <strong>Apskatīties pieprasījumu</strong> pogas.
+name: Apsveikums
+body: >
+  <h1>Laipni lūdzam atbalstā portalā</h1> <p> Lai paatrinātu apkalpošanas processu un darot to drošāk, mes lietojam atbalsta sistemas portālu. Katram pieprasījumam tiek piešķirts unikāls numurs, ar ko Jūs varēsiet sekot apkalpošanas processam reālā laikā un sniegt papildus komentārus. Mēs saglabājam visus datus un piedavājam Jūms pieprasijuma arhivu. Lai saņemtu atbalstu Jūms jaievāda reālo e-pasta adresi. </p>

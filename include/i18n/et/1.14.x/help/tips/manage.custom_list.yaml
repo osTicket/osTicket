@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Kohandatud nimekiri
+  content: >
+    Sinu <span class="doc-desc-title">kohandatud nimekiri</span> võimaldab luua rippmenüüsid koos eelseadistatud väärtustega, millest klient saab valida <span class="doc-desc-title">kohandatud vormi</span>. Kui soovid kasutada <span class="doc-desc-title">kohandatud nimekirja</span> kui <span class="doc-desc-title">objekti</span> <span class="doc-desc-title">piletite filtris</span>, lisa see loend <span class="doc-desc-title">pileti üksikasjade</span> vormi.
+name:
+  title: Nimi
+  0: >
+
+plural_name:
+  title: Nimi mitmuses
+  0: >
+
+sort_order:
+  title: Sorteerimisjärjekord
+  0: >
+
+list_s_initial_items:
+  title: Nimekirja lähteelemendid
+  0: >
+
+value:
+  title: Väärtus
+  0: >
+
+extra:
+  title: Lisa
+  content: >
+    Lühendid ja muu selline. Kui kasutad sisemisi koode selles loendis, saab neid koode ja lühendeid sisestada sellesse veergu. Kui kohandatud nimekiri on <span class = "doc-desc-variant">etteantud</span>, saab neid lühendeid kasutada kohandatud nimekirjast otsimiseks.

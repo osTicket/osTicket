@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: navn
+  content: >
+    Velg et beskrivende navn for denne <span class="doc-desc-title"> SLA Plan</span> som vil gjenspeile formålet.
+grace_period:
+  title: periode før saken må taes
+  content: >
+    Bestem antall timer etter at en sak som er opprettet automatisk blir merket som forfalt. <br><br><em>Timer telles fra sak opprettelse.</em>
+transient:
+  title: Forbigående
+  content: >
+    Forbigående SLA avtaler betraktes som midlertidige, og kan overstyres av en ikke-forbigående SLA på <span class="doc-desc-opt"> Avdeling</span> overføring eller når <span class="doc-desc-title"> hjelpeemnet</span> endres.
+schedule:
+  title: Schedule
+  content: >
+    Choose the Schedule to be used by this SLA when rendering tickets Overdue. <br><br> Please note that Department settings can override this schedule.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php

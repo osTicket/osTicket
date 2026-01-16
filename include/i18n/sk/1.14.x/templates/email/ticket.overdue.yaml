@@ -1,0 +1,30 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Odošle sa zamestnancom v okamihu prekročenia termínu tiketu.
+  Omeškané tikety sa zobrazia na základe termínu tiketu alebo na základe SLA, ktoré je zadané v tikete.
+subject: |
+  Upozornenie na omeškaný tiket
+body: |
+  <h3><strong>Dobrý deň %{recipient}</strong>,</h3>
+  Požiadavka, <a href="%{ticket.staff_link}">č. %{ticket.number}</a> je po splatnosti.
+  <br>
+  <br>
+  Všetci naši pracovníci tvrdo pracujú na tom, aby sme Vám mohli zaručiť, aby všetky požiadavky boli vyriešené včas a k Vašej spokojnosti.
+  <br>
+  <br>
+  Podpísané,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Zobraziť alebo reagovať na požiadavku, prosim <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prihláste sa</span></a> do podporného systemu. Toto oznámenie dostávate, pretože požiadavka bola priradená priamo Vám alebo tímu alebo oddeleniu, ktorých ste členom.</div>
+  <em style="font-size: small">Váš <span style="font-size: smaller"
+  >(aj keď s obmedzenou trpezlivosťou)</span> Customer Support
+  System</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

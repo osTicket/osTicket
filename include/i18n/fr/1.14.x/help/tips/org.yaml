@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Partager un ticket
+  content: >
+    <p> Le partage de tickets au sein de l'organisation permet à ses membres d'accéder aux tickets dont sont propriétaires d'autres membres de l'organisation. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Les collaborateurs ont toujours accès aux tickets. </p>
+email_domain:
+  title: Domaine de messagerie
+  content: >
+    Les utilisateurs peuvent être automatiquement ajoutés à cette organisation en fonction du nom de domaine de leur adresse de courriel. Utilisez la boîte ci-dessous pour entrer un ou plusieurs domaines séparés par des virgules . Par exemple, entrez <code>example.com</code> pour les utilisateurs avec des adresses e-mail se terminant par @example.com
+

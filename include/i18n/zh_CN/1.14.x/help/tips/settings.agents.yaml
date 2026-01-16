@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: 代理姓名格式
+  content: >
+    为系统中的代理姓名选择一个格式。如果没有指定其他格式，邮件模板在姓名处将使用该格式。
+staff_identity_masking:
+  title: 工作人员身份屏蔽
+  content: >
+    启用此功能，将在所有交流中向客户隐藏代理名称。
+#Authentication settings
+password_reset:
+  title: 密码失效策略
+  content: >
+    设置代理多久（单位为月）需要更改他们的密码。如果禁用（设置为“永不失效”），密码将永不过期。
+password_expiration_policy:
+  title: 密码失效策略
+  content: >
+    选择要求代理更改密码的时间间隔。如果禁用此功能（例如，<span class="doc-desc-opt">不失效</span>），则密码不会失效。
+allow_password_resets:
+  title: 允许密码重置
+  content: >
+    在尝试登陆失败后，如果需要在<span class="doc-desc-title">登录页面</span>显示<span class="doc-desc-title">忘记密码</span>的链接中，请启用此选项。
+reset_token_expiration:
+  title: 密码重置窗口
+  content: >
+    选择<span class="doc-desc-title">密码重置令牌</span>的有效期限（以分钟为计量单位）。代理需要<span class="doc-desc-title">密码重置</span>时，即可以电子邮件方式发送一个令牌以允许其进行重置操作。
+staff_session_timeout:
+  title: 代理会话超时
+  content: >
+    为代理被要求再次登录选择一个最大的空闲时间（单位为分钟）。<br><br>如果需要禁用 <span class="doc-desc-title">代理会话超时</span>，请输入0。
+bind_staff_session_to_ip:
+  title: 绑定代理会话至 IP
+  content: >
+    如果需要系统以代理当前登录的IP地址来记录代理，请启用此选项。<br><br>对于IP地址自动分配的用户，不推荐此设置。

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: សំណុំបែបបទចំណងជើង
+  content: >
+    អត្ថបទចំណងជើងនេះត្រូវបានបង្ហាញក្នុងប្រអប់ប្រផេះខាងលើវាលសំណុំបែបបទ
+form_instructions:
+  title: សេចក្តីណែនាំអំពីសំណុំបែបបទ
+  content: >
+    អ្នកអាចបន្ថែមសេចក្ដីណែនាំបន្ថែមទៀតដែលនឹងជួយនាំអ្នកប្រើចូលទៅក្នុងបរិបទនៃវាលសំណុំបែបបទនេះនិងអាចបញ្ជាក់ពីទិន្នន័យដែលបានទាមទារ។
+field_sort:
+  title: បង្ហាញវាលទីតាំង
+  content: >
+    ចុចលើរូបតំណាងព្រួញឡើងនិងចុះហើយអូសជួរដេកវាលនេះដើម្បីតម្រៀបនៅក្នុងសំណុំបែបបទនេះ។តម្រៀបចំណង់ចំណូលចិត្តមិនមានប្រសិទ្ធិភាពរហូតដល់សំណុំបែបបទនេះត្រូវបានរក្សាទុក។
+field_label:
+  title: ស្លាកវាល
+  content: >
+    ស្លាកនេះត្រូវបានបង្ហាញជាប្រអប់បញ្ចូលសម្រាប់វាលនេះ។ ជាធម្មតា, វាលចម្លើយខ្លីនឹងត្រូវបានបង្ហាញដូចមួយនេះ:<br> <strong>Label:</strong>&nbsp; <input type="text">
+field_type:
+  title: ប្រភេទវាលមាតិកា
+  content: >
+    នេះត្រូវបានប្រើដើម្បីកំណត់ប្រភេទនៃការបញ្ចូលរំពឹងទុកពីអ្នកប្រើ។ អ្នកអាចជ្រើសពីចម្លើយខ្លីនិងវែង, លេខទូរស័ព្ទ, កាលបរិច្ឆេទនិងពេលវេលា, ប្រអប់ធីក, បញ្ជីទម្លាក់ចុះ, ឬការជ្រើសរើសបញ្ជីផ្ទាល់ខ្លួន។
+  links:
+    - 
+      title: បញ្ជីផ្ទាល់ខ្លួន
+      href: /scp/lists.php
+field_visibility:
+  title: វាលដែលអាចមើលឃើញ
+  content: >
+    ជ្រើសភាពមើលឃើញនិងតម្រូវការសម្រាប់វាលនេះ។<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Setting</th> <th>Result</th></tr> <tr><td>Optional</td> <td>ភ្នាក់ងារនិងអ្នកប្រើប្រាស់អាចមើលឃើញវាល, ប៉ុន្តែមិនត្រូវបានទាមទារដើម្បីឆ្លើយ។</td></tr> <tr><td>Required</td> <td>ភ្នាក់ងារនិងអ្នកប្រើប្រាស់អាចមើលឃើញវាលហើយអ្នកទាំងពីរត្រូវបានទាមទារដើម្បីឆ្លើយ</td></tr> <tr><td>Required for EndUsers</td> <td>ភ្នាក់ងារនិងអ្នកប្រើប្រាស់អាចមើលឃើញវាលនេះមានតែអ្នកប្រើបញ្ចប់ត្រូវបានទាមទារដើម្បីឆ្លើយ</td></tr> <tr><td>Required for Agents</td> <td>ភ្នាក់ងារនិងអ្នកប្រើប្រាស់អាចមើលឃើញវាលនេះត្រូវបានទាមទារតែភ្នាក់ងារដើម្បីឆ្លើយ</td></tr> <tr><td>Internal, Optional</td> <td>មានតែវាលភ្នាក់ងារអាចមើលឃើញនោះទេតែឆ្លើយទេគឺត្រូវបានទាមទារ។</td></tr> <tr><td>Internal, Required</td> <td>មានតែភ្នាក់ងារអាចមើលឃើញវាលហើយចម្លើយត្រូវបានទាមទារ។</td></tr> <tr><td>For EndUsers Only</td> <td>មានតែអ្នកប្រើប្រាស់អាចមើលឃើញវាលបញ្ចប់នេះហើយចម្លើយត្រូវបានទាមទារ។</td></tr> </tbody></table>
+field_variable:
+  title: វាលស្វ័យប្រវត្តិ
+  content: >
+    ទិន្នន័យវាលនេះនឹងអាចរកបានទៅកាន់អ៊ីម៉ែនិងទំព័រពុម្ពតាមរយៈឈ្មោះដែលបានប្រើនៅក្នុងជួរឈរនេះ។ ឧទាហរណ៍វាលនៅលើសំណុំបែបបទសំបុត្រធម្មតាគឺអាចប្រើបានតាមរយៈ <code>%{ticket.variable}</code>, where <strong>variable</strong> គឺជាឈ្មោះដែលបានប្រើនៅក្នុងជួរឈរនេះ។<br> <br> <em>ប៍តមានក្រុមហ៊ុនអាចរកបានតាមរយៈ <code>%{</code><code>company.variable}</code> និងពអ្នកប្រើអាចរកបានតាមរយៈ <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: លុបវាលនេះ
+  content: >
+    សូមពិនិត្យមើលនិងរក្សាទុកសំណុំបែបបទដើម្បីយកវាលមួយចេញពីសំណុំបែបបទនេះ។<br> <br> <em>ការលុបវាលមួយមិនយកទិន្នន័យដែលបានបញ្ចូលពីមុនចេញទេ។ ឧទាហរណ៍ប្រសិនបើបានដាក់កាលពីមុនជាសំបុត្រមានទិន្នន័យសម្រាប់វាលមួយ, លុបវាលពីទម្រង់នេះនឹងមិនលុបទិន្នន័យនៅលើសំបុត្រទេ។</em>

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Företagsinformation
+  content: >
+    Detta avser det företag eller den organisation som kommer att dra nytta av osTicket-programvaran och dess supportpersonal. Texten kommer att visas som e-postsignatur (dvs sidfoten) när ärenden besvaras av personer i supportpersonalen.
+  links:
+    - 
+      title: Formulär för företagsinformation
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Målsida
+  content: >
+    <span class="doc-desc-title">Målsidan</span> visas på din supportwebbplats förstasida.
+offline_page:
+  title: Offline-sida
+  content: >
+    <span class="doc-desc-title">Offline-sidan</span> visas på supportwebbplatsen när supporten är stängd. Se Admin-panelen -&gt; Inställning -&gt; System -&gt; Helpdesk Status.
+default_thank_you_page:
+  title: Standard Tack-sida
+  content: >
+    <span class="doc-desc-title">Tack-sidan</span> visas för användaren när en <span class="doc-desc-title">Kund</span> anmält ett nytt ärende. <br/><br/> Olika <span class="doc-desc-title">Tack</span>-sidor kan kopplas ihop med olika Hjälp-rubriker.
+logos:
+  title: Logotyper
+  content: >
+    Du kan välja <span class="doc-desc-title">Logotyp</span> som visas för Kunden i kundportalen (dvs på er Supportwebbplats).
+upload_a_new_logo:
+  title: Ladda upp ny logotyp
+  content: >
+    Välj en bild i något av formaten .gif, .jpg eller .png. Bilden kommer att skalas ner till rätt storlek automatiskt. Storlek i kilobyte räknat kommer dock vara densamma. För att inte laddningstiden ska bli för lång rekommenderas därför att du laddar upp en bild som är nära standardstorlek (817px &times; 170px).
+backdrops:
+  title: Bakgrund
+  content: >
+    Du kan skräddarsy <span class="doc-desc-title">Bakgrunden</span> som visas på handläggarnas inloggningssida.
+upload_a_new_backdrop:
+  title: Ladda upp ny bakgrund
+  content: >
+    Välj en bild i .gif , .jpg eller .png format. Vi kommer att ändra storlek proportionellt på visningen av bilden. Vi kommer dock inte ändra storlek på bild-data. För att begränsa laddningstider, är det rekommenderat att du håller bilden relativt liten (under en megabyte). Notera också att PHP max uppladdnings inställningar gäller.

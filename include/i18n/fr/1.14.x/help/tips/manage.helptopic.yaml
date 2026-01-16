@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informations de la rubrique d'aide
+  content: >
+    Les <span class="doc-desc-title">rubriques d'aide</span> vous guide sur les informations collectées auprès des utilisateurs et comment les billets sont acheminés ou assignés.
+topic:
+  title: Nom de la rubrique
+  content: >
+    Nom unique de la rubrique d'aide.
+status:
+  title: État
+  content: >
+    Si désactivée ou archivée, cette <span class="doc-desc-title">rubrique d'aide</span> ne sera plus disponible.
+type:
+  title: Type
+  content: >
+    Si une <span class="doc-desc-title">rubrique</span> est marquée privée, elle sera uniquement accessible pour les personnels du support depuis le panneau de bord.
+parent_topic:
+  title: Rubrique parente
+  content: >
+    Sélectionnez la rubrique parente auquel appartiendra cette <span class="doc-desc-title">rubrique d'aide</span>. La rubrique parente s'affiche en premier dans la liste avec cette <span class="doc-desc-title"> rubrique d'aide</span> en dessous.
+custom_form:
+  title: Formulaire personnalisé
+  content: >
+    Les formulaires personnalisés vous aiderons à rassembler des informations plus spécifiques concernant cette <span class="doc-desc-title">rubrique</span>.
+  links:
+    - 
+      title: Gérer les formulaires personnalisés
+      href: /scp/forms.php
+priority:
+  title: Priorité
+  content: >
+    Sélectionnez la priorité accordée aux nouveaux billets associés à cette <span class="doc-desc-title">rubrique</span>. <br><br>Les filtres peuvent écraser la priorité des nouveaux billets.
+department:
+  title: Service
+  content: >
+    Choisissez le service auquel les nouveaux billets sous cette rubrique d'aide seront acheminés.
+  links:
+    - 
+      title: Gérer les services
+      href: /scp/departments.php
+sla_plan:
+  title: Plan SLA
+  content: >
+    Choisissez le SLA associé à cette <span class="doc-desc-title"> rubrique d'aide</span>. <br><br>Cette sélection écrasera tous les SLA du service sélectionné
+  links:
+    - 
+      title: Gérer les Plans SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Page de remerciement
+  content: >
+    Choisissez la Page de remerciement vers laquelle un utilisateur est redirigé après l'ouverture d'un billet sous cette <span class="doc-desc-title">rubrique</span>.
+  links:
+    - 
+      title: Configurer les pages de remerciements
+      href: /scp/pages.php
+auto_assign_to:
+  title: Affecter automatiquement les nouveaux billets
+  content: >
+    Vous pouvez choisir un agent ou une équipe pour l'auto-affectation des billets ouverts à partir de cette <span class="doc-desc-title">rubrique d'aide</span>.<br><br>Les filtres sur les billets peuvent écraser cette affectation.
+  links:
+    - 
+      title: Gérer le personnel et les équipes
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Réponse automatique du billet
+  content: >
+    S'il est activé, le paramètre désactivera la réponse automatique pour cette <span class="doc-desc-title">rubrique d'aide</span>.<br><br>Ce paramètre remplace le paramètre d'auto-réponse pour le <span class="doc-desc-title">Département</span>, mais aussi <span class="doc-desc-title">les paramètres d'auto-réponse</span> globaux.
+  links:
+    - 
+      title: Réglages du répondeur automatique
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Numéros de ticket personnalisés
+  content: >
+    Sélectionnez "personnalisé" ici pour supplanter le format de numérotation par défaut des tickets créés dans cette rubrique d'aide. Voir les conseils d'aide dans la page Paramètres / Tickets pour plus de détails à propos de ce paramètre.

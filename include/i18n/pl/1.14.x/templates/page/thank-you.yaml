@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Strona podziękowania jest wyświetlana w portalu klienta kiedy użytkownik otworzy nowe zgłoszenie poprzez portal klienta.
+name: Dziękujemy
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Dziękujemy za kontakt.
+  <br>
+  <br>
+  Numer zgłoszenia wsparcia został utworzony. Nasz konsultant odpowie wkrótce jeśli będzie to konieczne.</p>
+  <br>
+  <br>
+  Support Team
+  </div>

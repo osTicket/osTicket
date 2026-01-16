@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk Status
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Deze URL verwijst naar uw osTicket website. De link wordt gebruikt in e-mails om gebruikers terug naar de helpdesk te leiden.
+helpdesk_name_title:
+  title: Helpdesk naam/titel
+  content: >
+    Dit is de titel die verschijnt in de browsertab. Als je helpdeskpagina als favoriet is opgeslagen is dit de titel/naam van de website.
+default_department:
+  title: Standaard afdeling
+  content: >
+    Kies de standaard <span class="doc-desc-title">afdeling</span> voor tickets die niet automatisch worden doorgestuurd naar een afdeling. <br/><br/> Tickets kunnen worden doorgestuurd op basis van onderwerp, binnenkomende email en ticket filter instellingen.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Standaard paginagrootte
+  content: >
+    Kies het aantal getoonde items per pagina in de ticket wachtrij in het Personeel Dashboard. Elke medewerker kan dit aantal aanpassen voor zijn eigen account onder  <span class="doc-desc-title">Mijn Voorkeuren</span>.
+default_log_level:
+  title: Standaard Logniveau
+  content: >
+    Bepaal het minimum niveau van problemen die worden opgeslagen in de <span class="doc-desc-title">systeem logboeken</span>. <span class="doc-desc-opt">Debug</span> vertegenwoordigt de laagste zwaarte en <span class="doc-desc-opt">Error</span> vertegenwoordigt de grootste zwaarte. Als je bijvoorbeeld alle problemen wilt zien in <span class="doc-desc-title">Systeem Logboeken</span>, kies dan <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Verwijder logboeken
+  content: >
+    Bepaal hoe lang je de <span class="doc-desc-title">Systeem logboeken</span> wilt houden voordat ze worden verwijderd.
+enable_richtext:
+  title: Schakel tekstopmaak (RTF) in
+  content: >
+    Als deze optie is ingeschakeld, is het mogelijk om de communicatie tussen cliënten en medewerkers in RichTextFormaat te laten verlopen.
+enable_avatars:
+  title: Laat profielafbeelding zien in de chronologische (lijst)weergave
+  content: >
+    Schakel dit in om <span class="doc-desc-title">Profiel-afbeeldingen</span> in chronologische correspondentie weer te geven.<br><br>De <span class="doc-desc-title">Profiel-afbeeldingen bron</span> kan ingesteld worden op Agents' en Gebruikers' instellingen pagina's.
+  links:
+    - 
+      title: Medewerker instellingen
+      href: /scp/settings.php?t=agents
+    - 
+      title: Gebruikers instellingen
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Voorkom dat medewerkers in hun weg lopen
+  content: >
+    Voer de maximale tijd in dat een agent een ticket op 'pauze' kan houden of niets in het ticket kan doen. <br><br> Voer <span class="doc-desc-opt">0</span> in om deze mogelijkheid uit te schakelen.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Datum &amp; Tijd Opties
+  content: >
+    De volgende instellingen definiëren de standaard instellingen voor Datum en Tijd voor de helpdesk. Je kunt de lokale standaarden gebruiken voor de huidige regio of je kunt uw eigen opmaakinstellingen invoeren. Zoek de juiste zgn "ICU formaat" opmaak om je instelling goed in te voeren. De datums hieronder geven het resultaat van uw instellingen weer.
+  links:
+    - 
+      title: Bekijk de ICU datum-formaat tabel
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Systeem talen
+  content: >
+    Kies een primaire systeemtaal en, optioneel, de secundaire taalinstellingen om zo de agenten en eindgebruikers het gevoel van een nederlandsch product te geven.
+primary_language:
+  title: Stel de primaire taal in
+  content: >
+    Deze taal wordt weergegeven als een agent of eindgebruiker een ongeldige taal heeft ingevoerd. Dit geldt ook voor de interface en ook voor de zgn 'thankyou-pages' en emailberichten.<br><br> Dit is de taal waarin onvertaalde stukken van je inhoud geschreven zouden moeten worden.
+secondary_language:
+  title: Alternatieve taalinstelling
+  content: >
+    Slecteer de taal voorkeuzeoptie voor je agenten en eindgebruikers. Het systeem zal beschikbaar zijn in deze talen, ook vrije inhoud en emailberichten zullen naar deze taal worden vertaald.
+#Attachments
+attachments:
+  title: Bijlage Instellingen en Opslag
+  content: >
+    Stel in hoe bijlages worden opgeslagen.
+default_storage_bk:
+  title: Bestandsopslag instellingen
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Maximale bestandsgrootte
+  content: >
+    KIes de maximale bestandsgrootte voor bijlages van Agenten. Dit bevat bijlages, kennisdatabase-artikelen en bijlages bij tickets en taken. De bovengrens wordt bepaald door de PHP instelling <code>upload_max_filesize</code> instelling.
+  links:
+    - 
+      title: PHP ini instellingen
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Inloggen vereist
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

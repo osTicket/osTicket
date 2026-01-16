@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Системные журналы
+  content: >
+    Здесь Вы найдете записи журнала для исследования проблем (например, Ошибки или Предупреждения).
+  links:
+    - 
+      title: Настройте, какие типы событий заносятся в журнал, установив <br /><span class="doc-desc-title">Уровень Журнала по Умолчанию</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Диапазон Дат
+  content: >
+    Выберите диапазон дат, которые Вы хотите видеть в <span class="doc-desc-title">Системных Журналах</span>.
+type:
+  title: Тип
+  content: >
+    Выберите настройку для показа определенного типа активности. <span class="doc-desc-opt">Отладка</span> представляет собой самый нижний уровень, а <span class="doc-desc-opt">Ошибка</span> - самый высокий уровень серьезности.
+showing_logs:
+  title: Показ&hellip;Журналов
+  content: >
+    Проверьте секцию <span class="doc-desc-title">Страница</span> внизу и убедитесь, что больше нет отображаемых страниц Системных Журналов.
+log_title:
+  title: Имя Записи
+  content: >
+    Нажмите на заголовок <span class="doc-desc-title">Имя Записи</span>, если Вы хотите отсортировать результаты по полю <span class="doc-desc-title">Имя Записи</span>.
+log_type:
+  title: Тип Записи
+  content: >
+    Нажмите на заголовок <span class="doc-desc-title">Тип Записи</span>, если Вы хотите отсортировать результаты по полю <span class="doc-desc-title">Тип Записи</span>.
+log_date:
+  title: Дата Записи
+  content: >
+    Это дата генерации записи программой. Если Вы хотите отсортировать результаты по полю <span class="doc-desc-title">Дата Записи</span>, просто нажмите на заголовок <span class="doc-desc-title">Дата Записи</span>. (Используйте форму <span class="doc-desc-title">Диапазон Дат</span> выше для сужения периода записей.)
+ip_address:
+  title: IP Адрес
+  content: >
+    Это <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Адрес</span> сотрудника или клиента, который использовал osTicket в момент генерации журнала.

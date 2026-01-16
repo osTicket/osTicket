@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Όνομα χρήστη
+  content: >
+    Παρακαλούμε επιλέξτε ένα <span class="doc-desc-title">όνομα χρήστη</span> Εκπροσώπου που να είναι μοναδικό στο <span class="doc-desc-title">Κέντρο Υποστήριξης</span>.
+email_address:
+  title: Ηλεκτρονική Διεύθυνση
+  content: >
+    Πληκτρολογήστε την ηλεκτρονική διεύθυνση του Εκπροσώπου που θα λαμβάνει <span class="doc-desc-title">Ειδοποιήσεις &amp; Ενημερώσεις</span> από το <span class="doc-desc-title">Κέντρο Υποστήριξης</span>.
+  0: <br><br>
+  1: Το προσωπικό μπορεί να συνδέεται στον πίνακα ελέγχου προσωπικού είτε με το όνομα χρήστη είτε με την ηλεκτρονική του διεύθυνση.
+welcome_email:
+  title: Ηλ. Μήνυμα Καλωσορίσματος
+  content: >
+    Να αποσταλεί στον νέο Εκπρόσωπο ένας σύνδεσμος πρόσβασης στον λογαριασμό του μέσω του οποίου ο Εκπρόσωπος θα είναι σε θέση να ορίσει τον προσωπικό του κωδικό πρόσβασης. Εάν δεν τσεκάρετε αυτή την επιλογή, θα πρέπει να ορίσετε τον κωδικό πρόσβασης και να γνωρίσετε στο νέο προσωπικό τα στοιχεία σύνδεσης.
+account_password:
+  title: Κωδικός Λογαριασμού
+  content: >
+    Ως <span class="doc-desc-title">διαχειριστής</span>, μπορείτε να αλλάξετε τον κωδικό πρόσβασης ενός Εκπροσώπου.
+forced_password_change:
+  title: Αναγκαστική Αλλαγή Κωδικού Πρόσβασης
+  content: >
+    Ενεργοποιήστε αυτή την επιλογή εάν επιθυμείτε να υποχρεώσετε τον νέο Εκπρόσωπο να αλλάξει τον προσωπικό του κωδικό πρόσβασης κατά την επόμενη σύνδεσή του.
+agents_signature:
+  title: Υπογραφή Εκπροσώπου
+  content: >
+    Δημιουργία υπογραφής για τον Εκπρόσωπο η οποία μπορεί να επιλεγεί κατά την απάντηση σε ένα δελτίο.
+account_status:
+  title: Κατάσταση Λογαριασμού
+  content: >
+    Εάν η κατάσταση ενός Εκπροσώπου είναι <span class="doc-desc-opt">Κλειδωμένο</span>, δεν θα μπορεί να συνδεθεί στο Κέντρο Υποστήριξης.
+assigned_group:
+  title: Εκχωρημένη Κλάση
+  content: >
+    H <span class="doc-desc-title">Κλάση</span> στην οποία επιλέγετε  να ανήκει ο συγκεκριμένος Εκπρόσωπος θα καθορίσει τα δικαιώματα τα οποία ο Εκπρόσωπος αυτός έχει εντός του <span class="doc-desc-title">Κέντρου Υποστήριξης</span>.
+  links:
+    - 
+      title: Διαχείριση Κλάσεων
+      href: /scp/groups.php
+primary_department:
+  title: Κύριο Τμήμα
+  content: >
+    Επιλέξτε το κύριο <span class="doc-desc-title">τμήμα</span>στο οποίο ανήκει ο χρήστης και ένα αποτελεσματικό <span class="doc-desc-title">ρόλο</span>.
+  links:
+    - 
+      title: Διαχείριση Τμημάτων
+      href: /scp/departments.php
+primary_role:
+  title: Primary Role
+  content: >
+    Επιλέξτε το κύριο <span class="doc-desc-title">τμήμα</span> στο οποίο ανήκει ο συγκεκριμένος χρήστης.
+primary_role_on_assign:
+  title: Επιλέξτε το πρωταρχικό ρόλο για τις αναθέσεις
+  content: >
+    Ενεργοποιήστε αυτό για την επαναφορά στον  <span class="doc-desc-title">κυρίαρχο ρόλο</span>, όταν στο χρήστη έχουν εκχωρηθεί εισιτήρια και καθήκοντα εκτός του <span class="doc-desc-title">πρωτεύουντος τμήματος</span> και <span class="doc-desc-title">εκτός των τμημάτων</span> εκτεταμένης πρόσβασης. Διαφορετικά, ο χρήστης θα έχει μόνο πρόσβαση για ανάγνωση.
+daylight_saving:
+  title: Θερινή Ώρα
+  content: >
+    Ενεργοποιήστε την λειτουργία αυτή εάν επιθυμείτε να γίνεται αυτόματη εφαρμογή της Θερινής Ώρας για την ζώνη ώρας του συγκεκριμένου Εκπροσώπου.
+limited_access:
+  title: Περιορισμένη Πρόσβαση
+  content: >
+    Εάν ενεργοποιηθεί, ο Εκπρόσωπος θα έχει πρόσβαση μόνο στα δελτία που του ανατίθενται απ' ευθείας ή μέσω της Ομάδας.
+directory_listing:
+  title: Προβολή στον Κατάλογο
+  content: >
+    Ενεργοποιήστε αυτήν την επιλογή εάν επιθυμείτε να συμπεριλαμβάνεται ο συγκεκριμένος Εκπρόσωπος στον <span class="doc-desc-title">Κατάλογο Προσωπικού</span>.
+  links:
+    - 
+      title: Επίσκεψη στον Κατάλογο Προσωπικού
+      href: /scp/directory.php
+vacation_mode:
+  title: Σε Διακοπές
+  content: >
+    Εάν αλλάξετε την κατάσταση του Εκπροσώπου σε <span class="doc-desc-opt">Σε Διακοπές</span>, ο Εκπρόσωπος δεν θα λαμβάνει <span class="doc-desc-title">Ειδοποιήσεις &amp; Ενημερώσεις</span> ούτε θα είναι διαθέσιμος για ανάθεση δελτίων.
+

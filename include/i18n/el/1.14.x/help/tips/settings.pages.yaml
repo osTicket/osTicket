@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Στοιχεία Εταιρείας
+  content: >
+    Αυτό αναφέρεται στην εταιρεία ή τον οργανισμό που απολαμβάνει τα οφέλη του λογισμικού osTicket και του προσωπικού υποστήριξης αυτού. Οι πληροφορίες που αναφέρονται εδώ θα εμφανίζονται στις υπογραφές των ηλ. μηνυμάτων (δηλ. στο κάτω τους μέρος) όταν αποστέλλονται αποκρίσεις σε αιτήματα από τους Εκπροσώπους.
+  links:
+    - 
+      title: Φόρμα Στοιχείων Εταιρείας
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Σελίδα Εισόδου
+  content: >
+    Η <span class="doc-desc-title">Σελίδα Εισόδου</span> εμφανίζεται ως πρώτη σελίδα στον ιστοχώρο υποστήριξης.
+offline_page:
+  title: Σελίδα Διακοπής Λειτουργίας
+  content: >
+    Η <span class="doc-desc-title">Σελίδα Διακοπής Λειτουργίας</span> εμφανίζεται στον ιστοχώρο υποστήριξης όταν το κέντρο υποστήριξης έχει τεθεί εκτός λειτουργίας, βλ. Πίνακας Διαχείρισης -&gt; Ρύθμιση -&gt; Σύστημα -&gt; Κατάσταση Helpdesk.
+default_thank_you_page:
+  title: Προεπιλεγμένη Ευχαριστήρια Σελίδα
+  content: >
+    Η <span class="doc-desc-title">ευχαριστήρια σελίδα</span> εμφανίζεται στον πελάτη όταν ο <span class="doc-desc-title">Πελάτης</span> υποβάλλει ένα νέο αίτημα υποστήριξης. <br/><br/> Οι <span class="doc-desc-title">Ευχαριστήριες</span> σελίδες μπορούν να συνδέονται με Τομείς Βοήθειας.
+logos:
+  title: Λογότυπα
+  content: >
+    Μπορείτε να προσαρμόσετε το <span class="doc-desc-title">Λογότυπο</span> που θα εμφανίζεται στον Πελάτη στον Ιστοχώρο Πελατών (δηλ. στις ιστοσελίδες του Κέντρου Υποστήριξης).
+upload_a_new_logo:
+  title: Ανεβάστε ένα νέο λογότυπο
+  content: >
+    Επιλέξτε μια εικόνα μορφής .gif, .jpg ή .png. Το μέγεθος της εικόνας σας θα αναπροσαρμοστεί με τήρηση των αναλογιών. Ωστόσο, τα δεδομένα της εικόνας δεν θα αναπροσαρμοστούν. Έτσι προκειμένου να επιταχύνετε τους χρόνους φόρτωσης, συνιστάται να χρησιμοποιήσετε μια εικόνα μεγέθους αντίστοιχου του προεπιλεγμένου (817px &times; 170px).
+backdrops:
+  title: Φόντο
+  content: >
+    Μπορείτε να μορφοποιήσετε το <span class="doc-desc-title">Φόντο</span> που θα εμφανίζεται στη σελίδα εισόδου των εκπροσώπων.
+upload_a_new_backdrop:
+  title: Ανεβάστε ένα νέο Φόντο
+  content: >
+    Επιλέξτε μια εικόνα μορφής .gif, .jpg ή .png. Το μέγεθος της εικόνας σας θα αναπροσαρμοστεί με τήρηση των αναλογιών. Ωστόσο, τα δεδομένα της εικόνας δεν θα αναπροσαρμοστούν. Έτσι προκειμένου να επιταχύνετε τους χρόνους φόρτωσης, συνιστάται να χρησιμοποιήσετε μια εικόνα μικρού μεγέθους (κάτω απ'ο ένα MB). Σημειώστε επίσης ότι εφαρμόζονται και οι ρυθμίσεις για ανέβασμα PHP max upload.

@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Statut du helpdesk
+  content: >
+    Si le mode <span class="doc-desc-opt">Hors-ligne</span> est activé, l'interface client ne sera plus disponible. Seuls les administrateurs pourront accéder au système.
+helpdesk_url:
+  title: URL du helpdesk
+  content: >
+    Cette URL est la base de votre installation osTicket. Elle est utilisée dans les emails pour diriger les utilisateurs vers votre helpdesk.
+helpdesk_name_title:
+  title: Nom du support
+  content: >
+    C'est le titre qui apparaît dans l'onglet navigateur. Si votre page de bureau d'aide est mis en signet, ce sera le titre/nom de la page du site.
+default_department:
+  title: Département par défaut
+  content: >
+    Choisissez <span class="doc-desc-title">Département</span> par défaut pour les tickets qui ne sont pas automatiquement assigné à un Département. <br/> <br/> Un ticket peut filtrer sur la base de la rubrique d'aide, des e-mails entrants et des paramètres de filtre de ticket.
+default_schedule:
+  title: Planification par défaut
+  content: >
+    Choisissez la planification par défaut à utiliser par SLA lors du rendu des tickets en retard.
+  links:
+    - 
+      title: Gérer les Planifications
+      href: /scp/schedules.php
+default_page_size:
+  title: Taille de page par défaut
+  content: >
+    Choisissez le nombre d'éléments affichés par page dans les tickets en attente du panneau de l'Agent. Chaque Agent peut également personnaliser ce nombre pour leur propre compte dans <span class="doc-desc-title">Mes préférences</span>.
+default_log_level:
+  title: Niveau de journalisation par défaut
+  content: >
+    Détermine le niveau minimum des entrées qui sont enregistrés dans le <span class="doc-desc-title">journal système</span>. <span class="doc-desc-opt">Debug</span> représente la plus petite gravité, et <span class="doc-desc-opt">Erreurs</span> représente la plus grande gravité. Par exemple, si vous voulez voir toutes les entrées dans le <span class="doc-desc-title">journal système</span>, choisissez<span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Purger les journaux
+  content: >
+    Détermine la durée de conservation des entrées du <span class="doc-desc-title">journal système</span> avant qu'elles ne soient effacées.
+enable_richtext:
+  title: Activer le texte riche RTF
+  content: >
+    Si activé, cela permettra l'utilisation de la mise en forme du texte entre Clients et Agents.
+enable_avatars:
+  title: Activer les avatars dans la visualisation des fils
+  content: >
+    Activer l'option des <span class="doc-desc-title">avatars</span> sur les entrées de fils. <br><br> La <span class="doc-desc-title">source de l'avatar</span> peut être paramétrée dans les pages des agents et des utilisateurs.
+  links:
+    - 
+      title: Paramètrages des agents
+      href: /scp/settings.php?t=agents
+    - 
+      title: Paramétrages des utilisateurs
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Évitement de collision des agents
+  content: >
+    Entrez la durée maximale du temps qu'un Agent est autorisé à détenir un verrou sur un ticket sans aucune activité. <br><br>Entrez <span class="doc-desc-opt"> 0</span> pour désactiver cette fonctionnalité.
+allow_iframes:
+  title: Autoriser les iFrames
+  content: >
+    Entrez ici une liste de domaines séparés par des virgules depuis lesquels vous autorisez osTicket a être intégrer dans une iFrame. Le paramètre par défaut est 'self' (pas d'intégration ou alors une intégration dans lui-même). Celui-ce accepte les caractères d'échappement, schémas URL HTTP/HTTPS et numéros de port. <br><br><b>Exemple :&nbsp;</b><br>https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Information de Syntax (Source host)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: 'ACL (Access Control List : accès conditionnés au système)'
+  content: >
+    Entrez ici une liste d'adresses IP séparées par des virgules depuis lesquelles un accès au système est autorisé. Il y a quatre options d'accès réservé au système. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>S'applique à</th> <th>Description</th></tr> <tr><td>Désactivé</td> <td>Désactive complètement le contrôle d'accès ACL.</td></tr> <tr><td>All</td> <td>Active le contrôle d'accès ACL pour tous les panneaux (portail client, panneau de l'agent, panneau d'administration).</td></tr> <tr><td>Portail clients</td> <td>Le contrôle d'accès ACL ne s'applique qu'au portail d'accès clients.</td></tr> <tr><td>Panneau de l'agent</td> <td>Le contrôle d'accès ACL ne s'applique qu'aux panneaux de l'agent et d'administration.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Options de date et d'heure
+  content: >
+    Le paramètre suivant défini la Date &amp; Heure du système de support. Vous pouvez choisir d'utiliser la date et heure locale ou utiliser un format personnalisé pour vos besoins. Reportez-vous aux chaînes de format ICU comme une référence pour la personnalisation. Les dates ci-dessous vous montre le résultat des valeurs correspondantes.
+  links:
+    - 
+      title: Voir la table de format ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Langues du système
+  content: >
+    Choisissez la langue principale du système et les éventuelles langues complémentaires pour vos agents et les utilisateurs finaux.
+primary_language:
+  title: Langue principale du système
+  content: >
+    Cette langue est affichée pour les agents et les utilisateurs finaux si leur préférence linguistique ne sont pas disponibles. Cela inclut le contenu de l'interface, ainsi que le contenu personnalisé, comme les pages de remerciement et les messages courriel. <br/><br/> C'est la langue dans laquelle les versions non traduites de votre contenu doit être écrit.
+secondary_language:
+  title: Langues secondaires
+  content: >
+    Sélectionnez les options de langue pour vos agents et les utilisateurs finaux. L'interface sera disponible dans ces langues et les contenus personnalisé, comme les pages de remerciement ou les titres des rubriques d'aides, seront traduisibles dans ces langues.
+#Attachments
+attachments:
+  title: Paramètre et stockage des pièces jointes
+  content: >
+    Configurer comment les pièces-jointes seront stockées.
+default_storage_bk:
+  title: Enregistrement sur le stockage de fichiers
+  content: >
+    Choisissez comment les pièces jointes sont stockées. <br><br> Des possibilités de stockage supplémentaires peuvent être ajoutées en installant des extensions
+max_file_size:
+  title: Taille max. d'un fichier
+  content: >
+    Choisissez une taille de fichier maximale pour les pièces jointes émises par les agents. Cela inclut les pièces jointes en pré-enregistrées, les articles de la base de connaissances, et les pièces jointes aux tickets ou aux réponses. La limite supérieure est contrôlée par la paramètre PHP <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: paramètre du PHP ini
+      href: "http://php.net/manual/fr/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Connexion requise
+  content: >
+    Activer cette option pour empêcher l'accès aux pièces jointes par des utilisateurs-trices non authentifiés-es. Ceci est aussi valable pour les agents-es.<br><br>Concernant la sécurité, veuillez noter que les navigateurs des utilisateurs-trices pourraient garder une copie des pièces jointes en cache. Par ailleurs, tous les liens sur des fichiers ont une validité d'environ 24 heures.

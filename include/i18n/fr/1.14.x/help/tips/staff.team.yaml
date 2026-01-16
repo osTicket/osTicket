@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Équipes
+  content: >
+    Les équipes sont constitués de un ou plusieurs agents faisant équipe ensemble de le but de répondre aux demandes. Les membres de l'équipe peuvent s'étendre au-delà des limites de département.
+status:
+  title: État
+  content: >
+    Si cette équipe est <span class="doc-desc-opt">Désactivée</span>, elle ne sera pas disponibles pour les affectations de ticket ni recevoir des alertes &amp; avis sur les attributions antérieures.
+lead:
+  title: Chef d'équipe
+  content: >
+    Une <span class="doc-desc-title">équipe</span> peut avoir un chef nommé qui peut recevoir <span class="doc-desc-title">les alertes &amp; avis</span> distincts des membres.
+  links:
+    - 
+      title: Configurer les alertes et avis
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Alerte d'affectation
+  content: >
+    Vous pouvez désactiver <span class="doc-desc-title">assignement d'alertes</span> pour les tickets assignés à cette équipe.
+  links:
+    - 
+      title: Configurer les alertes et avis
+      href: /scp/settings.php?t=alerts
+members:
+  title: Membres de l'équipe
+  content: >
+    L’adhésion à l’équipe est configurée via le profil de l'agent.
+  links:
+    - 
+      title: Gérer le personnel
+      href: /scp/staff.php

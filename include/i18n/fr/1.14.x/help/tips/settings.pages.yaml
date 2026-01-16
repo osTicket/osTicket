@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Informations sur la société
+  content: >
+    Il s'agit de l'entreprise ou l'organisme qui bénéficiera du logiciel d'osTicket ainsi que son équipe d’assistance. Les informations ici apparaîtront dans les signatures de courriel (c.-à-d., le pied de page) lorsque les tickets seront répondus par les Agents.
+  links:
+    - 
+      title: Formulaire d'Information sur la société
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Page d’accueil
+  content: >
+    La <span class="doc-desc-title"> page de destination</span> est affichée sur la page d'accueil de votre site d'assistance.
+offline_page:
+  title: Pages hors connexion
+  content: >
+    La <span class="doc-desc-title"> Page hors connexion</span> est affiché dans le site de support lorsque le service d'assistance est hors connexion, voir le panneau d'administration -&gt; Configuration -&gt; système -&gt; statut de Helpdesk.
+default_thank_you_page:
+  title: Page de remerciement par défaut
+  content: >
+    La <span class="doc-desc-title"> page de remerciement</span> s'affiche au client lorsqu'un <span class="doc-desc-title"> Client</span> envoie un nouveau billet. <br/> <br/> <span class="doc-desc-title"> Les pages de remierciements</span> pages peuvent être associés à des rubriques d'aide.
+logos:
+  title: Logos
+  content: >
+    Vous pouvez personnaliser le <span class="doc-desc-title"> Logo</span> qui s'affichera au Client dans le Portail Client (c'est-à-dire, votre Site d'assistance).
+upload_a_new_logo:
+  title: Téléverser un nouveau logo
+  content: >
+    Choisissez une image dans les formats .gif, .jpg ou .png. Nous redimensionnerons proportionnellement l'affichage de votre image. Cependant, nous ne redimensionnera pas les données de l'image. Donc, pour accélérer le téléchargement, il est recommandé que vous gardiez votre image proche de la taille d'image par défaut (817px&times; 170px).
+backdrops:
+  title: Arrière-plan
+  content: >
+    Vous pouvez personnaliser <span class="doc-desc-title">l'arrière-plan</span> qui sera affiché sur la page de connexion des agents.
+upload_a_new_backdrop:
+  title: Envoyer un nouvel arrière-plan
+  content: >
+    Choisissez une image au format .gif, .jpg ou .png. Elle sera redimensionnée proportionnellement pour l'affichage. Les données de l'image ne seront cependant pas redimensionnée directement. Pour améliorer les temps de chargements, nous vous recommandons d'utiliser une taille d'image relativement petite (inférieure à 1 Mo). Veuillez noter que les paramètres PHP des tailles maximales relatives aux fichiers s'appliquent.

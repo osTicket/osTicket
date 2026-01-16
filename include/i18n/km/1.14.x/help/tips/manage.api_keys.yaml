@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: កូនសោ API
+  content: >
+    កូនសោ API ដែលត្រូវបានប្រើដើម្បីផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវអតិថិជនដាក់ស្នើសំបុត្រថ្មីតាមរយៈការអន្តរមុខអនុវត្តកម្មវិធី (API) ។ កូដ API ត្រូវបានប្រើជំនួសឱ្យពាក្យសម្ងាត់។ ចាប់តាំងពីពេលកូនសោ API ដែលអាចត្រូវបានផ្ញើបានអ៊ិនគ្រីប, ពួកគេត្រូវបានភ្ជាប់ទៅនឹងបណ្តាញអាសយដ្ឋាន IP របស់អតិថិជនគ្នា។
+  links:
+    - 
+      title: ឯកសារ API osTicket
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: IP Address
+  content: >
+    អាសយដ្ឋាន IP បណ្តាញរបស់អតិថិជន។ អាសយដ្ឋាន IP មួយរបស់ម៉ាស៊ីនភ្ញៀវនឹងតម្រូវឱ្យមានកូដ API តែមួយគត់ 1 IP - 1 API key

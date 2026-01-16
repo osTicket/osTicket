@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Personale signaturlinje
+  content: |
+    Opret ansattes underskrift for svar til sager. Denne signatur vises som en indstilling i bunden af en sags svar
+type:
+  title: Kontotype
+  content: |
+    Admins har privilegiet til at få adgang til Admin Panel. Personale har kun adgang til at administrere bestillinger og vidensbase
+group:
+  title: Tildelt gruppe
+  content: |
+    Gruppemedlemskabet definerer de ansattes rolle i systemet. Besøg administrationssiden for gruppe for at definere, hvilken adgang dette personale har til helpdesk
+notes:
+  title: Interne notater
+  content: |
+    Sæt interne notater vedrørende personale; noter er kun synlig for personale hvis kontotypen er Admin

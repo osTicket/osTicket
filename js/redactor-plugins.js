@@ -958,15 +958,15 @@ if (!RedactorPlugins) var RedactorPlugins = {};
           return (allowed.indexOf($1.toLowerCase()) === -1) ? '' : $0;
         });
       } else {
-        if (data.match(this.opts.regex.youtube)) {
+      if (data.match(this.opts.regex.youtube)) {
           var yturl = '//www.youtube.com';
           if (data.search('youtube-nocookie.com') !== -1) {
             yturl = '//www.youtube-nocookie.com';
           }
           data = data.replace(this.opts.regex.youtube, iframeStart + yturl + '/embed/$1' + iframeEnd);
-        } else if (data.match(this.opts.regex.vimeo)) {
-          data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
-        }
+      } else if (data.match(this.opts.regex.vimeo)) {
+        data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
+      }
       }
       return data;
     }

@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Ustawienia bazy wiedzy "Knowledge Base"
+  0: >
+
+knowledge_base_status:
+  title: Status Baz Wiedzy
+  content: >
+    Włącz, aby pozwolić użytkownikom na samodzielną obsługę publicznych artykułów bazy wiedzy. <br><br> Kategorie bazy wiedzy oraz FAQ mogą być ustawione jako wewnętrzne (widoczne tylko dla przedstawicieli).
+  links:
+    - 
+      title: Zarządzanie bazami wiedzy "Knowledge Base"
+      href: /scp/kb.php
+restrict_kb:
+  title: Ogranicz dostęp do Bazy Wiedzy
+  content: >
+    Włącz tą opcję żeby zapobiec dostępowi niezarejestrowanych użytkowników do artykułów w twojej bazy wiedzy za pomocą interface'u klienta.
+  links:
+    - 
+      title: Ustawienia kontroli dostępu
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Przygotowane odpowiedzi
+  content: >
+    Włącz, aby zezwolić przedstawicielom na używanie <span class="doc-desc-title">Przygotowanych odpowiedzi</span> w odpowiedziach na zgłoszenia.
+  links:
+    - 
+      title: Zarządzaj Przygotowanymi Odpowiedziami
+      href: /scp/canned.php

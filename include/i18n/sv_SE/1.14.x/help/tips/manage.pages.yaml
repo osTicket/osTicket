@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Hemsidan
+  content: >
+    Hemsidan kan användas som ett litet Content Management System (CMS). Du kan ställa in flera start, offline, och tack-sidor samt konfigurera dessa i företagsinställningar och hjälpämnen.
+  links:
+    - 
+      title: Företagsinställningar
+      href: /scp/settings.php?t=pages
+type:
+  title: Typ
+  content: >
+    <span class="doc-desc-opt">Offline</span>-sidor visas på klientportalen om din helpdesk är deaktiverad. <span class="doc-desc-opt">Start</span>-sidor visas på hemsidan för din klientportal.<span class="doc-desc-opt">Tack</span>sidor visas efter en användare skickar ett ärende. <span class="doc-desc-opt">Andra</span> sidor kan användas som ett enkelt content management system (CMS).

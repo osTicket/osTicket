@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: 담당자 이름 형식
+  content: >
+    시스템의 담당자 이름 형식을 선택하십시오. 다른 형식이 지정되지 않은 경우 메일 템플릿의 이름에 이 형식을 사용할 것입니다.
+staff_identity_masking:
+  title: 스태프 신분 감추기
+  content: >
+    활성화하면 모든 요청처리 진행중인 고객에게 담당자의 이름을 숨길 수 있습니다.
+#Authentication settings
+password_reset:
+  title: 패스워드 만료 정책
+  content: >
+    담당자가 비밀번호를 변경해야 하는 빈도(개월 단위)를 설정하십시오. 비활성화된 경우("만료 없음"), 암호는 만료되지 않습니다.
+password_expiration_policy:
+  title: 패스워드 만료 정책
+  content: >
+    에이전트가 패스워드를 변경해야하는 기간을 설정합니다. 비활성화되어있는 경우 (예:  <span class="doc-desc-opt">무기한</span>) 패스워드가 만료되지 않습니다.
+allow_password_resets:
+  title: 패스워드 재설정 허용
+  content: >
+    로그인 시도가 실패한 후 <span class="doc-desc-title">직원 로그인 페이지 </span>에 <span class="doc-desc-title">비밀번호 분실</span> 링크를 표시하려면 이 기능을 활성화 하십시요.
+reset_token_expiration:
+  title: 패스워드 재설정 윈도우
+  content: >
+    <span class = "doc-desc-title">패스워드 재설정 토큰 </span>이 유효한 기간(분)을 선택하세요. 에이전트가 <span class = "doc-desc-title">패스워드 재설정</span>을 요청하면 재설정을 허용하는 토큰이 메일로 에이전트에게 전송됩니다.
+staff_session_timeout:
+  title: 담당자 세션 타임아웃
+  content: >
+    담당자의 세션 최대 유휴 시간(분) 을 선택하십시오. <br><br> 비활성화하려면 <span class="doc-desc-title">담당자 세션 시간 초과</span>, 0 입력.
+bind_staff_session_to_ip:
+  title: 담당자 세션을 IP에 바인딩
+  content: >
+    담당자 IP를 기억하려면 이 설정을 실행하십시오. <br><br> 이 설정은 IP 주소가 동적으로 할당 되는 사용자에게는 권장되지 않습니다.

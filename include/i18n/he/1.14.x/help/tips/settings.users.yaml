@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: עיצוב שם משתמש
+  content: >
+    בחר תבנית עבור שמות משתמשים במערכת. תבנית זו תשמש לדוא"ל אם לא צוין פורמט אחר.
+#Authentication settings
+client_session_timeout:
+  title: הפסקת session של משתמשים
+  content: >
+    בחר את זמן הסרק המקסימלי (בדקות) לפני שמשתמש יחויב להתחבר שנית.<br><br>אם ברצונך לבטל <span class="doc-desc-title">הפסקת session של הסגל</span>, הכנס 0.
+registration_method:
+  title: הגדרות הרשמה
+  content: >
+    <span class="doc-desc-title">שיטת הרשמה</span> ו<span class="doc-desc-title">דרישת הרשמה</span> משומשים יחד כי להגדיר כיצד משתמשים נרשמים וניגשים לפורטל האינטרנטי של מרכז העזרה שלך. הטבלה מתחת מסכמת כיצד שתי ההגדרות מפורשות ע"י המערכת. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" >
+    <tbody style="vertical-align:top;"> 
+    <tr><th>דרישת הרשמה</th> <th>שיטת הרשמה</th> <th>תוצאה</th></tr> 
+    <tr><td>לא</td><td>ציבורי</td> <td>הרשמה מעודדת אך לא מחויבת עבור קריאות חדשות.</td></tr> <tr><td>כן</td><td>ציבורי</td> <td>הרשמה והתחברות דרושות עבור קריאות חדשות </td></tr> <tr><td>לא</td><td>פרטי</td> <td>כל אחד יכול ליצור קריאה, אך רק סוכנים יכולים ליצור חשבונות</td></tr> <tr><td>כן</td><td>פרטי</td> <td>גישת משתמשים היא ע"י הזמנה בלבד</td></tr> 
+    <tr><td>לא</td><td>מבוטל</td> <td>אף אחד לא יכול ליצור חשבון, אך כל אחד יכול לפתוח קריאה. <em>כך osTicket פעלה לפני 1.9</em></td></tr> 
+    <tr><td>כן</td><td>מבוטל</td> <td>בטל קריאות חדשות דרך פורטל האינטרנט</td></tr> 
+    </tbody></table>
+client_verify_email:
+  title: חייב אימות דרך דוא"ל
+  content: >
+    בטל אפשרות זו על מנת לתת למשתמשיך גישה מיידית לקריאות דרך דף ההתחברות "בדוק מצב קריאה" בפורטל הלקוח. אם מופעל, (ברירת המחדל), משתמשים יחויבו לקבל דוא"ל ולעקוב אחר הקישור בדוא"ל על מנת לצפות בקריאה.<br><br> ביטול אימות דוא"ל עלול לאפשר לצד שלישי (לדוגמא, משתפי פעולה בקריאות) להתחזות לבעלי קריאה.
+allow_auth_tokens:
+  title: אפשר אסימון אימות
+  content: >
+    אפשר אופציה זו על מנת שניתן יהיה להשתמש באסימון אימות לצורך כניסה אוטומטית של משתמשים בלחיצה על קישור לכרטיס פנייה.

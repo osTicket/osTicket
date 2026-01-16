@@ -4,7 +4,7 @@
 <hr/>
 <?php
 if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo
+<div><p id="msg_info"><i class="icon-info-sign"></i><!--osta--><?php echo
     $thisstaff->hasPerm(User::PERM_CREATE)
     ? __('Search existing users or add a new user.')
     : __('Search existing users.');

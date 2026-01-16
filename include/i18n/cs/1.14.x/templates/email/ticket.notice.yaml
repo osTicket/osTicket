@@ -1,0 +1,42 @@
+---
+#Email template: ticket.notice.yaml
+#Sent to a user when a staff member creates a ticket on the user's behalf.
+#This is most commonly performed when user's call in on the phone.
+#---
+notes: |
+  Odesláno uživateli v momentě, kdy pracovník podpory za něj vytvoří požadavek.
+  Toto se nejčastěji děje, když zákazník volá telefonem.
+subject: |
+  %{ticket.subject} [č. %{ticket.number}]
+body: |
+  <h3><strong>Vážený/á %{recipient.name.first},</strong></h3>
+  centrum podpory za Vás vytvořilo požadavek č. <a
+  href="%{recipient.ticket_link}">%{ticket.number}</a> s následujícími
+  údaji:
+  <br>
+  <br>
+  Téma podpory: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Předmět: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  Pokud bude potřeba, pracovník podpory se s vámi spojí, jakmile to bude
+  možné. <a href="%{recipient.ticket_link}">Průběh řešení požadavku</a> můžete
+  také sledovat on-line.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">
+  Tým podpory %{company.name},<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Pokud chcete
+  poskytnout nějaké další informace či poznámky ohledně tohoto problému,
+  prosím, odpovězte na tento e-mail nebo <a href="%{recipient.ticket_link}">
+  <span style="color: rgb(84, 141, 212);" >se přihlašte k vašmu účtu</span>
+  </a> pro zobrazení všech vašich požadavků.</em></div>

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Нов тикет
+  content: >
+    Овозможете го ова ако сакате авто-одговор да биде испратен до корисникот на новиот тикет.
+  links:
+    - 
+      title: Шаблон за автоматски одговор на нов тикет
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Нов тикет од персоналот
+  content: >
+    Известувањето кое се праќе кога агентот креира тикет во име на корисникот. <em>Агентот може да го надмине ова кога креира нови тикети</em>
+  links:
+    - 
+      title: Шаблон за известување за нов тикет
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Потврда за нова порака
+  content: >
+    Известување за потврда се праќа кога се додава нова порака во постоечкиот тикет.
+  links:
+    - 
+      title: Шаблон за потврда на нова порака
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Известување за нова порака
+  content: >
+    Проследување на пораките примени од испраќачот на сите други членови на тикетот.
+  links:
+    - 
+      title: Шаблон за известување за нова активност
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Известување за надминат број на тикети
+  content: >
+    Известување за одбиените картици испратени до корисникот на достигнат <span class="doc-desc-title">Максимален број на отворени тикети</span>.
+  links:
+    - 
+      title: Шаблон за известување за надминат број на отворени тикети
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Поставете <em> Максимален број на отворени тикети </em>
+      href: /scp/settings.php?t=tickets

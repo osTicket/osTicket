@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  当客户发布的未处理咨询条数超过最大限值时，发送给客户。此限制在管理面板中可以配置，特指由某一电子邮箱地址创建的咨询条数。
+subject: |
+  已达未完成咨询条数限制
+body: |
+  <h3><strong>尊敬的 %{ticket.name.first}，</strong></h3>
+  您发布的未完成咨询已经超出了系统允许的最大限制。如果要发布另外的咨询，那么需要关闭一条之前的待处理咨询。若要更新或者添加新的评论到未完成咨询，只需 <a
+  href="%{url}/tickets.php?e=%{ticket.email}">登录我们的帮助中心</a>。
+  <br>
+  <br>
+  谢谢，<br/>
+  咨询支持系统

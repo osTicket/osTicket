@@ -1,0 +1,12 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Bu şablon Personel Yönetim Paneli Giriş sayfasında <strong>Şifremi Unuttum</strong> bağlantısına tıklayan personele gönderilen e-posta içeriğini tanımlar.
+name: "osTicket Personel Parola Sıfırlama"
+body: >
+  <h3><strong>Merhaba %{staff.name.first},</strong></h3> <div>
+  %{url} adresindeki destek merkezinden sizin adınıza bir şifre sıfırlama talebi gönderildi.<br /> <br /> Bunun yanlışlıkla oluştuğunu düşünüyor iseniz, bu e-postayı silip yoksayabilirsiniz. 
+  Hesabınız hala güvende ve hiç kimsenin erişimi için izin verilmiş değildir. Hesabınızı blokeli değildir ve şifreniniz sıfırlanmamıştır.  Birisi yanlışlıkla e-posta adresinizi girmiş olabilir.<br /> <br /> Aşağıdaki bağlantıyı takip ederek destek masasına giriş yapabilir ve şifrenizi değiştirebiliriniz.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Müşteri Destek Sistemi</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="osTicket tarafından güçlendirildi" width="126" height="19" style="width: 126px" /> </div>

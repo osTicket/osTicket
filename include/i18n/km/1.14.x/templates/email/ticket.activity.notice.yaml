@@ -1,0 +1,24 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  សេចក្តីជូនដំណឹងដែលបានផ្ញើទៅអ្នកសហការ លើសកម្មភាពសំបុត្រ ឧ សារ ឬ ឆ្លើយតប។
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>ទៅ %{recipient.name.first},  ជាទីគោរព</strong></h3>
+  <div>
+      <em>%{poster.name}</em> បានចូលទេសារ logged ទៅសំបុត្រដែលអ្នកចូលរួមមួយ។
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>អ្នកបានទទួលអ៊ីម៉ែលនេះទេព្រោះអ្នកគឺជាអ្នកសហការ
+  នៅលើសំបុត្រ <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  ដើម្បីចូលរួមគ្រាន់តែឆ្លើយតបទៅនឹងអ៊ីមែលនេះឬ  <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >ចុច​ទីនេះ</a> សម្រាប់ប័ណ្ណសារពេញលេញ full archive នៃខ្សែស្រឡាយសំបុត្រ ticket thread។</em>
+  </div>

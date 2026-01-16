@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Templat ini merujuk kepada halaman yang ditunjukkan kepada pengguna selepas mereka selesai proses pendaftaran. Templat ini mesti memberitahu kepada pengguna bahawa sistem ini telah menghantar kepada mereka satu emel pengesahan dan langkah seterusnya dalam proses pendaftaran.
+name: "Pendaftaran akaun"
+body: >
+  <div><strong>Terima kasih kerana telah mendaftar untuk akuan.</strong><br/> <br /> Kami telah menghantar e-mel kepada alamat yang anada masukkan. Sila ikut pautan di dalam e-mel untuk mengesahkan akuan anda dan mendapatkan akses ke tiket anda.</div>

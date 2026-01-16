@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Nome
+  content: >
+    Scegliere un nome descrittivo per questo <span class="doc-desc-title"> Piano di SLA</span> che rifletta il suo utilizzo.
+grace_period:
+  title: Periodo di grazia
+  content: >
+    Indicare il numero di ore dopo le quali un ticket verrà automaticamente contrassegnato come in ritardo. <br><br><em>Le ore sono conteggiate dalla data di creazione del ticket.</em>
+transient:
+  title: Transitorio
+  content: >
+    Gli SLA transitori sono considerati temporanei e possono essere sovrascritti da uno SLA non temporaneo durante il trasferimento del <span class="doc-desc-opt"> reparto</span> o quando viene modificato il suo <span class="doc-desc-title"> argomento della guida</span>.
+schedule:
+  title: Pianificazione
+  content: >
+    Scegli la pianificazione da usare per questo SLA in caso di ritardi sui ticket. <br><br> Si prega di notare che le impostazioni del Dipartimento possono sovrascrivere questa pianificazione.
+  links:
+    - 
+      title: Gestisci pianificazioni
+      href: /scp/schedules.php

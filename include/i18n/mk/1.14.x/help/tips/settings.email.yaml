@@ -1,0 +1,98 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Основно множество на шаблони за електронска пошта
+  content: >
+    Изберете го <span class="doc-desc-title">Множеството со шаблони за електронска пошта</span> кои се искористени за да се испратат <span class="doc-desc-title">Автоматските одговори</span> и <span class="doc-desc-title">Известувањата</span> за различни акции кои што можат да се направат додека се користи osTicket. <br><br> Секој оддел може да си назначи специфично множество на шаблони за електронска пошта.
+  links:
+    - 
+      title: Уреди го множеството на шаблони за елетронска пошта
+      href: /scp/templates.php
+default_system_email:
+  title: Основна излезна електронска пошта
+  content: >
+    Избери емаил адреса од која што ќе се испраќаат излезните емаил пораки. <br><br> Секој <span class="doc-desc-title">Оддел</span> може да си постави своја <span class="doc-desc-title">емаил адреса</span> која што ќе ја препокрие таа што е поставена овде.
+  links:
+    - 
+      title: Управување со емаил адресите
+      href: /scp/emails.php
+default_alert_email:
+  title: Предефинирано известување за емаил
+  content: >
+    Изберете емаил адреса од која  <span class="doc-desc-title">Известувањата &amp; Забелешките </span> се испраќаат кон агентите.
+  links:
+    - 
+      title: Управување со емаил адресите
+      href: /scp/emails.php
+admins_email_address:
+  title: Емаил адресa на администраторот
+  content: >
+    Внесете ја емаил адресата на администраторот со која <span class="doc-desc-title">Системските Грешки</span> и <span class="doc-desc-title">Известувањата за нов тикет</span> (if enabled) ќе се испраќаат.
+  links:
+    - 
+      title: Управување со известувања и забелешки
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Превземање на емаил
+  content: >
+    Дозволи IMAP/POP проверка за конфигурираните и вклучени <span class="doc-desc-title">Поштенски сандачиња</span>.
+  links:
+    - 
+      title: Управување со поштенски сандачиња
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Собирај ги емаил пораките користејќи Auto-cron
+  content: >
+    Овозможи периодично превземање на емаил пораките користејќи внатрешен распределувач на задачи кој се поврзува со активноста на агентите. <br><br> Имајте во предвид дека емаил пораките нема да бидат превземени доколку никој не се најави во контролниот панел за вработените. Надворешен распределувач на задачи е строго препорачан за предвидени интервали на превземање.
+  links:
+    - 
+      title: Користење на надворешен распределувач на задачи
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Приказ на цитиран одговор
+  content: >
+    Доколку е овозможенo, ова ќе ги отстрани претходните преписки помеѓу електронските пораки. <br><br> Оваа функција е зависна од <span class="doc-desc-title">Ознаката за разделување на одговор</span> подолу.
+reply_separator_tag:
+  title: Ознака за разделување на одговор
+  content: >
+    Ова е токен кој му посочува на корисникот да одговори на длинијата. <br><br> <strong>Внимание:</strong> ова е релевантно само ако <span class="doc-desc-title">Приказот на цитиран одговор</span> е овозможен погоре.
+emailed_tickets_priority:
+  title: Приоритет на испраќање на емаил пораките
+  content: >
+    Изберете дали сакате опцијата за приоритет/важност на корисничката електронска пошта (пр. Outlook) да го диктира приоритетот на новиот тикет. <br><br> Овие подесувања може да бидат променети од <span class="doc-desc-title">Филтрите за тикети</span>.
+  links:
+    - 
+      title: Креирај &amp; Филтри за управување со тикети
+      href: /scp/filters.php
+accept_all_emails:
+  title: Прифати ги сите Емаил пораки
+  content: >
+    Прифати пораки од непознати корисници. <br><br> Со исклучувањето на оваа опција ќе резултира на одбивање на тикетите.
+accept_email_collaborators:
+  title: Примање на соработниците на електронската порака
+  content: >
+    Додадете  email членови вклучени во <code><strong> До </strong></code> и <code><strong>СС</strong></code> полињата како тикет соработници. <br /><br /><em> Соработниците може секогаш да бидат рачно додадени од агентите за време на прегледот на тикет.</em>
+default_mta:
+  title: Предефиниран МТА
+  content: >
+    <span class="doc-desc-title">Предефиниран МТА</span> се грижи за испраќањето на email за испраќање email пораки без SMTP подесувања.
+
+
+ticket_response_files:
+  title: Датотеки во одговорите на тикетот
+  content: >
+    Ако е овозможено, било кои прикачувања додадени од страна на Агентот на одговорот на тикетот ќе бидат исто така додадени на емаилот кон корисникот.
+verify_email_addrs:
+  title: Verify Email Addresses
+  content: >
+    Enable this option to check if the email address has a mail exchanger (MX) in the domain's DNS. This is useful to detect incorrectly typed email addresses. This is perfomed in addition to checking the email address wellformedness.

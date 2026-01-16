@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informacje o Tematach Pomocy
+  content: >
+    <span class="doc-desc-title">Tematy Pomocy</span> wskazują jakie informacje są gromadzone od Użytkowników oraz jak zlecenia zostaną ukierunkowane i przypisane.
+topic:
+  title: Nazwa tematu
+  content: >
+    Unikatowa nazwa tematu pomocy.
+status:
+  title: Status
+  content: >
+    Jeżeli wyłączony lub zarchiwizowany, to ten <span class="doc-desc-title">Temat Pomocy</span> będzie niedostępny.
+type:
+  title: Typ
+  content: >
+    Jeżeli <span class="doc-desc-title">Temat Pomocy</span> jest oznaczony jako Prywatny, to nie będzie dostępny do wyboru dla Operatorów podczas tworzenia nowego zgłoszenia z poziomu Panelu Personelu.
+parent_topic:
+  title: Temat nadrzędny
+  content: >
+    Wybierz nadrzędny Temat do którego  <span class="doc-desc-title">Temat Pomocy</span> będzie przynależał. Nadrzędny temat powinien się pojawić przed <span class="doc-desc-title">Tematem Pomocy</span>, który będzie pojawiał się za Tematem nadrzędnym.
+custom_form:
+  title: Formularz Niestandardowy
+  content: >
+    Formularze niestandardowe pomogą w uzyskaniu dokładniejszych informacji od użytkowników jakie są istotne w tym <span class="doc-desc-title">Temacie Pomocy</span>.
+  links:
+    - 
+      title: Zarządzaj formularzami niestandardowymi
+      href: /scp/forms.php
+priority:
+  title: Priorytet
+  content: >
+    Wybierz priorytet  przypisany do nowych zgłoszeń w tym <span class="doc-desc-title">Temacie Pomocy </span>. <br><br> Filtry zgłoszeń mogą nadpisać priorytet nowego zgłoszenia.
+department:
+  title: Departament
+  content: >
+    Wybierz departament do którego zostaną przekierowane zlecenia w tym Temacie Pomocy.
+  links:
+    - 
+      title: Zarządzanie departamentami
+      href: /scp/departments.php
+sla_plan:
+  title: SLA Plan
+  content: >
+    Wybierz plan SLA przypisany do tego <span class="doc-desc-title">Tematu Pomocy</span>. <br><br> To ustawienia nadpisze wszystkie wybrane plany SLA departamentów
+  links:
+    - 
+      title: Zarządzanie Planami SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Strona podziękowania
+  content: >
+    Wybierz stronę podziękowania do której użytkownik zostanie skierowany po otwarciu nowego zgłoszenia w tym <span class="doc-desc-title">Temacie Pomocy</span>.
+  links:
+    - 
+      title: Zarządzanie stronami podziękowania
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automatyczn przypisywanie nowych zgłoszeń
+  content: >
+    Opcjonalnie wybierz przedstawiciela lub grupę w celu automatycznego przypisania do tego <span class="doc-desc-title">Tematu Pomocy</span> <br><br> Filtry zgłoszenia mogą nadpisać przypisanie.
+  links:
+    - 
+      title: Zarządzanie personelem i zespołami
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Auto odpowiedź na zgłoszenie
+  content: >
+    Jeżeli zaznaczona jest ta opcja, to dla nowych zgłoszeń w tym  <span class="doc-desc-title">Temacie Pomocy</span> nie będą wysyłane przez autoresponder. <br><br> To zastępuje ustawienia dla autorespondera dla <span class="doc-desc-title">Departamentu</span> tak samo jak globalne <span class="doc-desc-title">ustawienia Autorespondera</span>.
+  links:
+    - 
+      title: Ustawienia autorespondera
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Własna numeracja zgłoszeń
+  content: >
+    Wybierz tutaj "Własny", do nadpisania domyślnego systemowego formatu numerowania zgłoszeń tworzonych w tym temacie pomocy. Zobacz podpowiedzi na stronie Ustawienia / Zgłoszenia jeżeli chcesz uzyskać więcej szczegółów na temat tego ustawienia.

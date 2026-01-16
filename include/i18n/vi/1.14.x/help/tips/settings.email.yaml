@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Chế độ khung email mặc định
+  content: >
+    Chọn<span class="doc-desc-title">chế độ khung email</span>được sử dụng để gửi<span class="doc-desc-title">phản hồi tự động</span>và<span class="doc-desc-title">cảnh báo</span>cho các hoạt động khác nhau có thể xảy ra trong thời gian thực hiện lệnh.<br><br>Các phòng ban có thể được chỉ định một chế độ khung email riêng.
+  links:
+    - 
+      title: Quản lý khung email
+      href: /scp/templates.php
+default_system_email:
+  title: Hộp thư đi mặc định
+  content: >
+    Chọn một địa chỉ email nơi mà các thư đi được gửi.<br><br><span class="doc-desc-title">Phòng ban</span>có thể đặt <span class="doc-desc-title">địa chỉ email riêng</span>và nó sẽ ghi đè lên email hiện có ở đó.
+  links:
+    - 
+      title: Quản lý địa chỉ email
+      href: /scp/emails.php
+default_alert_email:
+  title: Email cảnh báo mặc định
+  content: >
+    Chọn một địa chỉ email<span class="doc-desc-title">nơi mà các cảnh báo &amp;chú thích</span>được gửi cho các nhân viên.
+  links:
+    - 
+      title: Quản lý địa chỉ email
+      href: /scp/emails.php
+admins_email_address:
+  title: Địa chỉ email của admin
+  content: >
+    Nhập một địa chỉ email của quản trị viên <span class="doc-desc-title">nơi mà các lỗi hệ thống</span>và<span class="doc-desc-title">các cảnh báo lệnh mới</span>được gửi (nếu có thể).
+  links:
+    - 
+      title: Quản lý cảnh báo và chú thích
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Truy cập email
+  content: >
+    Cho phép IMAP/POP xem<span class="doc-desc-title">hộp thư đã được cấu hình và kích hoạt</span>.
+  links:
+    - 
+      title: Quản lý hộp thư
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Truy cập email sử dụng Auto-cron
+  content: >
+    Kích hoạt truy cập email theo kì sử dụng thanh công cụ nội bộ được kích hoạt bởi hoạt động của các nhân viên.<br><br>Nhớ rằng các email này sẽ không được truy cập nếu không có ai được đăng nhập vào mục quản lý nhân viên. Công cụ quản lý bên ngoài được khuyến khích cho những khoảng truy cập dự đoán.
+  links:
+    - 
+      title: Sử dụng trình quản lý công vụ bên ngoài
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Gỡ bỏ chế độ trả lời trước đó
+  content: >
+    Nếu kích hoạt, chức năng này sẽ loại bỏ các thư trao đổi trước đó.<br><br>Chức năng này tương đối phụ thuộc vào<span class="doc-desc-title">chế độ trả lời tách biệt bên dưới</span>.
+reply_separator_tag:
+  title: Chế độ trả lời tách biệt
+  content: >
+    Đây là một dấu hiệu ám chỉ người dùng trả lời trên các dòng.<br><br><strong>Chú thích: </strong>điều này chỉ tương thích nếu<span class="doc-desc-title">Chế độ gỡ bỏ câu trả lời trước</span>được kích hoạt.
+emailed_tickets_priority:
+  title: Quyền ưu tiên của lệnh được gửi qua email
+  content: >
+    Chọn mức độ quan trọng/ ưu tiên của email của người dùng để dự đoán quyền ưu tiên của lệnh mới.<br><br>Chế độ này có thể bị ghi đè bởi <span class="doc-desc-title">bộ lọc lệnh</span>.
+  links:
+    - 
+      title: Tạo &amp; quản lý bộ lọc lệnh
+      href: /scp/filters.php
+accept_all_emails:
+  title: Nhận tất cả các email
+  content: >
+    Nhận tất cả các email từ người dùng chưa biết.<br><br>Không kiểm tra chế độ này sẽ gây ra việc từ chối các lệnh.
+accept_email_collaborators:
+  title: Nhận các email liên quan
+  content: >
+    Thêm người nhận email trong<code><strong>phần tới</strong></code>và<code><strong>CC</strong></code>như những người có liên quan.<br /><br /><em>Họ có thể được thêm một cách thủ công bằng các nhân viên khi xem một lệnh.</em>
+default_mta:
+  title: MTA mặc định
+  content: >
+    <span class="doc-desc-title">MTA mặc định</span>chú trọng đến quá trình chuyển phát email ra ngoài mà không dùng chế độ SMTP.
+ticket_response_files:
+  title: Thư mục phản hồi lệnh
+  content: >
+    Nếu kích hoạt, bất kì tập đính kèm nào mà nhân viên có thể đính kèm khi trả lời sẽ được hiển thị trong email của người sử dụng.
+verify_email_addrs:
+  title: Xác nhận email
+  content: >
+    Bật tính năng này nếu địa chỉ email có mail exchanger (MX) trong domain's DNS. Điều này rất hữu ích để phát hiện địa chỉ email đã gõ sai. Để không mất thời gian kiểm tra email không đúng.

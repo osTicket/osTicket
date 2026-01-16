@@ -63,8 +63,11 @@ $orgs->order_by($order . $order_column);
             <?php csrf_token(); ?>
             <div class="attached input">
             <input type="hidden" name="a" value="search">
-            <input type="search" class="basic-search" id="basic-org-search" name="query" autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>" autocomplete="off" autocorrect="off" autocapitalize="off">
-                <button type="submit" class="attached button"><i class="icon-search"></i>
+            <!-- osta -->
+            <input type="search" class="basic-search" id="basic-org-search" 
+            placeholder="<?php echo __('Search Organizations'); ?>"
+		    name="query" size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>" autocomplete="off" autocorrect="off" autocapitalize="off">
+			<button type="submit" class="attached button"><i class="icon-search"></i>
                 </button>
             <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </div>
@@ -138,9 +141,10 @@ else
             ?>
            <tr id="<?php echo $org['id']; ?>">
             <td nowrap align="center">
-                <input type="checkbox" value="<?php echo $org['id']; ?>" class="ckb mass nowarn"/>
+                <!--osta-->
+                <p class="checkbox"><input type="checkbox" value="<?php echo $org['id']; ?>" class="ckb mass nowarn"/><label></label></p>
             </td>
-            <td>&nbsp; <a href="orgs.php?id=<?php echo $org['id']; ?>"><?php
+            <td><!--osta--><a href="orgs.php?id=<?php echo $org['id']; ?>"><?php
             echo $org['name']; ?></a> </td>
             <td>&nbsp;<?php echo $org['user_count']; ?></td>
             <td><?php echo Format::date($org['created']); ?></td>
@@ -167,6 +171,19 @@ else
      </tr>
     </tfoot>
 </table>
+<!--osta-->
+<script>
+	function myFunction(x) {
+	  if (x.matches) { // If media query matches
+		$( "tbody tr" ).wrapInner( "<label></label>");
+	  } else {
+		;
+	  }
+	}
+	var x = window.matchMedia("(max-width: 760px)")
+	myFunction(x) // Call listener function at run time
+	x.addListener(myFunction) // Attach listener function on state changes	
+</script>
 <?php
 if ($total): //Show options..
     echo '<div>';
@@ -181,6 +198,10 @@ endif;
 </form>
 
 <script type="text/javascript">
+// osta
+if ( ($("#msg_info" ).length) || ($("#msg_notice" ).length) || ($("#msg_warning" ).length) || ($("#msg_error" ).length) ) {
+	$(".attached.input").addClass("move-search"); //move search when msg displayed
+}
 $(function() {
     $('input#basic-org-search').typeahead({
         source: function (typeahead, query) {
@@ -238,4 +259,6 @@ $(function() {
         return false;
     });
 });
+// osta
+$('table.list td:nth-child(3):contains("0")').addClass('user-count-hide');
 </script>

@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Kiitos sivu näytetään asiakasportaalissa, kun käyttäjä lisää uuden tiketin asiakasportaalin kautta.
+name: Kiitos
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Kiitos kun otit yhteyttä meihin.
+  <br>
+  <br>
+  Tukitiketti on luotu ja edustaja ottaa yhteyttä pikaisesti mikäli tarvetta.</p>
+  <br>
+  <br>
+  Tukitiimi
+  </div>

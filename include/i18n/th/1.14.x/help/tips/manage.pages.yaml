@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: หน้าเว็บไซต์
+  content: >
+    หน้าเว็บไซต์สามารถทำหน้าที่เป็นระบบการจัดการเนื้อหา (CMS) ขนาดเล็ก คุณสามารถกำหนดได้หลากหลายหน้าลงจอด, หน้าออฟไลน์ และหน้าขอบคุณ สามารถกำหนดค่าไว้ในการตั้งค่าบริษัทและหัวข้อการช่วยเหลือ
+  links:
+    - 
+      title: การตั้งค่าบริษัท
+      href: /scp/settings.php?t=pages
+type:
+  title: ประเภท
+  content: >
+    <span class="doc-desc-opt">หน้าออฟไลน์</span> จะปรากฏบนพอร์ทัลลูกค้าถ้าระบบช่วยเหลือของคุณถูกปิดใช้งาน <span class="doc-desc-opt">หน้าลงจอด</span> จะปรากฏบนหน้าแรกของพอร์ทัลลูกค้าของคุณ <span class="doc-desc-opt">หน้าขอบคุณ</span> จะปรากฏขึ้นหลังจากที่ผู้ใช้ส่ง Ticket <span class="doc-desc-opt">หน้าอื่นๆ</span> ที่สามารถใช้เป็นระบบการจัดการเนื้อหาที่เรียบง่าย (CMS)

@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Поле за търсене
+  0: >
+
+advanced:
+  title: Разширено
+  content: >
+    Стесняване на параметрите на вашето търсене. След като сте избрали вашите критерии за търсене и стартирате търсене, можете да  <span class="doc-desc-title">експортирате</span> информацията в края на страницата със заявки.
+open_tickets_table:
+  title: Таблица на отворените заявки
+  content: >
+    Всички отворени в момента заявки, които изискват внимание
+ticket:
+  title: Заявка
+  0: >
+
+date:
+  title: Дата
+  0: >
+
+subject:
+  title: Тема
+  0: >
+
+from:
+  title: От
+  0: >
+
+priority:
+  title: Приоритет
+  0: >
+
+assigned_to:
+  title: Възложен на
+  0: >
+
+export:
+  title: Експорт
+  content: >
+    Експортиране на данните, които в момента виждате в CSV формат. CSV файловете могат да бъдат отворени от програма за електрони таблици (например Microsoft Excel, Apple Pages, OpenOffice и др.).
+advanced_search_dialog:
+  title: Разширено търсене
+  0: >
+
+adv_keyword:
+  title: Търсене по ключова дума
+  content: >
+    Намира съвпадения въз основа на заглавието и съдържанието на дискусията на заявката, както и на цялото текстово съдържание, свързано с  потребителските полета на потребителите и заявките.
+adv_date_range:
+  title: Търсене по период
+  content: >
+    Определи тук
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Видове отговори
+  content: >
+    <b>Отговори на всички:</b> Този отговор се изпраща до Потребителя и Сътрудниците, които решите да включите.</br> <b>Отговор на потребителя:</b> Този отговор се изпраща само на потребителя, без Сътрудници.</br> <b>Не изпращай имейл отговор:</b> Не се изпращат известия по имейл, но отговорът на Агента е видим за <b>ВСИЧКИ</b> Потребители при преглед на Билета.

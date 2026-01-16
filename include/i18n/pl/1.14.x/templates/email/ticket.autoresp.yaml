@@ -1,0 +1,28 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Wysyłana do użytkownika w przypadku utworzenia nowego zgłoszenia
+subject: |
+  Otwarto zgłoszenie pomocy [#%{ticket.number}]
+body: |
+  <h3><strong>Szanowny(a) %{recipient.name.first},</strong></h3>
+  <p>
+  Wniosek o wsparcie został utworzony i przypisany #%{ticket.number}.
+  Nasz przedstawiciel skontaktuje się tak szybko jak to możliwe. Możesz
+  <a href="%{recipient.ticket_link}">śledzić postęp tego zgłoszenia
+  online</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Twój %{company.name} zespół,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Jeżeli
+  chcesz dodać nowe informacje lub komentarz do zgłoszenia,
+  odpowiedz na tego maila lub <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >zaloguj się na swoje konto</span></a> z
+  kompletnym archiwum Twoich zgłoszeń.</em></div>

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formato do Nome do Axente
+  content: >
+    Escolle un formato para os nomes dos Axentes en todo o sistema. Os modelos de correo electrónico o usarán para os nomes se non se especifica outro formato.
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Password Expiration Policy
+  content: >
+    Establece con qué frecuencia (en meses) se requirirá que os Axentes cambien o seu contrasinal. Se está deshabilitado (configurado en "Sen caducidade"), os contrasinais non caducarán.
+password_expiration_policy:
+  title: Password Expiration Policy
+  content: >
+    Choose how often Agents will be required to change their password. If disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords will not expire.
+allow_password_resets:
+  title: Allow Password Resets
+  content: >
+    Habilite esta función se desexa amosar a ligazón <span class="doc-desc-title">Esquecín o meu contrasinal</span> na <span class="doc-desc-title"> Páxina de inicio de sesión do persoal </span> despois dun intento de inicio de sesión errado.
+reset_token_expiration:
+  title: Password Reset Window
+  content: >
+    Choose the duration (in minutes) for which the <span class="doc-desc-title"> Password Reset Tokens</span> will be valid. When an Agent requests a <span class="doc-desc-title">Password Reset</span>, they are emailed a token that will permit the reset to take place.
+staff_session_timeout:
+  title: Agent Session Timeout
+  content: >
+    Escolle o tempo de espera máximo (en minutos) antes de que un Axente teña que se identificar de novo. <br><br> Se queres desactivar a <span class="doc-desc-title">Caducidade das Sesións dos Axentes</span>, escribe 0.
+bind_staff_session_to_ip:
+  title: Bind Agent Session to IP
+  content: >
+    Activa isto se desexa que o axente sexa recordado polo seu IP actual ao iniciar sesión. <br> <br> Esta configuración non se recomenda para usuarios con enderezos IP asignados dinámicamente.

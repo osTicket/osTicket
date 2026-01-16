@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nom d'usuari
+  content: >
+    Si us plau, trie un nom <span class="doc-desc-title"> d'usuari</span> d'agent únic al seu <span class="doc-desc-title"> sistema d'ajuda</span>.
+email_address:
+  title: Adreça electrònica
+  content: >
+    Introduïxca el email de l'Agent que rebrà <span class="doc-desc-title"> alertes &amp; Notificacions</span> del<span class="doc-desc-title">  sistema d'ajuda</span>.
+  0: <br><br>
+  1: El personal pot iniciar la sessió en el panell de control de personal amb qualsevol nom d'usuari o adreça d'email.
+welcome_email:
+  title: Email de benviguda
+  content: >
+    Enviar un enllaç d'accés al compte des del qual l'Agent serà capaç d'establir la seva pròpia contrasenya. Si, necessitarà posar contrasenya i comunicar la informació de connexió per al nou personal.
+account_password:
+  title: Contrasenya de compte
+  content: >
+    Com a <span class="doc-desc-title"> administrador</span>, pot canviar contrasenya de un Agent.
+forced_password_change:
+  title: Canvi de contrasenya forçada
+  content: >
+    Permetre això si voleu forçr el nou Agent per canviar la seva pròpia contrasenya en el moment següent registre.
+agents_signature:
+  title: Signatura de l'agent
+  content: >
+    Crear una signatura per l'Agent que es puga seleccionar en respondre a un Ticket.
+account_status:
+  title: Estat del compte
+  content: >
+    Si l'estat de l'Agent és <span class="doc-desc-opt"> bloquejat</span>, no podran autenticar-se dins a la taula d'ajuda.
+assigned_group:
+  title: Grup assignat
+  content: >
+    El <span class="doc-desc-title"> grup</span> que vostè tria per aquest Agent pertànyer determinarà quins permisos l'Agent ha dins de l' <span class="doc-desc-title"> Escriptori d'ajuda</span>.
+  links:
+    - 
+      title: Administrar grups
+      href: /scp/groups.php
+primary_department:
+  title: Departament de primària
+  content: >
+    Escull el <span class="doc-desc-title">departament principal</span> al que està assignat l'Agent i un<span class="doc-desc-title">Rol</span>.
+  links:
+    - 
+      title: Gestionar Departaments
+      href: /scp/departments.php
+primary_role:
+  title: Rol principal
+  content: >
+    Tria el <span class="doc-desc-title">Rol principal</span> al qual pertany aquest Agent.
+primary_role_on_assign:
+  title: Utilitza el Rol Principal per a assignacions
+  content: >
+    Activa aquesta opció per derivar al <span class="doc-desc-title">rol principal</span> quan a aquest agent se li assigni un ticket que està fora del seu <span class="doc-desc-title">departament principal</span> i als departaments <span class="doc-desc-title">amb accés suplementari</span>. D'altra forma, l'agent només tindrà accés de lectura.
+daylight_saving:
+  title: horari d'estiu
+  content: >
+    Permetre aquesta característica si li agradaria la llum del dia per guardar automàticament per anar a jugar a la zona horària de aquest Agent.
+limited_access:
+  title: Accés limitat
+  content: >
+    Si està activat, l'Agent només tindra accés a Tickets assignats directament o mitjançant l'equip.
+directory_listing:
+  title: Llista de directoris
+  content: >
+    Permetre això si li agradaries a aquest Agent en el <span class="doc-desc-title"> Directori de personal</span> de llista.
+  links:
+    - 
+      title: Visita del directori de personal
+      href: /scp/directory.php
+vacation_mode:
+  title: Mode de vacances
+  content: >
+    Si canvia l'estat de l'Agent a <span class="doc-desc-opt"> Mode de vacances</span>, l'Agent no rebrà qualsevol <span class="doc-desc-title"> alerta i &amp; Notificacions</span> ni estarà disponible per a l'assignació de Tickets.
+

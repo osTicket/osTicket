@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: שם
+  content: >
+    בחר שם מתאר עבור <span class="doc-desc-title">תוכנית SLA</span> זו שישקף את מטרתה.
+grace_period:
+  title: תקופת חסד
+  content: >
+    קבע את מספר השעות לאחר שקריאה נוצרה שהיא תסומן באופן אוטומטי כ"באיחור".<br><br><em>שעות נספרות מאז זמן יצירת הקריאה.</em>
+transient:
+  title: זמני
+  content: >
+    SLAים אלו נחשבים לזמניים ויכולים להיעקף ע"י SLA לא-זמני בזמן העברת <span class="doc-desc-opt">מחלקה</span> או כש<span class="doc-desc-title">נושא העזרה</span>שלו שונה.
+schedule:
+  title: לוח זמנים
+  content: >
+    בחר את לוח הזמנים שישמש את SLA זה בעת הצגת קריאות שלא הוגשו בזמן. <br> <br> שימו לב כי הגדרות המחלקה יכולות לעקוף את לוח הזמנים הזה.
+  links:
+    - 
+      title: נהל לוח זמנים
+      href: /scp/schedules.php

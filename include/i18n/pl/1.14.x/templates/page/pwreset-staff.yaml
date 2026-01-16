@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Ten szablon definiuje e-mail wysłany do obsługi, która wybiera <strong>Zapomniałem Moje Hasło</strong> link na stronie dziennika panelu kontrolnego obsługi.
+name: "Reset Hasła pracownika osTicket"
+body: >
+  <h3><strong>Witaj %{staff.name.first},</strong></h3><div>Żądanie zmiany hasła zostało wysłane do obsługi na %{url}.<br /><br />Jeśli uważasz, że to pomyłka - zignoruj i usuń tą wiadomość. Twoje konto jest dalej chronione i nikt nie uzyskał do niego dostępu. Nie jest również zablokowane, a hasło nie zostało zmienione. Ktoś mógł przez pomyłkę podać Twój adres e-mail.<br /><br />Skorzystaj z poniższego linku, aby zalogować się do systemu obsługi i zmienić hasło<br /><br /><a href="%{link}">%{link}</a><br /><br /><em style="font-size: small">Twój przyjazny System Obsługi Klienta</em><br /><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /></div>

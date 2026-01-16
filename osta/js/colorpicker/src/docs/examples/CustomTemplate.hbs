@@ -1,0 +1,41 @@
+{{#extend "example-group"}}
+  {{#content "body"}}
+    {{#extend "example"}}
+      {{#content "title"}} Use a custom template {{/content}}
+      {{#content "description"}}
+        <p>This example shows how to use a custom template to hide some elements and/or add new ones.</p>
+      {{/content}}
+      {{#content "code"}}
+        <div id="cp1" data-color="#305AA2"></div>
+        <script>
+          $(function () {
+            $('#cp1').colorpicker({
+              inline: true,
+              container: true,
+              extensions: [],
+              template: `<div class="colorpicker">
+                <div class="colorpicker-saturation"><i class="colorpicker-guide"><i></i></i></div>
+                <div class="colorpicker-hue"><i class="colorpicker-guide"></i></div>
+                <div class="colorpicker-alpha"><i class="colorpicker-guide"></i></div>
+                <div class="colorpicker-bar hsv-output"></div>
+              </div>`
+            })
+              .on('colorpickerChange colorpickerCreate', function (e) {
+                var output = e.colorpicker.element
+                  .find('.hsv-output');
+                output
+                  .html(e.color.toHsvString())
+                  .css('background-color', e.color.toRgbString());
+
+                if (e.color.isDark()) {
+                  output.css('color', 'white');
+                } else {
+                  output.css('color', 'black');
+                }
+              });
+          });
+        </script>
+      {{/content}}
+    {{/extend}}
+  {{/content}}
+{{/extend}}

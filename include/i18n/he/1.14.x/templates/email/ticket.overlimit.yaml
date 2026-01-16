@@ -1,0 +1,20 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  נשלח למשתמשים כאשר הם עוברים את מכסת הקריאות פר לקוח.
+  המכסה מוגדרת על ידי מנהל המערכת,ונספרת על ידי מספר הקריאות שנפתחו מכתובת מייל מסויימת.
+subject: |
+  מגבלת כרטיסים פתוחים הושגה
+body: |
+  <h3><strong>היקר %{ticket.name.first},</strong></h3>
+  הגעת למכסת הקריאות שהינך יכול לפתוח,על מנת שתוכל לפתוח קריאה נוספת,אחת מהקריאות שלך צריכה להסגר.
+  על מנת לעדכן או לפתוח קריאה חדשה 
+   href="%{url}/tickets.php?e=%{ticket.email}"> התחבר לאתר התמיכה שלנו</a>.
+  <br>
+  <br>
+  ,<br/>
+  בברכה,צוות התמיכה

@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Tato šablona definuje email, který bude poslán po kliknutí na <strong>Zapomenuté heslo</strong> v přihlašovací stránce pracovníků.
+name: "Obnova hesla k systému zákaznické podpory"
+body: >
+  <h3><strong>Vážený/á %{staff.name.first},</strong></h3> <div> byl zadán požadavek na obnovu vašeho hesla pro přístup do <a href="%{url}">systému zákaznické podpory</a> %{company.name}<br /> <br /> Pokud jste požadavek nezadal vy, případně jeden z našich pracovníků, prosíme, smažte tento e-mail a neberte jej na vědomí. Váš účet je stále zabezpečen, nikdo k němu nezískal přístup, není zablokován a vašeho heslo nebylo změněno. Někdo asi omylem zadal vaši e-mailovou adresu.<br /> <br /> Pro změnu vašeho hesla prosím klikněte na níže zobrazený odkaz do systému zákaznické podpory.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Zákaznická podpora</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Provozováno na osTicket" width="126" height="19" style="width: 126px" /> </div>

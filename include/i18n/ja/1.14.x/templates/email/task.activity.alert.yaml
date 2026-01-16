@@ -1,0 +1,28 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  新規メッセージ／ノートがタスクに投稿された際に、エージェントに送信されます。
+  もし協力あるいはエージェントがメール・Webポータルにて回答、新規メッセージが
+  投稿された場合に発生します。
+subject: |
+  タスクアクティビティ [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>%{recipient.name}　様</strong></h3>
+  タスク <a href="%{task.staff_link}">#%{task.number}</a> 更新： %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>このチケットに返信する場合は、サポートシステムへ<a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >ログイン</span></a>してください。
+  </div>
+  <em style="font-size: small">カスタマーサポートシステム<span style="font-size: smaller"></span></em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Powered by osTicket" width="126" style="width: 126px;">

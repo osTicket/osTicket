@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Naziv tiketing sistema
+  content: |
+    <p>Ime sistema za podršku npr. [Company Name] Podrška</p>
+system_email:
+  title: Podrazumevana imejl adresa
+  content: |
+    <p>Podrazumevana imejl adresa npr. podrska@vasafirma.com - kasnije možete dodati dodatne adrese!</p>
+default_lang:
+  title: Podrazumeavni jezik sistema
+  content: |
+    <p>Inicijalni podaci za odabrani jezik će biti uvezeni u bazi. Na primer šabloni imejlova i podrazumevane sistemske stranice će biti instalirane u odabranom jeziku.</p>
+  links:
+    - 
+      title: osTiket jezički paket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Ime
+  content: |
+    <p>Ime administratora</p>
+last_name:
+  title: Prezime
+  content: |
+    <p>Prezime administratora</p>
+email:
+  title: Adresa elektronske pošte
+  content: |
+    <p>Imejl adresa administratora. Mora se razlikovati od podrazumevane adrese sistema.</p>
+username:
+  title: Korisničko ime
+  content: |
+    <p>Korisničko ime administratora. Mora biti najmanje tri (3) karaktera.</p>
+password:
+  title: Lozinka
+  content: |
+    <p>Lozinka administratora.  Mora biti najmanje pet (5) karaktera ili više.</p>
+password2:
+  title: Potvrda lozinke
+  content: |
+    <p>Ponovo otkucajte administratorsku lozinku. Mora se podudarati sa već unetom.</p>
+db_prefix:
+  title: Prefiks MySQL tabela
+  content: |
+    <p>osTicket zahteva prefiks tabele radi sprečavanja konflikata u bazi podataka, u slučaju delјenja baze sa drugim programima.</p>
+db_host:
+  title: Naziv MySQL hosta
+  content: |
+    <p>
+    Mora se koristiti 'localhost' ukoliko se baza nalazi na istom serveru kao i veb server. Proveriti podešavanja ako localhost vrednost ne radi.
+    </p>
+    <p>
+    Podrazumevani port podešen je u php.ini fajlu. Nestandardni broj porta može se podesiti u obliku <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL baza podataka
+  content: |
+    <p>Naziv baze podataka koju će osTicket koristiti.</p>
+db_user:
+  title: MySQL korisničko ime
+  content: |
+    <p>MySQL korisnik mora imati puna prava nad bazom.</p>
+db_password:
+  title: MySQL lozinka
+  content: |
+    <p>MySQL lozinka koja odgovara navedenom korisniku.</p>

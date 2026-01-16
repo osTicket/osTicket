@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Denna mall definierar notificeringen för klienter som får en åtkomstlänk skickad till deras e-post. Supportärendenummer samt e-postadress triggar åtkomstlänken.
+name: "Ärendenummer [#%{ticket.number}] Åtkomstlänk"
+body: >
+  <h3><strong>Hej %{recipient.name.first},</strong></h3> <div> En åtkomstlänk för supportärende #%{ticket.number} har på din begäran skickats till helpdesk %{url}.<br /> <br /> Klicka på länken nedan för att se status på supportärende #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br />Om du <strong>inte</strong> skickade denna begäran, kan du säkert ta bort detta meddelande samt bortse meddelandet.  Ditt konto är fortfarande säkert och ingen har tilldelats access till ditt ärende. Någon kan av misstag uppgivit din e-postadress.<br /> <br /> --<br /> %{company.name} </div>

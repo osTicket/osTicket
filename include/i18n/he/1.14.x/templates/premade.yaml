@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: מה זה osTicket (דוגמה)?
+  response: |
+    osTicket היא מערכת כרטיסי תמיכה בקוד-פתוח אשר נמצאת בשימוש רחב ומספקת תחליף מושך למערכות תמיכה מסובכות ויקרות יותר - המערכת פשוטה, קלה, אמינה, בקוד פתוח, מבוססת אינטרנט ופשוטה להתקנה ושימוש.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: קבצים מצורפים שהושלחו לפח
+- 
+  isenabled: 1
+  title: דוגמה (עם משתנים)
+  response: |
+    היי %{ticket.name.first},
+    <br>
+    <br>
+    כרטיסך #%{ticket.number} אשר נוצר בתאריך %{ticket.create_date} נמצא במחלקת %{ticket.dept.name}.
+  0: |
+

@@ -1,0 +1,10 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  A Página Offline apareçe no Portal do Cliente quando o Help Desk está offline.
+name: Desligado
+body: |
+  <div><h1> <span style="font-size: medium"> Sistema de Suporte Técnico Offline</span></h1> <p>Obrigado pelo nos tentar contatar.</p> <p>Nosso Sistema de Suporte Técnico está desligado de momento, por favor volte mais tarde.</p> </div>

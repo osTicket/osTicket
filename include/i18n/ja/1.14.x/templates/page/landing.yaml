@@ -1,0 +1,18 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  ランディングページは、カスタマーポータルの初期ビューのコンテンツを示します。テンプレートは <strong>新しいチケットにオープン</strong>と<strong>チケットのステータスを確認</strong>の2つのリンクの上に表示されるコンテンツを変更します。
+name: ランディングページ
+body: >
+  <h1>サポートセンターへようこそ</h1>
+  <p>
+  お客様からの問い合わせを一元管理するためにサポートチケットシステムを作成しました。
+  どの問い合わせもチケット番号で管理され、その進捗や対応履歴をオンラインで管理することが可能です。
+  問い合わせ履歴をすべて一元管理しておりますのでご参照下さい。
+
+  チケット投稿時には利用可能なメールアドレスが必要となります。
+
+  </p>

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Template ini mendefinisikan email yang dikirimkan ke klien yang pilih link <strong>Lupa Password saya</strong> klien Log di laman.
+name: "%{company.name} membantu meja akses"
+body: >
+  <h3><strong>Hai %{user.name.first},</strong></h3> <div>Password reset permintaan telah diserahkan atas nama Anda untuk helpdesk di %{url}.<br /><br /> jika Anda merasa bahwa ini telah dilakukan dalam kesalahan, menghapus dan mengabaikan email ini. Akun Anda tetap aman dan tidak ada yang telah diberikan akses untuk itu. Tidak terkunci dan sandi tidak reset. Seseorang bisa memiliki tidak sengaja masuk ke alamat email Anda. <br /><br /> Ikuti link di bawah ini untuk login ke help desk dan mengubah sandi anda. <br /> <br /> <a href="%{link}">%{link}</a> <br /><br /> <em style="font-size: small"> Customer Support System Anda ramah <br /> %{company.name}</em></div>

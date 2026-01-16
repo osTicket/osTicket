@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  ពុម្ពនេះកំណត់អ៊ីម៉ែលដំបូង (optional) បានផ្ញើទៅឱ្យភ្នាក់ងារពេលដែលគណនីមួយត្រូវបានបង្កើតឡើងនៅលើក្នុងនាមរបស់ខ្លួន។
+name: "សូមស្វាគមន៍មកកាន់ osTicket"
+body: >
+  <h3><strong>សួស្តី %{recipient.name.first},</strong></h3> <div> យើងបានបង្កើតគណនីសម្រាប់អ្នកនៅក្នុង helpdesk របស់យើងនៅ %{url}.<br /> <br />សូមទៅតាមតំណខាងក្រោមនេះដើម្បីបញ្ជាក់គណនីរបស់អ្នកនិងទទួលបាននូវការចូលដំណើរការទៅសំបុត្ររបស់អ្នក។<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">ប្រព័ន្ធផ្តល់ជំនួយដល់អតិថិជនដែលងាយស្រួលរបស់អ្នក<br /> %{company.name}</em> </div>

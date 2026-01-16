@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Ny Sag
+  content: >
+    Aktiver den hvis du vil have en autosvar til at blive sendt til en bruger på en ny sag.
+  links:
+    - 
+      title: Ny Sag Autosvar Template
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Ny Sag af Personalet
+  content: >
+    Meddelelsen sendes, når en Agent skaber en sag for brugeren. <em>Agent kan tilsidesætte dette ved oprettelse af nye sager.</em>
+  links:
+    - 
+      title: Ny sag varsel skabelon
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Ny Besked Bekræftelse
+  content: >
+    Bekræftelse meddelelse sendes når en ny besked er føjet til en eksisterende sag.
+  links:
+    - 
+      title: Ny Besked Bekræftelse Skabelon
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Ny Besked Meddelelse
+  content: >
+    Udsendelse meddelelse modtaget fra besked indsenderen til alle andre deltagere på sag.
+  links:
+    - 
+      title: Ny Aktivitet Meddelelse Skabelon
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Overgrænse varsling
+  content: >
+    sag nægtet meddelelse sendt til brugeren på <span class="doc-desc-title"> Maksimal åbne sager</span> overtrædelse.
+  links:
+    - 
+      title: Overgrænsen Meddelelse Skabelon
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Sæt <em>Maksimal Åbne Sager</em>
+      href: /scp/settings.php?t=tickets

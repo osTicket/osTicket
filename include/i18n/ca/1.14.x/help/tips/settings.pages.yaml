@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: Informació de l'empresa
+  content: >
+    Això es refereix a l'empresa o organització que es beneficiaran del programari de osTicket i suport del personal. La informació aquí apareixerà a signatures de correu electrònic (és a dir, el peu) quan el Tickets són contestats pels agents.
+  links:
+    - 
+      title: Formulari d'informació de la empresa
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Pagina d'inici
+  content: >
+    Es Mostra la <span class="doc-desc-title"> Pàgina d'inici</span> en la pàgina frontal del seu lloc d'ajuda.
+offline_page:
+  title: Pàgina fora de línia
+  content: >
+    Es Mostra la <span class="doc-desc-title"> Pàgina fora de línea</span> en el lloc de suport quan el sistema de suport està fora de línia, veure panell d'Administració -&gt; Configuració -&gt; Sistema -&gt; estat del sistema de suport.
+default_thank_you_page:
+  title: Pàgina d'agraïment per defecte
+  content: >
+    Es Mostra la <span class="doc-desc-title"> pàgina d'agraïment</span> al client quan un <span class="doc-desc-title"> Client</span> tramet un nou Ticket. <br/> <br/> Les pàgines de <span class="doc-desc-title"> gràcies</span> poden estar associades amb temes d'ajuda.
+logos:
+  title: Logotips
+  content: >
+    Vostè pot personalitzar el <span class="doc-desc-title">el logotip</span> que es mostrarà al Client en el Portal del Client (és a dir, el seu lloc de ajuda).
+upload_a_new_logo:
+  title: Carregar un nou logotip
+  content: >
+    Permet triar una imatge en els formats GIF,. jpg o. png. Ens redimensionarà proporcionalment l'exhibició de la seva imatge. Nosaltres no, tanmateix, redimensionarà les dades de la imatge. Per tant, per accelerar la càrrega vegades, és recomanable que conserve&times; la seva imatge a la mida de la imatge per defecte (817px × &times 170px).
+backdrops:
+  title: Fons de pantalla
+  content: >
+    Pots personalitzar el <span class="doc-desc-title">Fons de pantalla</span> que es mostrarà a la pàgina de login dels agents.
+upload_a_new_backdrop:
+  title: Pujar un nou fons de pantalla
+  content: >
+    Escull una imatge en format .gif, .jpg o .png. La redimensionarem de forma proporcional. Però, no redimensionarem la imatge. Per tant, per millorar el temps de càrrega, es recomana utilitzar imatges relativament petites (per sota d'un mega). Tingues en compte també que s'aplica la configuració de pujada de fitxers del PHP.

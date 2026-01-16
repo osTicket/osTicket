@@ -1,0 +1,10 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  當支援案件系統離線時，台端將會顯示這個離線頁面
+name: 離線
+body: |
+  <div><h1> <span style="font-size: medium"> 支援案件系統維護中</span></h1> <p>感謝您與我們聯繫。</p><p>目前客服處於維護狀態，請稍候再連線進入。</p></div>

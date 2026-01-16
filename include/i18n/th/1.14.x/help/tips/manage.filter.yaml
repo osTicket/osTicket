@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: ลำดับการดำเนินการ
+  content: >
+    ป้อนหมายเลขที่ควบคุมการจัดลำดับความสำคัญของตัวกรองนั้น The lower the number, the higher the priority this filter will have in being executed over against another filter that might have higher order of execution. <br><br> If you want this filter to be the last filter applied on a match, enable <span class="doc-desc-title">Stop Processing Further On Match</span>.
+target_channel:
+  title: ช่อง
+  content: >
+    เลือกกำหนดเป้าหมาย <span class="doc-desc-title">ช่องทาง</span> สำหรับ <span class="doc-desc-title">กรอง Ticket </span> <span class="doc-desc-title">ช่องทาง</span> นี้เป็นต้นทางที่จะนำ Ticket เข้าในระบบ <br><br> ยกตัวอย่าง ถ้าคุณเลือก <span class="doc-desc-opt">Web Forms</span> คุณจะบอกว่าคุณต้องการใช้ <span class="doc-desc-title"> กรอง Ticket </span> เหล่านั้นที่มีมาจาก Client Portal's webform.
+rules_matching_criteria:
+  title: กฎที่ตรงกับเงื่อนไข
+  content: >
+    เลือกวิธีการที่ยืดหยุดของคุณในการ <span class="doc-desc-title">กรอง Ticket </span> เพื่อให้ได้ผลตามที่ต้องการ ถ้าคุณต้องการ <span class="doc-desc-title">กรอง Ticket</span> ให้ตรงกับกฏอะไรก็ตามและจากนั้นหยุด ให้เลือก <span class="doc-desc-opt">Match Any</span> ถ้าคุณต้องการ <em><strong>all rules</strong></em> ของการ <span class="doc-desc-title">กรอง Ticket</span> ให้ตรง เลือก <span class="doc-desc-opt">Match All</span>.
+reject_ticket:
+  title: ปฏิเสธ Ticket
+  content: >
+    ถ้าเปิดใช้งาน จะหยุดการดำเนินการต่อ และตัวเลือกอื่นๆ ด้านล่างจะถูกข้ามไป
+reply_to_email:
+  title: อีเมลตอบกลับ
+  content: >
+    เปิดใช้งาน ถ้าคุณให้ระบบช่วยเหลือของคุณ to honor a User's email application's <span class="doc-desc-title">Reply To</span> header. This field is only relevant if the <span class="doc-desc-title">Channel</span> above includes <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: ปิดใช้งานการตอบกลับ Ticket อัตโนมัติ
+  content: >
+    <em>หมายเหตุ: นี้จะแทน<span class="doc-desc-title">แผนก</span>หรือ<span class="doc-desc-title">การตั้งค่าตอบอัตโนมัติ</span>ใด ๆ </em>
+canned_response:
+  title: Canned Auto-Reply
+  content: >
+    เลือก <span class="doc-desc-title">Canned Response</span> ที่คุณต้องการส่งอีเมลหาผู้ใช้งานที่ตรงกับ <span class="doc-desc-title">ตัวกรอง Ticket</span> การใช้แม่แบบ <span class="doc-desc-title">ตอบกลับ Ticket ใหม่อัตโนมัติ</span> ขึ้นอยู่กับ <span class="doc-desc-title">ชุดแม่แบบ</span> ที่ถูกตั้งเป็นค่าเริ่มต้นไว้ หรือตรงกับ Ticket <span class="doc-desc-title">แผนก</span>
+  links:
+    - 
+      title: จัดการ Canned Responses
+      href: /scp/canned.php
+    - 
+      title: จัดการชุดแม่แบบ
+      href: /scp/templates.php
+    - 
+      title: แม่แบบการตอบกลับ Ticket ใหม่อัตโนมัติ
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: แผนก
+  content: >
+    เลือก <span class="doc-desc-title">แผนก</span> ให้ตรงกับที่คุณต้องการเพื่อให้ <span class="doc-desc-title">ตัวกรอง Ticket</span> มอบหมายงานให้
+  links:
+    - 
+      title: จัดการแผนก
+      href: /scp/departments.php
+priority:
+  title: ระดับความสำคัญ
+  content: >
+    เลือก<span class="doc-desc-title">ระดับความสำคัญ</span>ที่คุณต้องการใช้เพื่อจับคู่<span class="doc-desc-title">ตัวกรอง Ticket</span> <br /> <br /> <em>หมายเหตุ: จะแทนที่<span class="doc-desc-title">แผนก</span>หรือการตั้งค่า<span class="doc-desc-title">หัวข้อการช่วยเหลือ</span></em>
+sla_plan:
+  title: แผน SLA
+  content: >
+    เลือก <span class="doc-desc-title">แผน SLA</span>ที่คุณต้องใช้เพื่อให้ตรงกับ<span class="doc-desc-title">ตัวกรอง Ticket</span>
+  links:
+    - 
+      title: จัดการแผน SLA
+      href: /scp/slas.php
+auto_assign:
+  title: มอบหมายงานอัตโนมัติ
+  content: >
+    เลือกเจ้าหน้าที่หรือทีมทีคุณต้องการให้ตรงกับ <span class="doc-desc-title">กรอง Ticket </span> เพื่อมอบหมายงาน
+  links:
+    - 
+      title: บริหารเจ้าหน้าที่
+      href: /scp/staff.php
+    - 
+      title: บริหารทีมงาน
+      href: /scp/teams.php
+help_topic:
+  title: หัวข้อการช่วยเหลือ
+  content: >
+    เลือก <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> ที่คุณต้องการนำไปจับคู่กับ <span class="doc-desc-title">ตัวกรอง Ticket</span>.
+  links:
+    - 
+      title: จัดการหัวข้อการช่วยเหลือ
+      href: /scp/helptopics.php
+admin_notes:
+  title: บันทึกย่อของผู้ดูแลระบบ
+  content: >
+    โน๊ตเหล่านี้จะแสดงเฉพาะผู้ใช้งานที่เป็น ‘<span class="doc-desc-title">ผู้ดูแลระบบ</span>.’

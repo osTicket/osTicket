@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Predložak definira email koji će biti poslan klijentu kada klikne na <strong>Zaboravljena zaporka</strong> link na stranici za klijente.
+name: "%{company.name} pristup centru za podršku"
+body: >
+  <h3><strong>Pozdrav %{user.name.first},</strong></h3> <div> Zahtjev za poništavanje zaporke podnesen je u vaše ime u centru za tehničku podršku na %{url}.<br /> <br /> > Ukoliko niste poslali ovaj zahtjev, molimo Vas da obrišete i zanemarite ovu email poruku. Vaš korisnički račun je je još uvjek siguran i nitko nema pristum Važem računu osim vas. Netko je možda greškom unio vašu email adresu.<br /> <br /> Slijedite link ispod kako bi se prijavili na centar za tehničku podršku i promjenili svoju zaporku.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška <br /> %{company.name}</em> </div>

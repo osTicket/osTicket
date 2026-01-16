@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Käyttäjätunnus
+  content: >
+    Valitse Käsittelijälle <span class="doc-desc-title">käyttäjänimi</span> joka on yksilöllinen <span class="doc-desc-title">Tukipalvelussa</span>.
+email_address:
+  title: Sähköpostiosoite
+  content: >
+    Syötä Käsittelijän sähköpostiosoite johon lähetetään <span class="doc-desc-title">Ilmoitukset &amp; Muistutukset</span> <span class="doc-desc-title">Tukipalvelusta</span>.
+  0: <br><br>
+  1: Henkilökunta voi kirjautua sisään henkilökunnan käyttöliittymään joko käyttäjätunnuksella tai sähköpostiosoitteella.
+welcome_email:
+  title: Tervetuloa sähköpostiviesti
+  content: >
+    Lähetä uudelle Käsittelijälle linkki tiliin jossa Käsittelijä voi asettaa oman salasanan. Jos pois käytöstä sinun täytyy asettaa tilille salasana ja kertoa kirjautumistiedot uudelle työntekijälle.
+account_password:
+  title: Tilin salasana
+  content: >
+    <span class="doc-desc-title">Järjestelmänvalvojana</span>, voit vaihtaa Käsittelijän salasanan.
+forced_password_change:
+  title: Pakotettu salasanan vaihto
+  content: >
+    Aktivoi tämä jos haluat pakottaa uuden Käsittelijän vaihtamaan salasanan seuraavan kirjautumisen yhteydessä.
+agents_signature:
+  title: Käsittelijän allekirjoitus
+  content: >
+    Luo allekirjoitus Käsittelijälle, joka voidaan valita tikettien vastauksien yhteydessä.
+account_status:
+  title: Tilin tila
+  content: >
+    Jos Käsittelijän tila on <span class="doc-desc-opt">Lukittu</span>, Käsittelijä ei voi kirjautua tukipalveluun.
+assigned_group:
+  title: Kohdistettu ryhmä
+  content: >
+    <span class="doc-desc-title">Ryhmä</span> johon valitset Käsittelijän kuuluvan määrittää mitä oikeuksia Käsittelijällä on <span class="doc-desc-title">Tukipalvelussa</span>.
+  links:
+    - 
+      title: Hallinnoi ryhmiä
+      href: /scp/groups.php
+primary_department:
+  title: Oletusosasto
+  content: >
+    Valitse oletus<span class="doc-desc-title">osasto/span> johon agentti kuuluu ja voimassa oleva <span class="doc-desc-title">rooli</span>.
+  links:
+    - 
+      title: Hallinnoi Osastoja
+      href: /scp/departments.php
+primary_role:
+  title: Ensisijainen rooli
+  content: >
+    Määritä oletus<span class="doc-desc-title">rooli</span> johon Käsittelijä kuuluu.
+primary_role_on_assign:
+  title: Käytä ensisijaista roolia työnjaoissa
+  content: >
+    Ota tämä käyttöön palataksesi <span class="doc-desc-title">ensisijaiseen rooliin</span> kun tälle agentille on määrätty tikettejä ja tehtäviä <span class="doc-desc-title">ensisijaisen osaston </span> ulkopuolella ja <span class="doc-desc-title">laajennettu pääsy</span> osastoille. Muutoin agentilla on vain lukuoikeus.
+daylight_saving:
+  title: Kesäaika
+  content: >
+    Salli tämä ominaisuus jos Kesäaika on automaattisesti käytössä tämän Käsittelijän aikavyöhykkeessä.
+limited_access:
+  title: Rajoitettu pääsy
+  content: >
+    Jos aktivoitu Käsittelijä pääsee vain tiketteihin jotka on kohdistettu suoraan hänelle tai Tiimille.
+directory_listing:
+  title: Yhteystietoluettelo
+  content: >
+    Aktivoi tämä jos haluat tämän Käsittelijän mukaan <span class="doc-desc-title">Henkilökunnan yhteystietoluetteloon</span>.
+  links:
+    - 
+      title: Vieraile Henkilökunnan yhteystietoluettelossa
+      href: /scp/directory.php
+vacation_mode:
+  title: Lomatila
+  content: >
+    Jos vaihdat Käsittelijän tilan <span class="doc-desc-opt">Lomatilaan</span>. Käsittelijä ei saa <span class="doc-desc-title">Ilmoituksia &amp; Muistutuksia</span>, eikä ole käytettävissä tikettien kohdistuksessa.
+

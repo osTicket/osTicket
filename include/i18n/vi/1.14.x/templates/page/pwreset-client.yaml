@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Khung mẫu này được dùng cho email gửi đến những khách hàng chọn link <strong>Quên mật khẩu của tôi</strong> trên trang  đăng nhập của khách hàng.
+name: "%{company.name} Truy cập hỗ trợ hệ thống"
+body: >
+  <h3><strong>Xin chào %{user.name.first},</strong></h3> <div>Bạn đã gửi yêu cầu đặt lại mật khẩu tại %{url}.<br / > < br / > nếu đây là lỗi hệ thống, vui lòng xóa và bỏ qua email này. Tài khoản của bạn vẫn an toàn và không ai có quyền truy cập. Tài khoản của bạn không bị khóa và mật khẩu của bạn  không thay đổi. Có thể  ai đó đã nhập nhầm email của bạn. < br / > < br / > Bấm vào link này để đăng nhập trợ giúp và thay đổi mật khẩu của bạn. < br / > < br / > <a href="%{link}"> %{link}</a> < br / > < br / > <em style="font-size: small"> hệ thống hỗ trợ khách hàng của bạn</em> < br / > <br /> %{company.name}</em> </div>

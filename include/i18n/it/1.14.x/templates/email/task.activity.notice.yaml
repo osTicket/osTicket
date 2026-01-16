@@ -1,0 +1,21 @@
+---
+#Email template: task.activity.notice.yaml
+#Notice sent to collaborators on task activity e.g reply or message
+#---
+notes: |
+  Avviso inviato ai collaboratori in merito all'attività del ticket ad esempio risposta o messaggio.
+subject: |
+  Risposta: %{task.title} [#%{task.number}]
+body: |
+  <h3><strong>Gentile %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> ha aggiunto un messaggio al task al quale partecipi.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Ricevi questa email poichè stai collaborando al task #%{task.number}. Per partecipare, rispondi semplicemente a questa email.</em>
+  </div>

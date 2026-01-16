@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Abiteema info
+  content: >
+    <span class="doc-desc-title">Abiteemad</span> juhendavad, millist infot kasutajatelt kogutakse, ja kuidas piletid liiguvad või suunatakse.
+topic:
+  title: Pealkirja nimi
+  content: >
+    Unikaalne abiteema nimi.
+status:
+  title: Staatus
+  content: >
+    Kui see on väljalülitatud või arhiveeritud, siis ei ole<span class="doc-desc-title">abiteema</span> kättesaadav.
+type:
+  title: Tüüp
+  content: >
+    Kui <span class="doc-desc-title">abiteema</span> on märgitud privaatseks, siis on see kättesaadav vaid agentidele, kui nad avavad uue pileti töötajate juhtpaneelil.
+parent_topic:
+  title: Peateema
+  content: >
+    Vali peateema, mille alla see <span class="doc-desc-title">abiteema</span>kuulub. Peateema kuvatakse <span class="doc-desc-title">abiteema</span> loendis esimesena.
+custom_form:
+  title: Kohandatud vorm
+  content: >
+    Kohandatud vormid aitavad kasutajalt rohkem <span class="doc-desc-title">abiteema</span> kohta käivat infot saada.
+  links:
+    - 
+      title: Halda kohandatud vorme
+      href: /scp/forms.php
+priority:
+  title: Tähtsus
+  content: >
+    Vali, milline prioriteedi tase määratakse <span class="doc-desc-title">abiteemaga</span> avatud piletitele.<br><br> Piletite filter saab selle ülekirjutada.
+department:
+  title: Osakond
+  content: >
+    Vali osakond, millele selle abiteema all olevad piletid määratakse.
+  links:
+    - 
+      title: Halda osakondi
+      href: /scp/departments.php
+sla_plan:
+  title: TTL plaan
+  content: >
+    Vali TTL plaan, mis on seotud selle <span class="doc-desc-title">abiteemaga</span>. <br><br> See valik kirjutab üle ükskõik millise valitud osakonna TTL-i
+  links:
+    - 
+      title: Halda TTL plaane
+      href: /scp/slas.php
+thank_you_page:
+  title: Tänu lehekülg
+  content: >
+    Vali tänu lehekülg, kuhu kasutaja suunatakse peale selle <span class="doc-desc-title">abiteema</span> alt pileti registreerimist.
+  links:
+    - 
+      title: Halda tänu lehekülgi
+      href: /scp/pages.php
+auto_assign_to:
+  title: Suuna automaatselt uued piletid
+  content: >
+    Vali agent või meeskond, kellele automaatselt suunatakse edasi <span class="doc-desc-title">abiteema</span> poolt avatud piletid. <br><br> Piletite filter saab selle ülekirjutada.
+  links:
+    - 
+      title: Halda töötajaid ja meeskondi
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Pileti automaatvastus
+  content: >
+    Kui märgistatud, siis seadistus keelab selle <span class="doc-desc-title">abiteema</span> pietite automaatvastused.<br><br> See kirjutab üle nii <span class="doc-desc-title">osakonna</span>, kui ka üldised <span class="doc-desc-title">automaatvastuste seaded</span>.
+  links:
+    - 
+      title: Automaatvastaja seaded
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Kohandatud piletite nummerdamine
+  content: >
+    Vali "kohandatud", et kirjutada üle süsteemi poolt vaikimisi abiteema poolt loodud piletite numbri vorming. Vaata lisainfot selle seadistuse seaded / piletid lehelt.

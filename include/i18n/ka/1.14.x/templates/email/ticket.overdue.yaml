@@ -1,0 +1,29 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  თანამშრომლებისთვის გაგზავნა, როდესაც ბილეთი გადადის ვადაგადაცილებულ სისტემაში. ბილეთები ვადაგადაცილებული  ხდება ბილეთების  დადგენილ ვადაზე დაფუძნებით, ისევე როგორც SLA განისაზღვრება ბილეთებისთვის.
+subject: |
+  შემორჩენილი ბილეთის გაფრთხილება
+body: |
+  <h3><strong>გამარჯობა %{recipient}</strong>,</h3>
+  ბილეთი, <a href="%{ticket.staff_link}">#%{ticket.number}</a> 
+  სერიოზულად ვადაგადაცილებულია.
+  <br>
+  <br>
+  ჩვენ ყველამ ბევრი უნდა ვიშრომოთ იმისთვის, რომ უზრუნველვყოთ ყველა ბილეთის დროულად გადამისამართება.
+  <br>
+  <br>
+  ხელმოწერილი,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>ბილეთის სანახავად ან საპასუხოდ, გთხოვთ <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >შესვლა</span></a> მხარდაჭერის საბილეთე სისტემაში. თქვენ გამოგეგზავნათ ეს შენიშვნა ვინაიდან ბილეთი დაგევალათ პირადად ტქვენ ან გუნდს ან დეპარტამენტს რომლის წევრიც ბრძანდებით.</div>
+  <em style="font-size: small">თქვენი მეგობრული <span style="font-size: smaller"
+  >(მიუხედავად შეზღუდული მოთმინებისა)</span> მომხმარებლის მხარდაჭერის სისტემა</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

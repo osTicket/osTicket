@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Arama alanı
+  0: >
+
+advanced:
+  title: Gelişmiş
+  content: >
+    Arama parametrelerini daraltmak. Eğer gelişmiş arama kriterleri seçilir ve arama çalıştırmak sonra, <span class="doc-desc-title">Export </span> biletler sayfanın altındaki verileri.
+open_tickets_table:
+  title: Açık Talepler Tablosu
+  content: >
+    Tüm biletler şu anda açılmış ve dikkat gerektiren
+ticket:
+  title: Talep
+  0: >
+
+date:
+  title: Tarih
+  0: >
+
+subject:
+  title: Konu
+  0: >
+
+from:
+  title: Kimden
+  0: >
+
+priority:
+  title: Öncelik
+  0: >
+
+assigned_to:
+  title: Atanmış
+  0: >
+
+export:
+  title: Dışa Aktar
+  content: >
+    CSV dosyası biçiminde dışarı aktarılacak CSV dosyaları herhangi bir elektronik tablo yazılımı ile açılabilir (yani, Microsoft Excel, Apple Pages, OpenOffice, vb.)
+advanced_search_dialog:
+  title: Gelişmiş Arama
+  0: >
+
+adv_keyword:
+  title: Anahtar Kelime Arama
+  content: >
+    Kullanıcılar ve biletler için özel alanlar ile ilişkili bilet ipliğin konu ve mesaj kurumların yanı sıra tüm metin içeriğine göre hit bulun.
+adv_date_range:
+  title: Tarih Aralığında Arama
+  content: >
+    Burada tanımlayın
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Cevaplama Türleri
+  content: >
+    <b> Tümünü Yanıtla: </b> Bu cevap Kullanıcıya ve dahil etmeyi seçtiğiniz Ortak Çalışanlara gönderilir. </br> <b> Kullanıcıya Cevap Ver: </b> Bu cevap yalnızca Kullanıcıya gönderilir, hayır Ortak çalışanlar. </br> <b> Yanıtı E-postayla Gönderme: </b> Hiçbir e-posta uyarısı gönderilmez, ancak Aracı yanıtı, Bilet'i görüntüledikten sonra <b> TÜM </b> Kullanıcılar tarafından görülebilir.

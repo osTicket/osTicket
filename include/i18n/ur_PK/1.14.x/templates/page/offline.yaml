@@ -1,0 +1,10 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  جب آفس ڈیسک آف لائن ہوتا ہے تو آف لائن پیج گاہک پورٹل میں ظاہر ہوتا ہے.
+name: آف لاۃن
+body: |
+  <div><h1> <span style="font-size: medium">سپورٹ ٹکٹ سسٹم آف لائن </span> </h1> <p> ہم سے رابطہ کرنے میں آپ کی دلچسپی کا شکریہ. </p> <p>اس وقت ہماری مدد آف لائن ہے، براہ کرم بعد میں دوبارہ چیک کریں.</p> </div>

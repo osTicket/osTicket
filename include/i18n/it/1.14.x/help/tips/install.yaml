@@ -1,0 +1,68 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Nome del servizio assistenza
+  content: |
+    <p>Il nome del tuo sistema di supporto, ad. esempio Assistenza [Nome Azienda]</p>
+system_email:
+  title: Email di default
+  content: |
+    <p>Indirizzo email  di default, ad esempio support@yourcompany.com - è possibile aggiungerne altri più avanti!</p>
+default_lang:
+  title: Lingua predefinita
+  content: |
+    <p>Alcuni dati,  ad esempio i template delle email e le pagine di default, verranno installati nel database utilizzando questa lingua</p>
+  links:
+    - 
+      title: osTicket Traduzioni
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Nome
+  content: |
+    <p>Nome dell'amministratore</p>
+last_name:
+  title: Cognome
+  content: |
+    <p>Cognome dell'amministratore</p>
+email:
+  title: Indirizzo Email
+  content: |
+    Indirizzo email dell'amministratore<p>. Deve essere diversa dall'email predefinita del sistema.</p>
+username:
+  title: Nome utente
+  content: |
+    <p>Nome utente amministratore. Deve essere di almeno tre (3) caratteri.</p>
+password:
+  title: Password
+  content: |
+    <p>Password dell'amministratore.  Deve essere di cinque (5) caratteri o più.</p>
+password2:
+  title: Conferma Password
+  content: |
+    <p>Ripetere la password di amministratore. Devono corrispondere.</p>
+db_prefix:
+  title: Prefisso tabella MySQL
+  content: |
+    <p>osTicket richiede il prefisso delle tabelle per evitare possibili conflitti della tabella in un database condiviso.</p>
+db_host:
+  title: Nome host MySQL
+  content: |
+    <p>La maggior parte degli host utilizza 'localhost' per il nome host del database locale. Controllare con il vostro host se localhost non funziona. </p> <p>Viene utilizzata la porta di default impostata nel file php.ini. Un numero di porta non standard può essere specificato come <code>hostname:port</code></p>
+db_schema:
+  title: Database MySQL
+  content: |
+    <p>Nome del database che osTicket utilizzerà.</p>
+db_user:
+  title: Nome utente MySQL
+  content: |
+    <p>L'utente MySQL deve avere il pieno diritto sul database.</p>
+db_password:
+  title: Password MySQL
+  content: |
+    <p>Password MySQL associata all'utente.</p>

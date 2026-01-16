@@ -1,0 +1,25 @@
+---
+test_outgoing_email:
+  title: اختبار إرسال بريد إلكتروني
+  content: >
+    تسليم بريد إلكتروني يعتمد على إعدادات الخادم (php.ini) و/أو إعدادات الـ SMTP الخاص بك.
+  links:
+    - 
+      title: حدد البريد إلكتروني لضبط إعدادات الـ SMTP (الصادرة)
+      href: /scp/emails.php
+from:
+  title: من
+  content: >
+    
+to:
+  title: إلى
+  content: >
+    
+subject:
+  title: الموضوع
+  content: >
+    
+message:
+  title: الرسالة
+  content: >
+    

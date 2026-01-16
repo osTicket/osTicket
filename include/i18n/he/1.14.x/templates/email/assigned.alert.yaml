@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  נשלח לחברי הצוות כאשר כרטיס מוקצה אליהם. כרטיסים ניתנים להקצאה באופן אוטומטי על ידי המערכת או באופן ידני על ידי חבר צוות אחר.  השתמש ב%{assigner} כדי להבחין מי ביצע את ההקצאה.
+subject: |
+  הכרטיס הוקצה אליך.
+body: |
+  <h3 style="direction: rtl; text-align: right;"><strong>שלום %{assignee.name.first},</strong></h3>
+  קריאה <a href="%{ticket.staff_link}">#%{ticket.number}</a> שויכה אליך על ידי %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>מ</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>נושא</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>לצפות /להגיב לקריאה זו <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >התחבר </span></a> למערכת התמיכה</div>
+  <em style="font-size: small; ">מערכת התמיכה</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

@@ -1,0 +1,86 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: 新 Ticket  服務台  主題
+  content: >
+    選擇要通過此電子郵件地址創建與票券的自動關聯 <span class="doc-desc-title"> 說明台主題</span>。<br/> <br/>表單將被添加到票，但不是會有任何資料以及主題關聯的說明。
+  links:
+    - 
+      title: 管理服務台主題
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: 新 Ticket 優先
+  content: >
+    選擇優先</span>通過此電子郵件地址建立新票 <span class="doc-desc-title"> 。
+new_ticket_department:
+  title: 新 Ticket 部門
+  content: >
+    選擇 <span class="doc-desc-title"> 部門</span> 建立新票券將通過此電子郵件地址
+    路徑發送。
+  links:
+    - 
+      title: 管理部門
+      href: /scp/departments.php
+auto_response:
+  title: 新 Ticket 自動回應
+  content: >
+    通過此電子郵件地址創建一張新票時、您可以關閉使用者自動回應功能。
+username:
+  title: 帳號
+  0: >
+
+password:
+  title: 密碼
+  0: >
+
+login_information:
+  title: 電子郵件登入資訊
+  content: >
+    請輸入<span class="doc-desc-title"> 使用者名</span> 和 <span class="doc-desc-title"> 密碼</span> 即可從 IMAP 獲取電子郵件 / POP 郵件箱，以及通過 SMTP發送電子郵件。
+mail_account:
+  title: 讀取電子郵件
+  content: >
+    從遠端 IMAP 或 POP 郵件箱中提取的電子郵件、並將它們轉換到票券求助說明上。
+  links:
+    - 
+      title: 管理 <span class="doc-desc-title"> 電子郵件輪詢與</span> &amp; <span class="doc-desc-title"> AutoCron</span> 的設置。
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: 遠端主機
+  content: >
+    輸入您的郵件伺服器的 <span class="doc-desc-title"> 主機名稱</span> 和 <span class="doc-desc-title"> 埠</span> 號。這可為您託管帳戶或從您的電子郵件管理檔案。
+protocol:
+  title: 郵件箱協定
+  content: >
+    選擇支援您的遠端郵件伺服器的郵件箱協定。如果可能的話建議您使用IMAP與SSL 。
+fetch_frequency:
+  title: 讀取頻率
+  content: >
+    在系統輪詢郵件箱內設定輸入幾分中內的頻率。<br/> <br/>這規定將會平均延遲收到使用者發送一封電子郵件後自動回復郵箱內的時間。
+emails_per_fetch:
+  title: 每讀取電子郵件次數
+  content: >
+    輸入一次處理的郵件的數。
+fetched_emails:
+  title: 讀取電子郵件
+  content: >
+    決定如何處理電子郵件： <br/> <br/> <span class="doc-desc-opt"> <b>移動到資料夾</b></span>： 這將會備份您的電子郵件從收件匣到您指定的資料夾。如果資料夾不存在尚未在伺服器上，系統會嘗試自動創建它。(<b>推薦</b>)<hr><span class="doc-desc-opt"> <b>刪除電子郵件</b></span>： 這將刪除您的電子郵件從收件匣，一旦它處理。<hr><span class="doc-desc-opt"> <b>不理會</b></span>： 這將留下的電子郵件收件匣中。該系統將記錄您的電子郵件的郵件 id 並不試圖重新提取它。但是，此選項可能導致重複的門票種類要新建。（<em>不推薦</em>）
+smtp_settings:
+  title: SMTP 設置
+  content: >
+    建議從服務台發送的電子郵件通過 SMTP 伺服器發送。因為它會增加電子郵件正確傳遞的可能性，並減少被標記為垃圾郵件的發生。
+header_spoofing:
+  title: 允許虛擬假表頭
+  content: >
+    啟動准許透過郵件箱傳送電子郵件上的其他地址<span class="doc-desc-title">電子郵件</span> 以上設定. <br/><br/> 此進階設定是使用在此郵箱上有其他的別名。
+

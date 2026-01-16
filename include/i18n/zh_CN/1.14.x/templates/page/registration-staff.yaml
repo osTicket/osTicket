@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  此模板定义了以代理名义创建账户时所发送至代理的初始电子邮件（可选项）。
+name: "欢迎使用 osTicket"
+body: >
+  <h3><strong>您好！%{recipient.name.first}，</strong></h3> <div>我们已在您的帮助中心为您创建了账户，地址如下 %{url}。<br /> <br />请遵循以下链接，确认您的账户并获取访问咨询的权限。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">您的友好客户支持系统<br /> %{company.name}</em> </div>

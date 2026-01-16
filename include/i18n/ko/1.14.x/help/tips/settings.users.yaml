@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: 사용자 이름 형식
+  content: >
+    시스템에서 사용할 사용자 이름의 형식을 선택하십시오. 다른 형식이 지정되지 않은 경우 메일 템플릿은 이름에 이 형식을 사용할 것입니다.
+#Authentication settings
+client_session_timeout:
+  title: 사용자 세션 타임아웃
+  content: >
+    사용자가 재 로그인하게 하는 최대 대기 시간(분)을 선택하세요. <br> <br> <span class = "doc-desc-title">사용자 세션 타임아웃</span>을 비활성화하려면 0을 입력하세요.
+registration_method:
+  title: 등록 옵션
+  content: >
+    <span class = "doc-desc-title">회원가입 방법</span>과 <span class = "doc-desc-title">회원가입 필요</span>는 사용자가 헬프 데스크 web 포털 어떻게 등록하고 접속할지 설정하기 위해 사용됩니다. 다음 표는 시스템이 두 가지 설정이 시스템에 어떻게 적용되는지에 대한 요약입니다. <table border = "1" cellpadding = "2px" cellspacing = "0" style = "margin-top : 7px"> <tbody style = "vertical-align : top;"> <tr> <th> 회원가입 필요 </th> <th>회원가입 방법</th> <th> 결과 </th> </tr> <tr> <td>아니오</td> <td>공개</td> <td>회원가입을 권장 하지만 새 티켓은 회원가입이 필요하지 않습니다. </td> </tr> <tr> <td>예</td> <td>공개</td> <td>새 티켓은 회원가입과 로그인이 필요합니다</td> </tr> <tr> <td> 아니오</td> <td>비공개</td> <td>누구나 티켓을 만들 수 있지만 에이전트만 계정을 등록 할 수 있습니다</td> </tr> <tr> <td>예</td > <td>비공개</td> <td>초대 된 사용자만 접속</td> </tr> <tr> <td>아니오</td> <td>해제</td> <td> 아무도 계정에 등록 할 수 없지만, 누구나 티켓을 만들 수 있습니다. <em> 이는 1.9 이전 버전에서 osTicket 가동 방법입니다.</em> </td> </tr> <tr> <td>예</td> <td> 해제 </td> <td>web 포털을 통한 새 티켓을 비활성화합니다 </td> </tr > </tbody> </table>
+client_verify_email:
+  title: 이메일 검증이 필요합니다.
+  content: >
+    이 옵션을 사용하면 사용자는 고객 포털의 "티켓 상태 확인" 로그인 페이지를 통해 티켓에 곧바로 접근 할 수 있습니다. 활성화(기본)되어있는 경우 사용자는 티켓을 보기 위해 이메일을 수신하고 그 메일에 있는 링크를 방문해야 합니다. <br> <br> 메일 확인을 비활성화하면 제3자 (예: 티켓 공동작업자)가 티켓의 소유자를 대신할 수 있습니다.
+allow_auth_tokens:
+  title: 인증 토큰 사용
+  content: >
+    티켓 링크를 클릭 할 때 인증 토큰을 사용하여 사용자가 자동 로그인 할 수 있게 하려면 이 옵션을 활성화하십시오.

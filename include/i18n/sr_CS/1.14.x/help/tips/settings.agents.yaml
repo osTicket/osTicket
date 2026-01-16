@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formatiranje Imena Agenta
+  content: >
+    Izaberi format za imena agenata u celom sistemu. Email šabloni će ih koristiti za imena ako nije naveden nijedan drugi format.
+staff_identity_masking:
+  title: Maskiranje identiteta osoblja
+  content: >
+    Ako je omogućeno, ovo će sakriti agentovo ime od klijenta tokom komunikacije.
+#Authentication settings
+password_reset:
+  title: Polisa isteka lozinke
+  content: >
+    Podešava koliko često će se(mesečno) od agenata tražiti da promene svoju lozinku. Ako je onemogućena(podešena na "Bez isteka"), lozinka neće isteći.
+password_expiration_policy:
+  title: Polisa isteka lozinke
+  content: >
+    Izaberite koliko često će se od agenata zahtevati da promene svoje lozinke. Ako je onemogućeno (t.j. <span class="doc-desc-opt">Bez isteka</span>), lozinka neće isteći.
+allow_password_resets:
+  title: Dozvoli promene lozinki
+  content: >
+    Omogućite ovo svojstvo ako biste želeli da prikažete<span class="doc-desc-title">Zaboravio sam lozinku</span>link na <span class="doc-desc-title">Stranici za prijavu Osoblja</span>posle neuspelog pokušaja prijave.
+reset_token_expiration:
+  title: Prozor resetovanja lozinke
+  content: >
+    Izaberite maksimalno vreme mirovanja (u minutima) za koje će <span class="doc-desc-title"> Tokeni za promenu lozinke </span> biti važeći. Kada agent zahteva <span class="doc-desc-title">resetovanje lozinke</span>, šalje se imejl sa tokenom koji će dozvoliti izmenu.
+staff_session_timeout:
+  title: Vreme neaktivnosti agenta prije automatske odjave
+  content: >
+    Izaberite maksimalno vreme mirovanja (u minutima) pre nego što je potrebno da se agent ponovo uloguje. <br><br> Ako biste želeli da onemogućite <span class="doc-desc-title">Kraj Sesije Osoblja</span>, unesite 0.
+bind_staff_session_to_ip:
+  title: Poveži sesiju agenta za IP adresom
+  content: >
+    Omogućite ovo ako biste želeli da se agent upamti po svojoj trenutnoj IP adresi prilikom prijavljivanja. <br><br> Ovo podešavanje nije preporučivo za korisnike kojima se IP adrese dodeljuju dinamički.

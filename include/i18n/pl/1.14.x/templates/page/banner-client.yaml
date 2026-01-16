@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Tworzy nagłówek na stronie logowania Klienta. Może być przydatne, żeby poinformować swoich klientów o zasadach logowania i rejestracji.
+name: "Zaloguj do %{company.name}"
+body: >
+  Aby lepiej służyć, zachęcamy naszych klientów do rejestracji konta.

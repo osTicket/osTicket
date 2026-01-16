@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Nuevo Tema para Ticket de Ayuda
+  content: >
+    Elija un <span class="doc-desc-title">tema de ayuda</span> que será asociado automaticamente a Tickets creados a traves de esta direccion de email.<br/><br/>  Los formularios asociados con el tema de ayuda se agregarán al Ticket, pero no tendrán ningún dato.
+  links:
+    - 
+      title: Gestionar temas de ayuda
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Nueva prioridad de Ticket
+  content: >
+    Elija la <span class="doc-desc-title">Prioridad</span> para nuevos Tickets creados a través de este correo electrónico.
+new_ticket_department:
+  title: Departamento del nuevo Ticket
+  content: >
+    Elige el <span class="doc-desc-title"> Departamento</span> al que se enrutaran nuevas entradas creadas a traves de esta direccion de correo electronico o email.
+  links:
+    - 
+      title: Gestionar departamentos
+      href: /scp/departments.php
+auto_response:
+  title: Nuevo ticket de auto-respuesta 
+  content: >
+    Puede desactivar la respuesta automática enviada al usuario cuando se crea un nuevo Ticket mediante esta dirección de correo electrónico.
+username:
+  title: Nombre de usuario
+  0: >
+
+password:
+  title: Contraseña
+  0: >
+
+login_information:
+  title: Informacion de acceso a la direccion de correo electronico
+  content: >
+    El <span class="doc-desc-title"> Nombre de Usuario</span> y la <span class="doc-desc-title"> Contraseña</span> son requeridos para obtener correo electrónico de buzones IMAP/POP, así como para enviar correos electrónicos mediante SMTP.
+mail_account:
+  title: Obtener correo electronico
+  content: >
+    Recuperar correos electrónicos desde un buzón remoto IMAP o POP y convertirlos a Tickets en su helpdesk.
+  links:
+    - 
+      title: Administrar la configuración de <span class="doc-desc-title"> Sondeo de Correo Electrónico</span> y <span class="doc-desc-title"> AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Host remoto
+  content: >
+    Introduzca el <span class="doc-desc-title"> nombre de host</span> y número de <span class="doc-desc-title"> puerto</span> para su servidor de correo. Esta información puede estar disponible la documentación para su cuenta de hosting o de su administrador de correo electrónico.
+protocol:
+  title: Protocolo de casilla de correo
+  content: >
+    Seleccione el protocolo de correos soportado por su servidor de correo remoto. Se recomienda IMAP y SSL es recomendable si es posible.
+fetch_frequency:
+  title: Frecuencia de obtención
+  content: >
+    Introduzca con qué frecuencia, en minutos, el sistema debe sondear el buzón. <br/> <br/> Esto definirá el retraso promedio en recibir una respuesta automática luego de que un usuario envía un correo electrónico a esta casilla de correo.
+emails_per_fetch:
+  title: Emails por busqueda
+  content: >
+    Introduzca el número de correos procesados simultáneamente.
+fetched_emails:
+  title: Emails obtenidos
+  content: >
+    Decidir qué hacer con los emails procesados: <br/> <br/> <span class="doc-desc-opt"> <b>mover a carpeta</b></span>: esto respaldará sus Emails de la bandeja de entrada a una carpeta especificada. Si la carpeta no existe todavía en el servidor, el sistema intentará crearla automáticamente. (<b>Recomendado</b>) <hr><span class="doc-desc-opt"> <b>Borrar Emails</b></span>: esto borrará su correo de la bandeja de entrada, una vez que se procesa. <hr><span class="doc-desc-opt"> <b>No hacer nada</b></span>: esto dejará los Emails en su bandeja de entrada. El sistema registrará los ID de mensaje de sus emails e intentará no volver a descargarlos. Sin embargo, esta opción puede causar que se creen Tickets duplicados. (<em>No recomendado</em>)
+smtp_settings:
+  title: Configuración de SMTP
+  content: >
+    El correo electrónico enviado desde el helpdesk puede ser enviado a través de un servidor SMTP. Esto es recomendable, si es posible, ya que aumentará las posibilidades de entrega de correo electrónico y hará a los mismos menos propensos a ser marcados como spam.
+header_spoofing:
+  title: Permitir suplantación de encabezado
+  content: >
+    Habilitar esta opción para permitir el envío de emails a través de esta casilla de correo desde una dirección distinta a la brindada en la opción <span class="doc-desc-title"> Dirección de correo electrónico</span> anterior. <br/> <br/> Esta configuración avanzada se utiliza generalmente al enviar correo desde alias de este buzón.
+

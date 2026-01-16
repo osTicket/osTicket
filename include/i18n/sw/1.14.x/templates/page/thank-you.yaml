@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Ukurasa wa shukrani hutumika kwenye lango la wateja wakati mtumiaji anawasilisha tiketi mpya kupitia lango la wateja.
+name: Asante
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Asante kwa kuwasiliana nasi.
+  <br>
+  <br>
+  Tiketi la ombi imetengenezwa na mwakilishi atawasiliana na wewe kwa muda mfuoi kama ni muhimu</p>
+  <br>
+  <br>
+  Timu ya Usaidizi
+  </div>

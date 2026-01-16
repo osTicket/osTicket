@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Varsayılan e-posta şablonu ayarları
+  content: >
+    Bir talebin varolduğu süre boyunca duruma bağlı olarak gönderilecek <span class="doc-desc-title">E-posta Şablonunu</span> ve <span class="doc-desc-title">Otomatik-Cevapları</span> ve <span class="doc-desc-title">Uyarıları</span> seçin. <br><br> Bölümlere özel E-posta Şablonları atanabilir.
+  links:
+    - 
+      title: E-posta Şablon Setlerini Yönet
+      href: /scp/templates.php
+default_system_email:
+  title: Varsayılan Giden E-posta
+  content: >
+    Gönderilecek e-postalar için kullanılacak e-posta adresini seçin. <br><br> <span class="doc-desc-title">Bölüm</span> kendi<span class="doc-desc-title">e-posta addresini</span> atayarak bu kuralı çiğneyebilir.
+  links:
+    - 
+      title: E-posta Adreslerini Yönet
+      href: /scp/emails.php
+default_alert_email:
+  title: Varsayılan Uyarı E-postası
+  content: >
+    Temsilcilere gönderilecek  <span class="doc-desc-title">Uyarı &amp; Bildirimler</span> için e-posta adresi seçin.
+  links:
+    - 
+      title: E-posta Adreslerini Yönet
+      href: /scp/emails.php
+admins_email_address:
+  title: Yönetici E-posta Adresi
+  content: >
+    <span class="doc-desc-title">Sistem Hataları</span> ve <span class="doc-desc-title">Yeni Talep Uyarılarının</span> (eğer açıksa) gönderileceği yönetici e-popsta adresini girin.
+  links:
+    - 
+      title: Uyarıları & Bilgilendirmeleri Yönet
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: E-posta Alımı
+  content: >
+    Ayarlanmış ve etkinleştirilmiş <span class="doc-desc-title">Posta Kutuları</span> için IMAP/POP kontrolüne izin ver.
+  links:
+    - 
+      title: Posta Kutularını Yönet
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: E-postaları Auto-cron (zamanlanmış görevler) ile al
+  content: >
+    Temsilcinin hareketlerine bağlı olarak iç görev yöneticisi ile e-posta alımını açar.  <br><br> Lütfen unutmayın eğer Çalışan Kontrol Paneline hiç kimse giriş yapmamış ise e-postalar alınmayacaktır. Tahmin edilebilir alım süreleri için dışarıdan çalışan bir görev yönetici şiddetle tasviye edilir.
+  links:
+    - 
+      title: Dış Görev Zamanlayıcıyı Kullan
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Alıntı Cevabı Sil
+  content: >
+    Eğer açılırsa, e-posta iletişimlerindeki önceden olan yazışmaları kaldırır.  <br><br> Bu özellik aşağıda bulunan  <span class="doc-desc-title">Cevap Ayıraç Etiketi</span> ile alakalıdır.
+reply_separator_tag:
+  title: Cevap Ayıraç Etiketi
+  content: >
+    Bu simge Kullanıcya çizginin üstüne cevap yazmasını belirtir. <br><br> <strong>Dikkat:</strong> bu ayar yalnızca yukarıdaki <span class="doc-desc-title">Alıntı Cevabı Sil</span> ayarı açıldığında işe yarar.
+emailed_tickets_priority:
+  title: E-posta Taleplerinin Önceliği
+  content: >
+    E-posta yazılımlarının (Outlook vb.) talenin öncellik/önem seçeneklerini atayabilmesi izin verip vermeyeceğinizi seçin. <br><br> Bu kural <span class="doc-desc-title">Talep Filtresi</span> ile çiğnenebilir.
+  links:
+    - 
+      title: Talep Filreleri Oluştur &amp; Düzenle
+      href: /scp/filters.php
+accept_all_emails:
+  title: Tüm E-postaları Kabul Et
+  content: >
+    Bilnmeyen kullanıcılardan e-posta kabul et. <br><br> Bu ayarı kapatırsanız talepler reddedilecektir.
+accept_email_collaborators:
+  title: E-posta işbirlikçilerini kabul et
+  content: >
+    E-postadaki <code><strong>To</strong></code> ve <code><strong>CC</strong></code> kısımlarında bulunan kişileri talep tarafı olarak ekle. <br /><br /> <em>Temsilciler talepleri gördüklerinde istedikleri kişileri taraf olarak ekleyebilirler.</em>
+default_mta:
+  title: Varsayılan MTA
+  content: >
+    <span class="doc-desc-title">Varsayılan MTA</span> SMTP ayarları olmadığında e-postaların nasıl iletileceğini ile ilgilenir.
+ticket_response_files:
+  title: Talep Yanıt Dosyaları
+  content: >
+    Eğer açılılrsa, Temsilicinin eklediği her bir eklenti kullanıcıya gönderilecek e-postaya eklenecektir.
+verify_email_addrs:
+  title: E-Posta Adresini Doğrula
+  content: >
+    E-posta adresi etki alanının DNS bir posta ulaştırıcı (MX) olup olmadığını kontrol etmek bu seçeneği etkinleştirin. Bu yanlış yazılmış e-posta adreslerini tespit etmek için yararlı bir seçenektir. Bu kontrol yazım yanlışı kontrolüne ek olarak yapılır.

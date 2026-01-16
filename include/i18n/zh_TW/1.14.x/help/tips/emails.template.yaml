@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: 電子郵件範本
+  content: >
+    一張票上的保留期期間上可用於套用範本集的電子郵件、自動發送回應和警報的各種操作。
+template_to_clone:
+  title: 複製範本
+  content: >
+    開始現有的電子郵件範本集、您可以選擇複製範本組合或是簡易範本。
+language:
+  title: 語言
+  content: >
+    選用您所適用的語言 <span class="doc-desc-opt"> 現有 </span> <span class="doc-desc-title">電子郵件範本集</span>。 語言包可在osTicket.com上找到。
+  links:
+    - 
+      title: osTicket 語言包
+      href: https://osticket.com/download
+status:
+  title: 狀態
+  content: >
+    <span class="doc-desc-opt"> 已啟用</span>範本集，可與部門聯結，並可設置為系統的預設設置。範本集目前正在使用不能為 <span class="doc-desc-opt"> 已禁用</span>。

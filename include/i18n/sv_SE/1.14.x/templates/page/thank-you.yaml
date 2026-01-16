@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Tack-sidan presenteras på Kundportal när en användare skickat ett nytt ärende via Kundportal.
+name: Tack
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Tack för att du kontaktat oss. 
+  <br>
+  <br>
+  Ett ärende har skapats och en handläggare kommer att återkomma till dig inom kort om nödvändigt.</p>
+  <br>
+  <br>
+  Supportteamet
+  </div>

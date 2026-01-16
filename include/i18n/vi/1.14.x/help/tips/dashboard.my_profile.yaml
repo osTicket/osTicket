@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Thông tin liên hệ
+  0: >
+
+username:
+  title: Tên đăng nhập
+  content: >
+    Chỉ những tài khoản có quyền admin mới có thể thay đổi username. Nếu bạn có quyền admin, bạn có thể thực hiện bằng cách chọn 1 tài khoản và chỉnh sửa từ bảng <span class="doc-desc-title">Staff Members</span>.
+  links:
+    - 
+      title: Phân quyền một username thành quyền Admin
+      href: /scp/staff.php
+time_zone:
+  title: Múi giờ
+  0: >
+
+daylight_saving:
+  title: Daylight Saving
+  0: >
+
+maximum_page_size:
+  title: Kích thước tối đa của trang
+  0: >
+
+auto_refresh_rate:
+  title: Tỷ lệ tự động Refresh trang
+  0: >
+
+default_signature:
+  title: Chữ ký mặc định
+  0: >
+
+default_paper_size:
+  title: Kích thước trang giấy mặc định
+  0: >
+
+show_assigned_tickets:
+  title: Hiển thị những lệnh đã được chỉ định
+  content: >
+    <p> Bật tùy chọn này sẽ ghi đè lên thiết lập chung để ẩn yêu cầu hỗ trợ trong hàng đợi mở. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Thiết lập này chỉ khả dụng khi yêu cầu được gán quyền được loại trừ chung. </p>
+password:
+  title: Mật khẩu
+  0: >
+
+current_password:
+  title: Mật khẩu hiện tại
+  0: >
+
+new_password:
+  title: Mật khẩu mới
+  0: >
+
+confirm_new_password:
+  title: Xác nhận Mật khẩu Mới
+  0: >
+
+signature:
+  title: Chữ ký
+  content: >
+    Tạo một  <span class="doc-desc-title">chữ ký</span> tùy chọn hiển thị ở cuối những lệnh  phản hồi của bạn.  <span class="doc-desc-title">Chữ ký</span> này có thể hiển thị hoăc không, tùy vào  <span class="doc-desc-title">khung Email mẫu</span>được sử dụng trong phần phản hồi lệnh.
+  links:
+    - 
+      title: Tạo Emails mẫu  trong phần quản lý Admin
+      href: /scp/templates.php

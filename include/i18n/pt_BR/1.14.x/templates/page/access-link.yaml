@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Este modelo define a notificação que é enviada aos clientes alertando-os de que um link de acesso foi enviado para o seu e-mail. O e-mail contém um link para acessar as informações.
+name: "Link de acesso ao Ticket [%{ticket.number}]"
+body: >
+  <h3><strong>Olá %{recipient.name.first},</strong></h3> <div>Uma solicitação de link de acesso para o ticket #%{ticket.number} foi enviada em seu nome pelo endereço %{url}.<br /> <br /> Acesse o link abaixo para verificar o status do ticket #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Se você <strong>não</strong> realizou a solicitação, por favor delete e desconsidere esse e-mail. Sua conta permanece segura e o acesso ao ticket não foi concedido. Seu endereço de e-mail pode ter sido fornecido por engano.<br /> <br /> --<br />%{company.name} </div>

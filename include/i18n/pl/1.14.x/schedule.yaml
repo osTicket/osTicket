@@ -1,0 +1,175 @@
+---
+- 
+  #Initial set of schedules and entries
+  #Fields:
+  #id:
+  #flags:
+  #0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+  #sort:     Manual sort order
+  #name:     Name of the Schedule
+  #timezone:   Timezone of the Schedule
+  #description:   Description of the Schedule
+  #entries:     Schedule Entries
+  #---
+  id: 1
+  flags: 0x01
+  name: Poniedziałek - Piątek w godz. 8–17 ze świętami U.S.
+  configuration:
+    holidays:
+      - 4
+  entries:
+    - 
+      name: Poniedziałek
+      repeats: cotygodniowo #notrans
+      starts_on: 2019-01-07
+      starts_at: 08:00:00
+      ends_on: 2019-01-07
+      ends_at: 17:00:00
+      day: 1
+    - 
+      name: Wtorek
+      repeats: cotygodniowo #notrans
+      starts_on: 2019-01-08
+      starts_at: 08:00:00
+      ends_on: 2019-01-08
+      ends_at: 17:00:00
+      day: 2
+    - 
+      name: Środa
+      repeats: cotygodniowo #notrans
+      starts_on: 2019-01-09
+      starts_at: 08:00:00
+      ends_on: 2019-01-09
+      ends_at: 17:00:00
+      day: 3
+    - 
+      name: Czwartek
+      repeats: cotygodniowo #notrans
+      starts_on: 2019-01-10
+      starts_at: 08:00:00
+      ends_on: 2019-01-10
+      ends_at: 17:00:00
+      day: 4
+    - 
+      name: Piątek
+      repeats: cotygodniowo #notrans
+      starts_on: 2019-01-11
+      starts_at: 08:00:00
+      ends_on: 2019-01-11
+      ends_at: 17:00:00
+      day: 5
+- 
+  id: 2
+  flags: 0x01
+  name: 24/7
+  entries:
+    - 
+      name: Codziennie
+      repeats: codziennie #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+- 
+  id: 3
+  flags: 0x01
+  name: 24/5
+  entries:
+    - 
+      name: Dni powszednie
+      repeats: weekdays #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+- 
+  id: 4
+  flags: 0
+  name: Święta Stanów Zjednoczonych
+  entries:
+    - 
+      name: Nowy Rok
+      repeats: corocznie #notrans
+      starts_on: 2019-01-01
+      starts_at: 00:00:00
+      ends_on: 2019-01-01
+      ends_at: 23:59:59
+      day: 1
+      month: 1
+    - 
+      name: Dzień MLK
+      repeats: corocznie #notrans
+      starts_on: 2019-01-21
+      starts_at: 00:00:00
+      ends_on: 2019-01-21
+      ends_at: 23:59:59
+      day: 1
+      week: 3
+      month: 1
+    - 
+      name: Dzień Pamięci
+      repeats: corocznie #notrans
+      starts_on: 2019-05-27
+      starts_at: 00:00:00
+      ends_on: 2019-05-27
+      ends_at: 23:59:59
+      day: 1
+      week: -1
+      month: 5
+    - 
+      name: Dzień Niepodległości (4 lipca)
+      repeats: corocznie #notrans
+      starts_on: 2019-07-04
+      starts_at: 00:00:00
+      ends_on: 2019-07-04
+      ends_at: 23:59:59
+      day: 4
+      month: 7
+    - 
+      name: Dzień pracy
+      repeats: corocznie #notrans
+      starts_on: 2019-09-02
+      starts_at: 00:00:00
+      ends_on: 2019-09-02
+      ends_at: 23:59:59
+      day: 1
+      week: 1
+      month: 9
+    - 
+      name: Dzień Ludów Tubylczych (Whodat Columbus)
+      repeats: corocznie #notrans
+      starts_on: 2019-10-14
+      starts_at: 00:00:00
+      ends_on: 2019-10-14
+      ends_at: 23:59:59
+      day: 1
+      week: 2
+      month: 10
+    - 
+      name: Dzień Weterana
+      repeats: corocznie #notrans
+      starts_on: 2019-11-11
+      starts_at: 00:00:00
+      ends_on: 2019-11-11
+      ends_at: 23:59:59
+      day: 11
+      month: 11
+    - 
+      name: Dzień Dziękczynienia
+      repeats: corocznie #notrans
+      starts_on: 2019-11-28
+      starts_at: 00:00:00
+      ends_on: 2019-11-28
+      ends_at: 23:59:59
+      day: 4
+      week: 4
+      month: 11
+    - 
+      name: Boże Narodzenie
+      repeats: corocznie #notrans
+      starts_on: 2019-11-25
+      starts_at: 00:00:00
+      ends_on: 2019-11-25
+      ends_at: 23:59:59
+      day: 25
+      month: 12

@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Известувања и забелешки
+  content: >
+    Известувањата и Забелешките се автоматски e-mail пораки кои се испраќаат на агентите, при појава на различни настани поврзани со тикетите.
+ticket_alert:
+  title: Нов тикет алерт
+  content: >
+    <p> Известување кое што се испраќа кон агентите, при креирање на нов тикет. </p><p class="info-banner"> <i class="icon-info-sign"></i> Оваа известување нема да бите испратено, доколку е одберена опцијата за автоматско-доделување преку Филтерот за тикети или од Помошниот наслов. </p>
+  links:
+    - 
+      title: Предефиниран шаблон за известување на нов тикет
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Внимание нова порака
+  content: >
+    Инвормација која што се испраќа кон агентите, кога е додадена нова порака од корисникот врз основа на постоечкиот тикет.
+  links:
+    - 
+      title: Предефиниран шаблон за известување на нова порака
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Известување за внатрешна активност
+  content: >
+    Известување кое се праќа до Агентите кога на тикетот ќе се додаде внатрешна активност, како што е внатрешна белешка или одговор на Агент.
+  links:
+    - 
+      title: Предефиниран шаблон за активност на тикетот
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Известување за доделен тикет
+  content: >
+    Известување кое што се испраќа кон агентите, при доделување на тикетот.
+  links:
+    - 
+      title: Предефиниран шаблон за известување при доделување на тикет
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Известување за пренесување на тикетот
+  content: >
+    Известување кое што се испраќа кон агентите, кога тикетот се пренесува помеѓу оддели.
+  links:
+    - 
+      title: Предефиниран шаблон за известување кога тикетот се пренесува
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Известување за задоцнет тикет
+  content: >
+    Известување кое што се испраќа кон агентите, кога тикетот е задоцнет според SLA или датумот.
+  links:
+    - 
+      title: Предефиниран шаблон на известување за задоцнет тикет
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Управување со SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: Системски известувања
+  content: >
+    Значајните системски настани кој што се испратени од администраторот (%{config.admin_email}). Во зависност од конфигурацијата <span class="doc-desc-title">Нивото на логирање</span>, настаните се исто така достапни во <span class="doc-desc-title">Системот за логови</span>
+  links:
+    - 
+      title: Преглед на системските логови
+      href: /scp/logs.php
+    - 
+      title: Промена на емаил адресата на администраторот
+      href: /scp/settings.php?t=emails

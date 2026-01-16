@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  新規にチケット登録された場合にユーザーへ送信されます。
+subject: |
+  オープンされたサポートチケット [#%{ticket.number}]
+body: |
+  <h3><strong>%{recipient.name.first}様</strong></h3>
+  <p>
+  お問い合わせいただきましてありがとうございます。お問い合わせを受け付けました。 #%{ticket.number}。
+   担当のものが対応準備いたしますので今しばらくお待ちください。
+  <a href="%{recipient.ticket_link}">こちら</a>から対応状況をオンラインにてご確認いただけます。
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Your %{company.name} Team,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>この問題に関して追加コメントまたは情報がおありの場合は、このメールにご返信いただくか、 <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >アカウントにログイン</span></a>して、お客様のサポートのお問い合わせと返信を追記してください。</em></div>

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Ім'я користувача
+  content: >
+    Будь ласка вкажіть унікальне <span class = "doc-desc-title"> ім'я </span> співробітника у <span class = "doc-desc-title"> системі заявок </span>.
+email_address:
+  title: Адреса ел.пошти
+  content: >
+    Введіть ул. пошту співробітника який отримуватиме <span class = "doc-desc-title"> сповіщення та повідомлення </span> від <span class = "doc-desc-title"> системи заявок </span>.
+  0: <br><br>
+  1: Персонал може увійти в панель керування персоналом за допомогою імені користувача або адреси електронної пошти.
+welcome_email:
+  title: Лист привітання
+  content: >
+    Відправляє новому співробітникові посилання для доступу до аккаунту за допомогою якої співробітник зможе встановити новий пароль. Якщо не зазначено, Вам необхідно встановити пароль та інформацію для входу співробітника самостійно.
+account_password:
+  title: Пароль облікового запису
+  content: >
+    <span class = "doc-desc-title"> Адміністратор </span> може змінити пароль співробітника.
+forced_password_change:
+  title: Примусова зміна пароля
+  content: >
+    Увімкніть, якщо бажаєте щоб новий співробітник обов'язково змінив пароль при наступному вході в систему.
+agents_signature:
+  title: Підпис співробітника
+  content: >
+    Створення підпису для cпівробітника, яка може бути обрана при відповіді на заявку.
+account_status:
+  title: Статус облікового запису
+  content: >
+    Якщо співробітник <span class = "doc-desc-opt"> заблокований </span>, він не зможе увійти в систему заявок.
+assigned_group:
+  title: Призначена група
+  content: >
+    <span class = "doc-desc-title"> Група </span> для цього співробітника визначить дозволи, які будуть діяти у співробітника в цій <span class = "doc-desc-title"> системі заявок </span>.
+  links:
+    - 
+      title: Керування групами
+      href: /scp/groups.php
+primary_department:
+  title: Відділ за замовчуванням
+  content: >
+    Виберіть головний <span class="doc-desc-title">відділ</span>, до якого належить цей агент і типову <span class="doc-desc-title">роль</span>.
+  links:
+    - 
+      title: Управління відділами
+      href: /scp/departments.php
+primary_role:
+  title: Основна роль
+  content: >
+    Виберіть головну<span class="doc-desc-title">роль</span>, до якої належить цей агент.
+primary_role_on_assign:
+  title: Виберіть Головну Роль для Призначень
+  content: >
+    Активуйте це, щоб повертатися до <span class="doc-desc-title">головної ролі</span>, коли агентові призначено заявки і завдання поза <span class="doc-desc-title">головним відділом</span> і <span class="doc-desc-title">додатковими</span> відділами. Інакше агент матиме лише право переглядати.
+daylight_saving:
+  title: Літній час
+  content: >
+    Увімкніть цю функцію, якщо ви хочете, щоб літній час враховувалося в часовому поясі цього співробітника.
+limited_access:
+  title: Обмежений доступ
+  content: >
+    Якщо цей параметр включений, співробітник отримає доступ тільки до тих заявок, які призначені безпосередньо йому або команді.
+directory_listing:
+  title: Список каталогів
+  content: >
+    Увімкніть це якщо ви хочете зробити цього співробітника видимим в <span class = "doc-desc-title"> списку співробітників </span>.
+  links:
+    - 
+      title: Показати список співробітників
+      href: /scp/directory.php
+vacation_mode:
+  title: Режим відпустки
+  content: >
+    Якщо змінити стан співробітника на <span class = "doc-desc-opt"> режим відпочинку </span>, співробітник не отримуватиме будь-які <span class = "doc-desc-title"> оповіщення і повідомлення </span> і не буде доступним для призначення заявок.
+

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: ایجنٹ کے نام کی تشکیل
+  content: >
+    پورے نظام کے لئےایجنٹ کے نام کی شکل - فارمیٹ ( چنیں) ای میل کا سانچہ کسی اور شکل کی غیر موجودگی میں اس شکل کو استعمال کرے گا۔.
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Password Expiration Policy
+  content: >
+    اس بات کا تقرر کہ ایک ایجنٹ ایک مہینے میں کتنی بار اپنا پاسورڈ تبدیل کرے۔ اگر یہ غیر فعال ("No expiration") ہو گا تو پاسورڈ کبھی نہیں تبدیل کرنا ھو گا۔.
+password_expiration_policy:
+  title: Password Expiration Policy
+  content: >
+    Choose how often Agents will be required to change their password. If disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords will not expire.
+allow_password_resets:
+  title: Allow Password Resets
+  content: >
+    ایک ناکام لاگ ان کوشش کے بعد آپ یہ اسکرین پر یہ پیغام <span class="doc-desc-title">Forgot My Password</span> دکھانا چاہتے ہیں کہ میں اپنا پاسورڈ بھول گیا ھوں تو اس کو فعال ( این ایبل) کر دیں. <span class="doc-desc-title">Staff Log-In Page</span>.
+reset_token_expiration:
+  title: Password Reset Window
+  content: >
+    Choose the duration (in minutes) for which the <span class="doc-desc-title"> Password Reset Tokens</span> will be valid. When an Agent requests a <span class="doc-desc-title">Password Reset</span>, they are emailed a token that will permit the reset to take place.
+staff_session_timeout:
+  title: Agent Session Timeout
+  content: >
+    ایک ایجنٹ کو دوبارہ لاگ ان کرنے کیلیےَ زیادہ سے زیادہ فارغ وقت منٹوں میں مقرر کریں۔ <br><br> اگر آپ ایجنٹ کا سیشن کا وقت غیر فعال کرنا <span class="doc-desc-title">Agent Session Timeouts</span> چاہتے ہیں تو یہاں 0 لکھیں۔.
+bind_staff_session_to_ip:
+  title: Bind Agent Session to IP
+  content: >
+    اسکو فعال سیٹ کر دیں اگر آپ چاہتے ہیں کہ ایجنٹ کی موجودہ آئی پی اگلی دفعہ لاگ ان کرتے ھوے یاد رکھی جاےَ۔<br><br> یہ ترتیب ان صارفین کےلیےَ نہیں ہےجو ڈائنامک آئی پی ایڈریس استعمال کرتے ہیں۔.

@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Modello Predefinito per E-mail
+  content: >
+    Selezionare il <span class="doc-desc-title"> Modello Email</span> utilizzato per inviare <span class="doc-desc-title"> Avvisi</span> e <span class="doc-desc-title"> Risposte Automatiche</span> per varie azioni che possono avvenire durante la vita di un Ticket. <br><br> I Reparti possono essere assegnati ad un modello specifico di Email.
+  links:
+    - 
+      title: Gestire gruppi di modelli Email
+      href: /scp/templates.php
+default_system_email:
+  title: E-mail in uscita predefinita
+  content: >
+    Scegliere un indirizzo email da cui verranno inviati i messaggi in uscita. <br><br><span class="doc-desc-title">Ogni Reparto</span> può impostare il proprio <span class="doc-desc-title"> indirizzo di posta elettronica</span> che sostituirà quello che viene impostato qui.
+  links:
+    - 
+      title: Gestire gli indirizzi di posta elettronica
+      href: /scp/emails.php
+default_alert_email:
+  title: Avviso Email predefinito
+  content: >
+    Scegliere un indirizzo email da cui verranno inviati gli <span class="doc-desc-title"> Avvisi &amp; Allarmi</span> agli Operatori.
+  links:
+    - 
+      title: Gestire gli indirizzi di posta elettronica
+      href: /scp/emails.php
+admins_email_address:
+  title: Indirizzo Email dell'amministratore
+  content: >
+    Inserisci l'indirizzo email di un amministratore al quale vengono inviati gli <span class="doc-desc-title"> Avvisi di Nuovi Ticket</span> (se abilitato) e gli <span class="doc-desc-title"> Errori di Sistema</span>.
+  links:
+    - 
+      title: Gestire Notifiche e Avvisi
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Recupero delle Emails
+  content: >
+    Permettere l'utilizzo di IMAP/POP per le <span class="doc-desc-title">Caselle di Posta </span>configurate e attivate.
+  links:
+    - 
+      title: Gestire le caselle di posta
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Recupera le Emails utilizzando Auto-cron
+  content: >
+    Consente il recupero delle e-mail utilizzando un gestore di attività interna innescato dall'attività degli Operatori.  <br><br>Nota che le emails non vengono prelevate se nessuno è connesso al Pannello di Controllo Operatore.  Un pianificatore esterno per il recupero è altamente raccomandato per avere intervalli di recupero certi.
+  links:
+    - 
+      title: Tramite un pianificatore di attività esterno
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Elimina la risposta citata
+  content: >
+    Se attivato, verrànno rimosse le risposte delle email precedenti. <br><br>Questa caratteristica dipende dal <span class="doc-desc-title"> Tag Separatore di Risposta</span> indicato qui sotto.
+reply_separator_tag:
+  title: Tag  dell'indicatore di Risposta
+  content: >
+    Questo è un token che indica all'utente di rispondere sopra la linea. <br><br><strong>Nota:</strong> questo è rilevante solo se sopra è attivata la <span class="doc-desc-title"> Risposta citata in linea</span>.
+emailed_tickets_priority:
+  title: Priorità ticket via email
+  content: >
+    Scegliere se si desidera l'opzione di priorità/importanza dell'email dell'utente (ad esempio OutLook) di dettare le priorità del nuovo ticket. <br><br>Questa impostazione può essere sostituita da un <span class="doc-desc-title"> Filtro del ticket</span>.
+  links:
+    - 
+      title: Creare &amp; gestire filtri sui ticket
+      href: /scp/filters.php
+accept_all_emails:
+  title: Accettare tutte le email
+  content: >
+    Accettare email da utenti sconosciuti. <br><br>Deselezionando questa impostazione comporterà che tali ticket saranno sempre respinti.
+accept_email_collaborators:
+  title: Accetta Email da collaboratori
+  content: >
+    Aggiungi automaticamente come collaboratori al ticket gli indirizzi email inclusi nei campi <code><strong>a</strong></code> e <code><strong>CC</strong></code>. <br /><br /> <em> I collaboratori possono sempre essere aggiunti manualmente dagli Operatori durante la visualizzazione di un ticket.</em>
+default_mta:
+  title: MTA di Default
+  content: >
+    <span class="doc-desc-title"> MTA di default</span> si occupa del processo di recapito delle e-mail in uscita che non hanno un'impostazione dell'SMTP.
+ticket_response_files:
+  title: File di risposta del ticket
+  content: >
+    Se attivato, gli eventuali allegati che un agente allega a una risposta a un ticket saranno inclusi anche nell'email per l'utente.
+verify_email_addrs:
+  title: Verifica gli indirizzi Email
+  content: >
+    Attivare questa opzione per verificare se l' indirizzo di posta elettronica ha un Mail Exchanger (MX) nel DNS del dominio. Questo è utile per rilevare indirizzi e-mail non digitati in modo corretto. E' eseguito in aggiunta al controllo della correttezza dell'indirizzo di posta elettronica.

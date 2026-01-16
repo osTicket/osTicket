@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Vormi pealkiri
+  content: >
+    See pealkirja tekst kuvatakse hallis boksis vormi väljade all
+form_instructions:
+  title: Vormi juhendid
+  content: >
+    Võid lisada täiendavaid juhendeid, mis aitavad kasutajal välja sisu mõista ja püüravad tema tähelepanu andmete olulisusele.
+field_sort:
+  title: Välja kuvamise koht
+  content: >
+    Klõpsa üles-alla nooleikoonil ja lohista välja rida soovitud kohta. Järjestamiseelistused rakenduvad pärast salvestamist.
+field_label:
+  title: Välja nimetus
+  content: >
+    See nimetus kuvatakse enne sisestusvälja. Tavaliselt kuvatakse lühivastusega väli nii: <br><strong>Nimetus:</strong>&nbsp;<input type="text">
+field_type:
+  title: Välja sisu tüüp
+  content: >
+    Siin määratakse, mis tüüpi andmeid siia saab sisestada. Võid valida lühikese- või pika vastuse, telefoni numbri, kuupäeva ja kellaaja, märkekastikese, ripploendi või enda poolt koostatud nimekirja vahel.
+  links:
+    - 
+      title: Kohandatud nimekiri
+      href: /scp/lists.php
+field_visibility:
+  title: Välja nähtavus
+  content: >
+    Vali selle välja nähtavus ja täitmise nõue <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Seaded</th> <th>Tulemus</th></tr> <tr><td>Valikuline</td> <td>
+    Agendid ja lõpp-kasutajad näevad seda välja, kuid nad ei pea sellele vastama.</td></tr> <tr><td>Kohustuslik</td> <td>Agendid ja lõpp-kasutajad näevad seda välja ning mõlemad peavad sellele vastama</td></tr> <tr><td>Lõppkasutajale kohustuslik</td> <td>Agendid ja lõppkasutajad näevad seda välja, kuid lõppkasutaja peab vastama.</td></tr> <tr><td>Agendile kohustuslik</td> <td>Agendid ja lõppkasutajad näevad seda välja, kuid agent peab vastama</td></tr> <tr><td>Sisemine, valikuline</td> <td>Vaid agendid näevad seda välja, kuid vastamine pole kohustuslik.</td></tr> <tr><td>Sisemine, kohustuslik</td> <td>Ainult agendid näevad seda välja, vastamine on kohustuslik.</td></tr> <tr><td>Vaid lõpp-kasutajatele</td> <td>Vaid lõpp-kasutajad näevad seda välja ja vastamine on kohustuslik.</td></tr> </tbody></table>
+field_variable:
+  title: Välja automatiseerimine
+  content: >
+    Emaili ja lehekülgede mallide väljade nimetused on vastava veeru nimes. Näiteks pileti vormi väljad on <code>%{ticket.variable}</code>, kus <strong>muutuja</strong> on nimetus, mida kasutatakse selles veerus.<br> <br> <em>Ettevõtte info on saadaval <code>%{</code><code>company.variable}</code> ja kasutaja info on <code>%{ticket.user.variable}</code> veerus</em>
+field_delete:
+  title: Eemalda väli
+  content: >
+    Vormilt välja eemaldamiseks vormilt, kontrolli ja salvesta see.<br> <br> <em>Välja eemaldamisega ei kustu varasemalt sisestatud andmed. Näiteks kui varasemal piletil oli selle välja kaudu sisestatud andmeid, siis need jäävad selle pileti juurde alles.</em>

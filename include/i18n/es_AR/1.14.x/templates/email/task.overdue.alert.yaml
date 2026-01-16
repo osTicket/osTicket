@@ -1,0 +1,20 @@
+---
+#Email template: task.overdue.alert.yaml
+#Sent to agents when a tasks transitions to overdue in the system.
+#Overdue tasks occur based on set due-date.
+#---
+notes: |
+  Enviado a los agentes cuando una tarea cambia a vencida en el sistema. Las tareas vencidas se determinan de acuerdo a la fecha establecida como óptima.
+subject: |
+  Aviso de Vencimiento de Tarea
+body: |
+  <h3><strong>Hola %{recipient.name}</strong>,</h3>
+  Una tarea, <a href="%{task.staff_link}">#%{task.number}</a> está
+  seriamente vencida.
+  <br><br>
+  Deberíamos trabajar duro para garantizar que todas las tareas se completen a tiempo.<br><br>
+  Atentamente,<br>%{task.dept.manager.name}<hr><div>Para ver o responder a la tarea, por favor <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >inicia sesión</span></a> en el Sistema de Soporte. Estás recibiendo este aviso porque la tarea está asignada directamente a ti o a un equipo o departamento del que eres miembro.</div><em style="font-size: small">Tu <span style="font-size: smaller"
+  >(aunque con paciencia limitada)</span> Sistema de Soporte al Cliente</em><br><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Powered by osTicket" width="126" style="width: 126px;">

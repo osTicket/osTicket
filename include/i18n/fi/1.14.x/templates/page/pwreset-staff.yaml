@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Tämä pohja määrittelee sähköpostin joka lähetetään henkilökunnalle, joka on seurannut<strong>Unohdin salasanani</strong> linkkiä henkilökunnan sivuston kirjautumissivulla.
+name: "osTicket Henkilökunnan Salasanan resetointi"
+body: >
+  <h3><strong>Hei %{staff.name.first},</strong></h3> <div> Sinulle on pyydetty salasanan vaihtoa tukijärjestelmässä %{url}.<br /> <br /> Mikäli tämä on tapahtunut erehdyksessä, poista ja jätä huomiotta tämä sähköposti. Tilisi on edelleen turvallinen eikä kenellekkään ole annettu oikeuksia. Tiliä ei ole lukittu eikä salasanaa vaihdettu.<br /> <br /> Seuraa linkkiä alla kirjautuaksesi ja vaihtaaksesi salasanasi<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ystävällisesti tukijärjestelmäsi</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

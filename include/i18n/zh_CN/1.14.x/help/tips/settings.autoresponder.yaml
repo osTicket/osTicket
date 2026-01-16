@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: 新咨询
+  content: >
+    启用此功能，即可发送新咨询的自动回复至用户。
+  links:
+    - 
+      title: 新咨询自动回复模板
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: 工作人员新咨询
+  content: >
+    代理以客户名义创建咨询时发送通知。<em>代理可在创建新咨询时编辑此通知内容。</em>
+  links:
+    - 
+      title: 新咨询通知模板
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: 新消息确认
+  content: >
+    现有咨询有新消息时发送确认消息。
+  links:
+    - 
+      title: 新消息确认模板
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: 新消息通知
+  content: >
+    向所有其他咨询参与者播放消息提交者发布的消息。
+  links:
+    - 
+      title: 新活动通知模板
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: 超限通知
+  content: >
+    发送至用户的咨询拒绝通知，适用于咨询条数超出<span class="doc-desc-title">最大未完成咨询数</span>限值。
+  links:
+    - 
+      title: 超限通知模板
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: 设置<em>最大未完成咨询数</em>
+      href: /scp/settings.php?t=system

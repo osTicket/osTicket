@@ -14,6 +14,8 @@ $_SESSION['ost_upgrader']=null;
                 __('Release Notes')
         ));?></p>
         </div>
+		<!--osta-->
+		<div id="upgrade-complete">
         <p><?php echo __('Once again, thank you for choosing osTicket.');?></p>
         <p><?php echo sprintf(__('Please feel free to %1$s let us know %2$s
                     of any other improvements and features you would like to
@@ -25,6 +27,7 @@ $_SESSION['ost_upgrader']=null;
         <p><?php echo __('osTicket Team.');?></p>
         <br>
         <p><b><?php echo __('PS');?></b>: <?php echo __("Don't just make customers happy, make happy customers!");?></p>
+		</div>
     </div>
     <div class="sidebar">
             <h3><?php echo __("What's Next?");?></h3>

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Формат імені Агента
+  content: >
+    Виберіть формат імен агентів в системі. Шаблони електронних листів використовуватимуть його замість імен, якщо інший формат не буде вказано.
+staff_identity_masking:
+  title: Анонімність співробітника
+  content: >
+    Якщо цей параметр включений, це дозволить приховати ім'я співробітника від користувача під час спілкування.
+#Authentication settings
+password_reset:
+  title: Політика терміну дії пароля
+  content: >
+    Встановлює, як часто (в місяцях) співробітники повинні змінювати свої паролі. Якщо відключено (означатиме «Без закінчення терміну») - час дії паролів Не буде спливати.
+password_expiration_policy:
+  title: Політика терміну дії пароля
+  content: >
+    Виберіть, як часто співробітники повинні будуть міняти свої паролі. Якщо відключено (тобто, <span class = "doc-desc-opt"> Без закінченням терміну </span>) - термін дії паролів НЕ буде спливати.
+allow_password_resets:
+  title: Дозволити відновлення паролю
+  content: >
+    Увімкніть цю функцію, якщо Ви хочете відображати посилання <span class = "doc-desc-title"> Забули пароль </span> на <span class = "doc-desc-title"> панелі входу персоналу </span> після невдалої спроби входу.
+reset_token_expiration:
+  title: Вікно відновлення паролю
+  content: >
+    Виберіть тривалість часу (у хвилинах), протягом якого <span class = "doc-desc-title"> Токен відновлення паролю </span> буде дійсний. Коли співробітник запрошує <span class = "doc-desc-title"> відновлення паролю </span> - йому відправляється токен, який дозволяє здійснити відновлення.
+staff_session_timeout:
+  title: Завершення сеансу співробітника
+  content: >
+    Виберіть максимальний час бездіяльності (у хвилинах), після якого співробітнику потрібно буде заново увійти. <br> <br> Якщо Ви хочете відключити <span class = "doc-desc-title"> тайм-аут сесії персоналу </span> - введіть 0.
+bind_staff_session_to_ip:
+  title: Закріплювати сеанс співробітника за IP
+  content: >
+    Увімкніть, якщо Ви хочете, щоб співробітники запам'ятовувалися з їх поточниими IP-адресами при вході. <br> <br> Налаштування не рекомендується для користувачів, які використовують динамічні IP-адреси.

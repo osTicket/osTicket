@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Užklausų aktyvumas
+  content: >
+    Pasirinkite datos intervalą, kuris sąlygos statistiką grafike ir lentelėje (cf. <span class="doc-desc-title">Statistika</span>) toliau sutelkiant dėmėsį į visą su tomis datomis susijusią informaciją. Toliau grafikas visada atspindės visų sistemos duomenų plačią apžvalgą (t.y. populaiciją). Jūs galite naršyti per <span class="doc-desc-title">Statistikos </span>lentelę  sutelkdami dėmesį į siauresnę dominančią temą (pvz. Departamentas, Tema arba Darbuotojai). Taip pat, jūs galite eksportuoti bet kokius duomenis, kurie šiuo metu atvaizduojami <span class="doc-desc-title">Statistikos</span> lentelėje.
+report_timeframe:
+  title: Atsakymo laikotarpis
+  content: >
+    Pasirinkite pradžios datą, norimai duomenų imčiai, naudodami datų parinkiklį. Tada pasirinkite laiko tarpą nuotos dienos, kad apibrėžtumėte, duomenų imties pabaigos datą.
+statistics:
+  title: Statistika
+  content: >
+    Pereikite į dominančią temą, paspaudę atitinkamą skirtuką, kad galėtumėte peržiūrėti konkretų pavyzdį. Lentelėje, apskritimai nurodo nominalių duopmenų dydį. Kuo didesnins skaičius tam tikrame laukelyje, tuo didesnis bus atitinkamas apskritimas.
+opened:
+  title: Atidaryta
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Priskirta
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Vėluoja
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Uždaryta
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Vėl atidaryta
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Ištrinta
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Aptarnavimo laikas
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Reagavimo laikas
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

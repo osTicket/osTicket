@@ -1,0 +1,27 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Dihantar kepada pengguna apabila tiket baru telah dibuat
+subject: |
+  Tiket Sokongan Dibuka [#%{ticket.number}]
+body: |
+  <h3><strong>Kepada%{recipient.name.first},</strong></h3>
+  <p>
+  permohonan untuk sokongan telah dicipta dan diberikan #%{ticket.number}.
+  Wakil akan membuat susulan dengan anda secepat yang mungkin. Anda boleh
+  <a href="%{recipient.ticket_link}">lihat kemajuan tiket dalam talian</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  %{company.name} Pasukan Anda,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>
+  ingin memberi komen atau maklumat tambahan mengenai isu tersebut,
+  sila balas e-mel ini atau <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >logmasuk ke akaun anda</span></a> untuk
+  arkib lengkap permintaan sokongan anda</em></div>

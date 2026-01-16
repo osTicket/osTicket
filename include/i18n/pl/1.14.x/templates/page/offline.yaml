@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Strona Offline pojawi się w Portalu Klienta, gdy system pomocy jest w trybie offline.
+name: Offline
+body: |
+  <div><h1>
+  <span style="font-size: medium">System Obsługi Zgłoszeń Nieaktywny</span>
+  </h1>
+  <p>Dziękujemy za skontaktowanie się z nami.</p>
+  <p>Nasze biuro obsługi jest w tej chwili nieczynne, prosimy ponownie sprawdzić w późniejszym terminie.</p>
+  </div>

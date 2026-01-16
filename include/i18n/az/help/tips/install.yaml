@@ -1,0 +1,72 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+helpdesk_name:
+  title: Helpdesk adı
+  content: |
+    <p>Dəstək sisteminizin adı, məs., [Şirkətin adı] dəstəyi</p>
+system_email:
+  title: Mövcud sistem e-poçtu
+  content: |
+    <p>Mövcud sistem e-poçtu ünvanı, məs., destek@sizinshirket.com - daha çox hərf əlavə edə bilərsiniz!</p>
+default_lang:
+  title: Mövcud sistemin dili
+  content: |
+    <p>Bu dil üçün ilkin məlumat bazada quraşdırılacaq. Məsələn, bu dil üçün e-poçt şablonları və cari sistem səhifələri quraşdırılacaq.</p>
+  links:
+    - 
+      title: osTicket dil paketləri
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Ad
+  content: |
+    <p>Adminin adı</p>
+last_name:
+  title: Soyad
+  content: |
+    <p>Adminin soyadı</p>
+email:
+  title: E-poçt ünvanı
+  content: |
+    <p>Adminin şəxsi e-poçt ünvanı. Sistemin mövcud e-poçtundan fərqli olmalıdır.</p>
+username:
+  title: İstifadəçi adı
+  content: |
+    <p>Adminin giriş adı. Ən azı üç (3) işarə olmalıdır.</p>
+password:
+  title: Şifrə
+  content: |
+    <p>Adminin şifrəsi. Ən azı beş (5) və daha çox işarə olmalıdır.</p>
+password2:
+  title: Şifrəni təsdiqlə
+  content: |
+    <p>Adminin şifrəsini yenidən yaz. Eyni olmalıdır.</p>
+db_prefix:
+  title: MySQL cədvəl prefiksi
+  content: |
+    <p>osTicket paylaşılmış məlumat bazasında mümkün münaqişə cədvəllərindən yayınmaq üçün sifarişdə cədvəl prefiksi tələb edir.</p>
+db_host:
+  title: MySQL Host adı
+  content: |
+    <p>
+    Bir çox hostlar yerli məlumat bazasının host adı üçün `localhost`dan istifadə edir. Əgər localhostunuz uğursuz oldusa öz hostunuzla yoxlayın.
+    </p>
+    <p>
+    php.ini-də cari port quraşdırılması ehtimal edilir. Qeyri-standart port nömrəsi <code>hostname:port</code> kimi xüsusiləşdirilə bilər.
+    </p>
+db_schema:
+  title: MySQL məlumat bazası
+  content: |
+    <p>osTicketin istifadə edəcəyi məlumat bazasının adı.</p>
+db_user:
+  title: MySQL istifadəçi adı
+  content: |
+    <p>MySQL istifadəçinin məlumat bazasına tam hüququ olmalıdır.</p>
+db_password:
+  title: MySQL şifrə
+  content: |
+    <p>MySQL şifrəsi yuxarıdakı istifadəçi ilə əlaqəlidir.</p>

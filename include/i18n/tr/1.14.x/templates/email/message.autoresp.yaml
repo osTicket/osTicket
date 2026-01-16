@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Bir talebe kullanıcı tarafından yeni bir mesaj eklendiğinde kullanıcıya gönder. Genellikle bu durum kullanıcı bir e-posta ile cevap yazdığında ya da müşteri web portalını ziyaret ederek yeni bir mesaj eklediğinde oluşur.
+subject: |
+  Mesaj Onayı
+body: |
+  <h3><strong>Sayın %{recipient.name.first},</strong></h3>
+  <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> numaralı destek talebinize yanıtınız bize ulaştı.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  %{company.name} Ekibi,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Taleple ilgili gelişmeleri <a
+  href="%{recipient.ticket_link}">buradan takip edebilirsiniz.</a></em>
+  </div>

@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Chia sẻ Thẻ
+  content: >
+    <p> Chia sẻ quyền cho thành viên truy cập thẻ hỗ trợ của người khác tạo ra. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Cộng tác viên luôn có quyền truy cập. </p>
+email_domain:
+  title: Tên miền email
+  content: >
+    Người dùng có thể tự động được thêm vào tổ chức dựa trên tên miền email. Sử dụng hộp thoại bên dưới để nhập vào một hoặc nhiều tên miền, được ngăn cách với nhau bởi dấu phẩy. Ví dụ: nhập <code>mycompany.com</code> cho các người dùng có email kết thúc với phần @mycompany.com
+

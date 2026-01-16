@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Status Helpdesku
+  content: >
+    Pokud je stav změněn na <span class="doc-desc-opt">Mimo provoz</span>, zákaznické rozhraní bude zakázáno. Neovlivňuje však běh rozhraní pracovníka.
+helpdesk_url:
+  title: URL Helpdesku
+  content: >
+    Tento URL odkaz je základní pro osTicket instalaci. Používá se v e-mailové komunikaci pro směrování koncových uživatelů zpět na Helpdesk.
+helpdesk_name_title:
+  title: Název systému zákaznické podpory
+  content: >
+    Název systému, který bude zobrazován v kartě prohlížeče. Pokud bude uložen do záložek, tento název se bude zobrazovat jako název webu.
+default_department:
+  title: Výchozí oddělení
+  content: >
+    Vyberte výchozí <span class="doc-desc-title">oddělení</span> pro požadavky, které nejsou automaticky směrovány na oddělení. <br/><br/> Požadavky mohou být směrovány podle nastavení tématu podpory, příchozího e-mailu a filtru požadavků.
+default_schedule:
+  title: Výchozí časový plán
+  content: >
+    Vyberte výchozí časový plán který má SLA použít pro výpočet zpožděných tiketů.
+  links:
+    - 
+      title: Spravovat plány
+      href: /scp/schedules.php
+default_page_size:
+  title: Výchozí počet záznamů na stránce
+  content: >
+    Zvolte počet záznamů zobrazených na stránce v seznamech požadavků na panelu pracovníka. Každý pracovník si může tento počet nastavit na stránce <span class="doc-desc-title">uživatelských předvoleb</span>.
+default_log_level:
+  title: Výchozí úroveň záznamů
+  content: >
+    Určuje nejnižší úroveň problémů, které budou zapisovány do <span class="doc-desc-title">systémového záznamů</span>. <span class="doc-desc-opt">Debug</span> zapisuje nejnižší závažnost a <span class="doc-desc-opt">Error</span> znamená jen záznamy nejvyšší závažnosti. Pokud například chcete vidět všechny problémy v <span class="doc-desc-title">systémových záznamech</span>, zvolte <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Mazání systémových záznamů
+  content: >
+    Určuje dobu, po kterou budou uchovávány <span class="doc-desc-title">systémové záznamy</span>, než budou smazány.
+enable_richtext:
+  title: Povolit formátovaný text
+  content: >
+    Volba pro použití formátovaného textu v komunikaci mezi agentem a klienty.
+enable_avatars:
+  title: Zobrazit ikony uživatelů ve vlákně požadavku
+  content: >
+    Tato volba umožní zobrazení <span class="doc-desc-title">ikon uživatelů</span> ve vlákně požadavku. <br><br> <span class="doc-desc-title">Zdroj ikon uživatelů</span> může být nastaven na stránce nastavení pracovníků.
+  links:
+    - 
+      title: Nastavení pracovníků
+      href: /scp/settings.php?t=agents
+    - 
+      title: Nastavení uživatelů
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Zamykání požadavků
+  content: >
+    Zadejte maximální dobu, po kterou pracovníci mohou držet zámek na požadavku nebo úkolu, aniž by na něm pracovali. <br><br> Zadejte <span class="doc-desc-opt">0</span> pro vypnutí funkce zamykání.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Možnosti data a času
+  content: >
+    Následující nastavení definuje výchozí nastavení formátu pro datum a čas vašeho systému zákaznické podpory. Můžete vybrat použití výchozího nastavení pro vybranou oblast nebo použít vlastní nastavení, která vám bude více vyhovovat. Podívejte se na formátovací řetězce ICU jako vzor formátování. Data zobrazená níže ilustrují výledek daného nastavení.
+  links:
+    - 
+      title: Tabulka formátovaní data ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Systémové jazyky
+  content: >
+    Vyberte hlavní jazyk systému a případně další jazyky pro vaše uživatele a pracovníky.
+primary_language:
+  title: Hlavní jazyk
+  content: >
+    Texty v tomto jazyce jsou zobrazeny uživatelům a pracovníkům, pokud jejich vlastní jazyk není dostupný. To zahrnuje jak prostředí systému, tak vlastní obsah jako jsou například stránky s poděkováním a e-mailové zprávy. <br/><br/> Toto je jazyk ve kterém se budou zobrazovat veškeré jazykové verze nepřeloženého obsahu.
+secondary_language:
+  title: Další jazyky
+  content: >
+    Vyberte jazyky pro vaše zákazníky a pracovníky. V těchto jazycích bude zobrazeno prostředí systému a vlastní obsah, jako jsou například stránky s poděkováním, názvy témat podpory budou přeloženy do těchto jazyků.
+#Attachments
+attachments:
+  title: Nastavení možností příloh a jejich ukládání
+  content: >
+    Nastavení, jak jsou přílohy ukládány v systému.
+default_storage_bk:
+  title: Způsob ukládání souborů
+  content: >
+    Vyberte, jakým způsobem budou přílohy ukládány. <br><br> Další služby ukládání mohou být přidány instalací pluginů pro ukládání dat
+max_file_size:
+  title: Maximální velikost souboru
+  content: >
+    Vyberte maximální velikost příloh nahraných pracovníky. Toto zahrnuje předpřipravené přílohy, články báze znalostí a přílohy k odpovědím na požadavky a úkoly. Horní limit je řízen volbou <code>upload_max_filesize</code> v nastavení PHP.
+  links:
+    - 
+      title: Nastavení PHP
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Vyžaduje přihlášení
+  content: >
+    Aktivujte tuto možnost, abyste zabránili zobrazování příloh neoprávněným uživatelům. To znamená, že uživatelé musí být přihlášeni (jak uživatelé, tak i agenti) k zobrazení příloh. <br> <br> Z bezpečnostního hlediska nezapomeňte, že prohlížeč uživatele může ukládat dříve prohlížené soubory do mezipaměti. Navíc všechny odkazy na soubory v podpoře automaticky vyprší přibližně za 24 hodin.

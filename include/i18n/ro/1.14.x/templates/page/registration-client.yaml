@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Acest template defineste emailul trimis catre Clienti cand contul lor a fost creat fie din Portalul pentru Clienti fie de catre un Agent in numele lor. Acest email serveste pentru validarea adresei de email. Va rugam sa folositi %{link} undeva in corpul emailului.
+name: "Bine ai venit la %{company.name}"
+body: >
+  <h3><strong>Buna %{recipient.name.first},</strong></h3> <div> Ti-am creat un cont pentru platforma noastra de help desk disponibila la adresa %{url}.<br /> <br /> Te rugam sa accesezi link-ul de mai jos pentru a confirma contul tau si pentru a obtine drepturile de acces la tichetele tale.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Cu drag echipa de suport<br /> %{company.name}</em> </div>

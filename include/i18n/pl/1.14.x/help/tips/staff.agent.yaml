@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nazwa użytkownika
+  content: >
+    Proszę wybrać <span class="doc-desc-title">Nazwę użytkownika</span> przedstawiciela, który jest niepowtarzalny dla Twojego <span class="doc-desc-title">Systemu Pomocy</span>.
+email_address:
+  title: Adres E-mail
+  content: >
+    Wprowadź adres e-mail przedstawiciela, który ma otrzymywać <span class="doc-desc-title">Alerty &amp; Powiadomienia</span> z <span class="doc-desc-title">Systemu Pomocy</span>.
+  0: <br><br>
+  1: Personel może zalogować się do panelu sterowania z użyciem nazwy użytkownika lub adresu e-mail.
+welcome_email:
+  title: Email powitalny
+  content: >
+    Wyślij nowemu przedstawicielowi link z danymi dostępowymi, aby mógł ustalić własne hasło. W przypadku odznaczenia należy samemu ustalić hasło  i przekazać je nowemu pracownikowi.
+account_password:
+  title: Hasło do konta
+  content: >
+    Jako <span class="doc-desc-title">administrator</span>, możesz zmienić hasło przedstawiciela.
+forced_password_change:
+  title: Wymuszona zmiana hasła
+  content: >
+    Zaznacz to jeżeli chcesz wymusić na przedstawicielu zmianę hasła przy następnym logowaniu.
+agents_signature:
+  title: Podpis przedstawiciela
+  content: >
+    Utwórz podpis dla przedstawiciela, który będzie używany przy odpowiadaniu na zgłoszenie.
+account_status:
+  title: Status konta
+  content: >
+    Jeżeli status przedstawiciela jest <span class="doc-desc-opt">Zablokowany</span>, nie może on się zalogować do systemu pomocy.
+assigned_group:
+  title: Przypisana grupa
+  content: >
+    <span class="doc-desc-title">Grupa</span>, którą wybrałeś dla tego przedstawiciela determinuje jego uprawnienia w <span class="doc-desc-title">Systemie Pomocy</span>.
+  links:
+    - 
+      title: Zarządzaj Grupami
+      href: /scp/groups.php
+primary_department:
+  title: Podstawowy departament
+  content: >
+    Wybierz <span class="doc-desc-title">department</span> do którego należy przedstawiciel oraz jego <span class="doc-desc-title">Rolę</span>.
+  links:
+    - 
+      title: Zarządzanie departamentami
+      href: /scp/departments.php
+primary_role:
+  title: Podstawowa rola
+  content: >
+    Wybierz podstawową <span class="doc-desc-title">rolę</span> jaką pełni ten przedstawiciel.
+primary_role_on_assign:
+  title: Użyj podstawowej roli dla przypisań/zleceń
+  content: >
+    Włącz, aby przywrócić <span class="doc-desc-title">główna rolę</span>, gdy temu Przedstawicielowi jest przypisane zgłoszenie i zadanie spoza <span class="doc-desc-title">głównego departamentu</span> i <span class="doc-desc-title">rozszerzony dostęp</span> do departamentów. W przeciwnym razie Przedstawiciel będzie miał dostęp tylko do podglądu.
+daylight_saving:
+  title: Czas letni
+  content: >
+    Włącz tę funkcję, jeżeli chcesz aby czas letni był automatycznie stosowany dla strefy czasowej tego przedstawiciela.
+limited_access:
+  title: Ograniczony dostęp
+  content: >
+    Jeżeli włączone, przedstawiciel będzie miał dostęp tylko do zgłoszeń przypisanych bezpośrednio do niego lub Drużyny.
+directory_listing:
+  title: Zawartość katalogu
+  content: >
+    Włącz, jeżeli chcesz wyświetlić przedstawiciela w <span class="doc-desc-title">Katalogu pracowników</span>.
+  links:
+    - 
+      title: Odwiedź katalog pracowników
+      href: /scp/directory.php
+vacation_mode:
+  title: Tryb urlopowy
+  content: >
+    W przypadku zmiany statusu przedstawiciela na <span class="doc-desc-opt">Tryb wakacyjny</span>, nie będzie on otrzymywać żadnych <span class="doc-desc-title">Alertów i Powiadomień</span> nie będą mu też przydzielana zgłoszenia.
+

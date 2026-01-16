@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Skupiny
+  content: >
+    Skupiny se používají pro definici přístupových práv pracovníků v systému zákaznické podpory. Skupiny mohou též umožnit přístup do jiných oddělení, než je primární oddělení pracovníka.
+status:
+  title: Stav
+  content: >
+    Pokud je nastaven na <span class="doc-desc-opt">Zakázáno</span>, pracovníci zařazeni do této skupiny se nemohou přihlásit a nebudou dostávat upozornění a oznámení.
+department_access:
+  title: Přístup k oddělením
+  content: >
+    Zaškrtněte všechna oddělení, ke kterým mají členové skupiny mít přístup.

@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Poslato operaterima nakon što im se dodeli tiket. Tiketi mogu biti dodelјeni automatski od strane sistema ili ručno od strane drugog operatera. Koristi %{assigner} da bi odredio ko je izvršio dodelu.
+subject: |
+  Tiket dodeljen Vama
+body: |
+  <h3><strong>Zdravo %{assignee.name.first},</strong></h3>
+  Tiket <a href="%{ticket.staff_link}">#%{ticket.number}</a> vam je dodelio %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Od</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Tema</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Da biste pogledali/odgovorili na tiket, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prijavite se</span></a> na tiketing sistem</div>
+  <em style="font-size: small; ">Vaš Sistem za podršku korisnicima</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Omogućio osTicket" width="126" height="19" style="width: 126px;">

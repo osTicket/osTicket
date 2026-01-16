@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  See mall määrab, milline email saadetakse kliendile, kui ta on vajutanud <strong>unustasin salasõna</strong> lingile kliendi sisselogimise lehel.
+name: "Ligipääs %{company.name} kasutajatoele"
+body: >
+  <h3><strong>Tere %{user.name.first}!</strong></h3> <div> Oled soovinud muuta oma kasutajatoe salasõna lehel %{url}.<br /> <br /> Kui sa pole salasõnavahetust tellinud, siis kustuta see email ja ignoreeri seda. Sinu konto on turvaline ja keegi teine pole saanud sellele ligipääsu. Sinu konto pole lukustatud ja salasõna pole lähtestatud. Keegi on ekslikult sisestanud sinu emaili aadressi. <br /> <br />Salasõna muutmiseks mine allpool olevale lehele.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Sinu sõbralik kasutajatugi <br /> %{company.name}</em> </div>

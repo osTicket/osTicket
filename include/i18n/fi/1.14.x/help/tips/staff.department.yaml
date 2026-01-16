@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Tila
+  content: >
+    Jos poistettu käytöstä tai arkistoitu, tämä <span class="doc-desc-title">osasto</span> ei ole käytettävissä.
+type:
+  title: Tyyppi
+  content: >
+    Valitse <span class="doc-desc-opt">Yksityinen</span> jos haluat piilottaa tämän Osaston kohdistukset Asiakasportaalista. Jos merkitty <span class="doc-desc-opt">Yksityiseksi</span> <span class="doc-desc-title">Osaston allekirjoitusta</span> ei näytetä sähköpostiviestien vastauksissa. <br/><br/> Vähintään yhden osaston täytyy olla <span class="doc-desc-opt">Julkinen</span>
+email:
+  title: Email
+  content: >
+    Käytettävä Sähköpostiosoite kun Käsittelijä vastaa Asiakkaan tikettiin.
+template:
+  title: Pohjasarja
+  content: >
+    Sähköpostin <span class="doc-desc-title">Pohjasarjaa</span> käytetään tämän osaston tikettien ohjauksien Automaattisissa vastauksissa ja Imoituksissa &amp; Muistutuksissa.
+  links:
+    - 
+      title: Hallinnoi pohjia
+      href: /scp/templates.php
+sla:
+  title: Palvelutaso
+  content: >
+    Tiketit joiden Palvelutaso ohjataan tähän Osastoon.
+  links:
+    - 
+      title: Hallinnoi palvelutasoja
+      href: /scp/slas.php
+schedule:
+  title: Aikataulu
+  content: >
+    Aikataulu, jota SLA käyttää myöhässä olevien tähän osastoon reititettyjen tikettien tulkinnassa. <br> <br> Tämä asetus ottaa etusijan yli järjestelmän ja SLA aikatauluasetusten.
+  links:
+    - 
+      title: Hallitse aikatauluja
+      href: /scp/schedules.php
+manager:
+  title: Osaston esimies
+  content: >
+    Valitse <span class="doc-desc-title">Esimies</span> tälle osastolle. <br/><br/> Esimiehille voidaan asettaa erityisiä ilmoituksia sekä oikeus poistaa kohdistuksia tiketeistä.
+  links:
+    - 
+      title: Hallinnoi Ilmoituksia &amp; Muistutuksia
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Ilmoituksien &amp; Muistutuksien Vastaanottajat
+  content: >
+    Valitse vastaanottajat asetetuille <span class="doc-desc-title">Ilmoituksille &amp; Muistutuksille</span>.
+  links:
+    - 
+      title: Määritä Ilmoitukset &amp; Muistutukset
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Tikettien Kohdistusrajoitukset
+  content: >
+    Määrittää osoitetaanko tiketit kaikille käsittelijöille, käsittelijöille, joilla on pääsy pääosastoon tai laajennetulle osastolle vai ainoastaan käsittelijöille, joilla on pääosaston käyttöoikeudet.
+disable_auto_claim:
+  title: Poista automaattinen varaus käytöstä
+  content: >
+    Valitse tämä <strong>poistaaksesi</strong> osaston automaativarauksen vastattaessa. <br><br> Agentit voivat edelleen manuaalisesti varata määräämättömiä tikettejä
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Automaattisen vastausten asetukset
+  content: >
+    Tämä sallii yleisten automaattivastauksien ohittamisen tässä Osastossa.
+new_ticket:
+  title: Uuden Tiketin Automaattinen vastaus
+  content: >
+    Voit estää Automaattisen vastauksen joka lähetetään Asiakkaalle kun uusi tiketti luodaan ja ohjataan tähän Osastoon.
+new_message:
+  title: Uuden Viestin Automaattivastaus
+  content: >
+    Voit estää Automaattisen ilmoituksen joka lähetettään Asiakkaalle kun uusi viesti kirjoitetaan asiakkaan tikettiin tässä Osastossa.
+auto_response_email:
+  title: Sähköpostiviestin Automaattivastaus
+  content: >
+    Valitse sähköpostiosoite, josta Automaattiset vastaukset lähetetään tälle Osastolle.
+department_access:
+  title: Ryhmän hallinta
+  content: >
+    Salli muiden Osastojen Käsittelijöiden päästä tämän Osaston tiketteihin.
+department_signature:
+  title: Osaston allekirjoitus
+  content: >
+    Allekirjoitus on saatavilla vaihtoehtoisena <span class="doc-desc-opt">Julkisille</span> Osastoille Käsittelijöiden vastauksiin.

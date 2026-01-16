@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Korisničko ime
+  content: >
+    Molimo Vas da odaberete <span class="doc-desc-title">korisničko ime</span> djelatnika koje je jedinstveno za Vaš <span class="doc-desc-title">centar tehičke podrške</span>.
+email_address:
+  title: Adresa e-pošte
+  content: >
+    Unesite email adresu djelatnika na koju će primati <span class="doc-desc-title">upozorenja &amp; obavijesti</span> iz <span class="doc-desc-title">centra tehničke podrške</span>.
+  0: <br><br>
+  1: Djelatnici se mogu prijaviti na upravljačku ploču koristeći korisničko ime ili email adresu.
+welcome_email:
+  title: Email dobrodošlice
+  content: >
+    Pošalji novom djelatniku podatke za pristup računu iz kojeg će moći postaviti vlastitu zaporku. Ukoliko ovo polje ostavite neoznačenim, mortat ćete sami postaviti zaporku za djelatnika, te ga obavijestiti o podacima za prijavu samostalno.
+account_password:
+  title: Zaporka računa
+  content: >
+    Kao<span class="doc-desc-title">administrator</span>, možete mjenjati zaporke djelatnika.
+forced_password_change:
+  title: Obavezna promjena zaporke
+  content: >
+    Omogućite ovu opciju ako želite prisiliti novog djelatnika da promijeni svoju zaporku kod sljedeće prijave.
+agents_signature:
+  title: Potpis djelatnika
+  content: >
+    Napravite potpis za djelatnika koji može biti dodan kod odgovora na kartijcu.
+account_status:
+  title: Status računa
+  content: >
+    Ukoliko je status djelatnika <span class="doc-desc-opt">zaključan</span>, neće biti u mogućnosti prijaviti se u centar tehničke podrške.
+assigned_group:
+  title: Dodjeljena grupa
+  content: >
+    <span class="doc-desc-title">Grupa</span> u koju smjestite ovog djelatnika će odrediti koja ovlaštenja djelatnik ima unutar<span class="doc-desc-title">centra tehničke podrške</span>.
+  links:
+    - 
+      title: Uredi grupe
+      href: /scp/groups.php
+primary_department:
+  title: Osnovni odjel
+  content: >
+    Odaberite primarni <span class="doc-desc-title">odjel</span> kojem ovaj agent pripada, te pripadajuću <span class="doc-desc-title">Ulogu</span>.
+  links:
+    - 
+      title: Upravljanje odjelima
+      href: /scp/departments.php
+primary_role:
+  title: Primarna uloga
+  content: >
+    Odaberite primarnu <span class="doc-desc-title">ulogu</span> kojoj ovaj agent pripada.
+primary_role_on_assign:
+  title: Koristite primarnu ulogu za zadatke
+  content: >
+    Omogućite ovo za povratak u <span class="doc-desc-title">primarnu ulogu</span>  kada je agentu dodjeljen zahtjev ili zadatak van <span class="doc-desc-title">primarnog odjela</span> i<span class="doc-desc-title">proširenog pristupa</span> odjelima. U prozivnom će agent imati pristup samo za čitanje.
+daylight_saving:
+  title: Ljetno računanje vremena
+  content: >
+    Omogućite ovo ukoliko želite da se ljetno računanje vremena automatski prilagođava djelatnikovoj vremenskoj zoni.
+limited_access:
+  title: Ograničeni pristup
+  content: >
+    Ukoliko je ovo omogućeno djelatnik će moći pristupiti samo karticama koje su mu dodjeljene direktno ili putem tima.
+directory_listing:
+  title: Imenik
+  content: >
+    Omogućite ovo ukoliko želite uvrstiti ovog djelatnika u  <span class="doc-desc-title">imenik djelatnika</span>.
+  links:
+    - 
+      title: Posjetite imenik djelatnika
+      href: /scp/directory.php
+vacation_mode:
+  title: Godišnji odmor
+  content: >
+    Ukoliko promjenite status djelatnika u  <span class="doc-desc-opt">godišnji odmor</span>, djelatnik neće primati <span class="doc-desc-title">Upozorenja &amp; Obavijesti</span> niti će moći odgovarati na kartice.
+

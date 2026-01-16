@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Type
+  content: >
+    만약 부서가 비공개라면, 이용자 페이지에서 답변이나 부서 지정 문서에 부서 서명이 표기되지 않게됩니다.
+dept_manager:
+  title: 부서 관리자
+  content: >
+    해당 부서에서 알림이나 주목을 얻기 위해 구성원을 부서 관리자로 선택할 수 있습니다.
+  0: 구성은 부서의 관리자가 되기 위해 반드시 그 부서의 일원일 필요는 없습니다.

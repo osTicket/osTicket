@@ -1,0 +1,28 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Sent to agents when a task is assigned to them or the team to which
+  they belong. Use %{assigner} to distinguish who made the assignment.
+subject: |
+  タスクがあなたにアサインされました
+body: |
+  <h3><strong>%{assignee.name.first}さん</strong></h3>
+  タスク <a href="%{task.staff_link}">#%{task.number}</a> が %{assigner.name.short}によりあなたにアサインされました。
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>このチケットに返信する場合は、サポートシステムへ<a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >ログイン</span></a>してください。
+  このメールはあなた、もしくは担当チーム、部門にアサインされたチケットの対応期限を過ぎたため送信されております。
+  </div>
+  <em style="font-size: small">カスタマーサポートシステム<span style="font-size: smaller"></span></em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Powered by osTicket" width="126" style="width: 126px;">

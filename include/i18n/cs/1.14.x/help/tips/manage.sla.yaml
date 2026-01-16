@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Jméno
+  content: >
+    Zvolte si název pro tento <span class="doc-desc-title">plán SLA</span>, který vystihuje jeho účel.
+grace_period:
+  title: Lhůta
+  content: >
+    Stanoví počet hodin, po kterých je vytvořený požadavek označen jako zpožděný.<br><br><em>Hodiny jsou počítány od počátku vytvoření požadavku.</em>
+transient:
+  title: Přechodný
+  content: >
+    Přechodné plány SLA jsou považovány za dočasné a mohou být přepsány nepřechodnými plány SLA při předání na jiné <span class="doc-desc-opt">oddělení</span> nebo je-li změněno <span class="doc-desc-title">téma podpory</span>.
+schedule:
+  title: Plán
+  content: >
+    Vyberte časový plán který má SLA použít pro výpočet zpožděných tiketů. <br><br>Tento plán může být přepsán nastavením oddělení.
+  links:
+    - 
+      title: Spravovat plány
+      href: /scp/schedules.php

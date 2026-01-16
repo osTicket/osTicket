@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Typ
+  content: >
+    Jeśli typ Departamentu ustawiony jest jako Prywatny, to Podpis Departamentu nie będzie dostępny przy odpowiedzi, a przypisanie Działu nie będzie widoczne z Portalu Klienta.
+dept_manager:
+  title: Kierownik departamentu
+  content: >
+    Możesz wybrać Przedstawiciela jako Kierownika Działu, aby otrzymywać powiadomienia i uwagi na zgłoszenia w działach.
+  0: Przedstawiciele nie muszą być członkami Departamentu być Kierownikiem tego Departamentu

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Kasutajanimi
+  content: >
+    Palun vali agendi <span class="doc-desc-title">kasutajanimi</span>, mis on unikaalne sinu <span class="doc-desc-title">kasutajatoes</span>.
+email_address:
+  title: Emaili aadress
+  content: >
+    Sisesta agendi emaili aadress, millele ta hakkab saama <span class="doc-desc-title">kasutajatoe</span> <span class="doc-desc-title">hoiatusi ja teateid</span>.
+  0: <br><br>
+  1: Töötajad saavad töötajate juhtpaneeli sisse logida, kas kasutajanime või emaili aadressiga.
+welcome_email:
+  title: Tervitusmeil
+  content: >
+    Saada uuele agendile link, mille kaudu agent saab määrata oma kontole salasõna. Kui pole märgistatud, siis pead ise salasõna seadma ja sisselogimise infot uuele töötajale vahendama.
+account_password:
+  title: Konto salasõna
+  content: >
+    Kui oled <span class="doc-desc-title">administraator</span>, siis saad agendi salasõna muuta.
+forced_password_change:
+  title: Sunniviisiline salasõnavahetus
+  content: >
+    Luba see, kui soovid, et uus agent muudaks järgmisel sisselogimisel salasõna.
+agents_signature:
+  title: Agendi signatuur
+  content: >
+    Loo agendile allkiri, mille ta saab valida piletile vastates.
+account_status:
+  title: Konto staatus
+  content: >
+    Kui agendi staatus on <span class="doc-desc-opt">lukus</span>, siis ei saa ta kasutajatoe süsteemi sisse logida.
+assigned_group:
+  title: Määratud grupp
+  content: >
+    <span class="doc-desc-title">Grupp</span>, millesse agent kuulub, määrab tema õigused <span class="doc-desc-title">kasutajatoes</span>.
+  links:
+    - 
+      title: Halda gruppe
+      href: /scp/groups.php
+primary_department:
+  title: Esmane osakond
+  content: >
+    Vali agendile esmane <span class="doc-desc-title">osakond</span> ja <span class="doc-desc-title">roll</span>.
+  links:
+    - 
+      title: Halda osakondi
+      href: /scp/departments.php
+primary_role:
+  title: Esmane roll
+  content: >
+    Vali agendile esmane <span class="doc-desc-title">roll</span>.
+primary_role_on_assign:
+  title: Kasuta suunamiseks esmast rolli
+  content: >
+    Aktiveeri see, et anda agendile tagasi<span class="doc-desc-title">esmane iroll</span>, kui talle on määratud pilet või ülesanne väljaspoolt tema <span class="doc-desc-title">peamist osakonda</span> ja <span class="doc-desc-title">laiendatud ligipääsuga</span> osakondi. Vastasel korral on agendil vaid vaatamise õigused.
+daylight_saving:
+  title: Suveaeg
+  content: >
+    Luba see, kui soovid, et suveaeg ilmub automaatselt agendi ajavööndis.
+limited_access:
+  title: Piiratud ligipääs
+  content: >
+    Kui lubatud, siis agendil on ligipääs vaid piletitele, mis on suunatud otse temale või meeskonnale.
+directory_listing:
+  title: Kataloogi sisu
+  content: >
+    Märgi see, kui soovid, et agendi nimi kuvatakse <span class="doc-desc-title">nimekirjas</span>.
+  links:
+    - 
+      title: Vaata töötajate kataloogi
+      href: /scp/directory.php
+vacation_mode:
+  title: Puhkuse režiim
+  content: >
+    Kui muudad agendi staatuse <span class="doc-desc-opt">puhkuse režiimiks</span>, siis ei saadeta agendile <span class="doc-desc-title">hoiatusi ja teateid</span> ega määrata talle pileteid.
+

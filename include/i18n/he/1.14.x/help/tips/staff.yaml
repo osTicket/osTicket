@@ -1,0 +1,25 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: שורת חתימה לאנשי צוות
+  content: |
+    צור חתימה לאנשי צוות למענה על כרטיסים. חתימה זו תופיע כאופציה בתחתית מענה לכרטיס
+type:
+  title: סוג חשבון
+  content: |
+    למנהלים יש הרשאה לגשת ללוח הבקרה ' מנהל מערכת '. לצוות יש גישה רק לניהול כרטיסים ולמאגר הידע
+group:
+  title: קבוצה משוייכת
+  content: |
+    חברות בקבוצה מגדיר את תפקיד איש הצוות במערכת.
+    בקר בדף ניהול הקבוצות להגדיר איזה הרשאות יהיו לאיש הצוות במערכת
+notes:
+  title: הערות פנימיות
+  content: |
+    הוסף הערות פנימיות לאנשי צוות; ההערות גלויים רק לאנשי צוות שסוג החשבון שלהם הוא Admin

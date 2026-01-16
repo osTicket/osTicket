@@ -1,0 +1,21 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Siunčiama darbuotojams kuomet  užklausa sistemoje tampa veluojanti.
+  Užklausos vėluojančiomis tampa remiantis užklausos data-iki taip pat SLA priskirtu užklausai.
+subject: |
+  Perspėjimas apie pasenusį bilietą
+body: |
+  <h3><strong>Laba diena%{recipient.name}</strong>,</h3>Užklausa,<a href="%{ticket.staff_link}">#%{ticket.number}</a>
+  yra vėluojanti.<br><br>
+  Visi turime intensyviai dirbti, kad garantuotume , kad visos užklausos būtų sprendžiamos laiku.<br><br>
+  Pasirašo,<br>%{ticket.dept.manager.name}<hr>
+  <div>Kad peržiūrėtumėte arba atsakytumėte į užklausą, prašome<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prisijungti</span></a>prie pagalbos užklausų sistemos. Jūs gaunate šį parnešimą kadangi užsklasa yra priskirta tiesiogiai jums, komandai arba padaliniui, kurio nasrys Jūs esate.</div><em style="font-size: small">Jūsų draugiška<span style="font-size: smaller"
+  >(nors su ribota kantrybe)</span>Klientų aptarnavimo sistema</em><br><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

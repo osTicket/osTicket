@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: TIPO
+  content: >
+    Se il tipo del reparto è privato, allora la firma del reparto non sarà disponibile nelle risposte né verrà visualizzata nelll'assegnazione del reparto dal Client Portal.
+dept_manager:
+  title: Gestione Reparti
+  content: >
+    Si può scegliere un operatore come un responsabile di un reparto per ricevere avvisi e notizie per i ticket nel reparto.
+  0: Gli operatori non devono essere membri del reparto per gestire il reparto

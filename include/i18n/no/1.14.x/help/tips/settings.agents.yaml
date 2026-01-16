@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Agentnavn formatering
+  content: >
+    Velg et format for brukernavn i hele systemet. E-post maler bruker dette som navn hvis ingen andre formater angis.
+staff_identity_masking:
+  title: Maskere identiteten til agenten
+  content: >
+    Hvis aktivert, skjule Agent navn fra klienten under enhver kommunikasjon.
+#Authentication settings
+password_reset:
+  title: Passord utløpspolicy
+  content: >
+    Angir hvor ofte (i måneder) stab medlemmer vil være nødt til å endre passordet. Hvis deaktivert (satt til "Ingen utløp"), utløper ikke passordet.
+password_expiration_policy:
+  title: Passord utløpspolicy
+  content: >
+    Velg hvor ofte agenter vil være nødvendig å endre passordet. Hvis deaktivert (dvs. <span class="doc-desc-opt"> Ingen utløpsdato</span>), passord vil ikke utløper.
+allow_password_resets:
+  title: Tillate tilbakestilling av passord
+  content: >
+    Aktiver denne funksjonen hvis du ønsker å vise koblingen <span class="doc-desc-title"> Glemt mitt passord</span> lenke <span class="doc-desc-title"> i ansattes påloggingsbilde</span> etter et mislykket påloggingsforsøk.
+reset_token_expiration:
+  title: Passord tilbake stillings vindu
+  content: >
+    Velge varigheten (i minutter) som <span class="doc-desc-title"> Passord tilbakestille symbol</span> vil være gyldig. Når en Agent ber om en <span class="doc-desc-title"> Tilbakestilling av passord</span>, sendes de et symbol som tillater tilbakestilles til å skje.
+staff_session_timeout:
+  title: Agent økt-tidsavbrudd
+  content: >
+    Velg maksimalt inaktiv tid (i minutter) før en Agent er nødvendig for å logge på igjen. <br><br>Hvis du vil deaktivere <span class="doc-desc-title"> automatisk avlogging</span>, angir du 0.
+bind_staff_session_to_ip:
+  title: Binde Agent økt til IP
+  content: >
+    Aktiver dette hvis du vil megleren skal bli husket av gjeldende IP adresse på Logg inn <br><br>denne innstillingen er ikke anbefalt for brukere tilordnet IP-adresser dynamisk.

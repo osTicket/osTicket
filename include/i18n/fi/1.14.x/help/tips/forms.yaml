@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Lomakkeen otsikko
+  content: >
+    Tämän otsikon teksti näkyy harmaana lomakekentän yläpuolella
+form_instructions:
+  title: Lomakkeen ohjeet
+  content: >
+    Voit lisätä ylimääräisiä ohjeita, jotka auttavat käyttäjää lomakkeen kentissä ja tarvittaessa korostaa vaadittuja tietoja.
+field_sort:
+  title: Kentän sijainti
+  content: >
+    Klikkaa ylös-ja-alas nuolia ja vedä tämä rivi haluttuun kohtaan lomakkeessa. Lajittelu ei tule voimaan ilman tallennusta.
+field_label:
+  title: Kentän nimi
+  content: >
+    Tämä näytetään kentän kehoitteena. Tyypillisesti lyhyt vastauskenttä näytetään seuraavasti:<br> <strong>Nimi:</strong>&nbsp; <input type="text">
+field_type:
+  title: Kentän sisältötyyppi
+  content: >
+    Tässä määritellään millaista vastausta käyttäjältä odotetaan. Voit valita lyhyen tai pitkän vastauksen, puhelinnumeron, päiväyksen, valintaruudun, pudotusvalikon tai muokatun listan.
+  links:
+    - 
+      title: Mukautetut listat
+      href: /scp/lists.php
+field_visibility:
+  title: Kentän näkyvyys
+  content: >
+    Valitse näkyvyys ja vaatimukset kentälle. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Asetukset</th> <th>Tulos</th></tr> <tr><td>Vapaaehtoinen</td> <td>Käsittelijät ja Asiakkaat voivat nähdä kentän, vastaus ei pakollinen.</td></tr> <tr><td>Vaadittu</td> <td>Käsittelijät ja Asiakkaat näkevät kentän, vastaus pakollinen</td></tr> <tr><td>Vaadittu Asiakkaille</td> <td> Käsittelijät ja Asiakkaat näkevät kentän, Asiakkailta vastaus pakollinen</td></tr> <tr><td>Vaadittu Käsittelijöille</td> <td>Käsittelijät ja Asiakkaat näkevät kentän, Käsittelijöiltä vaaditaan vastaus</td></tr> <tr><td>Sisäinen, Vapaaehtoinen</td> <td>Ainoastaan Käsittelijät näkevät kentän, vastaus ei pakollinen.</td></tr> <tr><td>Sisäinen, Vaadittu</td> <td>Ainoastaan Käsittelijät näkevät kentän, vastaus pakollinen.</td></tr> <tr><td>Asiakkaille ainoastaan</td> <td>Ainoastaan Asiakkaat näkevät kentän, vastaus pakollinen.</td></tr> </tbody></table>
+field_variable:
+  title: Automaattinen kenttä
+  content: >
+    Kentän tiedot ovat sähköposti- ja sivupohjien käytettävissä tässä sarakkeessa annetulla nimellä. Esimerkiksi tiedot vakiotikettilomakkeella ovat käytettävissä <code>%{ticket.variable}</code> -viittauksella, jossa <strong>muuttuja</strong> on tässä sarakkeessa käytetty nimi.<br> <br> <em>Yritystiedot saat <code>%{</code><code>company.variable}</code>-viittauksella ja käyttäjätiedot <code>%{ticket.user.variable}</code>-viittauksella-</em>
+field_delete:
+  title: Poista tämä kenttä
+  content: >
+    Tarkista ja tallenna lomake poistaaksesi kentän.<br> <br> <em> Kentän poistaminen ei poista aiemmin annettuja tietoja luoduista tiketeistä. Mikäli tämä kenttä on ollut käytössä aiemmissa tiketeissä, tämän kentän tiedot eivät katoa niistä.</em>

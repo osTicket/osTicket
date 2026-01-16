@@ -1,0 +1,26 @@
+---
+#Email template: task.overdue.alert.yaml
+#Sent to agents when a tasks transitions to overdue in the system.
+#Overdue tasks occur based on set due-date.
+#---
+notes: |
+  ارسال وظایف به کارشناسان در هنگام فرارسیدن زمان انقضا در سیستم. وظایف منقضی شده بر اساس زمان انقضا تعیین میشوند.
+subject: |
+  هشدار وظیفه قدیمی
+body: |
+  <h3><strong>سلام %{recipient}</strong>,</h3>
+  تاریخ انقضای درخواست, <a href="%{ticket.staff_link}">#%{ticket.number}</a>سر رسیده است.
+  <br>
+  <br>
+  ما باید همگی به سختی تلاش کنیم تا تمامی درخواست ها به موقع پاسخ داده شود. 
+  <br>
+  <br>
+  امضاء,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>برای مشاهده یا پاسخ به درخواست، لطفا به سیستم پاسخگویی به درخواست ها <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >وارد شوید.</span></a> شما به این دلیل این اخطاریه را دریافت نموده اید که این درخواست مستقیما به شما یا به تیم یا واحد سازمانی ای که شما در آن عضو هستید ارجاع داده شده است.</div>
+  <em style="font-size: small">با تشکر، سیستم پشتیبانی مشتریان شما</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

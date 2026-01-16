@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Listes personnalisées
+  content: >
+    Vos <span class="doc-desc-title">listes personnalisées</span> vous permettront de créer des listes déroulantes avec des options prédéfinies dans lesquelles un Client peut choisir dans vos <span class="doc-desc-title">Formulaires personnalisés</span>. Si vous souhaitez utiliser cette <span class="doc-desc-title">liste personnalisée</span> comme une <span class="doc-desc-title">cible</span> dans un <span class="doc-desc-title">Filtre de billet</span>, n'oubliez pas d'ajouter cette liste à votre formulaire de <span class="doc-desc-title">Détails du billet</span>.
+name:
+  title: Nom
+  0: >
+
+plural_name:
+  title: Nom au pluriel
+  0: >
+
+sort_order:
+  title: Ordre de tri
+  0: >
+
+list_s_initial_items:
+  title: Liste initiale des éléments
+  0: >
+
+value:
+  title: Valeur
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Abréviations et autres. S'il vous arrive d'utiliser des codes internes pour les éléments de cette liste, ces codes et abréviations peuvent figurer dans cette colonne. Si la liste personnalisée est restituée comme une <span class="doc-desc-option">en-tête</span>, ces abréviations peuvent être utilisées pour rechercher les éléments de liste personnalisée.

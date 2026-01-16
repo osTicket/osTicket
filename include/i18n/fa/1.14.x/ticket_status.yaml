@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: باز
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      درخواست های باز.
+- 
+  id: 2
+  name: حل شده
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      درخواستهای حل شده
+- 
+  id: 3
+  name: بسته شده
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      درخواست ها بسته شده است. درخواست ها کماکان در پنل درخواست دهنده و درخواست گیرنده قابل دسترسی است.
+- 
+  id: 4
+  name: بایگانی شده
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      درخواست ها توسط مدیر قابل رویت است اما دیگر قابل مشاهده در صف درخواست ها و پنل درخواست دهنده نیست.
+- 
+  id: 5
+  name: حذف شده
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      درخواست برای حذف در صف قرار گرفته است . و قابل دسترس نمی باشد .

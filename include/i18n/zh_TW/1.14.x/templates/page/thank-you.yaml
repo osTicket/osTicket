@@ -1,0 +1,10 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  這個範本將顯示在當台端成功送出案件時的”感謝頁面”。
+name: 感謝您
+body: |
+  <div>%{ticket.name} <br><br>感謝您與我們聯絡。<br><br>支援申請已成立、支援專員將會儘速與您聯繫。</p><br><br>支援小組</div>

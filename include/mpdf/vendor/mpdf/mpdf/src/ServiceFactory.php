@@ -5,11 +5,8 @@ namespace Mpdf;
 use Mpdf\Color\ColorConverter;
 use Mpdf\Color\ColorModeConverter;
 use Mpdf\Color\ColorSpaceRestrictor;
-use Mpdf\File\LocalContentLoader;
 use Mpdf\Fonts\FontCache;
 use Mpdf\Fonts\FontFileFinder;
-use Mpdf\Http\CurlHttpClient;
-use Mpdf\Http\SocketHttpClient;
 use Mpdf\Image\ImageProcessor;
 use Mpdf\Pdf\Protection;
 use Mpdf\Pdf\Protection\UniqidGenerator;
@@ -30,20 +27,11 @@ use Psr\Log\LoggerInterface;
 class ServiceFactory
 {
 
-	/**
-	 * @var \Mpdf\Container\ContainerInterface|null
-	 */
-	private $container;
-
-	public function __construct($container = null)
-	{
-		$this->container = $container;
-	}
-
 	public function getServices(
 		Mpdf $mpdf,
 		LoggerInterface $logger,
 		$config,
+		$restrictColorSpace,
 		$languageToFont,
 		$scriptToLanguage,
 		$fontDescriptor,
@@ -56,7 +44,8 @@ class ServiceFactory
 		$colorModeConverter = new ColorModeConverter();
 		$colorSpaceRestrictor = new ColorSpaceRestrictor(
 			$mpdf,
-			$colorModeConverter
+			$colorModeConverter,
+			$restrictColorSpace
 		);
 		$colorConverter = new ColorConverter($mpdf, $colorModeConverter, $colorSpaceRestrictor);
 
@@ -69,21 +58,9 @@ class ServiceFactory
 
 		$fontFileFinder = new FontFileFinder($config['fontDir']);
 
-		if ($this->container && $this->container->has('httpClient')) {
-			$httpClient = $this->container->get('httpClient');
-		} elseif (\function_exists('curl_init')) {
-			$httpClient = new CurlHttpClient($mpdf, $logger);
-		} else {
-			$httpClient = new SocketHttpClient($logger);
-		}
+		$remoteContentFetcher = new RemoteContentFetcher($mpdf, $logger);
 
-		$localContentLoader = $this->container && $this->container->has('localContentLoader')
-			? $this->container->get('localContentLoader')
-			: new LocalContentLoader();
-
-		$assetFetcher = new AssetFetcher($mpdf, $localContentLoader, $httpClient, $logger);
-
-		$cssManager = new CssManager($mpdf, $cache, $sizeConverter, $colorConverter, $assetFetcher);
+		$cssManager = new CssManager($mpdf, $cache, $sizeConverter, $colorConverter, $remoteContentFetcher);
 
 		$otl = new Otl($mpdf, $fontCache);
 
@@ -109,7 +86,7 @@ class ServiceFactory
 			$cache,
 			$languageToFont,
 			$scriptToLanguage,
-			$assetFetcher,
+			$remoteContentFetcher,
 			$logger
 		);
 
@@ -167,9 +144,7 @@ class ServiceFactory
 			'sizeConverter' => $sizeConverter,
 			'colorConverter' => $colorConverter,
 			'hyphenator' => $hyphenator,
-			'localContentLoader' => $localContentLoader,
-			'httpClient' => $httpClient,
-			'assetFetcher' => $assetFetcher,
+			'remoteContentFetcher' => $remoteContentFetcher,
 			'imageProcessor' => $imageProcessor,
 			'protection' => $protection,
 
@@ -187,47 +162,8 @@ class ServiceFactory
 			'colorWriter' => $colorWriter,
 			'backgroundWriter' => $backgroundWriter,
 			'javaScriptWriter' => $javaScriptWriter,
-			'resourceWriter' => $resourceWriter
-		];
-	}
 
-	public function getServiceIds()
-	{
-		return [
-			'otl',
-			'bmp',
-			'cache',
-			'cssManager',
-			'directWrite',
-			'fontCache',
-			'fontFileFinder',
-			'form',
-			'gradient',
-			'tableOfContents',
-			'tag',
-			'wmf',
-			'sizeConverter',
-			'colorConverter',
-			'hyphenator',
-			'localContentLoader',
-			'httpClient',
-			'assetFetcher',
-			'imageProcessor',
-			'protection',
-			'languageToFont',
-			'scriptToLanguage',
-			'writer',
-			'fontWriter',
-			'metadataWriter',
-			'imageWriter',
-			'formWriter',
-			'pageWriter',
-			'bookmarkWriter',
-			'optionalContentWriter',
-			'colorWriter',
-			'backgroundWriter',
-			'javaScriptWriter',
-			'resourceWriter',
+			'resourceWriter' => $resourceWriter
 		];
 	}
 

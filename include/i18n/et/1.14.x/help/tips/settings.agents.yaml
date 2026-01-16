@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Agendi nime vorming
+  content: >
+    Vali süsteemiülene agentide nimede vorming. Emaili mall kasutab seda, kui mõnda teist vormingut pole määratud.
+staff_identity_masking:
+  title: Töötajate identiteedi maskeerimine
+  content: >
+    Kui lubatud, siis kliendi eest varjatakse agendi nime infovahetuse ajal.
+#Authentication settings
+password_reset:
+  title: Salasõna aegumise poliitika
+  content: >
+    Määrab kui tihti (kuudes) peab agent salasõna vahetama. Kui on deaktiveeritud (seatud "Ei aegu"), siis salasõna ei vanane.
+password_expiration_policy:
+  title: Salasõna aegumise poliitika
+  content: >
+    Vali, kui tihti agendid peavad salasõna vahetama. Kui see on deaktiveeritud (st <span class="doc-desc-opt">ei aegu</span>), siis salasõna vahetama ei pea.
+allow_password_resets:
+  title: Luba salasõna lähtestamine
+  content: >
+    Lülita see sisse, kui soovid kuvada <span class="doc-desc-title">unustasin salasõna</span> linki <span class="doc-desc-title">töötaja sisselogimise lehel</span> pärast ebaõnnestunud logimiskatset.
+reset_token_expiration:
+  title: Salasõna lähtestamise aken
+  content: >
+    Vali aeg (minutites), mille jooksul <span class="doc-desc-title">salasõna vahetamise tunnus</span> kehtib. Kui agent valib <span class="doc-desc-title">salasõna vahetamine</span>, siis saadetakse talle emailis link, mis võimaldab salasõna vahetada.
+staff_session_timeout:
+  title: Agendi sessiooni aegumine
+  content: >
+    Vali maksimaalne idle aeg (minutites) enne kui agenti sunnitakse taas sisse logima. <br><br> Kui soovid seda välja lülitada, määra <span class="doc-desc-title">Agendi sessiooni aegumine</span> väärtuseks 0.
+bind_staff_session_to_ip:
+  title: Seo agendi sessioon IP-ga
+  content: >
+    Lülita sisse, kui soovid, et agendi sessiooni peetakse tema hetke IP järgi meeles. <br><br> Ei soovita seda seadistust, kui kasutajatel on dünaamiline IP aadress.

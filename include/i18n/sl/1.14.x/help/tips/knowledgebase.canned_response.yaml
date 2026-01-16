@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Klasičen odgovor
+  content: >
+    Ustvarite <span class="doc-desc-title">Klasičen odgovor</span>, ki se lahko vključi v odgovor zahtevka. Lahko se uporabi tudi za <span class="doc-desc-title">samodejni odgovor zahtevka</span> določen z <span class="doc-desc-title">filtrom zahtevka</span>.
+  links:
+    - 
+      title: Nastavi filter zahtevka
+      href: /scp/filters.php
+canned_attachments:
+  title: Klasične priloge
+  content: >
+    Pripni datoteko, katero bi radi samodejno vključevali v odgovor zahtevka, ki izkorišča nov <span class="doc-desc-title"> klasičen odgovor</span>.

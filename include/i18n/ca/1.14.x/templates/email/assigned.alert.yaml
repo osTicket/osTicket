@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Enviat al personal de suport quan un Ticket se'ls assigna. Els Tickets poden ser assignats automàticament pel sistema o manualment mitjançant un altre membre de l'staff. S'utilitza %{assigner} per a saber qui ha fet l'assignació.
+subject: |
+  El Ticket asignat a tu
+body: |
+  <h3><strong>Hola %{assignee.name.first},</strong></h3>
+  El Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> se us ha assignat via %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+  <td>
+  <strong>desde</strong>:
+  </td>
+  <td>
+  %{ticket.name} &lt;%{ticket.email}&gt;
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <strong>Assumpte</strong>:
+  </td>
+  <td>
+  %{ticket.subject}
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Per veure/respondre el Ticket, si us plau <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >entreu</span></a> al sistema de suport</div>
+  <em style="font-size: small; ">El teu estimat sistema de suport</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Generat per osTicket" width="126" height="19" style="width: 126px;">

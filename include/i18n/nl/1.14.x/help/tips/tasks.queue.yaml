@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Geavanceerd zoeken
+  content: >
+    Stel je zoekparameters in. Op het moment dat je de geavanceerde zoekparameters hebt ingevuld en op zoek klikt, kun je de resultaten <span class="doc-desc-title">exporteren</span> beneden aan de pagina.
+export:
+  title: Exporteer
+  content: >
+    Exporteer uw data in een CSV bestand. CSV bestanden moeten geopend worden met een spreadsheet programma (bv. Microsoft Excel, Apple Numbers, OpenOffice, enz.)

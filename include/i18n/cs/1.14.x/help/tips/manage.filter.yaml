@@ -1,0 +1,94 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Pořadí provádění
+  content: >
+    Vložte číslo, které kontroluje pořadí provádění filtru. Čím nižší číslo zadáte do tohoto pole, tím vyšší prioritu filtr bude mít v pořadí provádění oproti filtru s vyšším číslem, než je zvoleno u tohoto filtru. <br><br>Pokud chcete, aby tento filtr byl aplikován jako poslední v případě shody, zaškrtněte 
+    <span class="doc-desc-title">Zastavit zpracování při shodě.</span>.
+target_channel:
+  title: Kanál
+  content: >
+    Vyberte jeden cílový <span class="doc-desc-title">kanál</span> pro váš <span class="doc-desc-title">filtr požadavků</span>. <span class="doc-desc-title">Kanál</span> je zdroj, skrze který dorazí požadavek do systému. <br><br> Pokud např. zvolíte <span class="doc-desc-opt">webové formuláře</span>, říkate tím, že chcete aplikovat tento <span class="doc-desc-title">filtr požadavků</span> na požadavky, které vznikly ve formuláři webového portálu.
+rules_matching_criteria:
+  title: Podmínky shody s pravidly
+  content: >
+    Zvolte, jak pružnou chcete shodu vašeho <span class="doc-desc-title">filtru požadavků</span> mít. Chcete-li, aby se <span class="doc-desc-title">filtr požadavků</span> shodoval v jakémukoliv pravidlu a pak se zastavil, zvolte <span class="doc-desc-opt">Kterýkoliv</span>. Chcete-li shodu se <em><strong>všemi pravidly</strong></em> vašeho <span class="doc-desc-title">filtru požadavků</span>, vyberte <span class="doc-desc-opt">Všechny</span>.
+reject_ticket:
+  title: Odmítnout požadavek
+  content: >
+    Pokud je tato volba povolena, další zpracování je ukončeno a všechny ostatní volby akcí níže zobrazené budou při shodě ignorovány.
+reply_to_email:
+  title: E-mailová adresa pro odpovědi
+  content: >
+    Tato volba umožňuje, aby váš systém zákaznické podpory ctil položku hlavičky e-mailové zprávy <span class="doc-desc-title">Reply-To</span>. Tato položka je relevantní, pouze pokud <span class="doc-desc-title">kanál</span> nad ní zahrnuje možnost <span class="doc-desc-opt">E-mail</span>.
+ticket_auto_response:
+  title: Zakázat automatickou odpověď na požadavek
+  content: >
+    <em>Upozornění: Toto přepíše jakékoliv nastavení v <span class="doc-desc-title">oddělení</span> či <span class="doc-desc-title">nastavení systému automatických odpovědí</span>.</em>
+canned_response:
+  title: Předpřipravená automatická odpověď
+  content: >
+    Vyberte <span class="doc-desc-title">předdefinovanou odpověď</span> k odeslání uživateli na základě shody s <span class="doc-desc-title">filtrem požadavků</span>. Použitá šablona <span class="doc-desc-title">automatické odpovědi na nový požadavek</span> závisí na nastavení výchozí <span class="doc-desc-title">šablony</span> nebo na <span class="doc-desc-title">odděleních</span> požadavků.
+  links:
+    - 
+      title: Správa předpřipravených odpovědí
+      href: /scp/canned.php
+    - 
+      title: Správa sad šablon
+      href: /scp/templates.php
+    - 
+      title: Nová šablona automatické odpovědi na požadavek
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Oddělení
+  content: >
+    Vyberte jaké <span class="doc-desc-title">oddělení</span> chcete přiřadit požadavkům shodným s <span class="doc-desc-title">filtrem požadavků</span>.
+  links:
+    - 
+      title: Správa oddělení
+      href: /scp/departments.php
+priority:
+  title: Priorit
+  content: >
+    Vyberte stupeň <span class="doc-desc-title">priority</span>, který chcete přiřadit požadavkům shodujícím se s <span class="doc-desc-title"> filtrem požadavků</span>.<br /> <br /> <em>Poznámka: Toto přepíše nastavení <span class="doc-desc-title">oddělení</span> nebo <span class="doc-desc-title">tématu podpory</span>.</em>
+sla_plan:
+  title: Plán SLA
+  content: >
+    Vyberte <span class="doc-desc-title">plán SLA</span>, který chcete nastavit požadavkům shodujícím se s <span class="doc-desc-title">filtrem požadavků</span>.
+  links:
+    - 
+      title: Správa plánů SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Automatické přiřazení
+  content: >
+    Vyberte pracovníka nebo tým, kterého chcete přiřadit požadavkům shodujícím se s <span class="doc-desc-title">filtrem požadavků</span>.
+  links:
+    - 
+      title: Správa pracovníků
+      href: /scp/staff.php
+    - 
+      title: Správa týmů
+      href: /scp/teams.php
+help_topic:
+  title: Téma podpory
+  content: >
+    Vyberte <span class="doc-desc-title">téma podpory</span>, které chcete přiřadit požadavkům shodujícím se s <span class="doc-desc-title">filtrem požadavků</span>.
+  links:
+    - 
+      title: Správa témat podpory
+      href: /scp/helptopics.php
+admin_notes:
+  title: Poznámky správce
+  content: >
+    Tyto poznámky jsou viditelné pouze to ty pracovníky, kteří mají nastaven příznak ‘<span class="doc-desc-title">správce</span>.’

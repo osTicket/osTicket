@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Linija potpisa osoblja
+  content: |
+    Izradite potpis osoblja za odgovor na kartice. Ovaj potpis će se prikazivati kao opcija na dnu odgovora na karticu
+type:
+  title: Vrsta računa
+  content: |
+    Administratori imaju privilegiju pristupa Administratorskoj upravljačkoj ploči. Djelatnici mogu uređivati kartice i bazu znanja
+group:
+  title: Dodjeljena grupa
+  content: |
+    Članstvo u grupi definira djelatnikovu ulogu u sistemu. Posjetite stranicu za upravljanje grupama kako biste odredili pristup grupe unutar centra tehničke podrške
+notes:
+  title: Interne bilješke
+  content: |
+    Postavite interne bilješke o djelatnicima; bilješke su vidljive samo administratorima

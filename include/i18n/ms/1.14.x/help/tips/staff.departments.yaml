@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Jenis
+  content: >
+    Jika Jenis Jabatan ialah Swasta, kemudian tandatangan Jabatan tidak akan ada pada jawapan dan tidak akan ditunjukkan tugasan jabatan daripada Portal Pelanggan.
+dept_manager:
+  title: Pengurus jabatan
+  content: >
+    Anda boleh memilih Ejen sebagai Pengurus Jabatan untuk menerima Peringatan & Notis untuk tiket di jabatan-jabatan.
+  0: Ejen tidak perlu menjadi ahli jabatan untuk manjadi pengurus jabatan

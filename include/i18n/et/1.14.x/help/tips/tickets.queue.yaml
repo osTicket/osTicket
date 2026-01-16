@@ -1,0 +1,73 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Otsinguväli
+  0: >
+
+advanced:
+  title: Täpsemalt
+  content: >
+    Kitsenda otsingu parameetreid. Kui oled valinud otsingu kriteeriumi ja otsingu käivitanud, siis saad <span class="doc-desc-title">eksportida </span> andmed piletite lehe alaosast.
+open_tickets_table:
+  title: Avatud piletite tabel
+  content: >
+    Kõik hetkel avatud ja tähelepanu vajavad piletid
+ticket:
+  title: Pilet
+  0: >
+
+date:
+  title: Kuupäev
+  0: >
+
+subject:
+  title: Teema
+  0: >
+
+from:
+  title: Kellelt
+  0: >
+
+priority:
+  title: Tähtsus
+  0: >
+
+assigned_to:
+  title: Suunatud
+  0: >
+
+export:
+  title: Eksport
+  content: >
+    Ekspordi hetkel kuvatavad andmed CSV failiks. CSV faile saab avada tabelarvutus tarkvaraga (nt Microsoft Excel, Apple Pages, OpenOffice jne).
+advanced_search_dialog:
+  title: Täpsem otsing
+  0: >
+
+adv_keyword:
+  title: Märksõna otsing
+  content: >
+    Leia vasteid teema realt või sõnumi sisust piletite sissekannetes, samuti
+    kasutajate ja piletite kohandatud väljadega seotud tekstisisust.
+adv_date_range:
+  title: Otsing kuupäevade vahemiku järgi
+  content: >
+    Määra siin
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Vastuste näidised
+  content: >
+    <b>Vasta kõigile:</b> See vastus saadetakse kasutajale ja sinu poolt valitud kaastöötajatele.</br> <b>Vasta kasutajale:</b> See vastus saadetakse ainult kasutajale, mitte kaastöötajatele.</br> <b>Ära saada vastust emailiga:</b> Emaili teavitusi ei saadeta välja, olenemata sellest, agendi vastus on näha <b>KÕIGILE</b> kasutajatele, kes piletit vaatavad.

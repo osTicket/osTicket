@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Denne skabelon definerer Emailen der sendes til klienter, der vælger linket <strong>Glemt min adgangskode</strong> på siden klient Log In.
+name: "%{company.name} HelpDesk adgang"
+body: >
+  <h3><strong>Hej %{user.name.first},</strong></h3> <div>En adgangskode nulstillings anmodning er blevet sendt til dig%{url}.<br/> <br/> Hvis du føler, at dette er en fejl, slet eller se bort fra denne email. Din konto er stadig sikret og ingen har fået adgang til den. Den er ikke låst og din adgangskode ikke er blevet nulstillet. Nogen kunne fejlagtigt have angivet din Email adresse. <br/> <br/> Følg linket nedenfor for at logge ind på HelpDesk og ændre din adgangskode. <br/> <br/> <a href="%{link}"> %{link}</a> <br/> <br/> <em style="font-size: small">Med venlig hilsen Kunde Support<br/> %{company.name}</em></div>

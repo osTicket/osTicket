@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Registros del Sistema
+  content: >
+    Aquí encontrarás registros de las actividades relacionadas con las soluciones de problemas (por ejemplo Errores, Advertencias o Fallas).
+  links:
+    - 
+      title: Personaliza que tipo de actividad se registra cambiando el <br /><span class="doc-desc-title">Nivel de Registro Predeterminado</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Periodo de Tiempo
+  content: >
+    Selecciona el rango de fechas que te gustaría ver en el <span class="doc-desc-title"> Registro del Sistema</span>.
+type:
+  title: Tipo
+  content: >
+    Elije una opción para reducir su enfoque en un tipo de actividad específica.  <span class="doc-desc-opt">Depurar</span> representa la menor gravedad, y <span class="doc-desc-opt">Error</span> representa la mayor gravedad.
+showing_logs:
+  title: Mostrando&hellip;Registros
+  content: >
+    Asegurate de consultar la sección  <span class="doc-desc-title">Página</span> más abajo para controlar que no haya otras páginas mostrando Registros de Sistema disponibles.
+log_title:
+  title: Título de Registro
+  content: >
+    Si desea ordenar los resultados según el <span class="doc-desc-title"> Título de Registro</span>, haga clic en el encabezado de tabla de <span class="doc-desc-title"> Título de Registro</span>.
+log_type:
+  title: Tipo de Registro
+  content: >
+    Si desea ordenar los resultados según el <span class="doc-desc-title"> Tipo de Registro</span>, haga clic en el encabezado de tabla de <span class="doc-desc-title"> Tipo de Registro</span>.
+log_date:
+  title: Fecha de Registro
+  content: >
+    Esta es la fecha en la que el registro ha sido generado por el software. Si desea ordenar los resultados según la <span class="doc-desc-title"> Fecha de Registro</span>, simplemente haga clic en el encabezado de tabla <span class="doc-desc-title"> Fecha de Registro</span>. (Utilice el formulario <span class="doc-desc-title"> Rango de Fechas</span> arriba para reducir el rango de fechas de sus registros.)
+ip_address:
+  title: Dirección IP
+  content: >
+    Esto hace referencia a la <span class="doc-desc-title">Dirección IP</span> del agente o cliente que estaba usando osTicket en el momento en que se generó el registro.

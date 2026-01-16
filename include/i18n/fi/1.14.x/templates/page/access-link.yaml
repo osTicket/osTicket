@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Tämä pohja määrittää ilmoituksen asiakkaille joka mukaan pääsylinkki lähetetään heidän sähköpostiin. Tikettinumero ja sähköpostiosoite aktivoivat pääsylinkin.
+name: "Tiketti [#%{ticket.number}] pääsylinkki"
+body: >
+  <h3><strong>Hyvä %{recipient.name.first},</strong></h3> <div> Teille on luotu pääsylinkki tiketille #%{ticket.number} asiakaspalvelumme toimesta osoiteessa %{url}.<br /> <br /> Seuraa linkkiä alla tarkistaaksesi tiketin tilan #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Jos <strong>et</strong> tehnyt pyyntöä, poista ja hylkää tämä viesti. Tilisi on edelleen turvassa ja kenellekkään muulla ei ole pääsyä tikettiin. Joku on voinut vahingossa kirjoittaa sähköpostiosoitteesi vastaanottajan kenttään.<br /> <br /> --<br /> %{company.name} </div>

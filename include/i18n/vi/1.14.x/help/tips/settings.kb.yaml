@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Chế độ cơ sở tri thức
+  0: >
+
+knowledge_base_status:
+  title: Tình trạng Cơ sở tri thức
+  content: >
+    Kích hoạt chức năng này cho phép người dùng tự truy cập vào các mục Cơ sở tri thức công khai.<br><br>Các loại Cơ sở tri thức và FAQ có thể chuyển thành nội bộ (chỉ có thể xem bởi các nhân viên).
+  links:
+    - 
+      title: Quản lý cơ sở tri thức
+      href: /scp/kb.php
+restrict_kb:
+  title: Restrict Access to the Knowledge Base
+  content: >
+    Kích hoạt mục cài đặt này để ngăn những người dùng chưa đăng ký truy cập vào các bài viết trong Cơ sở tri thức từ giao diện của hệ thống.
+  links:
+    - 
+      title: Cài đặt điều khiển truy cập
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Phản hồi trước
+  content: >
+    Kích hoạt chức năng này cho phép nhân viên sử dụng<span class="doc-desc-title">phản hồi trước</span>khi trả lời các lệnh.
+  links:
+    - 
+      title: Quản lý Phản hồi trước
+      href: /scp/canned.php

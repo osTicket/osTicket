@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  ऑफ़लाइन पृष्ठ ग्राहक पोर्टल में दिखाई देता है जब सहायता डेस्क ऑफ़लाइन है।
+name: ऑफ़लाइन
+body: |
+  <div><h1>
+  <span style="font-size: medium">समर्थन टिकट प्रणाली ऑफलाइन है</span>
+  </h1>
+  <p>हमसे संपर्क करने में आपकी रुचि के लिए धन्यवाद।</p>
+  <p>हमारे हेल्पडेस्क अब ऑफ़लाइन है। कृपया बाद में वापस आकर देखें।</p>
+  </div>

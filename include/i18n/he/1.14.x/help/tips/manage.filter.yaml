@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: סדר ביצוע
+  content: >
+    הזן מספר השולט על עדיפות המסנן. ככל שהמספר נמוך יותר, העדיפות של הרצת מסנן זה תהיה גבוהה יותר מול מסנן בעל מספר גבוה יותר של הרצות. <br><br> אם ברצונך שמסנן זה יהיה המסנן האחרון שמיושם על התאמה, הפעל את <span class="doc-desc-title"> "הפסק עיבוד כאשר נמצאה התאמה</span>.
+target_channel:
+  title: ערוץ
+  content: >
+    בחר את <span class="doc-desc-title">ערוץ</span> היעד עבור <span class="doc-desc-title">מסנן הקריאות</span> שלך. ה<span class="doc-desc-title">ערוץ</span> הוא המקור ממנו הקריאה הגיעה למערכת.<br><br> לדוגמא, אם בחרת <span class="doc-desc-opt">טפסי Web</span>, הינך רוצה ליישם את <span class="doc-desc-title">מסנן הקריאות</span> עבור קריאות שמקורן הוא טופס ה-Web מפורטל הלקוח.
+rules_matching_criteria:
+  title: חוקים למציאת קטגוריה
+  content: >
+    בחר כמה גמיש ברצונך שההתאמות של <span class="doc-desc-title">מסנן הקריאות</span> יהיו. אם ברצונך ש<span class="doc-desc-title">מסנן הקריאות</span> יתאים לכל חוק, ואז יפסיק, בחר <span class="doc-desc-opt">התאם לכל אחד</span>. אם ברצונך ש<em><strong>כל החוקים</strong></em> של <span class="doc-desc-title">מסנן הקריאות</span> יתאימו, בחר <span class="doc-desc-opt"> התאם לכולם</span>.
+reject_ticket:
+  title: דחה את הכרטיס
+  content: >
+    אם זה יאופשר, עיבוד נוסף ייעצר וכל בחירות הפעולה הזו יוסרו מבחירה.
+reply_to_email:
+  title: השב לדוא"ל
+  content: >
+    הפעל אם ברצונך שמוקד התמיגה שלך יכבד את כותרת ה<span class="doc-desc-title">"הגב ל"</span> של אפליקציית דוא"ל המשתמש. שדה זה רלוונטי רק אם ה<span class="doc-desc-title">ערוץ</span> הנ"ל מכיל <span class="doc-desc-opt">דוא"ל</span>.
+ticket_auto_response:
+  title: בטל תגובה אוטומטית לכרטיסים
+  content: >
+    <em>הערה: פעולה זו תעקוף כל הגדרת <span class="doc-desc-title">מחלקה</span> או <span class="doc-desc-title"> הגדרות מענה אוטומטי</span>.</em>
+canned_response:
+  title: השב אוטומטי שמור
+  content: >
+    בחר <span class="doc-desc-title">תגובה שמורה</span> שברצונך לשלוח בדוא"ל למשתמש בזמן התאמה ל<span class="doc-desc-title">מסנן הקריאות</span>. תבנית ה<span class="doc-desc-title">תגובה האוטומטית החדשה</span> שמשומשת תלויה על איזה <span class="doc-desc-title">סט תבניות</span> הוקצה כברירת מחדל, או ל<span class="doc-desc-title">מחלקת</span> הקריאה התואמת.
+  links:
+    - 
+      title: נהל תשובות משורשרות
+      href: /scp/canned.php
+    - 
+      title: נהל סטי תבניות
+      href: /scp/templates.php
+    - 
+      title: תבנית חדשה למענה אוטומטי עבור קריאה חדשה
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: מחלקה
+  content: >
+    בחר איזה <span class="doc-desc-title">מחלקה</span> ברצונך שתוקצה להתאמות של <span class="doc-desc-title"> מסנן הקריאות</span>.
+  links:
+    - 
+      title: ניהול מחלקות
+      href: /scp/departments.php
+priority:
+  title: עדיפות
+  content: >
+    בחר את רמת <span class="doc-desc-title">העדיפות</span> שברצונך להקצות להתאמות של <span class="doc-desc-title">מסנן הקריאות</span>.<br /><br /><em>הערה: פעולה זו תעקוף הגדרות <span class="doc-desc-title">מחלקה</span> או <span class="doc-desc-title"> נושא עזרה</span>.</em>
+sla_plan:
+  title: תוכנית שירות
+  content: >
+    בחר את <span class="doc-desc-title">תוכנית ה-SLA</span> שברצונך להקצות להתאמות של <span class="doc-desc-title">מסנן הקריאות</span>.
+  links:
+    - 
+      title: נהל תוכניות שירות
+      href: /scp/slas.php
+auto_assign:
+  title: השמה אוטומטית
+  content: >
+    בחר סוכן או צוות שבשבילם ההתאמות של <span class="doc-desc-title">מסנני הכרטיס</span> יהיו מותאמות.
+  links:
+    - 
+      title: נהל נציגים
+      href: /scp/staff.php
+    - 
+      title: ניהול צוותים
+      href: /scp/teams.php
+help_topic:
+  title: נושאי עזרה
+  content: >
+    בחר את <span class="doc-desc-title">נושא העזרה</span> שיהיה מותאם להתאמות של <span class="doc-desc-title">מסנני הכרטיס</span>.
+  links:
+    - 
+      title: ניהול נושאי עזרה
+      href: /scp/helptopics.php
+admin_notes:
+  title: הערות מנהל
+  content: >
+    הערות אלו חשופות רק למי שהחשבון שלו מסוג <span class="doc-desc-title">מנהל</span>.'

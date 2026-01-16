@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: 公司資訊
+  content: >
+    當 票單 是由代理人回應時, 關於公司或組織 受益於 來自 osTicke t的 軟體 及 其 工作人員的支援。 此處的信息將出現在電子郵件簽名(即頁腳)。
+  links:
+    - 
+      title: 公司資訊表單
+      href: /scp/forms.php?type=C
+landing_page:
+  title: 登入頁面
+  content: >
+    這個 <span class="doc-desc-title">登入頁面</span>顯示在你的支援網站的最前端頁面 .
+offline_page:
+  title: 離線時的頁面
+  content: >
+    這 <span class="doc-desc-title">離線頁面</span>當求救頁面在離線時會顯示在支援功能的網站上, 參考管理台-&gt; 設置  -&gt; 系統 -&gt;求救頁面狀態 .
+default_thank_you_page:
+  title: 預設值 感謝你的頁面
+  content: >
+    The <span class="doc-desc-title">感謝頁面</span> 會在 <span class="doc-desc-title">Client</span> 使用者新增新案件 <br/>時顯示<br/> <span class="doc-desc-title">感謝您</span> 可與協助主題做連結。
+logos:
+  title: 圖示
+  content: >
+    你可以客製化這個 <span class="doc-desc-title">圖示</span> , 那將會被顯示在客戶端, 在客戶Portal網站（即是...您的支援功能網站）.
+upload_a_new_logo:
+  title: 上傳一個新的圖示
+  content: >
+    選擇一個圖檔, 比如是 .gif, .jpg or .png 為副檔名的格式. 我們將會依比例重新調整顯示的圖像.
+    但我們將不會重新調整圖檔的大小. 因此要加快載入時間的話, 建議你的原來圖檔儘量接近預設值尺寸大小是 (817px X  170px).
+backdrops:
+  title: 背景
+  content: >
+    可以自定義 <span class="doc-desc-title">背景</span>，該背景將顯示在員工登錄頁面上。
+upload_a_new_backdrop:
+  title: 上傳新背景
+  content: >
+    選擇一個格式為.gif、.jpg或者.png的圖片文件。系統將按比例縮放圖片顯示，但不會縮放圖片數據。因此，為了加快載入速度，建議您將文件保持在相對較小的尺寸（在MB以下）。請注意，php最大上傳設置會有限制。

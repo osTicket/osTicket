@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    Hvis deaktivert eller arkivert, vil denne <span class="doc-desc-title">Avdelingen</span> ikke være tilgjengelig.
+type:
+  title: Type
+  content: >
+    Velg <span class="doc-desc-opt"> privat</span> hvis du ønsker å maske tildelinger til denne avdelingen i klient Portalen.  I tillegg når merket som <span class="doc-desc-opt"> privat</span>, vises <span class="doc-desc-title"> Avdeling signaturen</span> ikke i e-post svar. <br/> <br/> Minst én avdeling må være <span class="doc-desc-opt"> felles</span>
+email:
+  title: Email
+  content: >
+    E-postadresse brukes når svar sendes til brukere når agenter legge inn svar til saker.
+template:
+  title: Mal sett
+  content: >
+    E-post<span class="doc-desc-title"> Mal sett</span> brukes for automatisk svar, varsler og meldinger for saker til denne avdelingen.
+  links:
+    - 
+      title: Behandle maler
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Service Nivå Avtale for saker til denne avdelingen.
+  links:
+    - 
+      title: Administrere SLA planer
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Avdelingsleder
+  content: >
+    Velg en <span class="doc-desc-title"> Leder</span> for denne avdelingen. <br/> <br/> Ledere kan konfigureres til å motta spesielle varsler og har også rett til å fjerne tilordningen av saker.
+  links:
+    - 
+      title: Behandle varsler og merknader
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Varsler og meldinger mottakere
+  content: >
+    Velg mottakere av konfigurert <span class="doc-desc-title"> varsler og meldinger</span>.
+  links:
+    - 
+      title: Konfigurere varsler og meldinger
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: restriksjon på tildeling av saker
+  content: >
+    Bestem om billetter kan tilordnes alle agenter, agenter med tilgang til primær eller utvidet avdeling, eller bare agenter med tilgang til primær avdeling.
+disable_auto_claim:
+  title: Slå av automatisk tildeling av sak
+  content: >
+    Huk av denne for <strong> å deaktivere </strong> automatisk tildeling av svar i denne avdelingen. <br><br> Agenter kan fortsatt manuelt tildele utildelte saker
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Autosvar-innstillinger
+  content: >
+    Dette lar deg overstyre globale autosvar innstillingene for denne avdelingen.
+new_ticket:
+  title: Ny autosvar til sak
+  content: >
+    Du kan deaktivere at Auto-svar sendes til brukeren når en ny sak er opprettet og sendt til denne avdelingen.
+new_message:
+  title: Ny melding automatisk svar
+  content: >
+    Du kan deaktivere at Auto-svaret blir sendt til brukeren for å bekrefte en nylig sendt melding for saker i denne avdelingen.
+auto_response_email:
+  title: Automatisk e-post svar
+  content: >
+    Velg en e-postadresse som automatisk svar sendes for denne avdelingen.
+department_access:
+  title: Gruppetilgang
+  content: >
+    Tillate agenter fra andre avdelinger tilgang til denne avdelingens saker.
+department_signature:
+  title: Avdelingens signatur
+  content: >
+    Signaturen gjøres tilgjengelig som et alternativ, for <span class="doc-desc-opt"> offentlige</span> avdelinger, på Agent svar.

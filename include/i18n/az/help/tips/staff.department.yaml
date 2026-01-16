@@ -1,0 +1,99 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+status:
+  title: Vəziyyət
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Tip
+  content: >
+    <span class="doc-desc-opt">Şəxsi</span> seçin, əgər müştəri portalında şöbədəki tapşırıqları maskalamaq istəyirsinizsə. Bundan əlavə, <span class="doc-desc-opt">şəxsi</span> kimi etiketləyəndə <span class="doc-desc-title">şöbə imzası</span> e-poçta cavablarda görünməyəcək. <br/><br/> Ən azı bir şöbə <span class="doc-desc-opt">ictimai</span> olmalıdır
+email:
+  title: Email
+  content: >
+    E-poçt ünvanı agentlər sorğulara cavab yazanda, cavablar istifadəçiyə göndəriləndə istifadə olunur.
+template:
+  title: Şablon quraşdırılması
+  content: >
+    E-poçt <span class="doc-desc-title">şablon quraşdırılması</span> bu şöbəyə yönləndirilən avtomatik cavablar və siqnallar &amp; xəbərdarlıqlar üçün istifadə olunur.
+  links:
+    - 
+      title: Şablonları idarə edin
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Bu şöbəyə yönləndirilən sorğular üçün xidmət səviyyə razılaşması.
+  links:
+    - 
+      title: SLA planları idarə edin
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes precedence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Şöbə meneceri
+  content: >
+    Bu şöbə üçün <span class="doc-desc-title">menecer</span> seçin. <br/><br/> Menecerlər xüsusi siqnallar qəbul etməyi konfiqurasiya edə bilməlidirlər və həmçinin təyin olunmamış sorğulara baxmaq haqları var.
+  links:
+    - 
+      title: Sİqnalları &amp; xəbərdarlıqları idarə edin
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Xəbərdarlıq &amp; siqnallarını qəbul edənlər
+  content: >
+    Konfiqurasiya olunmuş <span class="doc-desc-title">xəbərdarlıq &amp; siqnallarının</span> qəbuledicilərini seçin.
+  links:
+    - 
+      title: Xəbərdarlıq &amp; siqnallarını konfiqurasiya edin
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Sorğu təyinatı məhdudiyyətləri
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Disable Auto Claim
+  content: >
+    Check this to <strong>disable</strong> auto-claim on response/reply for this department. <br><br> Agents can still manually claim unassigned tickets
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Avtomatik cavab tənzimləmələri
+  content: >
+    Bu, sizə bu şöbə üçün qlobal cavabverənin tənzimləmələrini ləğv etməyə icazə verir.
+new_ticket:
+  title: Yeni sorğuya avtomatik cavab
+  content: >
+    Yeni sorğu yaradılanda və bu şöbəyə yönləndiriləndə istifadəçiyə avtomatik cavab göndərilməsini deaktiv edə bilərsiniz.
+new_message:
+  title: Yeni mesaj avtomatik cavabı
+  content: >
+    Bu şöbədə sorğular üçün yeni yazılmış mesajı təsdiq etmək üçün istifadəçiyə avtomatik cavabın göndərilməsini deaktiv edə bilərsiniz.
+auto_response_email:
+  title: E-poçta avtomatik cavab
+  content: >
+    Bu şöbə üçün göndərilən avtomatik cavablardan e-poçt ünvanı seçin.
+department_access:
+  title: Qrupa giriş
+  content: >
+    Bu şöbənin sorğularına digər şöbələrdən agentlərin girişini qəbul edin.
+department_signature:
+  title: Şöbə imzası
+  content: >
+    İmzanın seçim kimi mövcud olması düzəldilib, agent cavablarında <span class="doc-desc-opt">ictimai</span> şöbələr üçün.

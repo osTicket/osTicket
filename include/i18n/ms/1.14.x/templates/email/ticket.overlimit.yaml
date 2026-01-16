@@ -1,0 +1,19 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Dihantar kepada pengguna apabila telah mencapai bilangan maksimum tiket yang boleh dihantar. Bilangan maksimum tiket bagi pengguna ditetapkan dalam Panel Pentadbir, dan melaui bilangan tiket oleh alamat emel tertentu.
+subject: |
+  Had tiket terbuka telah dicapai
+body: |
+  <h3> <strong> pada %{ticket.name.first}, </strong></h3>
+  Anda telah mencapai bilangan maksimum tiket terbuka yang dibenarkan. Supaya boleh membuka tiket lain, salah satu tiket anda yang belum selesai mesti ditutup. untuk
+  mengemaskini atau menambah komen pada tiket terbuka hanya <a
+  href="%{url}/tickets.php?e=%{ticket.email}"> Log masuk ke meja bantuan kami </a>.
+  <br>
+  <br>
+  Terima kasih,<br/>
+  Sistem Tiket sokongan

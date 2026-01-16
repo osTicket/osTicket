@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Esto crea el encabezado de la página Log In del Cliente. Puede ser útil para informar a los Clientes sobre las políticas y el registro.
+name: "Iniciar sesión en %{company.name}"
+body: >
+  Para brindar un mejor servicio, animamos a nuestros clientes a registrar una cuenta.

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: システムログ
+  content: >
+    トラブルシューティング関連のログ （例えば、エラー、警告、またはバグ) があります。
+  links:
+    - 
+      title: どのような種類の活動をログに記録するかカスタマイズすることが出来ます。< br/> <span class="doc-desc-title"> 既定のログ レベル</span>
+      href: /scp/settings.php?t=system
+date_span:
+  title: 日付範囲
+  content: >
+    期間を指定して<span class="doc-desc-title"> システム ログ</span> を表示することが出来ます。
+type:
+  title: タイプ
+  content: >
+    特定の種類の活動の重要度を選択します。<span class="doc-desc-opt"> デバッグ</span> 最小重大度、<span class="doc-desc-opt"> エラー</span> 最大の重大度を表します。
+showing_logs:
+  title: 表示 &hellip; ログ
+  content: >
+    使用可能なシステムログを表示しているページがもうないことを確認するために、必ず以下の<span class="doc-desc-title">ページ</span>セクションを調べてください。
+log_title:
+  title: ログのタイトル
+  content: >
+    <span class="doc-desc-title"> ログのタイトル</span> に従って結果を並べ替える場合は、<span class="doc-desc-title"> ログのタイトル</span> テーブル ヘッダーをクリックします。
+log_type:
+  title: ログの種類
+  content: >
+    <span class="doc-desc-title"> ログのタイトル</span> に従って結果を並べ替える場合は、<span class="doc-desc-title"> ログのタイトル</span> テーブル ヘッダーをクリックします。
+log_date:
+  title: ログの日付
+  content: >
+    これは、ソフトウェアによってログが生成された日付です。 <span class="doc-desc-title">ログの日付</span>に従って結果を並べ替えるには、<span class="doc-desc-title">ログの日付</span>テーブルヘッダーをクリックします。 (上の<span class="doc-desc-title">日付範囲</span>フォームを使用して、ログの日付範囲を縮小します。)
+ip_address:
+  title: IP アドレス
+  content: >
+    これは、ログが作成されたときに、osTicket を使用していたエージェントまたはクライアントのいずれかの<span class="doc-desc-title">IP</span><span class="doc-desc-title">アドレス</span>を意味します。

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Потребителско име
+  content: >
+    Моля посочете уникално <span class="doc-desc-title">потребителско име</span> на сътрудник във Вашата <span class="doc-desc-title">система за поддръжка</span>.
+email_address:
+  title: Имейл адрес
+  content: >
+    Въведете имейл адреса на сътрудника, който ще получава <span class="doc-desc-title">предупреждения &amp; уведомления</span> от <span class="doc-desc-title">системата за поддръжка</span>.
+  0: <br><br>
+  1: Служителите могат да влизат в контролния панел на служителите, чрез своето потребителско име или адреса на своята ел. поща.
+welcome_email:
+  title: Приветствено писмо
+  content: >
+    Изпраща на новия сътрудник връзка за достъп до акаунта, с помощта на която той ще може да зададе своя парола. Ако не е отбелязано, Вие ще трябва да настроите паролата и да предадете информацията за влизане на новия сътрудник.
+account_password:
+  title: Парола на акаунта
+  content: >
+    Като <span class="doc-desc-title">администратор</span>, Вие можете да смените паролата на сътрудника.
+forced_password_change:
+  title: Принудителна смяна на паролата
+  content: >
+    Включете това, ако искате новия сътрудник задължително да смени паролата си при следващото си влизане в системата.
+agents_signature:
+  title: Подпис на сътрудника
+  content: >
+    Създава подпис за сътрудника, който може да бъде избран при отговор на заявка.
+account_status:
+  title: Състояние на акаунта
+  content: >
+    Ако състоянието на сътрудника е <span class="doc-desc-opt">заключен</span>, той няма да може да влиза в системата за поддръжка.
+assigned_group:
+  title: Назначена група
+  content: >
+    <span class="doc-desc-title">Групата</span>, към която сте избрали да принадлежи този сътрудник, определя какви права ще има той в <span class="doc-desc-title">системата за поддръжка</span>.
+  links:
+    - 
+      title: Управление на групи
+      href: /scp/groups.php
+primary_department:
+  title: Основен отдел
+  content: >
+    Изберете основния <span class="doc-desc-title">отдел</span> към който принадлежи този агент и ефективна <span class="doc-desc-title">роля</span>.
+  links:
+    - 
+      title: Управление на отделите
+      href: /scp/departments.php
+primary_role:
+  title: Основна роля
+  content: >
+    Изберете основния <span class="doc-desc-title">отдела</span>, към който принадлежи този сътрудник.
+primary_role_on_assign:
+  title: Използвайте основна роля за задания
+  content: >
+    Активирайте това, за да се запазите в основната роля на  <span class="doc-desc-title">основна роля</span>, когато този агент е назначен за билети и задачи извън основния отдел  <span class="doc-desc-title">първичен отдел</span> и <span class="doc-desc-title">разширен достъп</span> отдели. В противен случай агентът ще има достъп само до достъп.
+daylight_saving:
+  title: Лятно часово време
+  content: >
+    Включете тази функция, ако искате лятното часово време да се включва автоматично за часовия пояс на този сътрудник.
+limited_access:
+  title: Ограничен достъп
+  content: >
+    Ако тази опция е включена, сътрудникът ще получи достъп само до тези заявки, които са му възложени директно или чрез екип.
+directory_listing:
+  title: Списъци
+  content: >
+    Включете това, ако искате да направите този сътрудник видим в <span class="doc-desc-title">списъка на сътрудниците</span>.
+  links:
+    - 
+      title: Посети списъка на сътрудниците
+      href: /scp/directory.php
+vacation_mode:
+  title: Режим на отпуска
+  content: >
+    Ако се промените състоянието на сътрудника до <span class="doc-desc-opt">режим на отпуска</span>, сътрудникът няма да получава каквито и да е <span class="doc-desc-title">предупреждения &amp; уведомления</span> и няма да бъде достъпен за възлагане на заявки.
+

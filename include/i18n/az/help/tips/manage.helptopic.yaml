@@ -1,0 +1,91 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+help_topic_information:
+  title: Kömək mövzusu məlumatı
+  content: >
+    <span class="doc-desc-title">Kömək mövzuları</span> istifadəçilərdən məlumatlar toplamağı və sorğuların necə istiqamətləndirilməsini və ya təyin olunmasını idarə edir.
+topic:
+  title: Mövzu adı
+  content: >
+    Xüsusi kömək mövzusu adı.
+htstatus:
+  title: Vəziyyət
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+status:
+  title: Sorğu statusu
+  content: >
+    Select the Ticket Status assigned to new tickets related to this <span class="doc-desc-title">Help Topic</span>. <br><br> Ticket Filters can override new Ticket Status.
+type:
+  title: Tip
+  content: >
+    Əgər <span class="doc-desc-title">kömək mövzusu</span> `şəxsi` kimi işarələnibsə, bu ancaq agentin heyət paneli altında açdığı yeni sorğunu seçən agentlər üçün mövcud olacaq.
+parent_topic:
+  title: Valideynlər üçün
+  content: >
+    Bu <span class="doc-desc-title">kömək mövzusuna </span> aid olan valideyn mövzusu seçin. Valideyn mövzusu valideynlər üçün hazırlanan siyahıda <span class="doc-desc-title">kömək mövzusu</span> ilə bilrikdə birinci görünəcək.
+custom_form:
+  title: Xüsusi forma
+  content: >
+    Xüsusi formalar sizə istifadəçilərdən bu <span class="doc-desc-title">kömək mövzusuna</span> münasib daha çox özünəməxsus  məlumatların əldə edilməsinə kömək edəcək.
+  links:
+    - 
+      title: Xüsusi formaları idarə edin
+      href: /scp/forms.php
+priority:
+  title: Prioritet
+  content: >
+    Bu <span class="doc-desc-title">kömək mövzusu</span> ilə əlaqədar yeni sorğulara təyin olunmuş prioritet seçin. <br><br> Sorğu filterləri yeni sorğu prioritetini ləğv edə bilər.
+department:
+  title: Şöbə
+  content: >
+    Bu kömək mövzusu altındakı yeni sorğuları istiqamətləndirəcək şöbə seçin.
+  links:
+    - 
+      title: Şöbələri idarə et
+      href: /scp/departments.php
+sla_plan:
+  title: SLA plan
+  content: >
+    Bu <span class="doc-desc-title">kömək mövzusu</span> ilə əlaqəli SLA plan seçin. <br><br> Bu seçim hər hansı seçilmiş şöbənin SLA planını ləğv edəcək.
+  links:
+    - 
+      title: SLA planları idarə edin
+      href: /scp/slas.php
+thank_you_page:
+  title: Təşəkkür səhifəsi
+  content: >
+    İstifadəçi bu <span class="doc-desc-title">kömək mövzusu</span> altındakı sorğunu açandan sonra idarə edəcəyi təşəkkür səhifəsi seçin.
+  links:
+    - 
+      title: Təşəkkür səhifəsini idarə edin
+      href: /scp/pages.php
+auto_assign_to:
+  title: Yeni sorğuları avtomatik təyin et
+  content: >
+    <span class="doc-desc-title">Kömək mövzusu</span> <br><br> sorğu filterləri tapşırığı ləğv edə bilsin deyə sorğuların açılmasını avtomatik təyin edən istədiyiniz agent və ya komanda seçin.
+  links:
+    - 
+      title: Heyət və komandaları idarə edin
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Avtomatik cavab sorğusu
+  content: >
+    Əgər yoxlanılıbsa, tənzimləmə yeni sorğunun bu <span class="doc-desc-title">kömək mövzusu</span> üçün avtomatik cavablarını deaktiv edəcək. <br><br> Bu, avtomatik cavab verən tənzimləməni <span class="doc-desc-title">şöbə</span> üçün  ləğv edir, eləcə də qlobal <span class="doc-desc-title">avtomatik cavab verən tənzimləmələri</span>.
+  links:
+    - 
+      title: Avtomatik cavab tənzimləmələri
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Xüsusi sorğu nömrələri
+  content: >
+    Bu kömək mövzusunda yaradılan sorğular üçün sistemin cari sorğu nömrələmə formatını ləğv etməsi üçün buradan "xüsusi"ni seçin. Tənzimləmələrdə daha ətraflı məlumat üçün tənzimləmələr / sorğular səhifəsindəki kömək ipuclarına baxın.

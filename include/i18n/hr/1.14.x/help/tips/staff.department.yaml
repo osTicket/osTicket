@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Vrsta
+  content: >
+    Odaberite <span class="doc-desc-opt">Privatno</span> ukoliko želite sakriti zadatke za ovaj odjel na korisničkoj strani.  Dodatno kada je nešto označeno kao <span class="doc-desc-opt">Privatno</span>, <span class="doc-desc-title">potpis odjela</span> neće biti vidljiv u email odgovorima. <br/><br/> Najmanje jedan odjel mora biti <span class="doc-desc-opt">Javan</span>
+email:
+  title: Email
+  content: >
+    E-mail adresa koja se ​​koristi za slanje obavijesti korisnicima da je na njihovu karticu odgovorio djelatnik.
+template:
+  title: Predložak
+  content: >
+    Email <span class="doc-desc-title">predložak</span> za automatske odgovore i upozorenja &amp; obavijesti za kartice preusmjerene na ovaj odjel.
+  links:
+    - 
+      title: Uredi predloške
+      href: /scp/templates.php
+sla:
+  title: Ugovor o razini usluge
+  content: >
+    Ugovor o razini usluge za kartice preusmjerene na ovaj odjel.
+  links:
+    - 
+      title: Upravljanje ugovorima o razini usluge
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Voditelj odjela
+  content: >
+    Odaberite  <span class="doc-desc-title">voditelja</span> ovog odjela. <br/><br/> Voditeljeve ovlasti možete podesti da prima posebne obavijesti, te može oddodjeljivati kartice.
+  links:
+    - 
+      title: Uredi upozorenja &amp; obavijesti
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Primatelji upozorenja &amp; obavijesti
+  content: >
+    Odaberite primatelje namještenih <span class="doc-desc-title">upozorenja &amp; obavijesti</span>.
+  links:
+    - 
+      title: Namjesti upozorenja &amp; obavijesti
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Ograničenja u dodjeljivanju kartica
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Onemogući automatsko preuzimanje
+  content: >
+    Označite ovdje da bi ste <strong>onemogućili</strong> automatsko preuzimanje odgovora za ovaj odjel. <br><br> Agenti i dalje mogu ručno preuzeti nedodjeljene zahtjeve
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Postavke automatskih odgovora
+  content: >
+    Ovo Vam dopušta zamjenite globalne postavke automatskih odgovora za ovaj odjel.
+new_ticket:
+  title: Automatski odgovor na novootvorene kartice
+  content: >
+    Možete onemogučiti automatske odgovore koji se šalju kada je otvorena nova kartica i preusmjerena na ovaj odjel.
+new_message:
+  title: Automatski odgovor na novu poruku
+  content: >
+    Možete onemogućiti automatske odgovore poslane korisniku kartica primi novi odgovor, za ovaj odjel.
+auto_response_email:
+  title: Email za automatske odgovore
+  content: >
+    Odaberite email adresu sa koje će biti poslani automatski odgovori iz ovog odjela.
+department_access:
+  title: Grupni pristup
+  content: >
+    Dopustite djelatnicima drugih odjela da pristupaju karticama ovog odjela.
+department_signature:
+  title: Potpis odjela
+  content: >
+    Potpis je izboran za <span class="doc-desc-opt">javne</span> odjele, kod odgovora djelatnika.

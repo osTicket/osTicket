@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Zer da osTicket (eredu)?
+  response: |
+    osTiket mundu osoan erabiltzen den eta kode irekiko ticket sistema bat da, kostu haundiko eta sistema komplexuentzako altenatiba erakargarria. Erreza, pisu gutxikoa, kode irekia, web orrian ezarria, fidagarria eta instalatzeko erreza.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Lehetsitako Erantzunak Molatzen dute!
+- 
+  isenabled: 1
+  title: Lagina (bariableekin)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

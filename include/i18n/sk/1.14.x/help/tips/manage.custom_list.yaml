@@ -1,0 +1,41 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Vlastný zoznam
+  content: >
+    Váš <span class="doc-desc-title">vlastný zoznam</span> vám dovoľuje vytvoriť dropdown menu s prednastavenými hodnotami z ktorých Klient môže vyberať vo vašom <span class="doc-desc-title">Vlastnom formulári</span>. 
+    Pokiaľ chcete použiť tento <span class="doc-desc-title">vlastný zoznam</span> ako <span class="doc-desc-title">cíl</span> v <span class="doc-desc-title">Ticket Filtre</span>, nezabudnite ho pridať do vašeho formulára <span class="doc-desc-title">Detaily Ticketu</span>.
+name:
+  title: Meno
+  0: >
+
+plural_name:
+  title: Množné číslo
+  0: >
+
+sort_order:
+  title: Triedenie
+  0: >
+
+list_s_initial_items:
+  title: Zoznam základných položiek
+  0: >
+
+value:
+  title: Hodnota
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Skratky a podobne. Pokiaľ sa Vám stalo, že používate interné kódy pre položky v tomto zozname, tieto kódy a skratky môžu byť uvedené v tomto stĺpci. Ak je vlastný zoznam vykreslený ako <span class="doc-desc-volby"> dopredný </span>, potom tieto skratky môžu byť použité k hľadaniu vlastného zoznamu položiek.

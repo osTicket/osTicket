@@ -1,0 +1,47 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formato del Nombre del Agente
+  content: >
+    Seleccione un formato para nombres de agente para todo el sistema. Si no se especifica formato, se usará la plantilla de correo electrónico.
+staff_identity_masking:
+  title: Enmascaramiento de identidad personal
+  content: >
+    Si está habilitado, esto ocultará el nombre del agente del cliente durante cualquier comunicación.
+#Authentication settings
+password_reset:
+  title: Directiva de caducidad de contraseña
+  content: >
+    Establece con qué frecuencia será requerido a los agentes el cambio de contraseña (en meses). Si se deshabilita (marcar como "Sin caducidad"), las contraseñas no caducarán.
+password_expiration_policy:
+  title: Directiva de caducidad de contraseña
+  content: >
+    Elija cómo a menudo los agentes estarán obligados a cambiar sus contraseñas. Si se desactiva (es decir, <span class="doc-desc-opt"> Sin vencimiento</span>), las contraseñas no caducarán.
+allow_password_resets:
+  title: Permitir Restablecimiento de Contraseñas
+  content: >
+    Active esta característica si desea mostrar el enlace <span class="doc-desc-title">Olvidé mi Contraseña</span> en la página del <span class="doc-desc-title">Panel de Inicio del Personal</span> después de un intento de validación fallido.
+reset_token_expiration:
+  title: Ventana de restablecimiento de contraseña
+  content: >
+    Elija la duración (en minutos) a partir de la que los <span class="doc-desc-title">Marcadores para Restablecer Contraseña</span> serán válidos. Cuando un agente solicita una <span class="doc-desc-title">Contraseña</span>, se le envía un marcador que le permitirá restablecer la contraseña.
+staff_session_timeout:
+  title: Tiempo de desconexión de la cuenta de un agente
+  content: >
+    Seleccione el máximo tiempo de inactividad (en minutos) antes que el Agente sea forzado a iniciar
+     sesión de nuevo.<br><br> Si desea deshabilitar esta característica asigne 0 a <span class="doc-desc-title">Vencimiento de la Sesión del Personal</span>.
+bind_staff_session_to_ip:
+  title: Unir la sesión de un agente a una IP
+  content: >
+    Habilite esto si desea que un Agente sea recordado por la dirección IP actual al Autentificarse.	<br><br> Esta configuración no es recomendable para usuarios con direcciones IP dinámicas.

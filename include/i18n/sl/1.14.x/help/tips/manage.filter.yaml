@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Izvedba naročila
+  content: >
+    Vnesite številko, ki določa prioriteto filtra. Nižja številka določa višjo prioriteto filtra napram drugemu filtru, ki ima lahko višji red izvedbe. <br><br> Če želite, da se ta filter izvede zadnji pri ujemanju, omogočite <span class="doc-desc-title"> Ustavi nadaljno izvajanje pri ujemanju</span>.
+target_channel:
+  title: Kanal
+  content: >
+    Izberite ciljni <span class="doc-desc-title">Kanal</span> za svoj<span class="doc-desc-title">filter zahtevka</span>. <span class="doc-desc-title">Kanal</span> je vir skozi katerega je zahtevek prispel v sistem. <br><br> Naprimer, če izberete filter<span class="doc-desc-opt">Spletni obrazci</span> želite doseči, da <span class="doc-desc-title"> filter zahtevka</span> uporablja samo tiste zahtevke, katerih vir je spletni obrazec klienta na portalu.
+rules_matching_criteria:
+  title: Pravila kriterijev ujemanja
+  content: >
+    Izberite, kako prilagodljiva naj bodo ujemanja vašega <span class="doc-desc-title">filtra zahtevka</span>. Če želite, da se <span class="doc-desc-title">filter zahtevka</span> ujema s katerimkoli pravilom in se nato ustavi, izberite <span class="doc-desc-opt">Primerjaj kogarkoli</span>. Če želite, da se <em><strong>vsa pravila</strong></em><span class="doc-desc-title">filtra zahtevka</span> ujemajo, izberite <span class="doc-desc-opt">Primerjaj vse</span>.
+reject_ticket:
+  title: Zavrni zahtevek
+  content: >
+    če je to omogočeno, je nadaljno izvajanje ustavljeno in vse druge možnosti spodnjih izvedb bodo ignorirane ob ujemanju.
+reply_to_email:
+  title: Odgovori na email
+  content: >
+    Omogočite to, če želite, da vaša Miza pomoči izbere Uporabnikovo email aplikacijsko <span class="doc-desc-title"> Odgovori na</span> glavo. To polje je relevantno samo, če zgornji <span class="doc-desc-title">Kanal</span> vključuje <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: Onemogočite avtomatski odgovor zahtevka
+  content: >
+    <em>Obvestilo: To bo povozilo katerikoli <span class="doc-desc-title">Oddelek</span> ali <span class="doc-desc-title">nastavitve avtomatskega odgovora</span>.</em>
+canned_response:
+  title: Pripravljeni avtomatski odgovori
+  content: >
+    Izberite <span class="doc-desc-title">Pripravljen odgovor</span> , ki ga želite poslati uporabniku na ujemanju s <span class="doc-desc-title">Filtrom zahtevka</span>. Uporaba predloge<span class="doc-desc-title">avtomatskega odgovora novega zahtevka</span> je odvisna od tega, katera <span class="doc-desc-title">vrsta predlog je dodeljena za privzeto, ali pa se ujema zahtevkov <span class="doc-desc-title">Oddelek</span>.
+  links:
+    - 
+      title: Upravljaj samodejne odgovore
+      href: /scp/canned.php
+    - 
+      title: Upravljaj nabore predlog
+      href: /scp/templates.php
+    - 
+      title: Nova predloga avtomatskega odziva na zahtevek
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Oddelek
+  content: >
+    Izberite kateremu <span class="doc-desc-title">oddelku</span>  naj bodo dodeljeni zadetki izbranega <span class="doc-desc-title">filtra zahtevkov</span>.
+  links:
+    - 
+      title: Urejanje oddelkov
+      href: /scp/departments.php
+priority:
+  title: Pomembnost
+  content: >
+    Izberite <span class="doc-desc-title">prioritetni nivo</span>, ki ga želite dodeliti zadetkom <span class="doc-desc-title">filtra zahtevkov</span>.<br /><br /><em>Opozorilo: To bo povozilo nastavitve <span class="doc-desc-title">oddelka</span> ali <span class="doc-desc-title">teme pomoči</span>.</em>
+sla_plan:
+  title: Sporazum o ravni storitev
+  content: >
+    Izberite <span class="doc-desc-title">sporazum o ravni storitev</span>, ki ga želite dodeliti zadetkom <span class="doc-desc-title">filtra zahtevkov</span>.
+  links:
+    - 
+      title: Upravljajte s sporazumi o ravni storitev
+      href: /scp/slas.php
+auto_assign:
+  title: Avtomatsko dodeli
+  content: >
+    Izberite agenta ali ekipo, ki mu želite dodeliti zadetke <span class="doc-desc-title">filtra zadetkov</span>.
+  links:
+    - 
+      title: Upravljaj agente
+      href: /scp/staff.php
+    - 
+      title: Upravljaj ekipe
+      href: /scp/teams.php
+help_topic:
+  title: Tema pomoči
+  content: >
+    Izberite <span class="doc-desc-title">temo pomoči</span>, ki jo želite dodeliti zadetkov <span class="doc-desc-title">filtra zahtevkov</span>.
+  links:
+    - 
+      title: Urejanje tem pomoči
+      href: /scp/helptopics.php
+admin_notes:
+  title: Zapiski admina
+  content: >
+    Ti zapiski so vidni samo računom tipa '<span class="doc-desc-title">Admin</span>.'

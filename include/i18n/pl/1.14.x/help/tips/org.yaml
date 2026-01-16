@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Współdzielenie zgłoszeń
+  content: >
+    <p>Udostępnianie zgłoszeń dla organizacji pozwala jej członkom na dostęp do zgłoszeń innych członków organizacji.</p><p class="info-banner"><i class="icon-info-sign"></i>Współuczestnicy zawsze mają dostęp do zgłoszeń.</p>
+email_domain:
+  title: Domena z adresu e-mail
+  content: >
+    Użytkownicy mogą automatycznie być dodawani do organizacji na domeny z adresu e-mail. Użyj pola poniżej aby podać jedne bądź wiele domen oddzielnych przecinkami. Na przykład wpisz <code>mojadomena.pl</code> dla użytkowników z adresem e-mail kończącym się na @mojadomena.pl
+

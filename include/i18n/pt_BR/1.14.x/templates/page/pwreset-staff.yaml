@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Este modelo define o e-mail que será enviado para os usuários que selecionarem o link <strong>Esqueci minha senha</strong> na página de Controle do Painel do usuário.
+name: "osTicket Equipe de Redefinição de Senha"
+body: >
+  <h3><strong>Olá %{staff.name.first},</strong></h3> <div> Uma requisição para redefinir sua senha foi enviada em seu nome ao suporte em %{url}. <br /> <br /> Se você acha que isso foi um equivoco, apague ou ignore esse e-mail. Sua conta ainda é segura e ninguém tem acesso a ela. A conta não está bloqueada e sua senha não foi alterada. Alguém pode apenas por engano ter digitado seu endereço de e-mail. <br /> <br /> Siga o link abaixo para acessar o sistema de atendimento e trocar sua senha. <br /> <br/> <a href="%{link}">%{link}</a> <br /> <br /> <em style="font-size: small">Sistema de Suporte</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

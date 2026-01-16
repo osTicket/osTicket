@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Dit sjabloon bevat de tekst die wordt weergegeven nadat klanten hun registratie hebben bevestigd. Deze pagina moet de klant vertellen dat de registratie is voltooid en dat hij nu een ticket kan openen of bestaande tickets in kan zien.
+name: "Account bevestigd!"
+body: >
+  <div><strong>Bedankt voor het registreren voor een account.</strong><br /> <br /> U hebt uw e-mailadres bevestigd en uw account geactiveerd. U  kunt nu een nieuw ticket of bestaande tickets beheren. <br /> <br /> <em>Uw vriendelijke helpdesk</em> <br /> %{company.name}</div>

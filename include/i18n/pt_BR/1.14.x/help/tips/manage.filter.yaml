@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ordem de execução
+  content: >
+    Digite um número que controla a prioridade do filtro. Quanto menor o número, maior é a prioridade deste filtro. ele será executado contra um outro filtro, que pode ter uma maior prioridade. <br> Se você quiser esse filtro passe a ser o último filtro aplicado em uma ação, permita que <span class="doc-desc-title">pare com o processo adicional na ação</ span>.
+target_channel:
+  title: Canal
+  content: >
+    Escolha o destino do <span class="doc-desc-title">Canal</span> para seu <span class="doc-desc-title"> filtro de Tiket</span>. O <span class="doc-desc-title">canal</span> é a fonte através da qual o Tiket chegou no sistema. <br><br>Por exemplo, se você escolher <span class="doc-desc-opt"> Formulários da Web</span>, você está dizendo que você deseja aplicar o <span class="doc-desc-title"> filtro de Tiket</span> para os Tikets que originaram de formulário da Web no Portal cliente.
+rules_matching_criteria:
+  title: Regras, critérios de correspondência
+  content: >
+    Escolha como aumentar a atuação do <span class="doc-desc-title"> Filtro de Tikets</span> para  Se quiser que o <span class="doc-desc-title"> Filtro de Tikets</span> para coincidir com qualquer uma das regras e depois parar, escolha <span class="doc-desc-opt"> coincidir com qualquer um</span>. Se quiser que <em><strong>todas as regras</strong></em> do <span class="doc-desc-title"> Filtro de Tiket</span> sejam correspondidas, escolha <span class="doc-desc-opt"> Para todas as ações</span>.
+reject_ticket:
+  title: Rejeitar o ticket
+  content: >
+    Se essa opção estiver habilitada, processamento adicional é interrompida e todas as outras escolhas de ação abaixo serão ignoradas na atuação.
+reply_to_email:
+  title: E-mail para resposta
+  content: >
+    Habilite isso, se você quer seu HelpDesk apareça no cabeçalho  <span class="doc-desc-title"> encaminhar para</span> do aplicativo de e-mail do usuário. Este campo só é relevante se o <span class="doc-desc-title"> Canal</span> acima inclui <span class="doc-desc-opt"> E-mail</span>.
+ticket_auto_response:
+  title: Desabilitar a Resposta Automática aos Tickets
+  content: >
+    <em>Nota: isto irá substituir qualquer <span class="doc-desc-title"> Departamento</span> ou <span class="doc-desc-title"> configurações de Auto-resposta</span>.</em>
+canned_response:
+  title: Resposta Automática Predefinida
+  content: >
+    Escolha uma <span class="doc-desc-title"> Resposta pronta</span> para ser enviada por email para o usuário correspondente do <span class="doc-desc-title"> Filtro de Tikets</span>.  O modelo <span class="doc-desc-title"> Novo Tiket auto-resposta</span> usado depende de que <span class="doc-desc-title"> modelo definido</span> é atribuído como padrão, ou para de um Tiket correspondente ao <span class="doc-desc-title"> Departamento</span>.
+  links:
+    - 
+      title: Gerenciar respostas criadas
+      href: /scp/canned.php
+    - 
+      title: Gerenciar conjuntos de modelo
+      href: /scp/templates.php
+    - 
+      title: Novo modelo de resposta automática de tickets
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Departamento
+  content: >
+    Escolha qual <span class="doc-desc-title"> Departamento</span> você quer as ações do <span class="doc-desc-title"> Filtro de Tikets</span> seja atribuído.
+  links:
+    - 
+      title: Gerenciar departamentos
+      href: /scp/departments.php
+priority:
+  title: Prioridade
+  content: >
+    Escolher o nível de <span class="doc-desc-title"> prioridade</span> que você quer ser aplicado para as ações do <span class="doc-desc-title"> Filtro de Tikets</span>. < br / > < br / > <em>Nota: isto irá substituir configurações de <span class="doc-desc-title"> Departamento</span> ou o <span class="doc-desc-title"> tópico da ajuda</span>.</em>
+sla_plan:
+  title: Plano de SLA
+  content: >
+    Escolha o <span class="doc-desc-title">Plano de SLA</span> você queira que seja aplicado para a atuação do <span class="doc-desc-title"> Filtro de Tiket</span>.
+  links:
+    - 
+      title: Gerenciar planos de SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-atribuir
+  content: >
+    Escolha um agente ou uma equipe que você desejar, que as ações do class="doc-desc-title"> Filtro de Ticket </ span>seja atribuído.
+  links:
+    - 
+      title: Gerenciar agentes
+      href: /scp/staff.php
+    - 
+      title: Gerenciar equipes
+      href: /scp/teams.php
+help_topic:
+  title: Tópico de ajuda
+  content: >
+    Escolha o <span class="doc-desc-title"> tópico de ajuda</span> você queira que seja aplicado para a atuação do <span class="doc-desc-title"> Filtro de Tiket</span>.
+  links:
+    - 
+      title: Gerenciar tópicos da ajuda
+      href: /scp/helptopics.php
+admin_notes:
+  title: Notas de administrador
+  content: >
+    Estas notas estão apenas visíveis para aqueles cujo tipo de conta é ' <span class="doc-desc-title"> Admin'.</span>

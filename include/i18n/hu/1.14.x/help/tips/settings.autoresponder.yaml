@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Új hibajegy
+  content: >
+    Engedélyezze ezt, ha automatikus válaszüzenetet akar küldeni a felhasználónak új jegy létrehozásakor.
+  links:
+    - 
+      title: Új automatikus válasz sablon
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Új dolgozói hibajegy
+  content: >
+    Értesítés kerül kiküldésre, amikor ez kezelő új hibajegyet hoz létre a felhasználó megbízásából. <em>A kezelő felülírhatja ezt az új jegy létrehozásakor.</em>
+  links:
+    - 
+      title: Új hibajegy jelzési sablon
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Új üzenet-visszaigazolás
+  content: >
+    Meglévő hibajegyen történő új üzenet csatolásakor visszaigazoló értesítés kerül kiküldésre.
+  links:
+    - 
+      title: Új üzenet visszaigazoló sablon
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Új üzenet jelzés
+  content: >
+    Továbbítsa a beérkezett üzeneteket az üzenet továbbítóval minden a hibajegyben érdekelt résztvevőnek.
+  links:
+    - 
+      title: Új tevékenység értesítő sablon
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Határérték túllépési értesítés
+  content: >
+    Az ügyfélnek Hibajegy elutasítva üzenet kerül küldésre, amikor túllépi a <span class="doc-desc-title">Maximális nyitott Hibajegyek</span> számát.
+  links:
+    - 
+      title: Limittúllépés értesítő sablon
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Állítsa be a <em>nyitott hibajegyek maximális</em> számát.
+      href: /scp/settings.php?t=tickets

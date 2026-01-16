@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Pemformatan Nama Ejen
+  content: >
+    Pilih format untuk nama Ejen sepanjang sistem. E-mel templet akan menggunakannya untuk nama jika tiada format lain dinyatakan.
+staff_identity_masking:
+  title: Pelekat identiti ejen
+  content: >
+    Jika diaktifkan, ini akan menyembunyikan nama Ejen daripada Pelanggan semasa apa-apa komunikasi.
+#Authentication settings
+password_reset:
+  title: Dasar Tamat Tempoh Kata Laluan
+  content: >
+    Menetapkan berapa kerap (dalam bulan) Ejen-ejen akan diperlukan untuk menukar kata laluan mereka. Jika diaktifkan ( set kepada " Tiada tamat tempoh "), kata laluan tidak akan tamat.
+password_expiration_policy:
+  title: Dasar Tamat Tempoh Kata Laluan
+  content: >
+    Pilih berapa kerap Ejen akan diperlukan untuk menukar kata laluan mereka. Jika tidak aktif (cth., <span class="doc-desc-opt"> Tiada tamat Tempoh</span>), kata laluan tidak akan tamat.
+allow_password_resets:
+  title: Benarkan Penetapan Semula Kata Laluan
+  content: >
+    Aktifkan ciri ini jika anda mahu memaparkan <span class="doc-desc-title">Lupa Password</span> link ke <span class="doc-desc-title">Log Masuk Kakitangan Halaman</span> selepas percubaan log masuk gagal.
+reset_token_expiration:
+  title: Tetingkap tetapan semula kata laluan
+  content: >
+    Pilih tempoh (dalam minit) yang mana <span class="doc-desc-title">> token menetapkan semula kata laluan</span> akan sah. Apabila ejen meminta <span class="doc-desc-title"> menetapkan semula kata laluan</span>, mereka melalui e-mel token yang akan membenarkan tetapan semula untuk mengambil tempat.
+staff_session_timeout:
+  title: Sesi masa tamat ejen
+  content: >
+    Pilih masa terbiar maksimum ( dalam minit) sebelum Ejen diperlukan untuk log masuk semula. <br><br> Jika anda mahu melumpuhkan<span class="doc-desc-title">Masa agen tamat</span>, masukkan 0.
+bind_staff_session_to_ip:
+  title: Mengikat Sesi Ejen kepada IP
+  content: >
+    Aktifkan ini jika anda mahu Agent yang akan diingati oleh IP semasa mereka setelah Log In. <br><br> Tetapan ini tidak disarankan untuk pengguna diberikan alamat IP dinamik.

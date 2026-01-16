@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Потпис на вработениот
+  content: |
+    Креирај потпис на персоналот за одговор на тикетите. Овај потпис ќе се појави како опција на долниот дел на тикетот за одговор
+type:
+  title: Тип на профил
+  content: |
+    Администраторите имаат привилегија за пристап на администраторскиот панел. Персоналот може само да ги менаџира тикетите и базата на знаење
+group:
+  title: Доделена група
+  content: |
+    Членството во група ја дефинира улогата на персоналот во системот. Посети ја страната за менаџирање на група за да дефинираш каков пристап има овај персонал до техничката подршка
+notes:
+  title: Забелешки
+  content: |
+    Постави внатрешни белешки во врска со персоналот; белешките се видливи само за персоналот чиј тип на акаунт е администраторски

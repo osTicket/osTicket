@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Systémové udalosti
+  content: >
+    Tu nájdete všetky problémy súvisiace s aktivitou (napríklad chyby, upozornenia,...).
+  links:
+    - 
+      title: Prispôsobiť aký druh činnosti je zapisovaný zmenou < br / > <span class="doc-desc-title">Predvolená úroveň udalostí</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Rozsah dátumov
+  content: >
+    Vyberte v kalendári rozsah, ktorý chcete zobraziť v <span class="doc-desc-title"> Systémových udalostiach</span>.
+type:
+  title: Typ
+  content: >
+    Vyberte možnosť pre zúženie zamerania na určitý druh činnosti. <span class="doc-desc-opt"> Debug</span> reprezentuje závažnosti a <span class="doc-desc-opt">chyba</span> najväčšiu závažnost.
+showing_logs:
+  title: Zobrazené &hellip; protokoly
+  content: >
+    Nezabudnite skontrolovať <span class="doc-desc-title">stránku</span> nižšie a uistite sa, že tam nie sú ďalšie stránky zobrazujúce dostupné systémové udalosti.
+log_title:
+  title: Názov udalosti
+  content: >
+    Kliknite na <span class="doc-desc-title">Názov udalosti</span> v záhlaví tabuľky, ak chcete triediť výsledky podľa <span class="doc-desc-title">Názovu udalostí</span>.
+log_type:
+  title: Typ udalosti
+  content: >
+    Kliknite na <span class="doc-desc-title">Druh udalosti</span> v záhlaví tabuľky, ak chcete triediť výsledky podľa <span class="doc-desc-title">Druhu udalostí</span>.
+log_date:
+  title: Dátum udalosti
+  content: >
+    Tento dátum udalosti bol vygenerovaný softvérom. Ak chcete triediť výsledky podľa <span class="doc-desc-title">dátumu udalosti</span>, jednoducho kliknite na hlavičku tabuľky <span class="doc-desc-title">dátum udalostí</span>. (Použite <span class="doc-desc-title">rozsah dátumov</span> vo formulári vyššie pre zúženie výberu.)
+ip_address:
+  title: IP adresa
+  content: >
+    Vzťahuje sa na <span class="doc-desc-title">IP</span> <span class="doc-desc-title">adresu</span> klienta, ktorý bol v čase udalosti používal osTicket.

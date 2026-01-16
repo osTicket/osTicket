@@ -1,0 +1,28 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: محل امضای کارشناسان
+  content: |
+    ایجاد امضای کارکنان برای پاسخ به بلیط. این امضا
+    به عنوان یک گزینه در پایین پاسخ بلیط ظاهر خواهد شد
+type:
+  title: نوع حساب کاربری
+  content: |
+    مدیران امتیاز دسترسی به پنل مدیریت را دارا می باشند. فقط پرسنل
+    دسترسی به مدیریت بلیط ها و پایگاه دانش را دارا می باشند
+group:
+  title: گروه اختصاص داده شده
+  content: |
+    نقش پرسنل در سیستم، توسط عضویت گروه مشخص می شود.جهت
+    تعریف دسترسی این گروه برای میز کمک، صفحه مدیریت گروه را مشاهده نماییذ
+notes:
+  title: یادداشت های داخلی
+  content: |
+    محل یاداشت داخلی مخصوص کارکنان، یاداشت ها تنها برای پرسنلی 
+    قابل مشاهده هستند که نوع حساب آنها مدیر باشد

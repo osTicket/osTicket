@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Táto šablóna slúži ako základ e-mailu posladného pracovníkovi, ktorý klikol na odkaz <strong>Zabudnuté heslo</strong> na prihlasovacej obrazovke.
+name: "osTicket reset hesla pre pracovníkov"
+body: >
+  <h3><strong>Dobrý deň %{staff.name.first},</strong></h3> <div> z Vášho účtu bola zaslaná požiadavka na vyresetovanie hesla %{url}.<br /> <br /> Ak si myslíte, že sa jedná o omyl, zmažte a ignorujte tento e-mail. Váš účet je stále bezpečný a nikto k nemu nezískal prístup. Nie je zamknutý a Vaše heslo nebolo vyresetované. NIekto zrejme omylom zadal Vašu e-mailovú adresu.<br /> <br /> Pre prihlásenie a zmenu hesla kliknite na nasledujúci odkaz.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Váš zákaznícky systém </em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

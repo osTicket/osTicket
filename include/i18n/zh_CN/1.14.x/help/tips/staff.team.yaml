@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: 团队
+  content: >
+    团队即一个或多个代理互相联合，其目的在于进行咨询分配。团队成员可跨部门组合。
+status:
+  title: 状态
+  content: >
+    如果<span class="doc-desc-opt">禁用</span>，此团队将无法分配咨询、接收提醒&amp;有关上一次分配的通知。
+lead:
+  title: 团队主管
+  content: >
+    <span class="doc-desc-title">团队</span>可指定主管，但与其他团队成员不同的是，此主管拥有接收<span class="doc-desc-title">提醒 &amp;通知权限</span>。
+  links:
+    - 
+      title: 配置提醒 &amp; 通知
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: 分配提醒
+  content: >
+    您可为分配至此团队的咨询禁用<span class="doc-desc-title">咨询分配提醒</span>。
+  links:
+    - 
+      title: 配置提醒 &amp; 通知
+      href: /scp/settings.php?t=alerts
+members:
+  title: 团队成员
+  content: >
+    可通过代理个人设定配置团队成员。
+  links:
+    - 
+      title: 管理工作人员
+      href: /scp/staff.php

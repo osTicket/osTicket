@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Título do Formulário
+  content: >
+    Esse texto de título é exibido em uma caixa cinza acima dos campos de formulário
+form_instructions:
+  title: Instruções do Formulário
+  content: >
+    Você pode adicionar instruções extras que ajudarão a orientar o usuário no contexto dos campos de formulário e possivelmente destacar dados necessários.
+field_sort:
+  title: Posição de exibição do campo
+  content: >
+    Clique no ícone da seta para cima e para baixo e arraste a linha campo para classificar dentro deste formulário. Classificar a preferência não terá efeito até que o formulário é salvo.
+field_label:
+  title: Rótulo do campo
+  content: >
+    Este rótulo é mostrado como o prompt para este campo. Normalmente, um campo de resposta curta seria processado como esta: <br><strong>Rótulo:</strong> <input type="text">
+field_type:
+  title: Tipo de conteúdo do campo
+  content: >
+    Isto é usado para definir o tipo de entrada esperada a partir do utilizador. Você pode selecionar a partir de curta e longa resposta, número de telefone, data e hora, caixa de seleção, a lista suspensa, ou uma lista de seleçao personalizada.
+  links:
+    - 
+      title: Listas personalizadas
+      href: /scp/lists.php
+field_visibility:
+  title: Visibilidade de Campo
+  content: >
+    Escolha uma opção de visibilidade e requerimento para este campo. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Configuração</th> <th> Resultado</th></tr> <tr><td>Opcional</td> <td>Agentes e Usuários finais podem ver o campo, mas não são obrigados a responder.</td></tr> <tr><td>Requerido</td> <td>Agentes e Usuários finais podem ver o campo, e ambos são obrigados a responder</td></tr> <tr><td> Necessário para Usuários Finais</td> <td>Agentes e Usuários finais podem ver o campo, mas apenas os usuários finais são obrigados a responder</td></tr> <tr><td>Requerido para Agentes</td> <td>Agentes e Usuários finais podem ver o campo, mas apenas agentes são obrigados a responder</td></tr> <tr><td>Interno, Opcional</td> <td>Apenas os Agentes podem ver o campo, mas nenhuma resposta é necessária.</td></tr> <tr><td>Interno, Requerido</td> <td> Apenas os agentes podem ver o campo, e uma resposta é requerida.</td></tr> <tr><td>Apenas para Usuários finais</td> <td>Somente Usuários finais podem ver o campo, e uma resposta é requerida.</td></tr> </tbody></table>
+field_variable:
+  title: Automação de campo
+  content: >
+    Os dados do campo estarão disponíveis para modelos de página e e-mail através do nome usado nesta coluna. Por exemplo, campos do formulário comum de bilhetes estão disponíveis através de <code>%{ticket.variable}</code>, onde a <strong>variável</strong> é o nome usado nesta coluna.<br><br><em>Informações sobre a empresa estão disponíveis via <code>%{</code> <code>company.variable}</code> e informações de usuário estão disponíveis via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Remover este campo
+  content: >
+    Verificar e salvar o formulário para remover um campo do mesmo.<br><br><em>A exclusão de um campo não remove dados inseridos anteriormente para o campo em formulários preenchidos. Por exemplo, se um bilhete apresentado anteriormente tem dados para um campo, apagar o campo dessa forma não irá remover os dados do chamado.</em>

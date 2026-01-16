@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: 팀
+  content: >
+    팀은 티켓 할당을 위한 한명 이상의 담당자로 구성됩니다. 팀원은 조직/부서 내에서 구성할 수 있습니다.
+status:
+  title: 상태
+  content: >
+    <span class="doc-desc-opt">해제</span>하면 팀은 티켓 할당 및  기존에 할당된 티켓에 대한 경고와 알림을 받을 수 없습니다.
+lead:
+  title: 팀 리더
+  content: >
+    <span class="doc-desc-title">팀</span>에는 일반 팀원들과 달리 <span class="doc-desc-title">경고와 알림</span>을 받는 지정된 리더를 정할 수 있습니다.
+  links:
+    - 
+      title: 경고 및 알림 설정
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: 할당 경고
+  content: >
+    이 팀에 할당된 티켓에 대한<span class="doc-desc-title">티켓 할당 경고</span>를 하지 않도록 할 수 있습니다.
+  links:
+    - 
+      title: 경고 및 알림 설정
+      href: /scp/settings.php?t=alerts
+members:
+  title: 팀원
+  content: >
+    팀원 구성은 담당자 프로파일을 통해 설정할 수 있습니다.
+  links:
+    - 
+      title: 스태프 관리
+      href: /scp/staff.php

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Формат имени сотрудника по-умолчанию
+  content: >
+    Выберите формат для имен во всей системе. Шаблоны электронной почты будут использовать его для имен, если другой формат не указан в переменной.
+staff_identity_masking:
+  title: Маскировать личность сотрудника
+  content: >
+    Если этот параметр включен, это позволит скрыть имя сотрудника от клиента во время общения.
+#Authentication settings
+password_reset:
+  title: Политика срока действия пароля
+  content: >
+    Устанавливает, как часто (в месяцах) сотрудники должны менять свои пароли. Если отключено (значение «Без истечения срока») - время действия паролей не будет истекать.
+password_expiration_policy:
+  title: Политика срока действия пароля
+  content: >
+    Выберите, как часто Сотрудники должны будут менять свои пароли. Если отключено (то есть, <span class="doc-desc-opt">Без Истечения Срока</span>) - срок действия паролей не будет истекать.
+allow_password_resets:
+  title: Разрешить сброс пароля
+  content: >
+    Включите эту функцию, если Вы хотите отображать ссылку <span class="doc-desc-title">Забыли пароль</span> на <span class="doc-desc-title">странице входа сотрудников</span> после неудачной попытки входа.
+reset_token_expiration:
+  title: Окно сброса пароля
+  content: >
+    Выберите продолжительность времени (в минутах), в течение которого <span class="doc-desc-title"> Токен Сброса Пароля</span> будет действующим. Когда Сотрудник запрашивает <span class="doc-desc-title">Сброс Пароля</span> - ему отправляется токен, который позволяет совершить сброс.
+staff_session_timeout:
+  title: Максимальное время сеанса сотрудника
+  content: >
+    Выберите максимальное время бездействия (в минутах), после которого сотрудник автоматически выйдет из системы. <br><br> Если Вы хотите отключить <span class="doc-desc-title">тайм-аут сессии сотрудника</span> - введите 0.
+bind_staff_session_to_ip:
+  title: Закреплять сеанс сотрудника за IP
+  content: >
+    Включите, если Вы хотите, чтобы сотрудники запоминались по их текущему IP при входе. <br><br> Эта настройка не рекомендуется для пользователей, которым назначается динамический IP-адрес.

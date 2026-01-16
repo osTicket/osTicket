@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: សមាជិក​បុគ្គលិក
+  content: >
+    តារាងខាងក្រោមបង្ហាញលទ្ធផលរបស់តម្រងនៅខាងលើវា។ ប្រសិនបើគ្មានការកំណត់តម្រងត្រូវបានជ្រើស, all គឺជាជម្រើស <span class="doc-desc-title">សមាជិក​បុគ្គលិក </span> ត្រូវបានបង្ហាញនិងបានបែកខ្ញែកដោយទំព័រ។ សូមមើលផ្នែកទំព័រខាងក្រោមដើម្បីរុករកតាមរយៈលទ្ធផល ច្រើនទៀត។
+apply_filtering_criteria:
+  title: អនុវត្តលក្ខណៈវិនិច្ឆ័យតម្រង
+  content: >
+    ជ្រើសរើស<span class="doc-desc-title">នាយកដ្ឋាន</span> ពាក់ព័ន្ធទៅនឹងតម្រូវការរបស់អ្នក។អ្នកអាចធ្វើការស្វែងរកសម្រាប់ភ្នាក់ងារជាក់លាក់មួយ។

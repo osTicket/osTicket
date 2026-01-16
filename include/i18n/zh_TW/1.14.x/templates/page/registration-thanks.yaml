@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  這個範本將告知使用者帳號已被啟用。這個頁面應該告知使用者已經註冊完成且可開始使用系統所有功能。
+name: "帳號已啟用！"
+body: >
+  <div><strong>感謝您註冊帳戶。</strong>< br / > < br / > 您確認您的電子郵件地址並成功啟動您的帳戶。您可以繼續打開一張新票或管理現有案件。 < br / > < br / > <em>您友好的支援中心</em> < br / > %{company.name}</div>

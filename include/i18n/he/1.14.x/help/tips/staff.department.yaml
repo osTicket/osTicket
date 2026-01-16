@@ -1,0 +1,102 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: מצב
+  content: >
+    אם כבוי או מאוחסן בארכיון, <span class="doc-desc-title">מחלקה</span> זו לא תהיה נגישה.
+type:
+  title: סוג
+  content: >
+    <span class="doc-desc-opt"><span class="doc-desc-opt">
+email:
+  title: Email
+  content: >
+    אימייל המשמש לתגובות הנשלחות למשתמשים כאשר נציגים מגיבים לטיקטים.
+template:
+  title: קבע תבנית
+  content: >
+    <span class="doc-desc-title">תבנית</span> דוא"ל המשמשת לתגובות אוטומטיות והודעות והתראות לפנייה המנותב למחלקה זו.
+  links:
+    - 
+      title: נהל תבניות
+      href: /scp/templates.php
+sla:
+  title: הסכם רמת שירות
+  content: >
+    הסכם רמת שירות לפניה המנותב למחלקה זו.
+  links:
+    - 
+      title: נהל תוכניות שירות
+      href: /scp/slas.php
+schedule:
+  title: לוח זמנים
+  content: >
+    לוח הזמנים המשמש את SLA בעת העברת קריאות, מנותב למחלקה זו, לא נעשה בזמן. <br> <br> הגדרה זו גוברת על קביעות לוח הזמנים של מערכת ו- SLA.
+  links:
+    - 
+      title: נהל לוח זמנים
+      href: /scp/schedules.php
+manager:
+  title: ניהול מחלקות
+  content: >
+    בחר <span class="doc-desc-title">מנהל</span> למחלקה זו.<br/><br/> אפשר להגדיר למנהלים קבלת התראות מיוחדות וגם את הזכות להקצות פניות.
+  links:
+    - 
+      title: ניהול התראות &amp; הודעות
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: התראות, מקבלי הודעות
+  content: >
+    בחר את מקבלי <span class="doc-desc-title">ההודעות והתראות</span> המוגדרות.
+  links:
+    - 
+      title: קביעת תצורה של התראות &amp; הודעות
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: הגבלות שיוך פנייה
+  content: >
+    קבע אם ניתן להקצות קריאות לכל הסוכנים, סוכנים עם גישה למחלקה ראשית או מורחבת, או רק סוכנים עם גישה למחלקה הראשית.
+disable_auto_claim:
+  title: בטל הקצאה אוטומטית
+  content: >
+    לחץ פה על מנת <strong>לבטל</strong> מצב אוטומטי לדרישה בתגובה/תשובה עבור מחלקה זו. 
+    <br><br> 
+    סוכנים יכולים לקחת משימות שלא הוקצו באופן ידני
+disable_reopen_auto_assign:
+  title: השבת הקצאה אוטומטית בפתיחה מחדש
+  content: >
+    לחץ פה כדי<strong>disable</strong>הקצאה אוטומטית של קריאות שנפתחו מחדש למחלקה זו <br><br>אחרת, הקריאה תהיה מוקצת אוטמטית לגורם האחרון שהגיב
+auto_response_settings:
+  title: הגדרות המגיב האוטומטי
+  content: >
+    זה מאפשר לך לשנות ההגדרות של תגובה אוטומטית הגלובלים למחלקה זו.
+new_ticket:
+  title: מענה אוטומטי חדש לכרטיסים
+  content: >
+    אפשר להשבית תגובות אוטומטיות שנשלחו למשתמש כאשר פניה חדשה נוצר ומנותב למחלקה זו.
+new_message:
+  title: מענה אוטמטי להודעה חדשה
+  content: >
+    אפשר להשבית תגובות אוטומטיות שנשלחו למשתמש לאשר קבלה של פניה חדשב במחלקה זו.
+auto_response_email:
+  title: מייל תגובה אוטומטי
+  content: >
+    בחר את כתובת הדוא"ל שממנו תגובות אוטומטיות נשלחות למחלקה זו.
+department_access:
+  title: גישת קבוצה
+  content: >
+    אפשר לנציגים ממחלקות אחרות לגשת לקריאות הממוענות למחלקה זו.
+department_signature:
+  title: חתימה למחלקה
+  content: >
+    חתימה נעשתה זמינה כבחירה, למחלקות <span class="doc-desc-opt">ציבוריות</span>, על תגובותו של הסוכן.

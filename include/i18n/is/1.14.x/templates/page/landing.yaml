@@ -1,0 +1,17 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  The Landing Page refers to the content of the Customer Portal's initial view. The template modifies the content seen above the two links <strong>Open a New Ticket</strong> and <strong>Check Ticket Status</strong>.
+name: Forsíða
+body: >
+  <h1>Velkomin&#40;n&#41; á þjónustumiðstöðin</h1>
+  <p>
+  Í því skyni að straumlínulaga feril verkbeiðna og þjóna notendum betur, 
+  nýtum við verkbeiðnakerfi. Sérhver verkbeiðni er úthlutað einkvæmu númeri
+  sem þú getur notað til að fylgjast með framvindu og svörum 
+  á netinu. Til tilvísunar veitum við aðgang að skjalasafni og sögu 
+  allra verkbeiðna þinna. Krafist er  gilds tölvupóstfangs til að stofna verkbeiðni.
+  </p>

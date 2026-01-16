@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Нова категорія заявки
+  content: >
+    Виберіть <span class="doc-desc-title"> категорію </span>, яка буде автоматично прив'язана до заявки, створена через електронну пошту. <br /> <br /> Форми, пов'язані з цією категорією проблем, будуть додані в заявку, але не міститимуть даних.
+  links:
+    - 
+      title: Управління категоріями заявок
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Новий пріоритет заявки
+  content: >
+    Виберіть <span class="doc-desc-title"> пріоритет </span> для нових заявок, створених через електронну пошту.
+new_ticket_department:
+  title: Новий відділ для заявок
+  content: >
+    Виберіть <span class="doc-desc-title"> відділ </span>, якому будуть направлятися заявки, створені через електронну пошту.
+  links:
+    - 
+      title: Управління відділами
+      href: /scp/departments.php
+auto_response:
+  title: Автовідповідь на нову заявку
+  content: >
+    Ви можете відключити автовідповідь, що відправляється користувачеві, коли нова заявка створюється через електронну пошту.
+username:
+  title: Ім'я користувача
+  0: >
+
+password:
+  title: Пароль
+  0: >
+
+login_information:
+  title: Інформація про поштовий логін
+  content: >
+    <span class="doc-desc-title"> Ім'я користувача </span> і <span class="doc-desc-title"> пароль </span> потрібні для отримання пошти з ящиків IMAP / POP, а також для відправки листів через SMTP.
+mail_account:
+  title: Отримання пошти
+  content: >
+    Отримання листів з віддаленого ящика IMAP або POP і перетворення їх в заявки у Вашій системі допомоги.
+  links:
+    - 
+      title: Управління <span class="doc-desc-title"> запитом листів </span> і настройками <span class="doc-desc-title"> автоматичного збору листів </span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Віддалений хост
+  content: >
+    Введіть <span class="doc-desc-title"> ім'я хоста </span> і <span class="doc-desc-title"> порт </span> Вашого поштового серверу. Ця інформація може бути доступна в документації Вашого хостингу або отримана від Вашого системного адміністратора.
+protocol:
+  title: Протокол електронної пошти
+  content: >
+    Виберіть поштову протокол, який підтримується Вашим віддаленим поштовим сервером. Рекомендується IMAP і SSL, якщо можливо.
+fetch_frequency:
+  title: Частота перевірки
+  content: >
+    Вкажіть, як часто, в хвилинах, система буде перевіряти поштовий ящик. <br /> <br /> Це визначить середню затримку отримання автовідповіді після відправлення користувачем листа на цю адресу.
+emails_per_fetch:
+  title: Листів на завантаження
+  content: >
+    Введіть кількість листів, оброблюваних за раз.
+fetched_emails:
+  title: Обрані листи
+  content: >
+    Виберіть, що робити з обробленими листами: <br/> <br/> <span class="doc-desc-opt"> <b> Перемістити в папку </b> </span>: Це перемістить лист зі скриньки в папку, яку Ви вкажете. Якщо папка ще не існує на сервері, система спробує створити її автоматично. (<b> Рекомендується </b>) <hr> <span class="doc-desc-opt"> <b> Видалити листи </b> </span>: Це видалить лист зі скриньки після обробки. <hr> <span class="doc-desc-opt"> <b> Нічого не робити </b> </span>: Це залишить лист у папці вхідні листи. Система запише ідентифікатор письма, щоб не отримувати його знову. Тим не менш, цей варіант може привести до створення дублюючих Заявок. (<em> Не Рекомендується </em>)
+smtp_settings:
+  title: Налаштування SMTP
+  content: >
+    Лист, що відправляється від служби допомоги, може бути відправлено через сервер SMTP. Цей варіант рекомендується, якщо можливий, так як він збільшує ймовірність доставки листів і зменшує ймовірність того, що листи будуть відзначені як спам.
+header_spoofing:
+  title: Дозволити змінювати заголовки
+  content: >
+    Увімкніть для того, щоб дозволити відправляти листи з цього ящика від іншої адреси замість зазначеного в налаштуванні <span class="doc-desc-title"> адреси електронної пошти </span>. <br /> <br /> Ця настройка зазвичай використовується при відправленні листів від псевдонімів цього поштового ящика.
+

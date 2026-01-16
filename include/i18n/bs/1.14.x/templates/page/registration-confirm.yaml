@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Ovaj predložak definira stranicu koja će biti prikazana klijentima nakon što ispune obrazac za registraciju. Predložak bi trebao informirati klijenta da je sistem u procesu slanja email sa linkom za potvrdu korisničkog računa, te koji je sljedeći korak u procesu registracije.
+name: "Registracija korisničkog računa"
+body: >
+  <div><strong>Hvala Vam što ste izradili korisnički račun.</strong><br/> <br /> Upravo smo Vam poslali email na adresu koju ste koristili kod registracije. Molimo Vas da potvrdite svoj korisnički račun klikom na link u emailu kako biste mogli pristupiti svojim karticama. </div>

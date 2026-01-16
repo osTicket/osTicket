@@ -1,0 +1,27 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Skickas till agenter när ett ärende har tilldelats dem eller teamet som de tillhör. Använd %{assigner} för att urskilja vem som tilldelade uppdraget.
+subject: |
+  Ärenden som är tilldelats dig
+body: |
+  <h3><strong>Hej %{assignee.name.first},</strong></h3>
+  Uppgift <a href="%{task.staff_link}">#%{task.number}</a> har tilldelats
+  dig av %{assigner.name.short}
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>För att visa/besvara ärendet, vänligen <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logga in</span></a> i support-systemet</div>
+  <em style="font-size: small; ">Ditt vänliga ärendehanteringssystem</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

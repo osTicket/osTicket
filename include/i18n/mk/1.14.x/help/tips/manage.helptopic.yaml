@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Информации за помошната тема
+  content: >
+    <span class="doc-desc-title">Помош со темата</span> управува со информациите кои се собираат од корисниците и како тикетите се насочуваат или доделуваат.
+topic:
+  title: Име на темата
+  content: >
+    Единствено име за помош на темата
+status:
+  title: Статус
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Тип
+  content: >
+    Ако <span class="doc-desc-title">Помош со темата</span> е означена како приватна, таа ќе биде единствено достапна за агентите кога отвораат нов тикет под персонален панел.
+parent_topic:
+  title: Основна тема
+  content: >
+    Изберете ја основната тема на која припаѓа <span class="doc-desc-title">Помош со темата</span>. Основната тема ќе биде прикажана прво во листа со <span class="doc-desc-title">Помош за тема</span> веднаш после основната.
+custom_form:
+  title: Прилагодена форма
+  content: >
+    Прилагодените форми ни помагаат да извлечеме повеќе специфични податоци од корисниците кои се релевантни на оваа<span class="doc-desc-title">Помош за тема</span>.
+  links:
+    - 
+      title: Управување со прилагодени форми
+      href: /scp/forms.php
+priority:
+  title: Приоритет
+  content: >
+    Се избира приоритетот доделен на новите тикети поврзани со<span class="doc-desc-title">Помош за темата</span>. <br><br> Тикет филтерите може да го надминат новиот тикет приоритет.
+department:
+  title: Оддел
+  content: >
+    Изберете оддел на кој ќе се насочуваат новите тикети од помош со темата.
+  links:
+    - 
+      title: Управување на оддели
+      href: /scp/departments.php
+sla_plan:
+  title: SLA План
+  content: >
+    Изберете SLA план поврзан со оваа<span class="doc-desc-title">Помош за темата</span>.<br><br> Оваа селекција ќе го надмине SLA планот на било кој избран оддел.
+  links:
+    - 
+      title: Управување со SLA планови
+      href: /scp/slas.php
+thank_you_page:
+  title: Страница на благодарност
+  content: >
+    Изберете Ви благодариме страница на која корисникот е насочен после отворање тикет со <span class="doc-desc-title">Помош со темата</span>.
+  links:
+    - 
+      title: Управување со страницата на благодарност
+      href: /scp/pages.php
+auto_assign_to:
+  title: Автоматско доделување нов тикет
+  content: >
+    Опционално избирање агент или тим за автоматско доделување тикети отворени со <span class="doc-desc-title">Помош со темата</span><br><br>Тикет филтрите може да го надминат доделувањето.
+  links:
+    - 
+      title: Управување со персонал и тимови
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Автоматски одговор на тикет
+  content: >
+    Ако е избрано, ова подесување ќе ги оневозможи автоматските одговори за оваа <span class="doc-desc-title">Помош за тема</span>.<br><br> Ова го надминува поставувањето за автоматски одговор за <span class="doc-desc-title">Оддел</span> толку добро како и глобалните <span class="doc-desc-title">Поставувања за автоматски одговори</span>.
+  links:
+    - 
+      title: Подесувања на автоматски одговори
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Број на прилагодени тикети
+  content: >
+    Изберете "Прилагодено" овде за да се надмине предефинираниот формат за означување тикет во оваа поддршка за темата. Погледнете помошни совети во Подесувања/Тикети страната за повеќе детали околу подесувањата.

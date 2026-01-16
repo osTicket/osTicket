@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Apakah itu osTicket (contoh)?
+  response: |
+    osTicket adalah sistem dukungan tiket yang open-source, sebuah alternatif dari sistem dukungan pelanggan yang kompleks dan harga yang lebih mahal - sederhana, ringan, terpercaya, open source, berbasiskan web, dan mudah dipasang dan digunakan.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Lampiran yang Dibuat Sebelumnya Hebat!
+- 
+  isenabled: 1
+  title: Contoh (dengan variabel)
+  response: |
+    Hai %{ticket.name.first},
+    <br>
+    <br>
+    Tiket Anda #%{ticket.number} telah dibuat pada %{ticket.create_date} dan berada 
+    di dalam departemen %{ticket.dept.name}.
+  0: |
+

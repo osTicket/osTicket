@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Tinklapio puslapiai
+  content: >
+    Svetainės puslapiai gali tarnauti kaip mini Turinio valdymo sistema (TVM). Galite  nustatyti kelis nukreipimo, neprisijungęs, ir padėkos puslapius ir sukonfigūruoti juos įmonės nustatymuose ir pagalbos temose.
+  links:
+    - 
+      title: Įmonės nustatymai
+      href: /scp/settings.php?t=pages
+type:
+  title: Tipas
+  content: >
+    <span class="doc-desc-opt">Neprisijungęs</span>puslapiai yra rodomi kliento portale jei jūsų pagalbos sistema yra išjungta.<span class="doc-desc-opt">Nukreipimo</span>puslapiai yra rodomi pagrindiniame jūsų kliento portalo puslapyje.<span class="doc-desc-opt">Padėkos</span>puslapiai yra rodomi kai vartotojas pateikia užklausą.<span class="doc-desc-opt">Kita</span>puslapiai gali būti naudojami kaip paprasta turinio valdymo sistema (TVS).

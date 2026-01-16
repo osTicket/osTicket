@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: فعالیت درخواست
+  content: >
+    با انتخاب بازه زمانی، داده های مربوط به آن بازه در نمودار و جدول (cf. <span class="doc-desc-title">آمار</span>) پایین  نمایش داده خواهد شد. نمودار زیر همواره یک دید کلی از داده های سامانه را به شما نمایش می دهد. (یعنی جمعیت). با این حال، شما میتوانید با استفاده از جدول <span class="doc-desc-title">آمار</span> پایین بازه های کوچکتر زمانی را بررسی کنید (برای مثال، موضوعات ، واحد سازمانی و یا کارکنان). بعلاوه شما میتوانید از داده هایی که در حال حاضر در جدول <span class="doc-desc-title">آمار</span> نمایش داده می شود خروجی بگیرید.
+report_timeframe:
+  title: بازه زمانی گزارش
+  content: >
+    تاریخ شروع برای نمونه داده های مورد نظر با استفاده از انتخاب کننده تاریخ را انتخاب کنید. پس از آن، طول زمان از آن تاریخ را برای انتخاب  تاریخ پایان نمونه داده های خود را انتخاب کنید.
+statistics:
+  title: آمار
+  content: >
+    برای دیدن نمونه مشخصی از اطلاعات، بر روی زبانه مورد نظر کلیک کنید. در داخل جدول، دایره نشان دهنده حجم دیتای اسمی است. بنابراین هرچه عدد سلول بزرگتر باشد، دایره مربوط به ان بزرگتر خواهد بود.
+opened:
+  title: باز شده
+  content: >
+    درخواست هایی که در بخش ها یا موضوع راهنما باز شده اند ، یا تعداد درخواست هایی که نماینده از طرف یک کاربر باز کرده است.
+assigned:
+  title: اختصاص داده شده
+  content: >
+    درخواست هایی که به نماینده یا یک تیم اختصاص داده شده اند. این شماره نشان دهنده درخواست هایی است که به صورت دستی به نمایندگان یا تیم ها اختصاص داده می شود، درخواست های ادعا شده که از فیلتر درخواست ها یا سایر قوانین خودکار تخصیص داده شده است.
+overdue:
+  title: تاریخ گذشته
+  content: >
+    درخواست هایی که توسط سیستم مشخص شده اند "عقب افتاده" هستند. بلیط ها زمانی که نقض طرح SLA که متعلق به آنها بود، به تاخیر افتادن مشخص می شود و باعث می شود که آنها وضعیت "باز" را در تاریخ گذشته خود داشته باشند.
+closed:
+  title: بسته شده
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: دوباره باز شده
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: حذف شده
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: زمان ارائه خدمت
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: زمان پاسخ
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

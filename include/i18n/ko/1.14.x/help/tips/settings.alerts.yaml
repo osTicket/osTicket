@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: 알림과 통보
+  content: >
+    알림과 통보는 설정된 티켓이벤트에 의해서 메일로 자동 발송됩니다.
+ticket_alert:
+  title: 새 티켓 알림
+  content: >
+    <p> 새로운 티켓이 작성되면 에이전트에게 송신 되는 알림 </p><p class="info-banner"> <i class="icon-info-sign"></i> 이 알림은 티켓필터나 도움 주제에 의해 자동으로 할당되었을 때에는 송신되지 않습니다.</p>
+  links:
+    - 
+      title: 기본 새 티켓 알림 템플릿
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: 새 메세지 알림
+  content: >
+    기존 티켓에 사용자로부터 새로운 메세지가 추가 되었을 때 에이전트에게 송신 되는 알림
+  links:
+    - 
+      title: 기본 새 메세지 알림 템플릿
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: 새 내부 활동 알림
+  content: >
+    내부 노트 또는 담당자가 티켓에 답변을 추가하는 등 내부 활동이 있을 때 담당자에게 알림을 전송합니다.
+  links:
+    - 
+      title: 기본 티켓 활동 템플릿
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: 티켓 할당 알림
+  content: >
+    티켓이 에이전트에게 할당되었을 때 송신 되는 알림
+  links:
+    - 
+      title: 기본 티켓 할당 알림 템플릿
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: 티켓 이관 알림
+  content: >
+    티켓이 부서 간 이관 되었을 때 에이전트에게 전송되는 알림
+  links:
+    - 
+      title: 기본 티켓 이관 알림 템플릿
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: 티켓 기한 만료 알림
+  content: >
+    SLA 또는 만료 날짜를 기준으로 티켓이 만료될 때 에이전트로 전송되는 알림입니다.
+  links:
+    - 
+      title: 기본 미응답 티켓 알림 템플릿
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: SLA 관리
+      href: /scp/slas.php
+system_alerts:
+  title: 시스템 알림
+  content: >
+    관리자 (%{config.admin_email})에게 송신되는 중요한 시스템 이벤트. 설정된<span class="doc-desc-title">로그 레벨</span>에 의해, 이벤트는<span class="doc-desc-title">시스템 로그</span>에서도 출력됩니다.
+  links:
+    - 
+      title: 시스템 로그 보기
+      href: /scp/logs.php
+    - 
+      title: 관리자 이메일 변경
+      href: /scp/settings.php?t=emails

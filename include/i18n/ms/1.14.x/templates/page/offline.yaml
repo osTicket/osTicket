@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Halaman Talian Tutup wujud di Portal Pelanggan apabila Meja Bantuan tidak beroperasi.
+name: Talian tutup
+body: |
+  <div><h1>
+  <span style="font-size: medium">Talian tutup sistem tiket sokongan</span>
+  </h1>
+  <p>Terimah kasih kerana berminat dengan menghubungi kami</p>
+  <p>Meja bantuan kami tutup talian pada masa ini, sila cek balik pada masa yang lain</p>
+  </div>

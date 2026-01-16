@@ -1,0 +1,26 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Даалгаварт шинэ мессеж/тэмдэглэл нэмж оруулахад ажилтан уруу илгээнэ. Жишээлбэл ажилтан эсвэл хамтрагч системээс илгээсэн имэйлд хариу өгөх эсвэл вэб портал уруу нэвтэрч шинэ мессеж оруулах гэх мэтэд.
+subject: |
+  Даалгаврын үйл явц [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Сайн байна уу, %{recipient.name} ?</strong></h3>
+  <a href="%{task.staff_link}">#%{task.number}</a> дугаартай даалгавар шинэчлэгдлээ: %{activity.description}.
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Даалгаврыг үзэх эсвэл хариу өгөх бол тусламж үйлчилгээний систем уруу <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >нэвтэрнэ үү</span></a> </div>
+  <em style="font-size: small; ">Тусламж Үйлчилгээний Систем</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

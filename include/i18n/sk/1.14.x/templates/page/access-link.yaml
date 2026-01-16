@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Táto šablóna definuje oznámenia pre klientov, ktorým bol prístup poslaný na ich e-mail. Číslo podnetu a e-mailová adresa spustí prístupový odkaz.
+name: "Odkaz na číslo podnetu[#%{ticket.number}]"
+body: >
+  <h3><strong>Dobrý deň %{recipient.name.first},</strong></h3> <div> V helpdesku %{url} bola vo Vašom mene odoslaná požiadavka na prístup k tiketu #%{ticket.number}.<br /> <br /> Pre kontrolu tiketu č. #%{ticket.number}, kliknite na nasledujúci odkaz.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Pokiaľ ste si ho <strong>nevyžiadali</strong> , zmažte tento email a považujte ho za bezpredmetný. Váš účet zostáva zabezpečený a nikomu neboli odovzdané prístupové údaje k tiketu. Pravdepodobne niekto náhodne zadal Vašu emailovú adresu.<br /> <br /> --<br /> %{company.name} </div>

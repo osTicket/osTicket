@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Dodatne liste
+  content: >
+    Vaše <span class="doc-desc-title">Prilagođene liste</span> omogućiće Vam kreiranje padajućih menija sa predefinisanim opcijama iz kojih klijent može izabrati <span class="doc-desc-title">Prilagođene obrasce</span>. Ukoliko želite da koristite <span class="doc-desc-title">Prilagođenu listu</span> kao <span class="doc-desc-title">Cilj</span> u <span class="doc-desc-title">Filter tiketa</span>, obavezno dodajte ovu listu u <span class="doc-desc-title">Detalji tiketa</span> obrazac.
+name:
+  title: Ime
+  0: >
+
+plural_name:
+  title: Množina imena
+  0: >
+
+sort_order:
+  title: Redosled sortiranja
+  0: >
+
+list_s_initial_items:
+  title: Izlistavanje osnovnih stavki
+  0: >
+
+value:
+  title: Vrednost
+  0: >
+
+extra:
+  title: Dodatno
+  content: >
+    Skraćenice i slično. Ukoliko koristite interne kodove za stavke u ovoj listi, te kodove i tikete možete upisati u ovu kolonu. Ako je prilagođena lista izvedena kao <span class="doc-desc-option"> OtkucajteNapred</span>, ove skraćenice mogu se koristiti za traženje stavki u prilagođenom popisu.

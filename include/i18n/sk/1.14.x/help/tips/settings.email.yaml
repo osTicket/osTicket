@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Sada štandardných šablón pre emaily
+  content: >
+    Vyberte <span class="doc-desc-title">sadu emailových šablón</span>, ktorá bude použitá pre posielanie <span class="doc-desc-title">automatických odpovedí</span> a <span class="doc-desc-title">upozornení</span> pre rôzne udalosti počas životného cyklu tiketu. <br><br> Na úrovni oddelení je možné definovať inú sadu emailových šablón.
+  links:
+    - 
+      title: Definícia emailových sád
+      href: /scp/templates.php
+default_system_email:
+  title: Štandardný email pre odchádzajúcu poštu
+  content: >
+    Vyberte emailovú adresu pre odchádzajúcu poštu. <br><br> <span class="doc-desc-title">Oddelenie</span> si môže definovať vlastnú adresu, ktorá má potom prednosť.
+  links:
+    - 
+      title: Definícia emailových adries
+      href: /scp/emails.php
+default_alert_email:
+  title: Predvolený e-mail pre upozornenie
+  content: >
+    Zadajte email z ktorého sú posielané upozornenia a oznámenia agentom.
+  links:
+    - 
+      title: Definícia emailových adries
+      href: /scp/emails.php
+admins_email_address:
+  title: Email administrátora
+  content: >
+    Zadajte email administrátora, ktorému budú posielané hlásenia systémových chýb a oznámenia o nových tiketoch (ak sú nastavené).
+  links:
+    - 
+      title: Definícia upozornení a oznámení
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Preberanie emailov
+  content: >
+    Používať IMAP/POP pre  povolené emailové schránky.
+  links:
+    - 
+      title: Definícia emailových schránok
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Preberanie emailov prostredníctvom cronu (plánovača)
+  content: >
+    Umožní pravidelné preberanie emailov pomocou interného správcu úloh, ktorý sa spúšťa na základe aktivít agentov.<br><br>Upozornenie: emaily nebudú preberané ak nebude prihlásený žiaden agent do systému. Preto dôrazne odporúčame použiť externý plánovač úloh,aby sa emaily preberali v pravidelných intervaloch.
+  links:
+    - 
+      title: Použiť externý plánovač úloh
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Odstrániť predchádzajúcu odpoveď
+  content: >
+    Ak je príznak nastavený, potom sa odstráni predchádzajúca správa z emailovej korešpondencie.<br><br>Táto vlastnosť závisí od nasledujúceho nastavenia <span class="doc-desc-title">oddeľovač emailových správ</span> nižšie.
+reply_separator_tag:
+  title: Oddeľovač emailových správ
+  content: >
+    Toto nastavenie oddeľuje užívateľskú odpoveď nad čiarou.<br><br><strong>Poznámka:</strong> toto platí len ak je nastavený <span class="doc-desc-title">oddeľovač emailových správ</span>vyššie.
+emailed_tickets_priority:
+  title: Nastavenie priority v emailoch
+  content: >
+    Nastavte ak chcete používať prioritu v užívateľských emailoch (napr. Outlook) podľa priority v tiketoch. <br><br> Toto nastavenie môže byť prepísané v nastavení <span class="doc-desc-title"> filtrovania emailov</span>.
+  links:
+    - 
+      title: Definícia spracovania pomocou filtrov
+      href: /scp/filters.php
+accept_all_emails:
+  title: Akceptovať všetky e-maily
+  content: >
+    Akceptovať emaily od neznámych užívateľov.<br><br>Pokiaľ nie je príznak nastavený tieto tikety budú odmietnuté.
+accept_email_collaborators:
+  title: Akceptovať emailových spolupracovníkov
+  content: >
+    Pridá emaily uvedené v <code><strong>To</strong></code> a <code><strong>CC</strong></code> poliach ako spolupracovníkov na tikete. <br /><br /> <em>Spolupracovníci môžu byť pridaní neskôr aj ručne.</em>
+default_mta:
+  title: Prednastavený MTA
+  content: >
+    <span class="doc-desc-title">Prednastavený MTA</span> je použitý pre odoslanú poštu pokiaľ nie je nastavené použitie SMTP servera.
+ticket_response_files:
+  title: Prílohy v odpovediach
+  content: >
+    Ak je povolené, všetky prílohy, ktoré vytvoril pracovník k odpovedi budú tiež zahrnuté do emailu užívateľovi.
+verify_email_addrs:
+  title: Overenie e-mailovej adresy
+  content: >
+    Táto voľba zaistí kontrolu, či e-mailová adresa má nastavený MX záznam vo svojej DNS doméne. Je to užitočné na detekciu zle zadaných e-mailových adries. To sa vykonáva okrem kontroly dobre tvarovanej e-mailovej adresy.

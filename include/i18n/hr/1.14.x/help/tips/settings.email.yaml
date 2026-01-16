@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Osnovni skup email predložaka
+  content: >
+    Odaberite <span class="doc-desc-title">Email predložak</span> koji će se koristiti za <span class="doc-desc-title">Automatske odgovore</span> i <span class="doc-desc-title">Obavijesti</span> za različite situacije koje će se dogoditi dok je kartica otvorena. <br><br> Svakom odjelu se mogu dodijeliti email predlošci po želji.
+  links:
+    - 
+      title: Uređivanje email predložaka
+      href: /scp/templates.php
+default_system_email:
+  title: Osnovni izlazni email
+  content: >
+    Odaberite email adresu sa koje će biti poslane email poruke. <br><br> <span class="doc-desc-title">Odjel</span> može sam odabrati <span class="doc-desc-title">email adresu</span> koja će zamjeniti ovdje zadanu adresu.
+  links:
+    - 
+      title: Upravljanje email adresama
+      href: /scp/emails.php
+default_alert_email:
+  title: Osnovna email adresa za obavijeti
+  content: >
+    Odaberite email adresu sa koje će se slati <span class="doc-desc-title">Upozorenja &amp; Obavijesti</span> djelatnicima.
+  links:
+    - 
+      title: Upravljanje email adresama
+      href: /scp/emails.php
+admins_email_address:
+  title: Email adresa administratora
+  content: >
+    Unesite administratorovu email adresu na koju će se slati <span class="doc-desc-title">Sistemske greške</span> i <span class="doc-desc-title">Obavijest o novootvorenoj kartici</span> (ukoliko su ove opcije omogućene).
+  links:
+    - 
+      title: Upravljanje upozorenjima i obavijestima
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Dohvaćanje emaila
+  content: >
+    Dopusti IMAP/POP povlačenje za konfigurirane i omogućene <span class="doc-desc-title">Mail Boxove</span>.
+  links:
+    - 
+      title: Upravljanje Mail Box-ovima
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Dohvati emailove koristeći Auto-cron
+  content: >
+    Omogućuje povremeno dohvaćanje emaila koristeći interni program koji se aktivira djelatnikovom aktivnošću.  <br><br> Molimo Vas da primite na znanje kako se emailovi neće dohvaćati, ako nitko nije prijavljen u kontrolnu ploču djelatnika. Eksterni raspored zadataje je vrlo preporučljiv za predvidljive intervale dohvaćanja.
+  links:
+    - 
+      title: Korištenje eksternog rasporeda
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Uklonite citirani odgovor
+  content: >
+    Ako je omogućeno , to će ukloniti prethodnu suglasnost između e-mail komunikacije. <br><br> Ova značajka je relacijski ovisi o <span class="doc-desc-title">oznaci separatora odgovora</span> navedenoj niže.
+reply_separator_tag:
+  title: Oznaka separatora odgovora
+  content: >
+    Ovo je znak koji pokazuje korisniku da odgovoriti iznad crte. <br><br> <strong>Opaska:</strong> ovo je bitno samo ako je <span class="doc-desc-title">Uklonite citirani odgovor</span> omogućeno iznad.
+emailed_tickets_priority:
+  title: Prioritet kartica pristiglih emailom
+  content: >
+    Odaberite želite li da se prioritet / važnost određuje putem korisničkom email klijenta (npr. Outlook) <br><br> Ova opcija može se zamjeniti pomoću <span class="doc-desc-title">filtera kartica</span>.
+  links:
+    - 
+      title: Izradi &amp; Uredi filtere kartica
+      href: /scp/filters.php
+accept_all_emails:
+  title: Prihvati sve emailove
+  content: >
+    Prihvati emailove od nepoznatih korisnika. <br><br> uklanjanje kvačice rezultirat će odbacivanjem nekih kartica.
+accept_email_collaborators:
+  title: Prihvati email suradnike
+  content: >
+    Dodaj email sudionike uključene u  <code><strong>Za</strong></code> i <code><strong>CC</strong></code> polja kao suradnike. <br /><br /> <em>Suradnike može dodati i djelatnik za vrijeme pregledavanja kartice.</em>
+default_mta:
+  title: Osnovni MTA
+  content: >
+    <span class="doc-desc-title">Osnovni MTA</span> brine se o dostavljanju email poruka bez SMTP postavki.
+ticket_response_files:
+  title: DAtoteke odgovora na karticu
+  content: >
+    Ako je omogućeno, svi prilozi  koje djelatnik doda na odgovor odgovor kartice bit će također uključeni u email korisniku .
+verify_email_addrs:
+  title: Potvrdite email adresu
+  content: >
+    Omogućite ovu opciju da biste provjerili ima li email adresa izmjenjivač pošte u domenskom DNS-u. To je korisno za detektiranje pogrešno upisanih email adresa. Ovo se dodatno izvodi uz provjeru pravilno formatiranih email adresa.

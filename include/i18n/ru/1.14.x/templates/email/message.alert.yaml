@@ -1,0 +1,50 @@
+---
+#Email template: message.alert.yaml
+#Sent to staff members when a new message is posted by a user to a ticket.
+#This can occur if the users responds to an email from the system or visits
+#the customer web portal and posts a new message there.
+#---
+notes: |
+  Отправляется сотрудникам службы поддержки, когда пользователь размещает новое сообщение в заявке. Это происходит, когда пользователь отвечает на сообщение электронной почты от системы или посещает страницу портала и оставляет сообщение там.
+subject: |
+  Оповещение о новом сообщении
+body: |
+  <h3><strong>Здравствуйте %{recipient.name},</strong></h3>
+  Новое сообщение добавлено в обращение<a
+  href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>От</strong>:
+      </td>
+      <td>
+           %{poster.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Отдел</strong>:
+      </td>
+      <td>
+           %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Чтобы просмотреть или ответить, пожалуйста <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >войдите</span></a>в систему поддержки</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Ваша дружелюбная система поддержки пользователей</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
+   
+  -> body
+  File: message.alert.yaml

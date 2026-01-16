@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  ផ្ញើទៅឱ្យភ្នាក់ងារពេលសារថ្មី / ចំណាំត្រូវបានបង្ហោះទៅកាន់ភារកិច្ចមួយ។ នេះអាចកើតឡើងប្រសិនបើអ្នកសហការឬភ្នាក់ងារមួយឆ្លើយតបទៅនឹងអ៊ីមែលពីប្រព័ន្ធឬបំពេញទស្សនកិច្ចវិបផតថលនេះនិងបានបង្ហោះសារថ្មីនៅទីនោះ។
+subject: |
+  សកម្មភាពភារកិច្ច [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>សួស្តី %{recipient.name},</strong></h3>
+  ភារកិច្ច<a href="%{task.staff_link}">#%{task.number}</a> បានកែសម្រួល: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>ដើម្បីមើលឬឆ្លើយតបទៅនឹងភារកិច្ច, សូម <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> ទៅប្រព័ន្ធការគាំទ្រ</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">ប្រព័ន្ធផ្តល់ជំនួយដល់អតិថិជនដែលងាយស្រួលរបស់អ្នក</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

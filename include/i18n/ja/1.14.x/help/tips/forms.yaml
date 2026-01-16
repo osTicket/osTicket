@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: フォーム見出し
+  content: >
+    このタイトルテキストは、フォームフィールドの上のグレイボックスに表示されます。
+form_instructions:
+  title: フォームの説明
+  content: >
+    フォームフィールドのコンテキストにユーザーを案内するのに役立つ追加の説明を入力でき、可能な場合、必要なデータを強調表示できます。
+field_sort:
+  title: フィールドの表示位置
+  content: >
+    上下の矢印アイコンをクリックし、このフォーム内でソートするフィールドの行をドラッグします。フォームが保存されるまで並べ替え設定は反映されません。
+field_label:
+  title: フィールド ラベル
+  content: >
+    このラベルは、このフィールドのプロンプトとして表示されます。通常、短い回答フィールドは、このようになります。<br> <strong>ラベル:</strong>&nbsp; <input type="text">
+field_type:
+  title: フィールド コンテンツ タイプ
+  content: >
+    これは、ユーザーが行うのを予期する入力のタイプを定義するために使用されます。短い回答と長い回答、電話番号、日付と時刻、チェックボックス、ドロップダウンリストまたはカスタムリストを選択できます。
+  links:
+    - 
+      title: カスタム リスト
+      href: /scp/lists.php
+field_visibility:
+  title: フィールドの可視性
+  content: >
+    このフィールドの可視性と要件のオプションを選択します。<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>設定</th> <th>結果</th></tr> <tr><td>オプション</td> <td>エージェントとエンドユーザーにフィールドが表示されますが、エージェントとエンドユーザーのいずれも回答する必要はありません。</td></tr> <tr><td>必須</td> <td>エージェントとエンドユーザーにフィールドが表示され、エージェントとエンドユーザーの両方が回答する必要があります。</td></tr> <tr><td>エンドユーザーの回答必須</td> <td>エージェントとエンドユーザーにフィールドが表示され、エンドユーザーのみが回答する必要があります。</td></tr> <tr><td>エージェントの回答必須</td> <td>エージェントとエンドユーザーにフィールドが表示され、エージェントのみが回答する必要があります。</td></tr> <tr><td>内部、オプション</td> <td>エージェントのみにフィールドが表示されますが、回答する必要はありません。</td></tr> <tr><td>内部、必須</td> <td>エージェントのみにフィールドが表示され、回答する必要があります。</td></tr> <tr><td>エンドユーザーのみ</td> <td>エンドユーザーのみにフィールドが表示され、回答する必要があります。</td></tr> </tbody></table>
+field_variable:
+  title: フィールドの注釈
+  content: >
+    このフィールドデータは、この行で使用される名前を通じてメールテンプレートとページテンプレートで使用可能になります。たとえば、共通のチケットフォームのフィールドは、<code>%{ticket.variable}</code> を通じて使用できます。ここで<strong>variable</strong>は、この行で使用される名前です。<br> <br> <em>会社情報は、<code>%{</code><code>company.variable}</code> を通じて使用でき、ユーザー情報は、<code>%{ticket.user.variable}</code></em> を通じて使用できます。
+field_delete:
+  title: このフィールドを削除します。
+  content: >
+    フォームを調べて保存し、このフォームからフィールドを削除します。<br> <br> <em>フィールドを削除しても、完了したフォームのフィールドに前に入力されたデータは削除されません。たとえば、前に送信されたチケットにフィールドのデータがある場合、このフォームからフィールドを削除しても、そのチケットのデータは削除されません。</em>

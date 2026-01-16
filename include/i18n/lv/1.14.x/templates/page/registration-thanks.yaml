@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  This template defines the content displayed after Clients successfully register by confirming their account. This page should inform the user that registration is complete and that the Client can now submit a ticket or access existing tickets.
+name: "Lietotāja konts izveidots!"
+body: >
+  <div> <strong>Paldies, ka reģistrējiet lietotāja kontu.</strong><br /> <br /> Jūs apstirprinājāt savu e-pasta adresi un veiksmīgi aktivizējāt savu lietotāja kontu. Jūs varat atvērt jaunu biļeti vai pārvaldīt eksistējošās biļetes.<br /> <br /> <em>Jūsu drudzīgais atbalstu centrs</em><br /> %{company.name} </div>

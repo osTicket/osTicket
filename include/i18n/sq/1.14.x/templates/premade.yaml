@@ -1,0 +1,28 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: What is osTicket (sample)?
+  response: |
+    osTicket is a widely-used open source support ticket system, an
+    attractive alternative to higher-cost and complex customer support
+    systems - simple, lightweight, reliable, open source, web-based and easy
+    to setup and use.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Canned Attachments Rock!
+- 
+  isenabled: 1
+  title: Sample (with variables)
+  response: |
+    Përshëndetje %{ticket.name.first},
+    <br>
+    <br>
+    Bileta juaj #%{ticket.number} krijuar me %{ticket.create_date} është në departamentin %{ticket.dept.name}.
+  0: |
+

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Aktivitas Tiket
+  content: >
+    Pilih rentang tanggal grafik dan tabel (rujuk <span class="doc-desc-title">Statistik</span>) di bawah untuk fokus pada data yang sesuai bagi mereka. Grafik di bawah ini akan selalu mencerminkan gambaran luas keseluruhan sistem data (yaitu, penduduk). Namun, Anda dapat menavigasi melalui tabel <span class="doc-desc-title">Statistik</span> di bawah ini untuk fokus pada sempit subjek yang menarik (misalnya, Departemen, topik, atau staf). Selain itu, Anda dapat mengekspor data saat ini ditampilkan di tabel <span class="doc-desc-title">Statistik</span>.
+report_timeframe:
+  title: Laporan jangka waktu
+  content: >
+    Memilih tanggal mulai untuk sampel data yang diinginkan menggunakan pemetik tanggal. Kemudian, memilih jangka waktu dari tanggal tersebut untuk menentukan tanggal akhir untuk sampel data Anda.
+statistics:
+  title: Statistik
+  content: >
+    Menavigasi ke topik yang menarik dengan mengklik tab yang sesuai untuk melihat sampel tertentu data. Dalam tabel, lingkaran mewakili ukuran nominal data. Oleh karena itu, semakin besar jumlah dalam sel tertentu, semakin besar lingkaran berdekatan akan.
+opened:
+  title: Dibuka
+  content: >
+    Tiket yang awalnya dibuka sudah memiliki Departemen atau Topik Panduan pada Tiket, atau jumlah Tiket yang dibuka oleh Agen atas nama Pengguna.
+assigned:
+  title: Ditetapkan
+  content: >
+    Tiket yang sudah ditugaskan pada Agen atau Tim, Angka menunjukkan tiket yang ditugaskan secara manual pada agen atau tim, tiket yang diklaim dan tiket yang ditugaskan dari filter atau aturan penugasan otomatis lain.
+overdue:
+  title: Jatuh tempo
+  content: >
+    Tiket yang ditandai "Lewat Tenggat' oleh sistem. Tiket yang ditandai Lewat Tenggat saat melanggar Paket SLA dimana tiket itu berada, akan dibuah statusnya menjadi 'Dibuka' setelah melewati Tenggat Waktunya.
+closed:
+  title: Ditutup
+  content: >
+    Jumlah Tiket yang saat ini dalam status Ditutup.
+reopened:
+  title: Dibuka kembali
+  content: >
+    Jumlah total berapa kali sebuah tiket Dibuka Ulang. Tiket akan Dibuka Ulang ketika statusnya berubah dari Ditutup menjadi Dibuka.
+deleted:
+  title: Terhapus
+  content: >
+    Jumlah tiker yang sudah dihapus.
+service_time:
+  title: Waktu layanan
+  content: >
+    Merujuk pada lamanya atau durasi sejak tiket dibuka hingga ditutup. Kolom Waktu Layanan menunjukkan rata-rata Waktu Layanan per tiket, dalam satuan jam.
+response_time:
+  title: Waktu respon
+  content: >
+    Menunjukkan waktu respon rata-rata oleh Agen atas korepondensi tiket, dalam satuan jam.

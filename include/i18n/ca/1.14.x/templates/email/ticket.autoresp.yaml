@@ -1,0 +1,21 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Enviat a un usuari quan es crea un nou Ticket
+subject: |
+  Ticket de suport obert [#%{ticket.number}]
+body: |
+  <h3><strong>Benvolgut %{recipient.name.first}</strong></h3><p>
+  S'ha creat una petició d'ajuda y s'ha asignat #%{ticket.number}. Un representant contactarà amb vosté lo mès prompte possible. Vosté pot <a href="%{recipient.ticket_link}"> vore el progres del Ticket de manera online</a>
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  El vostre equip de %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em> I voste desitja informació adicional respecte al problema, conteste aquest email o <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" > registra't al teu compte</span></a> per vore un arxiu complet de les seves peticions d'ajuda</em></div>

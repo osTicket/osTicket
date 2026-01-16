@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Munkatársak
+  content: >
+    Az alábbi táblázat mutatja a filterezés eredményét. Ha nincs felterezés beállítva, akkor az összes<span class="doc-desc-title">Agent</span> (személyzet) <span class="doc-desc-title">Tag</span> listázásra kerül, több oldalon. Lásd az oldalakat alább, hogy eligazodjon az eredmények között.
+status:
+  title: Állapot
+  content: >
+    Ez azt mutatja meg, hogy az <span class="doc-desc-title">Agent</span>milyen státuszban van, zárolt, aktív, vagy aktív (szabadságon).

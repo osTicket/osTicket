@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  티켓이 스텝 멤버에게 할당됐을 때 해당 스텝에게 전송됩니다. 티켓은 시스템에 의해 자동 할당되거나, 타 스텝에 의해 수동 할당됩니다. 티켓 할당 담당자를 구분하려면 %{assigner} 를 사용하세요.
+subject: |
+  당신에게 티켓이 할당되었습니다.
+body: |
+  <h3><strong>안녕하세요, %{assignee.name.first}</strong></h3>
+  티켓 <a href="%{ticket.staff_link}">#%{ticket.number}</a>이(가) %{assigner.name.short}에 의해 할당되었습니다.
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+  <td>
+  <strong>작성자</strong>:
+  </td>
+  <td>
+  %{ticket.name}&lt;%{ticket.email}&gt;
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <strong>제목</strong>:
+  </td>
+  <td>
+  %{ticket.subject}
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>티켓을 확인/답변하려면 서포트 티켓 시스템에 <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >로그인</span></a> 해 주세요.</div>
+  <em style="font-size: small; ">고객 지원 시스템</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

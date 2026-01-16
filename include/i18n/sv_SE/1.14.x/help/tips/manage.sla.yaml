@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Namn
+  content: >
+    Välj ett beskrivande namn för denna <span class="doc-desc-title">SLA Plan</span> som beskriver dess syfte.
+grace_period:
+  title: Anståndsperiod
+  content: >
+    Avgör efter hur många timmar att ett Ticket har skapats som det automatiskt markeras som försenat. <br><br> <em>Timmar börjar att räknas från och med tiden då Ticket skapades.</em>
+transient:
+  title: Kortvarig
+  content: >
+    Kortvariga SLAs klassas som temporära och kan överskridas av icke kortvariga SLA på <span class="doc-desc-opt">Avdelning</span> överföring eller när dess<span class="doc-desc-title">Hjälpämne</span> ändras.
+schedule:
+  title: Schema
+  content: >
+    Välj det schema som skall användas av detta SLA när ärenden blir förfallna.<br><br>Observera att Avdelnings inställningar kan ha högre prioritet än detta schema.
+  links:
+    - 
+      title: Hantera scheman
+      href: /scp/schedules.php

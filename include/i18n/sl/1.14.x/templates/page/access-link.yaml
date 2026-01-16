@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Ta predloga določa obvestilo za stranke, da je bila povezava za dostop poslana na njihov e-poštni naslov. Številka zahtevka in e-poštni naslov sprožita povezavo za dostop.
+name: "Zahtevek [#%{ticket.number}] povezava dostopa"
+body: >
+  <h3><strong>Pozdravljeni %{recipient.name.first},</strong></h3> <div> Zahteva za povezavo dostopa do zahtevka #%{ticket.number} je bila posredovana v vašem imenu na mizo pomoči %{url}.<br /> <br /> Sledite povezavi spodaj, da preverite status zahtevka #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Če <strong>niste</strong> naredili zahtevka, prosimo izbrišite e-sporočilo in smatrajte to sporočilo za brezpredmetno. Vaš račun je še vedno varen in nihče ni dobil dostopa do zahtevka. Nekdo je lahko pomotoma vpisal vaš naslov e-sporočila.<br /> <br /> --<br /> %{company.name} </div>

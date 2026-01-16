@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Πρότυπα Email
+  content: >
+    Τα Σετ Προτύπων Email χρησιμοποιούνται για την αποστολή Αυτόματων Αποκρίσεων και Ειδοποιήσεων για τις διάφορες ενέργειες που μπορούν να συμβούν κατά τον κύκλο ζωής ενός Δελτίου Αιτήματος.
+template_to_clone:
+  title: Πρότυπο προς Κλωνοποίηση
+  content: >
+    Επιλέξτε ένα πρότυπο σετ για κλωνοποίηση ή απλά ξεκινήστε με τα αποθεματικά πρότυπα του ηλεκτρονικού ταχυδρομείου.
+language:
+  title: Γλώσσα
+  content: >
+    Επιλέξτε την επιθυμητή γλώσσα για το <span class="doc-desc-opt"> ενσωματωμένο</span> <span class="doc-desc-title">Σετ Προτύπων Email</span>. Πακέτα γλωσσών είναι διαθέσιμα στο osTicket.com.
+  links:
+    - 
+      title: Πακέτα Γλωσσών του osTicket
+      href: https://osticket.com/download
+status:
+  title: Κατάσταση
+  content: >
+    Τα <span class="doc-desc-opt">Ενεργοποιημένα</span>Σετ Προτύπων είναι διαθέσιμα προς συσχετισμό με Τμήματα είναι ορισμένα ως τα προεπιλεγμένα του συστήματος. Σετ Προτύπων που είναι σε χρήση δεν μπορούν να <span class="doc-desc-opt">Απενεργοποιηθούν</span>.

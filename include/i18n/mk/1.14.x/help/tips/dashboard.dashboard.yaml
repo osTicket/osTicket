@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Активност на тикетот
+  content: >
+    Одберете временски интервал за граф и табела (cf. <span class="doc-desc-title">Statistics</span>) како би ги прикажал податоците што одговараат за тој временски интервал. Графот секогаш покажува цел преглед на системските податоци (пр. популација). Сепак, можно е да се навигира низ  <span class="doc-desc-title">Статистичката</span> табела за да се фокусира на предметот од интерест. (пр. Одел, Тема, Персонал). Можно е да се издаде  извештај за податоците прикажани во <span class="doc-desc-title">Статистиката</span> table.
+report_timeframe:
+  title: Временски извештај
+  content: >
+    Одберете почетен датум за саканиот период користејќи го избирачот за датум. Потоа, одберете должина на временско траење од тој датум за да го дефинирате крајниот датум.
+statistics:
+  title: Статистика
+  content: >
+    Одберете тема на интерес со кликање на соодветниот прозорец како би можеле да го видите специфичниот податок. Во табелата, круговите прикажуваат големината на номиналните податоци. Поради тоа, колку што е поголем бројот на одредени ќелии толку ќе бидат поголеми соседните кругови.
+opened:
+  title: Отворен
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Доделени
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Истечен
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Затворен
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Повторно отворени
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Избришани
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Време на услуга
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Време на одговор
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

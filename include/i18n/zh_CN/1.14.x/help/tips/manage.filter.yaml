@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: 执行顺序
+  content: >
+    输入数字以控制筛选优先级。数字越小，则该筛选在执行时将比可能有更高执行顺序的另一筛选具有更高的优先级。<br><br>如果想要将该筛选成为最后适用于匹配的筛选，启用<span class="doc-desc-title">停止处理进一步匹配</span>。
+target_channel:
+  title: 渠道
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>的目标<span class="doc-desc-title">渠道</span>。<span class="doc-desc-title">渠道</span>是咨询送达系统的途径来源。<br><br>例如，如果选择<span class="doc-desc-opt">网页表单</span>，即表示您想要对来源于客户入口网页表单的咨询使用<span class="doc-desc-title">咨询筛选</span>。
+rules_matching_criteria:
+  title: 规则匹配条件
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>匹配的灵活程度。如果要让<span class="doc-desc-title">咨询筛选</span>匹配任意规则，然后停止，请选择<span class="doc-desc-opt">任意匹配</span>。如果要匹配<span class="doc-desc-title">咨询筛选</span>的<em><strong>所有规则</strong></em>，请选择<span class="doc-desc-opt">匹配所有</span>。
+reject_ticket:
+  title: 拒绝咨询
+  content: >
+    启用此功能，即可停止后续进度且在匹配中忽略以下动作的所有其他选择。
+reply_to_email:
+  title: 回复电子邮件
+  content: >
+    启用此功能，即可让您的帮助中心兑现用户电子邮件应用程序<span class="doc-desc-title">回复</span>标题。此栏仅在上述<span class="doc-desc-title">渠道</span>包括<span class="doc-desc-opt">电子邮件</span>时有关联。
+ticket_auto_response:
+  title: 禁用咨询自动回复
+  content: >
+    <em>注意：这将编辑所有<span class="doc-desc-title">部门</span>或<span class="doc-desc-title">自动回复人设置</span>。</em>
+canned_response:
+  title: 封装自动回复
+  content: >
+    选择在<span class="doc-desc-title">咨询筛选</span>匹配时要发送电子邮件至用户的<span class="doc-desc-title">封装回复</span>。<span class="doc-desc-title">新咨询自动回复</span>模板应用取决于默认<span class="doc-desc-title">模板设置</span>，或匹配咨询的<span class="doc-desc-title">部门</span>。
+  links:
+    - 
+      title: 管理封装回复
+      href: /scp/canned.php
+    - 
+      title: 管理模板集合
+      href: /scp/templates.php
+    - 
+      title: 新咨询自动回复模板
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: 部门
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>匹配所要分配的<span class="doc-desc-title">部门</span>。
+  links:
+    - 
+      title: 管理部门
+      href: /scp/departments.php
+priority:
+  title: 优先级
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>匹配所要使用的<span class="doc-desc-title">优先级</span>等级。<br /> <br /> <em>注意：这将编辑<span class="doc-desc-title">部门</span>或<span class="doc-desc-title">帮助主题</span>设置。</em>
+sla_plan:
+  title: SLA 计划
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>匹配所要使用的<span class="doc-desc-title">SLA 计划</span>。
+  links:
+    - 
+      title: 管理 SLA 计划
+      href: /scp/slas.php
+auto_assign:
+  title: 自动分配
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>匹配所要分配的代理或团队。
+  links:
+    - 
+      title: 管理代理
+      href: /scp/staff.php
+    - 
+      title: 管理团队
+      href: /scp/teams.php
+help_topic:
+  title: 帮助主题
+  content: >
+    选择<span class="doc-desc-title">咨询筛选</span>匹配所要使用的<span class="doc-desc-title">帮助主题</span>。
+  links:
+    - 
+      title: 管理帮助主题
+      href: /scp/helptopics.php
+admin_notes:
+  title: 管理员通知
+  content: >
+    这些通知仅对类型是“<span class="doc-desc-title">管理员</span>”的账户可见。

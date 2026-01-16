@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Bu şablon sayfasında Kullanıcı Giriş Yap  bağlantısını </ strong>Şifremi Unuttum</ strong> seçmek için müşterilere  gönderilen e-posta tanımlar.
+name: "%{company.name} Yardım Masası Erişimi"
+body: >
+  <h3><strong>Merhaba %{user.name.first},</strong></h3> <div> %{url} adresine sizin adınıza bir şifre sıfırlama talebi gönderilmiştir.<br /> <br /> Bunun hatalı bir e-posta olduğunu düşünüyorsanız lütfen dikkate almayınız ve siliniz. Hesabınız halen güvendedir ve sizden başkası erişemez. Hesabınız kilitlenmemiştir ve şifreniz sıfırlanmamıştır. E-posta adresiniz başkası tarafından yanlışlıkla yazılmış olabilir.<br /> <br /> Aşağıdaki bağlantıyı izleyerek şifrenizi değiştirebilirsiniz.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Müşteri Destek Merkeziniz <br /> %{company.name}</em> </div>

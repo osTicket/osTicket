@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Нова помощна тема за заявки
+  content: >
+    Изберете <span class="doc-desc-title">помощна тема</span>, която автоматично да бъде свързвана със заявките, създадени от този имейл адрес. <br/><br/> Формулярите, свързани с тази помощна тема, ще бъдат добавени към заявката, но няма да съдържат никакви данни.
+  links:
+    - 
+      title: Управление на помощните теми
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Приоритет на новите заявки
+  content: >
+    Изберете <span class="doc-desc-title">приоритет</span> за всички нови заявки, създавани от този имейл адрес.
+new_ticket_department:
+  title: Отдел за нови заявки
+  content: >
+    Изберете <span class="doc-desc-title">отделът</span>, към който да бъдат насочвани всички нови заявки, създадени от този имейл адрес.
+  links:
+    - 
+      title: Управление на отделите
+      href: /scp/departments.php
+auto_response:
+  title: Автоматичен отговор на нова заявка
+  content: >
+    Може да изключите автоматичните отговори, които се изпращат на потребителя, когато се създаде нова заявка от този имейл адрес.
+username:
+  title: Потребителско име
+  0: >
+
+password:
+  title: Парола
+  0: >
+
+login_information:
+  title: Информация за влизане в имейл
+  content: >
+    <span class="doc-desc-title">Потребителското име</span> и <span class="doc-desc-title">паролата</span> са необходими, за да се изтеглят електронни писма от IMAP или POP пощенски кутии, а също и за да се изпращат ел. писма чрез SMTP.
+mail_account:
+  title: Получаване на поща
+  content: >
+    Получаване на ел. писма от отдалечена IMAP или POP пощенска кутия и конвертирането им в заявки в системата да поддръжка.
+  links:
+    - 
+      title: Управление на настройките за <span class="doc-desc-title">теглене на Email</span> &amp; <span class="doc-desc-title">AutoCron</span> настройки.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Отдалечен сървър
+  content: >
+    Въведете <span class="doc-desc-title">име</span> и <span class="doc-desc-title">номера на порта</span> на вашия имейл сървър. Те могат да бъдат намерени в документацията за вашия хостинг акаунт или да се вземат от вашия имейл администратор.
+protocol:
+  title: Протокол на пощенска кутия
+  content: >
+    Изберете протокола на пощенската кутия, който поддържа вашия отдалечен мейл сървър. Ако е възможно се препоръчва използването на IMAP и SSL.
+fetch_frequency:
+  title: Честота на изтегляне
+  content: >
+    Въведете колко често, в минути, системата да тегли съдържанието на пощенската кутия. <br/><br/> Това ще определи средното забавяне при получаване на автоматични отговори, след като някой потребител изпрати email до тази пощенска кутия.
+emails_per_fetch:
+  title: Брой писма за изтегляне
+  content: >
+    Въведете броя на ел. писма, които да се обработват наведнъж.
+fetched_emails:
+  title: Изтеглени ел. писма
+  content: >
+    Вземете решение какво да се прави с обработваните ел. писма: <br/><br/> <span class="doc-desc-opt"><b>Преместване в папка</b></span>: Това ще направи резервно копие на вашата поща от входящата пощенска кутия в папка, която сте посочили. Ако тази папка не съществува на сървъра, системата ще се опита да я създаде автоматично. (<b>препоръчително</b>) <hr> <span class="doc-desc-opt"><b>Изтриване на имейлите</b></span>: Това ще изтрие вашата поща, веднага след като тя е обработена. <hr> <span class="doc-desc-opt"><b>Да не се прави нищо</b></span>: Това ще остави ел. писма във вашата входяща пощенска кутия. Системата ще запише идентификатора на писмата и ще се опита да не ги тегли повторно. Тази опция може да доведе до създаването на дублирани заявки. (<em>Не се препоръчва</em>)
+smtp_settings:
+  title: SMTP настройки
+  content: >
+    Имейлите, изпращани от поддръжката могат да бъде изпратена през SMTP сървър. Това е препоръчителния вариант, тъй като ще увеличи шанса съобщението да бъде доставено и ще намали шанса да бъде маркирано като нежелана кореспонденция.
+header_spoofing:
+  title: Разреши манипулация на заглавието (spoofing)
+  content: >
+    Разрешава изпращането на съобщения с адрес различен от  <span class="doc-desc-title">имейл адреса</span> даден по-горе. <br/><br/> Тази допълнителна настройка се използва предимно, когато искате да изпратите писмо с някой от псевдонимите на пощенската кутия.
+

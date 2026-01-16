@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: 默认电子邮件模板集合
+  content: >
+    选择<span class="doc-desc-title">电子邮件模板集合</span>，用于针对咨询有效期内发生的各种情况发送<span class="doc-desc-title">自动回复</span>和<span class="doc-desc-title">提醒</span>。<br><br>部门可指定特定电子邮件模板集合。
+  links:
+    - 
+      title: 管理电子邮件模板集合
+      href: /scp/templates.php
+default_system_email:
+  title: 默认发送电子邮件
+  content: >
+    选择发送电子邮件的目标电子邮件地址。<br><br> <span class="doc-desc-title">部门</span>可设置自身<span class="doc-desc-title">电子邮件地址</span>，用于编辑此处所做的相关设置。
+  links:
+    - 
+      title: 管理电子邮件地址
+      href: /scp/emails.php
+default_alert_email:
+  title: 默认提醒电子邮件
+  content: >
+    选择要将<span class="doc-desc-title">提醒 &amp;通知</span>发送至代理的电子邮件地址。
+  links:
+    - 
+      title: 管理电子邮件地址
+      href: /scp/emails.php
+admins_email_address:
+  title: 管理员电子邮件地址
+  content: >
+    输入管理员电子邮件地址，用于发送<span class="doc-desc-title">系统错误</span>和<span class="doc-desc-title">新咨询提醒</span>（如启用）。
+  links:
+    - 
+      title: 管理提醒和通知
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: 电子邮件获取
+  content: >
+    允许 IMAP/POP 轮询，用于已配置且启用后的<span class="doc-desc-title">邮箱</span>。
+  links:
+    - 
+      title: 管理邮箱
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: 使用自动计划任务获取电子邮件
+  content: >
+    使用代理活动触发的内部任务管理器启用定期电子邮件获取。<br><br>请注意，如果未登录工作人员控制面板，则无法获取电子邮件。强烈推荐在可预见的获取间隔期间使用外部任务调度器。
+  links:
+    - 
+      title: 使用外部任务调度器
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: 条状引用回复
+  content: >
+    如果启用此功能，将取消电子邮件通信间的前置对应关系。<br><br>此功能取决于以下<span class="doc-desc-title">回复分隔符标记</span>。
+reply_separator_tag:
+  title: 回复分隔符标记
+  content: >
+    此令牌用于显示给用户以回复线上项目。<br><br> <strong>注意：</strong>此功能仅在上述<span class="doc-desc-title">条状引用回复</span>启用时与其关联。
+emailed_tickets_priority:
+  title: 咨询电子邮件发送优先级
+  content: >
+    选择用户电子邮件（例如，OutLook）的优先级/重要性程度选项以决定新咨询的优先级。<br><br>此设置可通过<span class="doc-desc-title">咨询筛选</span>进行编辑。
+  links:
+    - 
+      title: 创建 &amp;管理咨询筛选
+      href: /scp/filters.php
+accept_all_emails:
+  title: 接受所有电子邮件
+  content: >
+    接受未知用户电子邮件。<br><br>取消勾选此设置将导致咨询被拒绝。
+accept_email_collaborators:
+  title: 接受电子邮件合作伙伴
+  content: >
+    添加包括在<code><strong>收件人</strong></code>和<code><strong>抄送</strong></code>字段中的电子邮件参与者，将其作为咨询合作伙伴。<br /><br /> <em>查看咨询时，代理可始终手动添加合作伙伴。</em>
+default_mta:
+  title: 默认 MTA
+  content: >
+    <span class="doc-desc-title">默认 MTA</span>，无需 SMTP 设置即可负责发送电子邮件的寄送进度。
+ticket_response_files:
+  title: 咨询回复文件
+  content: >
+    启用此功能，代理也可将在咨询回复中附加的所有附件列入发送至用户的电子邮件中。
+verify_email_addrs:
+  title: 确认电子邮件地址
+  content: >
+    启用此选项来检查邮件地址在域DNS里有邮件转发器（MX）。此选项对于检测不正确输入的邮件地址很有用。这是在检查邮件地址规则之外的额外检查。

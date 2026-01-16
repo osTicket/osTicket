@@ -1,0 +1,1514 @@
+@charset "utf-8";
+/* CSS Document */
+/*
+/*      CLIENT - Mobile
+*/
+
+
+/*
+/*      960 px
+*/
+
+@media only screen and (max-width:960px) {
+	
+/* ==========================================================================
+ HEADER
+========================================================================== */
+	#header,
+	#header-inner,
+	#content,
+	#nav-wrapper {
+		width: 100%;
+	}
+	#header {	
+		padding: 0;
+		background: var(--header-bg);
+		border: initial;
+		box-shadow: initial;
+		height: 60px;
+		top: 0;
+		z-index: 4;
+	}
+	#content {
+
+	}
+	#content.up {
+		top: -48px;
+	}		
+	.rtl #container #left-logo {
+		margin: 17px 2% 0 2%;
+		position: relative;
+	}	
+	#nav {
+	    margin: 0 0 0 2%;
+	}
+	.rtl #nav {
+	    margin: 0 2% 0 0;
+	}	
+	.pull-right.flush-right {
+	    margin: 0;
+	}
+	.rtl .pull-right.flush-right {
+	    margin: 0 0 0 2%;
+	}
+	#languages {
+    	margin: 0 2% 0 0;
+	    cursor: pointer;	
+	}
+	.rtl #languages {
+    	margin: 0 0 0 2%;
+	}
+	button.c-hamburger.c-hamburger--htx {
+		display: none;
+	}
+}
+@media only screen and (min-width: 601px) and (max-width: 660px) {
+	#nav li a {
+		font-size: 15px;
+	}
+}
+@media only screen and (min-width: 601px) and (max-width: 630px) {
+	.chevron .button-container {
+		margin-right: -4%;
+	}
+}
+
+
+/* ==========================================================================
+ HOME PAGE
+========================================================================== */
+@media screen and (max-width: 1300px) { 
+	#content {
+		max-width: calc(100% - 4%);
+		margin: 2% !important;
+		padding: 2% !important;
+	}
+	#nav-inner,
+	#header-inner {
+	    width: calc(100% - 4%);
+		padding: 0 0 3% 0;
+	}
+	#pre-footer	{
+	    width: calc(100% - 4%);
+		padding: 1% 0 3% 0;
+	}		
+}
+@media only screen and (max-width: 1060px) {
+	.client-choice {
+		width: calc(100% - 158px);
+		float: left;
+		padding: 40px;
+	}
+	.client-choice:first-child {
+		margin-bottom: 40px !important;
+	}
+	#open-text {
+		margin: 40px 0 30px 0;
+	}	
+}
+@media screen and (max-width: 760px) {
+	#header-inner p,
+	#header-inner p a,
+	#header a[href*="/profile.php"]	{
+		font-size: 12px;
+	}	
+	.pull-right.flush-right a:first-child {
+		margin-left: 3px;
+	}
+	.pull-right.flush-right a {
+		margin: 0 4px 0 0;
+	}
+}
+@media screen and (max-width: 600px) {
+	body {
+		background: #fff;
+	}
+	#content {
+		box-shadow: initial;
+	}	
+	h1 {
+		font-size: 24px;
+		line-height: initial;	
+	}
+	p,
+	#open-text {
+		padding: 0px;
+		font-size: 16px;
+		line-height: initial;
+	}
+	#open-title {
+		font-size: 22px;
+	}	
+	#content {
+		max-width: calc(100% - 2%);
+	    margin: 2% !important;
+		padding: 1% !important;
+	}
+	#landing_page p {
+	    margin: 2% 0 0 !important;
+	}	
+	.inputDiv input::placeholder {
+		font-size: 14px;
+		top: -3px;	
+	} 	
+	#content #pre-footer {
+		width: 100%;
+		padding: 1% 0 4% 0;
+	}
+	#open-or-check {
+		width: 100%;
+	    margin: 0 0 8% 0;
+		overflow: initial;
+		padding: 0;
+	}
+	.client-choice {
+		width: 92%;
+		float: initial;
+		padding: 4% 4% 6% 4%;
+	}
+	#open-new,
+	#check-status {
+		margin: 0;
+	}
+	.client-choice {
+		width: 80%;
+		margin: 0 auto !important;
+	}
+	#open-text {
+		margin: 7% 2% 6%;
+	}	
+	#information,
+	.featured-category {
+		padding: 4%;
+	}	
+	input[type="reset"] {
+		display: none;
+	}	
+	.searchArea button {
+		padding: 0 10px;
+		font-size: 13px;
+	    padding: 0px 10px 3px 10px;	
+		}
+	.searchArea button svg {
+		width: 20px !important;
+		height: 20px !important;
+	}	
+	.client-choice-icon {
+		width: initial;
+		height: initial;
+		top: 4px;
+		margin-right: 0;
+	}	
+	input[value="Create Ticket"],
+	input[value="Cancel"] {
+		padding: 15px 30px !important;
+		margin-bottom: 4% !important;
+	}
+	.subtitle {
+		margin: 30px 0 40px 0;
+	}	
+}
+@media screen and (max-width: 460px) {
+	#content #pre-footer {
+		padding: 1% 0 6% 0;
+	}
+}
+
+/* ==========================================================================
+  TYPOGRAPHY
+========================================================================== */
+@media only screen and (max-width:960px) {
+	h1 {
+		/*font-size: 22px;*/
+	}
+	
+/* ==========================================================================
+ OPEN TICKET open.inc.php
+========================================================================== */
+	#ticketForm div input,
+	input[type="tel"],
+	#ticketForm div select {
+		width: -webkit-fill-available;
+	}
+	#clientLogin {
+    margin: 29px 0px 30px 0px;
+	}
+	select, input.dp, input#query, input[type="text"], input[type="search"], input[type="email"], .form-field, .form_table input[type=text], .form_table input[type=password], .form_table textarea, select#topicId {
+		width: 97%;
+		}
+	td.client-required input {
+		width: 97%;
+	}
+	.client-required .select2-selection.select2-selection--single {
+		border-right: 4px solid red;
+	}
+	input[type="tel"] {
+		width: calc(97% - 93px) !important;
+	}	
+	html[lang="da"] input[type="tel"] {
+		width: calc(97% - 126px) !important;
+	}
+	.required ~ input,
+	select#topicId {
+	    border-right: 4px solid red !important;
+	}
+	span.error {
+		display: none;
+	}
+	font.error:before {
+		content: "**";
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: #fff;
+		color: #fff;
+	}
+	font.error {
+		position: relative;
+		background-color: #f3f3f5; /*why?*/
+	}
+	body.open-page table[width="800"] tbody:nth-child(2) tr:nth-child(2) td .error {
+		display: none;
+	}	
+	select#topicId {
+		/* width: calc(100% - 37px) !important; */ /*target*/
+	}	
+
+/* ==========================================================================
+ PRE-FOOTER
+========================================================================== */
+	#pre-footer .form-wrapper {
+	}
+}
+
+@media only screen and (max-width:670px) {
+	.flag {
+		height: 18px;
+		display: inline-block;
+		margin: 0 0px 7px 0;
+	}
+}
+
+/*
+/*      600 px
+*/
+
+@media only screen and (max-width:600px) {
+	
+/* ==========================================================================
+ HEADER
+========================================================================== */
+	#flags {
+		display: none;
+	}
+	#left-logo {
+		margin: 12px 11px 12px 2px !important;
+	}	
+	.rtl #container #left-logo {
+		margin: 17px 65px 0 2%;
+		position: relative;
+	}
+	
+/* ==========================================================================
+  TYPOGRAPHY
+========================================================================== */
+
+
+/* ==========================================================================
+ VIEW TICKET
+========================================================================== */
+	.open-page tr:first-child td[colspan="2"] {
+		padding-top: 0px;
+	}
+	.login-page #one-view-page, 
+	.login-page #two-view-page {
+
+	}	
+	
+/* ==========================================================================
+ ??? FRONT PAGE
+========================================================================== */		
+
+	#landing-intro {
+		padding: 0px;
+		font-size: calc(14px + .2vw);
+	}	
+    #one-client-index,
+    #two-client-index {
+        width: auto;
+        float: none;
+    }	
+	#two-client-index {
+		margin: 3% 12%;
+	}
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		font-size: 3.5vmin;
+	 	text-align: center;
+	}
+	#ticket-open, #ticket-view {
+		min-height: unset;
+	}
+	#ticket-open-inner-text, #ticket-view-inner-text {
+		margin-top: 24px;
+	}
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		min-height: unset;
+	}
+}
+@media only screen and (max-width: 460px) {
+	#two-client-index {
+		margin: 3% 2%;
+	}
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		font-size: 4.5vmin;
+	}
+	.form-wrapper button {
+    	width: 98px;
+	}
+	.form-wrapper input {
+		width: calc(100% - 107px) !important;
+	}
+} 
+@media only screen and (max-width: 400px) {
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		font-size: 5.5vmin;
+	}	
+} 
+@media only screen and (max-width: 600px) {	
+	.category-name,
+	.other-resources {
+		font-size: 20px;
+	}
+	.form-wrapper input::-webkit-input-placeholder {
+    	font-size: 92% !important;
+	}
+	.form-wrapper button {
+		font-size: 80%;
+	}	
+	#other-resources-columnized {
+		margin: 0 !important;
+	}	
+
+/* ==========================================================================
+ VIEW (login)
+========================================================================== */
+  #one-view-page,
+    #middle-view-page,
+    #two-view-page {
+    width: auto;
+    float: none;
+  	}
+	.view-page #one-view-page,	
+	.login-page #one-view-page {
+    	border-radius: 5px 5px 0 0;
+	}	 
+	.view-page #two-view-page,	
+	.login-page #two-view-page {
+    	border-radius: 0 0 5px 5px;
+	}		
+  #one-view-page {
+		border: 1px solid #ddd;
+		border-bottom: 0px;
+	}
+  #middle-view-page {
+		background: url('../../osta/img/100x1.png') #fff;
+		background-position: center center;
+		background-size: 100% 1px;
+		background-repeat: no-repeat;
+		border: 1px solid #ddd;
+		border-top: 0px;
+		border-bottom: 0px;
+		height: 60px;
+  	}
+  #two-view-page {
+		border: 1px solid #ddd;  
+		border-top: 0px;
+	}	
+	
+/* ==========================================================================
+ TICKETS
+========================================================================== */	
+	.search.well {
+		margin: 0 0 20px 0;
+		padding: 2%;
+	}
+	#ticketTable th {
+		display: none;
+	}	
+	td.ticket-desktop {
+		display: none;
+	}		
+	td.ticket-mobile {
+    	display: table-cell;
+	}
+	tr#ticket-mobile {
+		display: inline;
+	}	
+	#ticketTable tr:first-child td {
+		padding: 16px 2px 4px 0px;
+	}
+	#ticketTable tr:nth-child(2) td {
+		padding: 4px 2px 16px 0px;
+	}	
+	td[rowspan="2"] {
+		padding: 0 9px !important;
+	}	
+	.link.truncate {
+		font-weight: 500;
+	    color: #128dbe;	
+	}
+	#help-topic {
+		display: none;
+	}	
+	select[name="topic_id"] {
+		padding: 0 0 0 9px!important;
+	}
+	span.number {
+		top: 2px;
+	}
+
+/* ==========================================================================
+ TICKET VIEW
+========================================================================== */	
+	a.action-button[href^="tickets.php?a=print&id"] {
+		margin-right: 10px;
+	}
+	table .headline, table.custom-data .headline {
+    	padding: 0 0 4px 0!important;
+	}
+	table.infoTable th {
+		padding: 3px 8px 3px 3px;
+		width: 120px;
+		float: left;
+	}	
+	table#ticketInfo tr{
+	  	display: table;
+	}
+	table.infoTable td {
+		float: right;
+	}	
+	table#ticketInfo td:nth-child(2)  {
+	  	display:table-row; 
+	}
+	table.custom-data .headline:after {
+    	clear:both;
+	}
+	#reply {
+		padding: 4px 10px 10px 10px;
+	}
+	
+/* ==========================================================================
+ PROFILE
+========================================================================== */
+	input[maxlength="30"], input[maxlength="64"] {
+		width: calc(100% - 45px) !important;
+	}
+	input[type="tel"] {
+		width: calc(97% - 117px) !important;
+	}	
+	select[name="lang"],
+	.select2-container--default .select2-selection--single {
+		width: 270px;
+	}
+	input[type="submit"] {
+		margin-bottom: 8px;
+	}
+	
+/* ==========================================================================
+ ALERTS: ERRORS, NOTICES AND WARNINGS
+========================================================================== */
+	#msg_notice, #msg_warning, #msg_error {
+    	width: calc(98% - 40px);
+	}
+
+/* ==========================================================================
+ SIDR MENU code in footer.inc
+========================================================================== */
+	#header {
+		position: fixed;
+	}
+	#nav-wrapper,
+	#nav {
+		display: none;
+	}	
+	.c-hamburger {
+		display: block;
+	}	
+	.pull-right.flush-right {
+		display: none;
+	}	
+	button.c-hamburger.c-hamburger--htx {
+	    display: inline;
+	}
+	div#right_menu a {
+	    color: #fff;
+	}
+	.sidr {
+	    z-index: 999998;
+	}
+	.sidr-inner a {
+		font-size: 16px !important;
+	}	
+	.sidr ul {
+		display: block;
+		margin: 0px 0 200px;
+		padding: 0;
+		border-bottom: none;
+	}
+	#header .sidr .sidr-inner ul li a {
+		font-weight: 400 !important;
+		color: var(--mobile-link-color);
+		/* background: #00000014 !important; */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;	
+	}	
+	.sidr ul#nav-mobile li:nth-child(5) {
+		border-top: .5px solid #ffffff2b;
+	}
+	#sidr-right {
+    	margin-top: 60px;
+	}	
+	.sidr .sidr-inner {
+		/* padding: 0 0 15px; */
+		margin-top: 0px;
+	}	
+	.sidr-inner a[href*="/login.php"], 
+	.sidr-inner a[href*="/logout.php"] {
+		color: var(--nav-bar-link);
+		text-decoration: none!important;
+		letter-spacing: unset;
+		border: unset;
+		/* padding: unset !important; */
+		margin-left: unset;
+		background: unset;
+	}	
+	.sidr ul li:hover, .sidr ul li.active, .sidr ul li.sidr-class-active {
+		background: #00000014;
+	    box-shadow: unset;	
+	}	
+	.sidr ul li:hover>a, .sidr ul li:hover>span, .sidr ul li.active>a, .sidr ul li.active>span, .sidr ul li.sidr-class-active>a, .sidr ul li.sidr-class-active>span	
+		ul#nav-mobile {
+	    box-shadow: unset;
+	}
+	li#contact-id {
+		position: fixed;
+		bottom: 0px;
+		background: var(--mobile-menu-bg);
+		border-top: .5px solid rgba(0, 0, 0, 0.12);
+	    width: 220px;
+	}
+	li.border {  /* Check Ticket Status gets unique bottom border via jquery */
+		border-bottom: .5px solid #ffffff38 !important;
+	}	
+	div#welcome {
+		padding: 13px 15px 17px 15px!important;
+		font-weight: 300;
+		color: var(--mobile-link-color);
+		border-top: .5px solid #1a1a1a4f;
+		border-bottom: .5px solid #1a1a1a4f;
+		background: #00000014 !important;
+		font-family: 'Open Sans';
+		font-size: 14px;		
+	}
+	div#welcome svg {
+		position: relative;
+		top: 4px;
+		fill: var(--mobile-link-color);
+	}	
+	div[style="margin:0px 30px 0px 30px;padding:5px 0 0 0"] {
+		margin: 24px 0 !important;
+	}
+	#flags-mobile {
+		padding: 27px 22px;
+	}
+	#flags-mobile .flag {
+		margin: 0 5px 10px 0;
+	}		
+}
+@media only screen and (min-width: 601px)  {
+	#sidr-right {
+		display: none;
+	}
+}
+
+@media only screen and (min-width: 600px) and (max-width: 630px) {
+	html[lang="th"] .pull-right.flush-right,
+	html[lang="ja"] .pull-right.flush-right,
+	html[lang="es_ES"] .pull-right.flush-right	{
+		font-size: 12px;
+	}
+}
+
+
+
+/*
+/*      Client - EXTRA SMALL SCREEN
+/*
+*/
+
+@media only screen and (max-width:400px) {
+	div#flags a {
+		padding-left: 6px;
+	}
+	div#x-section-1 {
+		padding-bottom: 10% !important;
+	}	
+	img.alignright.size-medium.wp-image-41 {
+		margin-bottom: 20px;
+	}	
+	table.infoTable th {
+	    width: unset;
+	}	
+}
+
+/* ==========================================================================
+ MOBILE TABLE EXPERIMENT 2019
+========================================================================== */
+
+@media only screen and (max-width: 700px)  {
+
+	/* Force table to not be like tables anymore */
+	#ticketTable, #ticketTable thead, #ticketTable tbody, #ticketTable th, #ticketTable td, #ticketTable tr {
+		display: block;
+	}
+	#ticketTable {
+		border: 0;
+	}	
+	#ticketTable th, #ticketTable td {
+		width: initial;
+	}
+	#ticketTable tr th:nth-child(4),
+	#ticketTable tr td:nth-child(4) {
+		width: initial;
+	}	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	#ticketTable thead tr {
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	#ticketTable tr {
+		margin: 0 0 1rem 0;
+		overflow: hidden;	  
+		width: calc(100% - 14px);
+	}	
+	#ticketTable td {
+		/* Behave  like a "row" */
+		border: none !important;
+		position: relative !important;
+		padding: 5px 0 5px 44% !important;
+		font-size: 16px !important;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;	
+	}
+	form[action="tasks.php"] td:nth-child(2),
+	form[action="tasks.php"] td:nth-child(3),
+	.directory #ticketTable td:first-child {
+		padding: 3px 0 3px 41% !important;
+	}
+	#ticketTable td:before {
+		position: absolute;
+		left: 6px;
+		width: 40%;
+		text-align: right;
+		padding: 0;
+		font-size: 16px;
+		font-weight: 400;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}	
+	#ticketTable td a {
+		font-size: 15px !important;
+	}	
+	#ticketTable, #ticketTable {
+		/* width: 100%; */
+		/* border: 1px solid #cfd4d6; */
+		/* border-radius: 6px; */
+		/* margin: 5px 0 0 0; */
+		/* background: initial; */
+		background-color: initial;
+	}
+	#ticketTable tr.highlight {
+		background: #ddd;
+	}	
+	#ticketTable tbody tr.highlight td {
+		border-top-color: #ddd !important;
+		border-bottom-color: #ddd !important;
+	}
+	#ticketTable tbody tr:hover td,
+	#ticketTable tbody tr:nth-child(2n+1):hover td {
+		background: initial;
+	}
+	#ticketTable td:first-of-type {
+		padding-top: 16px !important;
+	}
+	#ticketTable td:last-of-type {
+		padding-bottom: 10px !important;
+	}
+	#ticketTable td.osta_priority {
+	    visibility: hidden;
+	}	
+	#ticketTable input[type="checkbox"] {
+		margin: 0;
+		visibility: hidden;
+	}
+	#ticketTable td.ticket-number:before {
+		content: "#";
+	}
+	#ticketTable td.ticket-updated:before {
+		content: "Last Updated";
+	}
+	#ticketTable td.ticket-status:before {
+		content: "Status";
+	}
+	#ticketTable td.ticket-subject:before {
+		content: "Subject";
+	}
+	#ticketTable td.ticket-department:before {
+		content: "Department";
+	}	
+	#ticketTable tr td,
+	#ticketTable tr:nth-child(odd) td {
+		background-color: #fff;
+	}		
+	.truncate {
+		vertical-align: top;
+		padding: 0 !important;
+		margin: 0 !important;
+		line-height: 16px;
+	}	
+	.new-reply {
+		top: -9px;
+		left: -4px;
+		font-size: 11px !important;
+	    margin: 0 -10px 0 0;	
+	}
+	#ticketTable tr {
+		border: 1px solid #b9b9b9;
+		border-left-width: 6px;
+		border-right-width: 6px;
+		border-radius: 6px;
+		background: #fff;
+		-webkit-box-shadow: 1px 1px 6px -3px rgba(0,0,0,0.4);
+		-moz-box-shadow: 1px 1px 6px -3px rgba(0,0,0,0.4);
+		box-shadow: 1px 1px 6px -3px rgba(0,0,0,0.4);
+	}	
+	tr.priority-low {
+		border-left: 14px solid #58A9E6;
+	}
+	tr.priority-normal {
+		border-left: 14px solid #9CBF56;
+	}	
+	tr.priority-high {
+		border-left: 14px solid #D9B35F;
+	}
+	tr.priority-emerency {
+		border-left: 14px solid #ED656E;
+	}	
+	form[action="tickets.php"] #ticketTable td:first-child {
+		max-width: initial;
+	}
+	#ticketTable.queue.tickets {
+		border: initial;
+	}
+	#ticketTable tfoot tr {
+		box-shadow: initial !important;
+		border: initial;
+	}
+	#ticketTable tfoot td {
+		width: initial !important;
+		height: initial !important;
+		background: initial !important;
+		margin: 10px !important;
+	}
+	#ticketTable.queue.tickets ~ div {
+		margin: 10px;
+	}
+	#ticketTable td.osta_ticket {
+	    height: 30px;
+	}	
+	#ticketTable.queue.tickets .osta_ticket div {
+		float: left;
+	}
+	#new-reply-icon {
+		display: none;
+	}
+	.ticket-status .dot {
+	    display: none;
+	}	
+	.new .ticket-status .dot {
+	    display: inline-block;
+		position: absolute;
+		left: 10px;
+	}
+	.overdue-ticket,
+	.ticket-has-attachement {
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-size: 27px;
+		display: inline-block;
+		content: "";
+		margin-top: 2px;
+		width: 21px;
+	}
+	.overdue-ticket {
+		background-image: url(../icons/alert-outline.svg);
+	}
+	.ticket-has-attachement {
+		background-image: url(../icons/paperclip.svg);
+		background-size: 10px;
+		background-position: 0 0;
+		width: 12px;
+	}
+	.Icon.overdueTicket ,
+	i.small.icon-paperclip {
+		display: none;
+	}
+	.overdue-ticket,
+	.ticket-has-attachement,
+	#ticketTable.queue.tickets .osta_ticket div.pull-right {
+		margin-left: 22px;
+	}
+	.faded-more i.icon-comments-alt,
+	.task-number i.icon-fixed-width.icon-comments-alt	{
+		width: 21px;
+		height: 21px;
+		background-size: 21px !important;
+		top: 0 !important;
+		margin: 0 0 0 2px;	
+	}
+	#ticketTable small.faded-more {
+		font-size: 15px !important;
+		color: #636363;
+	}
+	.osta_duedate {
+		text-transform: capitalize !important;
+	}
+	#ticketTable .pull-right.faded-more {
+		display: none !important;
+	}
+	.osta_subject a {
+		width: calc(100% - 10px) !important;
+	}
+	#ticketTable td.osta_priority {
+		height: 0 !important;
+	}
+	#ticketTable time.relative:empty:before {
+		content: '(not set)';
+		color: #aaa;
+		text-transform: lowercase;
+	}
+	html[lang="ar-EG"] #ticketTable td.ticket-number:before { content: "رقم التذكرة";}
+	html[lang="ar-EG"] #ticketTable td.ticket-updated:before { content: "آخر تحديث";}
+	html[lang="ar-EG"] #ticketTable td.ticket-subject:before { content: "الموضوع";}
+	html[lang="ar-EG"] .list td.osta_username:before { content: "من";}
+	html[lang="ar-EG"] .list td.osta_assignee:before { content: "تم إسنادها إلى";}
+	html[lang="ar-EG"] .list td.osta_duedate:before { content: "تاريخ الإستحقاق";}
+	html[lang="ar-EG"] .list td.osta_closedate:before { content: "تاريخ الاغلاق";}
+	html[lang="ar-EG"] .list td.osta_datecreated:before { content: "تاريخ الإنشاء";}
+	html[lang="ar-EG"] #ticketTable td.ticket-department:before { content: "القسم";}
+	html[lang="ar-EG"] .list td.osta_lastmessage:before { content: "آخر رسالة";}
+	html[lang="ar-EG"] .list td.osta_lastresponse:before { content: "آخر رد";}
+	html[lang="ar-EG"] #ticketTable td.ticket-status:before { content: "الحالة";}
+	html[lang="ar-EG"] .list td.osta_team:before { content: "فريق";}
+
+	html[lang="ar-SA"] #ticketTable td.ticket-number:before { content: "رقم التذكرة";}
+	html[lang="ar-SA"] #ticketTable td.ticket-updated:before { content: "آخر تحديث";}
+	html[lang="ar-SA"] #ticketTable td.ticket-subject:before { content: "الموضوع";}
+	html[lang="ar-SA"] .list td.osta_username:before { content: "من";}
+	html[lang="ar-SA"] .list td.osta_assignee:before { content: "تم إسنادها إلى";}
+	html[lang="ar-SA"] .list td.osta_duedate:before { content: "تاريخ الإستحقاق";}
+	html[lang="ar-SA"] .list td.osta_closedate:before { content: "تاريخ الاغلاق";}
+	html[lang="ar-SA"] .list td.osta_datecreated:before { content: "تاريخ الإنشاء";}
+	html[lang="ar-SA"] #ticketTable td.ticket-department:before { content: "القسم";}
+	html[lang="ar-SA"] .list td.osta_lastmessage:before { content: "آخر رسالة";}
+	html[lang="ar-SA"] .list td.osta_lastresponse:before { content: "آخر رد";}
+	html[lang="ar-SA"] #ticketTable td.ticket-status:before { content: "الحالة";}
+	html[lang="ar-SA"] .list td.osta_team:before { content: "فريق";}
+
+	html[lang="az"] #ticketTable td.ticket-number:before { content: "Sorğu nömrəsi";}
+	html[lang="az"] #ticketTable td.ticket-updated:before { content: "Son yenilənmə";}
+	html[lang="az"] #ticketTable td.ticket-subject:before { content: "Mövzu";}
+	html[lang="az"] .list td.osta_username:before { content: "Kimdən";}
+	html[lang="az"] .list td.osta_assignee:before { content: "Təyin olunub";}
+	html[lang="az"] .list td.osta_duedate:before { content: "Vaxtı";}
+	html[lang="az"] .list td.osta_closedate:before { content: "Bağlanma tarixi";}
+	html[lang="az"] .list td.osta_datecreated:before { content: "Tarix yaradıldı";}
+	html[lang="az"] #ticketTable td.ticket-department:before { content: "Şöbə";}
+	html[lang="az"] .list td.osta_lastmessage:before { content: "Son mesaj";}
+	html[lang="az"] .list td.osta_lastresponse:before { content: "Son cavab";}
+	html[lang="az"] #ticketTable td.ticket-status:before { content: "Vəziyyət";}
+	html[lang="az"] .list td.osta_team:before { content: "Komanda";}
+
+	html[lang="bg"] #ticketTable td.ticket-number:before { content: "Номер на заявката";}
+	html[lang="bg"] #ticketTable td.ticket-updated:before { content: "Последно обновление";}
+	html[lang="bg"] #ticketTable td.ticket-subject:before { content: "Тема";}
+	html[lang="bg"] .list td.osta_username:before { content: "От";}
+	html[lang="bg"] .list td.osta_assignee:before { content: "Възложен на";}
+	html[lang="bg"] .list td.osta_duedate:before { content: "Краен срок";}
+	html[lang="bg"] .list td.osta_closedate:before { content: "Дата на Приключване";}
+	html[lang="bg"] .list td.osta_datecreated:before { content: "Дата на създаване";}
+	html[lang="bg"] #ticketTable td.ticket-department:before { content: "Отдел";}
+	html[lang="bg"] .list td.osta_lastmessage:before { content: "Последно съобщение";}
+	html[lang="bg"] .list td.osta_lastresponse:before { content: "Последен отговор";}
+	html[lang="bg"] #ticketTable td.ticket-status:before { content: "Статус";}
+	html[lang="bg"] .list td.osta_team:before { content: "Екип";}
+
+	html[lang="ca"] #ticketTable td.ticket-number:before { content: "Nombre de Ticket";}
+	html[lang="ca"] #ticketTable td.ticket-updated:before { content: "Darrera actualització";}
+	html[lang="ca"] #ticketTable td.ticket-subject:before { content: "Assumpte";}
+	html[lang="ca"] .list td.osta_username:before { content: "De";}
+	html[lang="ca"] .list td.osta_assignee:before { content: "Assignat a";}
+	html[lang="ca"] .list td.osta_duedate:before { content: "Data límit";}
+	html[lang="ca"] .list td.osta_closedate:before { content: "Data de tancament";}
+	html[lang="ca"] .list td.osta_datecreated:before { content: "Data de creació";}
+	html[lang="ca"] #ticketTable td.ticket-department:before { content: "Departament";}
+	html[lang="ca"] .list td.osta_lastmessage:before { content: "Últim missatge";}
+	html[lang="ca"] .list td.osta_lastresponse:before { content: "Última resposta";}
+	html[lang="ca"] #ticketTable td.ticket-status:before { content: "Estat";}
+	html[lang="ca"] .list td.osta_team:before { content: "Equip";}
+
+	html[lang="cs"] #ticketTable td.ticket-number:before { content: "Číslo požadavku";}
+	html[lang="cs"] #ticketTable td.ticket-updated:before { content: "Poslední změna";}
+	html[lang="cs"] #ticketTable td.ticket-subject:before { content: "Předmět";}
+	html[lang="cs"] .list td.osta_username:before { content: "Od";}
+	html[lang="cs"] .list td.osta_assignee:before { content: "Přiděleno";}
+	html[lang="cs"] .list td.osta_duedate:before { content: "Termín";}
+	html[lang="cs"] .list td.osta_closedate:before { content: "Datum uzavření";}
+	html[lang="cs"] .list td.osta_datecreated:before { content: "Datum vytvoření";}
+	html[lang="cs"] #ticketTable td.ticket-department:before { content: "Oddělení";}
+	html[lang="cs"] .list td.osta_lastmessage:before { content: "Poslední zpráva";}
+	html[lang="cs"] .list td.osta_lastresponse:before { content: "Poslední odpověď";}
+	html[lang="cs"] #ticketTable td.ticket-status:before { content: "Stav";}
+	html[lang="cs"] .list td.osta_team:before { content: "Tým";}
+
+	html[lang="da"] #ticketTable td.ticket-number:before { content: "Sagsnummer";}
+	html[lang="da"] #ticketTable td.ticket-updated:before { content: "Sidst opdateret";}
+	html[lang="da"] #ticketTable td.ticket-subject:before { content: "Emne";}
+	html[lang="da"] .list td.osta_username:before { content: "Fra";}
+	html[lang="da"] .list td.osta_assignee:before { content: "Tildelt til";}
+	html[lang="da"] .list td.osta_duedate:before { content: "Forfaldsdato";}
+	html[lang="da"] .list td.osta_closedate:before { content: "Lukke dato";}
+	html[lang="da"] .list td.osta_datecreated:before { content: "Oprettelsesdato";}
+	html[lang="da"] #ticketTable td.ticket-department:before { content: "Afdeling";}
+	html[lang="da"] .list td.osta_lastmessage:before { content: "Sidste besked";}
+	html[lang="da"] .list td.osta_lastresponse:before { content: "Sidste svar";}
+	html[lang="da"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="da"] .list td.osta_team:before { content: "Hold";}
+
+	html[lang="de"] #ticketTable td.ticket-number:before { content: "Ticket-Nummer";}
+	html[lang="de"] #ticketTable td.ticket-updated:before { content: "Zuletzt aktualisiert";}
+	html[lang="de"] #ticketTable td.ticket-subject:before { content: "Betreff";}
+	html[lang="de"] .list td.osta_username:before { content: "Von";}
+	html[lang="de"] .list td.osta_assignee:before { content: "Zugewiesen an";}
+	html[lang="de"] .list td.osta_duedate:before { content: "Fälligkeitsdatum";}
+	html[lang="de"] .list td.osta_closedate:before { content: "Geschlossen am";}
+	html[lang="de"] .list td.osta_datecreated:before { content: "Erstellungsdatum";}
+	html[lang="de"] #ticketTable td.ticket-department:before { content: "Abteilung";}
+	html[lang="de"] .list td.osta_lastmessage:before { content: "Letzte Nachricht";}
+	html[lang="de"] .list td.osta_lastresponse:before { content: "Letzte Antwort";}
+	html[lang="de"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="de"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="el"] #ticketTable td.ticket-number:before { content: "Αριθμός Δελτίου";}
+	html[lang="el"] #ticketTable td.ticket-updated:before { content: "Τελευταία Ενημέρωση";}
+	html[lang="el"] #ticketTable td.ticket-subject:before { content: "Θέμα";}
+	html[lang="el"] .list td.osta_username:before { content: "Από";}
+	html[lang="el"] .list td.osta_assignee:before { content: "Ανατέθηκε Στον";}
+	html[lang="el"] .list td.osta_duedate:before { content: "Ημερομηνία Παράδοσης";}
+	html[lang="el"] .list td.osta_closedate:before { content: "Ημερομηνία Κλεισίματος";}
+	html[lang="el"] .list td.osta_datecreated:before { content: "Ημερομηνία Δημιουργίας";}
+	html[lang="el"] #ticketTable td.ticket-department:before { content: "Τμήμα";}
+	html[lang="el"] .list td.osta_lastmessage:before { content: "Τελευταίο Μήνυμα";}
+	html[lang="el"] .list td.osta_lastresponse:before { content: "'Τελευταία Απόκριση";}
+	html[lang="el"] #ticketTable td.ticket-status:before { content: "Κατάσταση";}
+	html[lang="el"] .list td.osta_team:before { content: "Ομάδα";}
+
+	html[lang="es-AR"] #ticketTable td.ticket-number:before { content: "Número de Ticket";}
+	html[lang="es-AR"] #ticketTable td.ticket-updated:before { content: "Última actualización";}
+	html[lang="es-AR"] #ticketTable td.ticket-subject:before { content: "Asunto";}
+	html[lang="es-AR"] .list td.osta_username:before { content: "De";}
+	html[lang="es-AR"] .list td.osta_assignee:before { content: "Asignado a";}
+	html[lang="es-AR"] .list td.osta_duedate:before { content: "Fecha de Vencimiento";}
+	html[lang="es-AR"] .list td.osta_closedate:before { content: "Fecha de cierre";}
+	html[lang="es-AR"] .list td.osta_datecreated:before { content: "Fecha de creación";}
+	html[lang="es-AR"] #ticketTable td.ticket-department:before { content: "Departamento";}
+	html[lang="es-AR"] .list td.osta_lastmessage:before { content: "Último mensaje";}
+	html[lang="es-AR"] .list td.osta_lastresponse:before { content: "Última respuesta";}
+	html[lang="es-AR"] #ticketTable td.ticket-status:before { content: "Estado";}
+	html[lang="es-AR"] .list td.osta_team:before { content: "Equipo";}
+
+	html[lang="es-ES"] #ticketTable td.ticket-number:before { content: "Número de Ticket";}
+	html[lang="es-ES"] #ticketTable td.ticket-updated:before { content: "Última actualización";}
+	html[lang="es-ES"] #ticketTable td.ticket-subject:before { content: "Asunto";}
+	html[lang="es-ES"] .list td.osta_username:before { content: "De";}
+	html[lang="es-ES"] .list td.osta_assignee:before { content: "Asignado a";}
+	html[lang="es-ES"] .list td.osta_duedate:before { content: "Fecha de Vencimiento";}
+	html[lang="es-ES"] .list td.osta_closedate:before { content: "Fecha de cierre";}
+	html[lang="es-ES"] .list td.osta_datecreated:before { content: "Fecha de creación";}
+	html[lang="es-ES"] #ticketTable td.ticket-department:before { content: "Departamento";}
+	html[lang="es-ES"] .list td.osta_lastmessage:before { content: "Último mensaje";}
+	html[lang="es-ES"] .list td.osta_lastresponse:before { content: "Última respuesta";}
+	html[lang="es-ES"] #ticketTable td.ticket-status:before { content: "Estado";}
+	html[lang="es-ES"] .list td.osta_team:before { content: "Equipo";}
+
+	html[lang="es-MX"] #ticketTable td.ticket-number:before { content: "Número de Ticket";}
+	html[lang="es-MX"] #ticketTable td.ticket-updated:before { content: "Última actualización";}
+	html[lang="es-MX"] #ticketTable td.ticket-subject:before { content: "Asunto";}
+	html[lang="es-MX"] .list td.osta_username:before { content: "De";}
+	html[lang="es-MX"] .list td.osta_assignee:before { content: "Asignado a";}
+	html[lang="es-MX"] .list td.osta_duedate:before { content: "Fecha de Vencimiento";}
+	html[lang="es-MX"] .list td.osta_closedate:before { content: "Fecha de cierre";}
+	html[lang="es-MX"] .list td.osta_datecreated:before { content: "Fecha de creación";}
+	html[lang="es-MX"] #ticketTable td.ticket-department:before { content: "Departamento";}
+	html[lang="es-MX"] .list td.osta_lastmessage:before { content: "Último mensaje";}
+	html[lang="es-MX"] .list td.osta_lastresponse:before { content: "Última respuesta";}
+	html[lang="es-MX"] #ticketTable td.ticket-status:before { content: "Estado";}
+	html[lang="es-MX"] .list td.osta_team:before { content: "Equipo";}
+
+	html[lang="et"] #ticketTable td.ticket-number:before { content: "Pöördumise number";}
+	html[lang="et"] #ticketTable td.ticket-updated:before { content: "Viimati uuendatud";}
+	html[lang="et"] #ticketTable td.ticket-subject:before { content: "Pealkiri";}
+	html[lang="et"] .list td.osta_username:before { content: "Kellelt";}
+	html[lang="et"] .list td.osta_assignee:before { content: "Suunatud";}
+	html[lang="et"] .list td.osta_duedate:before { content: "Tähtaeg";}
+	html[lang="et"] .list td.osta_closedate:before { content: "Sulgemise kuupäev";}
+	html[lang="et"] .list td.osta_datecreated:before { content: "Loomise kuupäev";}
+	html[lang="et"] #ticketTable td.ticket-department:before { content: "Departamento";}
+	html[lang="et"] .list td.osta_lastmessage:before { content: "Viimane sõnum";}
+	html[lang="et"] .list td.osta_lastresponse:before { content: "Viimane vastus";}
+	html[lang="et"] #ticketTable td.ticket-status:before { content: "Staatus";}
+	html[lang="et"] .list td.osta_team:before { content: "Meeskond";}
+
+	html[lang="fa"] #ticketTable td.ticket-number:before { content: "شماره پیگیری";}
+	html[lang="fa"] #ticketTable td.ticket-updated:before { content: "آخرین بروزرسانی";}
+	html[lang="fa"] #ticketTable td.ticket-subject:before { content: "موضوع";}
+	html[lang="fa"] .list td.osta_username:before { content: "از";}
+	html[lang="fa"] .list td.osta_assignee:before { content: "محول شده به";}
+	html[lang="fa"] .list td.osta_duedate:before { content: "تاریخ انقضاء";}
+	html[lang="fa"] .list td.osta_closedate:before { content: "تاریخ بسته شدن";}
+	html[lang="fa"] .list td.osta_datecreated:before { content: "تاریخ ایجاد";}
+	html[lang="fa"] #ticketTable td.ticket-department:before { content: "واحد سازمانی";}
+	html[lang="fa"] .list td.osta_lastmessage:before { content: "آخرین پیام";}
+	html[lang="fa"] .list td.osta_lastresponse:before { content: "آخرین پاسخ";}
+	html[lang="fa"] #ticketTable td.ticket-status:before { content: "وضعیت";}
+	html[lang="fa"] .list td.osta_team:before { content: "تیم";}
+
+	html[lang="fi"] #ticketTable td.ticket-number:before { content: "Tikettinumero";}
+	html[lang="fi"] #ticketTable td.ticket-updated:before { content: "Viimeksi päivitetty";}
+	html[lang="fi"] #ticketTable td.ticket-subject:before { content: "Aihe";}
+	html[lang="fi"] .list td.osta_username:before { content: "Lähettäjä";}
+	html[lang="fi"] .list td.osta_assignee:before { content: "Käsittelijä";}
+	html[lang="fi"] .list td.osta_duedate:before { content: "Eräpäivä";}
+	html[lang="fi"] .list td.osta_closedate:before { content: "Sulkupäiväys";}
+	html[lang="fi"] .list td.osta_datecreated:before { content: "Luontipäivä";}
+	html[lang="fi"] #ticketTable td.ticket-department:before { content: "Osasto";}
+	html[lang="fi"] .list td.osta_lastmessage:before { content: "Viimeinen viesti";}
+	html[lang="fi"] .list td.osta_lastresponse:before { content: "Viimeisin vastaus";}
+	html[lang="fi"] #ticketTable td.ticket-status:before { content: "Tila";}
+	html[lang="fi"] .list td.osta_team:before { content: "Tiimi";}
+
+	html[lang="fr"] #ticketTable td.ticket-number:before { content: "Numéro de billet";}
+	html[lang="fr"] #ticketTable td.ticket-updated:before { content: "Dernière mise à jour";}
+	html[lang="fr"] #ticketTable td.ticket-subject:before { content: "Sujet";}
+	html[lang="fr"] .list td.osta_username:before { content: "De";}
+	html[lang="fr"] .list td.osta_assignee:before { content: "Assigné à";}
+	html[lang="fr"] .list td.osta_duedate:before { content: "Date d'échéance";}
+	html[lang="fr"] .list td.osta_closedate:before { content: "Date de fermeture";}
+	html[lang="fr"] .list td.osta_datecreated:before { content: "Date de création";}
+	html[lang="fr"] #ticketTable td.ticket-department:before { content: "Service";}
+	html[lang="fr"] .list td.osta_lastmessage:before { content: "Dernier Message";}
+	html[lang="fr"] .list td.osta_lastresponse:before { content: "Dernière réponse";}
+	html[lang="fr"] #ticketTable td.ticket-status:before { content: "État";}
+	html[lang="fr"] .list td.osta_team:before { content: "Équipe";}
+
+	html[lang="he"] #ticketTable td.ticket-number:before { content: "מספר כרטיס";}
+	html[lang="he"] #ticketTable td.ticket-updated:before { content: "עודכן לאחרונה";}
+	html[lang="he"] #ticketTable td.ticket-subject:before { content: "נושא";}
+	html[lang="he"] .list td.osta_username:before { content: "מאת";}
+	html[lang="he"] .list td.osta_assignee:before { content: "מוקצה ל-";}
+	html[lang="he"] .list td.osta_duedate:before { content: "תאריך יעד";}
+	html[lang="he"] .list td.osta_closedate:before { content: "תאריך סגירה";}
+	html[lang="he"] .list td.osta_datecreated:before { content: "תאריך יצירה";}
+	html[lang="he"] #ticketTable td.ticket-department:before { content: "מחלקה";}
+	html[lang="he"] .list td.osta_lastmessage:before { content: "הודעה אחרונה";}
+	html[lang="he"] .list td.osta_lastresponse:before { content: "תגובה אחרונה";}
+	html[lang="he"] #ticketTable td.ticket-status:before { content: "מצב";}
+	html[lang="he"] .list td.osta_team:before { content: "צוות";}
+
+	html[lang="hr"] #ticketTable td.ticket-number:before { content: "Broj kartice";}
+	html[lang="hr"] #ticketTable td.ticket-updated:before { content: "Zadnje ažuriranje";}
+	html[lang="hr"] #ticketTable td.ticket-subject:before { content: "Naslov";}
+	html[lang="hr"] .list td.osta_username:before { content: "Od";}
+	html[lang="hr"] .list td.osta_assignee:before { content: "Dodjeljeno";}
+	html[lang="hr"] .list td.osta_duedate:before { content: "Krajnji rok";}
+	html[lang="hr"] .list td.osta_closedate:before { content: "Datum zatvaranja";}
+	html[lang="hr"] .list td.osta_datecreated:before { content: "Datum kreiranja";}
+	html[lang="hr"] #ticketTable td.ticket-department:before { content: "Odjel";}
+	html[lang="hr"] .list td.osta_lastmessage:before { content: "Zadnja poruka";}
+	html[lang="hr"] .list td.osta_lastresponse:before { content: "Zadnji odgovor";}
+	html[lang="hr"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="hr"] .list td.osta_team:before { content: "Tim";}
+
+	html[lang="hu"] #ticketTable td.ticket-number:before { content: "Hibajegy szám";}
+	html[lang="hu"] #ticketTable td.ticket-updated:before { content: "Utolsó módosítás";}
+	html[lang="hu"] #ticketTable td.ticket-subject:before { content: "Tárgy";}
+	html[lang="hu"] .list td.osta_username:before { content: "Feladó";}
+	html[lang="hu"] .list td.osta_assignee:before { content: "Hozzárendelt";}
+	html[lang="hu"] .list td.osta_duedate:before { content: "Határidő";}
+	html[lang="hu"] .list td.osta_closedate:before { content: "Dátum lezárása";}
+	html[lang="hu"] .list td.osta_datecreated:before { content: "Létrehozás dátuma";}
+	html[lang="hu"] #ticketTable td.ticket-department:before { content: "Részleg";}
+	html[lang="hu"] .list td.osta_lastmessage:before { content: "Utolsó üzenet";}
+	html[lang="hu"] .list td.osta_lastresponse:before { content: "Utolsó válasz";}
+	html[lang="hu"] #ticketTable td.ticket-status:before { content: "Állapot";}
+	html[lang="hu"] .list td.osta_team:before { content: "Csapat";}
+
+	html[lang="id"] #ticketTable td.ticket-number:before { content: "Nomor Tiket";}
+	html[lang="id"] #ticketTable td.ticket-updated:before { content: "Terakhir Diperbaharui";}
+	html[lang="id"] #ticketTable td.ticket-subject:before { content: "Subjek";}
+	html[lang="id"] .list td.osta_username:before { content: "Dari";}
+	html[lang="id"] .list td.osta_assignee:before { content: "Menugaskan ke";}
+	html[lang="id"] .list td.osta_duedate:before { content: "Jatuh tempo";}
+	html[lang="id"] .list td.osta_closedate:before { content: "Tanggal Tutup";}
+	html[lang="id"] .list td.osta_datecreated:before { content: "Tanggal Dibuat";}
+	html[lang="id"] #ticketTable td.ticket-department:before { content: "Departemen";}
+	html[lang="id"] .list td.osta_lastmessage:before { content: "Pesan Terakhir";}
+	html[lang="id"] .list td.osta_lastresponse:before { content: "Respon Terakhir";}
+	html[lang="id"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="id"] .list td.osta_team:before { content: "Tim";}
+
+	html[lang="it"] #ticketTable td.ticket-number:before { content: "Numero Ticket";}
+	html[lang="it"] #ticketTable td.ticket-updated:before { content: "Ultimo Aggiornamento";}
+	html[lang="it"] #ticketTable td.ticket-subject:before { content: "Oggetto";}
+	html[lang="it"] .list td.osta_username:before { content: "Da";}
+	html[lang="it"] .list td.osta_assignee:before { content: "Assegnato a";}
+	html[lang="it"] .list td.osta_duedate:before { content: "Data Scadenza";}
+	html[lang="it"] .list td.osta_closedate:before { content: "Data di chiusura";}
+	html[lang="it"] .list td.osta_datecreated:before { content: "Dato registrato";}
+	html[lang="it"] #ticketTable td.ticket-department:before { content: "Reparto";}
+	html[lang="it"] .list td.osta_lastmessage:before { content: "Ultimo Messaggio";}
+	html[lang="it"] .list td.osta_lastresponse:before { content: "Ultima Risposta";}
+	html[lang="it"] #ticketTable td.ticket-status:before { content: "Stato";}
+	html[lang="it"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="ja"] #ticketTable td.ticket-number:before { content: "チケット番号";}
+	html[lang="ja"] #ticketTable td.ticket-updated:before { content: "前回の更新";}
+	html[lang="ja"] #ticketTable td.ticket-subject:before { content: "件名";}
+	html[lang="ja"] .list td.osta_username:before { content: "差出人";}
+	html[lang="ja"] .list td.osta_assignee:before { content: "アサイン先";}
+	html[lang="ja"] .list td.osta_duedate:before { content: "期限日";}
+	html[lang="ja"] .list td.osta_closedate:before { content: "終了日";}
+	html[lang="ja"] .list td.osta_datecreated:before { content: "作成日";}
+	html[lang="ja"] #ticketTable td.ticket-department:before { content: "部門";}
+	html[lang="ja"] .list td.osta_lastmessage:before { content: "前回のメッセージ";}
+	html[lang="ja"] .list td.osta_lastresponse:before { content: "前回の返信";}
+	html[lang="ja"] #ticketTable td.ticket-status:before { content: "ステータス";}
+	html[lang="ja"] .list td.osta_team:before { content: "チーム";}
+
+	html[lang="ko"] #ticketTable td.ticket-number:before { content: "티켓 번호";}
+	html[lang="ko"] #ticketTable td.ticket-updated:before { content: "최종 갱신";}
+	html[lang="ko"] #ticketTable td.ticket-subject:before { content: "제목";}
+	html[lang="ko"] .list td.osta_username:before { content: "발신자";}
+	html[lang="ko"] .list td.osta_assignee:before { content: "할당";}
+	html[lang="ko"] .list td.osta_duedate:before { content: "완료목표일";}
+	html[lang="ko"] .list td.osta_closedate:before { content: "종료일시";}
+	html[lang="ko"] .list td.osta_datecreated:before { content: "작성일";}
+	html[lang="ko"] #ticketTable td.ticket-department:before { content: "부서";}
+	html[lang="ko"] .list td.osta_lastmessage:before { content: "마지막 메시지";}
+	html[lang="ko"] .list td.osta_lastresponse:before { content: "최근 답변";}
+	html[lang="ko"] #ticketTable td.ticket-status:before { content: "상태";}
+	html[lang="ko"] .list td.osta_team:before { content: "팀";}
+
+	html[lang="lt"] #ticketTable td.ticket-number:before { content: "Užklausos numeris";}
+	html[lang="lt"] #ticketTable td.ticket-updated:before { content: "Paskutinį kartą atnaujinta";}
+	html[lang="lt"] #ticketTable td.ticket-subject:before { content: "Tema";}
+	html[lang="lt"] .list td.osta_username:before { content: "Nuo";}
+	html[lang="lt"] .list td.osta_assignee:before { content: "Priskirta";}
+	html[lang="lt"] .list td.osta_duedate:before { content: "Terminas iki";}
+	html[lang="lt"] .list td.osta_closedate:before { content: "Uždarymo data";}
+	html[lang="lt"] .list td.osta_datecreated:before { content: "Sukūrimo data";}
+	html[lang="lt"] #ticketTable td.ticket-department:before { content: "Padalinys";}
+	html[lang="lt"] .list td.osta_lastmessage:before { content: "Paskutinis pranešimas";}
+	html[lang="lt"] .list td.osta_lastresponse:before { content: "Paskutinis atsakymas";}
+	html[lang="lt"] #ticketTable td.ticket-status:before { content: "Būsena";}
+	html[lang="lt"] .list td.osta_team:before { content: "Komanda";}
+
+	html[lang="mk"] #ticketTable td.ticket-number:before { content: "Број на Тикет";}
+	html[lang="mk"] #ticketTable td.ticket-updated:before { content: "Последно обновено";}
+	html[lang="mk"] #ticketTable td.ticket-subject:before { content: "Наслов";}
+	html[lang="mk"] .list td.osta_username:before { content: "Од";}
+	html[lang="mk"] .list td.osta_assignee:before { content: "Доделено на";}
+	html[lang="mk"] .list td.osta_duedate:before { content: "Краен рок";}
+	html[lang="mk"] .list td.osta_closedate:before { content: "Датум на затворање";}
+	html[lang="mk"] .list td.osta_datecreated:before { content: "Датум на креирање";}
+	html[lang="mk"] #ticketTable td.ticket-department:before { content: "Оддел";}
+	html[lang="mk"] .list td.osta_lastmessage:before { content: "Последна порака";}
+	html[lang="mk"] .list td.osta_lastresponse:before { content: "Последен одговор";}
+	html[lang="mk"] #ticketTable td.ticket-status:before { content: "Статус";}
+	html[lang="mk"] .list td.osta_team:before { content: "Тим";}
+
+	html[lang="mn"] #ticketTable td.ticket-number:before { content: "Хүсэлтийн дугаар";}
+	html[lang="mn"] #ticketTable td.ticket-updated:before { content: "Шинэчлэгдсэн";}
+	html[lang="mn"] #ticketTable td.ticket-subject:before { content: "Subject";}
+	html[lang="mn"] .list td.osta_username:before { content: "From";}
+	html[lang="mn"] .list td.osta_assignee:before { content: "Хариуцсан";}
+	html[lang="mn"] .list td.osta_duedate:before { content: "Гүйцэтгэх огноо";}
+	html[lang="mn"] .list td.osta_closedate:before { content: "Хаагдсан огноо";}
+	html[lang="mn"] .list td.osta_datecreated:before { content: "Үүсгэсэн огноо";}
+	html[lang="mn"] #ticketTable td.ticket-department:before { content: "Алба";}
+	html[lang="mn"] .list td.osta_lastmessage:before { content: "Сүүлчийн мессеж";}
+	html[lang="mn"] .list td.osta_lastresponse:before { content: "Сүүлчийн хариулт";}
+	html[lang="mn"] #ticketTable td.ticket-status:before { content: "Төлөв";}
+	html[lang="mn"] .list td.osta_team:before { content: "Баг";}
+
+	html[lang="ms"] #ticketTable td.ticket-number:before { content: "Nombor Tiket";}
+	html[lang="ms"] #ticketTable td.ticket-updated:before { content: "Terakhir Dikemaskini";}
+	html[lang="ms"] #ticketTable td.ticket-subject:before { content: "Subjek";}
+	html[lang="ms"] .list td.osta_username:before { content: "Daripada";}
+	html[lang="ms"] .list td.osta_assignee:before { content: "Diberikan kepada";}
+	html[lang="ms"] .list td.osta_duedate:before { content: "Tarikh Akhir";}
+	html[lang="ms"] .list td.osta_closedate:before { content: "Tarikh Tutup";}
+	html[lang="ms"] .list td.osta_datecreated:before { content: "Tarikh Dicipta";}
+	html[lang="ms"] #ticketTable td.ticket-department:before { content: "Jabatan";}
+	html[lang="ms"] .list td.osta_lastmessage:before { content: "Mesej Terakhir";}
+	html[lang="ms"] .list td.osta_lastresponse:before { content: "Respon Terakhir";}
+	html[lang="ms"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="ms"] .list td.osta_team:before { content: "Pasukan";}
+
+	html[lang="nl"] #ticketTable td.ticket-number:before { content: "Ticketnummer";}
+	html[lang="nl"] #ticketTable td.ticket-updated:before { content: "Laatst bijgewerkt";}
+	html[lang="nl"] #ticketTable td.ticket-subject:before { content: "Onderwerp";}
+	html[lang="nl"] .list td.osta_username:before { content: "Van";}
+	html[lang="nl"] .list td.osta_assignee:before { content: "Toegewezen aan";}
+	html[lang="nl"] .list td.osta_duedate:before { content: "Vervaldatum";}
+	html[lang="nl"] .list td.osta_closedate:before { content: "Sluitingsdatum";}
+	html[lang="nl"] .list td.osta_datecreated:before { content: "Aanmaakdatum";}
+	html[lang="nl"] #ticketTable td.ticket-department:before { content: "Afdeling";}
+	html[lang="nl"] .list td.osta_lastmessage:before { content: "Laatste bericht";}
+	html[lang="nl"] .list td.osta_lastresponse:before { content: "Laatste reactie";}
+	html[lang="nl"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="nl"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="no"] #ticketTable td.ticket-number:before { content: "Saksnummer";}
+	html[lang="no"] #ticketTable td.ticket-updated:before { content: "sist oppdatert";}
+	html[lang="no"] #ticketTable td.ticket-subject:before { content: "Emne";}
+	html[lang="no"] .list td.osta_username:before { content: "Fra";}
+	html[lang="no"] .list td.osta_assignee:before { content: "Tilordnet til";}
+	html[lang="no"] .list td.osta_duedate:before { content: "Forfallsdato";}
+	html[lang="no"] .list td.osta_closedate:before { content: "ferdig dato";}
+	html[lang="no"] .list td.osta_datecreated:before { content: "Dato opprettet";}
+	html[lang="no"] #ticketTable td.ticket-department:before { content: "Avdeling";}
+	html[lang="no"] .list td.osta_lastmessage:before { content: "Siste melding";}
+	html[lang="no"] .list td.osta_lastresponse:before { content: "Siste svar";}
+	html[lang="no"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="no"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="pl"] #ticketTable td.ticket-number:before { content: "Numer zgłoszenia";}
+	html[lang="pl"] #ticketTable td.ticket-updated:before { content: "Ostatnio zaktualizowano";}
+	html[lang="pl"] #ticketTable td.ticket-subject:before { content: "Temat";}
+	html[lang="pl"] .list td.osta_username:before { content: "Od";}
+	html[lang="pl"] .list td.osta_assignee:before { content: "Przypisane do";}
+	html[lang="pl"] .list td.osta_duedate:before { content: "Termin wykonania";}
+	html[lang="pl"] .list td.osta_closedate:before { content: "Data zakończenia";}
+	html[lang="pl"] .list td.osta_datecreated:before { content: "Data utworzenia";}
+	html[lang="pl"] #ticketTable td.ticket-department:before { content: "Departament";}
+	html[lang="pl"] .list td.osta_lastmessage:before { content: "Ostatnia wiadomość";}
+	html[lang="pl"] .list td.osta_lastresponse:before { content: "Ostatnia odpowiedź";}
+	html[lang="pl"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="pl"] .list td.osta_team:before { content: "Zespół";}
+
+	html[lang="pt-BR"] #ticketTable td.ticket-number:before { content: "Número do Ticket";}
+	html[lang="pt-BR"] #ticketTable td.ticket-updated:before { content: "Última Atualização";}
+	html[lang="pt-BR"] #ticketTable td.ticket-subject:before { content: "Assunto";}
+	html[lang="pt-BR"] .list td.osta_username:before { content: "De";}
+	html[lang="pt-BR"] .list td.osta_assignee:before { content: "Atribuído a";}
+	html[lang="pt-BR"] .list td.osta_duedate:before { content: "Data de Vencimento";}
+	html[lang="pt-BR"] .list td.osta_closedate:before { content: "Data de Conclusão";}
+	html[lang="pt-BR"] .list td.osta_datecreated:before { content: "Data de Criação";}
+	html[lang="pt-BR"] #ticketTable td.ticket-department:before { content: "Departamento";}
+	html[lang="pt-BR"] .list td.osta_lastmessage:before { content: "Última Mensagem";}
+	html[lang="pt-BR"] .list td.osta_lastresponse:before { content: "Última Resposta";}
+	html[lang="pt-BR"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="pt-BR"] .list td.osta_team:before { content: "Equipe";}
+
+	html[lang="pt-PT"] #ticketTable td.ticket-updated:before { content: "Última atualização";}
+	html[lang="pt-PT"] #ticketTable td.ticket-subject:before { content: "Assunto";}
+	html[lang="pt-PT"] .list td.osta_username:before { content: "De";}
+	html[lang="pt-PT"] .list td.osta_assignee:before { content: "Atribuído a";}
+	html[lang="pt-PT"] .list td.osta_duedate:before { content: "Data de vencimento";}
+	html[lang="pt-PT"] .list td.osta_closedate:before { content: "Data de fecho";}
+	html[lang="pt-PT"] .list td.osta_datecreated:before { content: "Data Criada";}
+	html[lang="pt-PT"] #ticketTable td.ticket-department:before { content: "Departamento";}
+	html[lang="pt-PT"] .list td.osta_lastmessage:before { content: "Última mensagem";}
+	html[lang="pt-PT"] .list td.osta_lastresponse:before { content: "Última resposta";}
+	html[lang="pt-PT"] #ticketTable td.ticket-status:before { content: "Estado";}
+	html[lang="pt-PT"] .list td.osta_team:before { content: "Equipa";}
+
+	html[lang="ro"] #ticketTable td.ticket-updated:before { content: "Ultima actualizare";}
+	html[lang="ro"] #ticketTable td.ticket-subject:before { content: "Subiect";}
+	html[lang="ro"] .list td.osta_username:before { content: "Expeditor";}
+	html[lang="ro"] .list td.osta_assignee:before { content: "Atribuit lui";}
+	html[lang="ro"] .list td.osta_duedate:before { content: "Data scadentă";}
+	html[lang="ro"] .list td.osta_closedate:before { content: "Data inchidere";}
+	html[lang="ro"] .list td.osta_datecreated:before { content: "Data creării";}
+	html[lang="ro"] #ticketTable td.ticket-department:before { content: "Departament";}
+	html[lang="ro"] .list td.osta_lastmessage:before { content: "Ultimul mesaj";}
+	html[lang="ro"] .list td.osta_lastresponse:before { content: "Ultimul raspuns";}
+	html[lang="ro"] #ticketTable td.ticket-status:before { content: "Stare";}
+	html[lang="ro"] .list td.osta_team:before { content: "Echipa";}
+
+	html[lang="ru"] #ticketTable td.ticket-updated:before { content: "Последнее обновление";}
+	html[lang="ru"] #ticketTable td.ticket-subject:before { content: "Тема";}
+	html[lang="ru"] .list td.osta_username:before { content: "От";}
+	html[lang="ru"] .list td.osta_assignee:before { content: "Назначено На";}
+	html[lang="ru"] .list td.osta_duedate:before { content: "Срок сдачи";}
+	html[lang="ru"] .list td.osta_closedate:before { content: "Дата Закрытия";}
+	html[lang="ru"] .list td.osta_datecreated:before { content: "Дата создания";}
+	html[lang="ru"] #ticketTable td.ticket-department:before { content: "Отдел";}
+	html[lang="ru"] .list td.osta_lastmessage:before { content: "Последнее сообщение";}
+	html[lang="ru"] .list td.osta_lastresponse:before { content: "Последний ответ";}
+	html[lang="ru"] #ticketTable td.ticket-status:before { content: "Статус";}
+	html[lang="ru"] .list td.osta_team:before { content: "Команда";}
+
+	html[lang="sk"] #ticketTable td.ticket-updated:before { content: "Posledná aktualizácia";}
+	html[lang="sk"] #ticketTable td.ticket-subject:before { content: "Predmet";}
+	html[lang="sk"] .list td.osta_username:before { content: "Od";}
+	html[lang="sk"] .list td.osta_assignee:before { content: "Pridelené";}
+	html[lang="sk"] .list td.osta_duedate:before { content: "Termín";}
+	html[lang="sk"] .list td.osta_closedate:before { content: "Dátum uzavretia";}
+	html[lang="sk"] .list td.osta_datecreated:before { content: "Dátum vytvorenia";}
+	html[lang="sk"] #ticketTable td.ticket-department:before { content: "Oddelenie";}
+	html[lang="sk"] .list td.osta_lastmessage:before { content: "Posledná správa";}
+	html[lang="sk"] .list td.osta_lastresponse:before { content: "Posledná odpoveď";}
+	html[lang="sk"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="sk"] .list td.osta_team:before { content: "Tím";}
+
+	html[lang="sl"] #ticketTable td.ticket-updated:before { content: "Nazadnje posodobljeno";}
+	html[lang="sl"] #ticketTable td.ticket-subject:before { content: "Zadeva";}
+	html[lang="sl"] .list td.osta_username:before { content: "Od";}
+	html[lang="sl"] .list td.osta_assignee:before { content: "Dodeljeno za";}
+	html[lang="sl"] .list td.osta_duedate:before { content: "Datum zapadlosti";}
+	html[lang="sl"] .list td.osta_closedate:before { content: "Datum zapiranja";}
+	html[lang="sl"] .list td.osta_datecreated:before { content: "Datum nastanka";}
+	html[lang="sl"] #ticketTable td.ticket-department:before { content: "Oddelek";}
+	html[lang="sl"] .list td.osta_lastmessage:before { content: "Zadnje Sporočilo";}
+	html[lang="sl"] .list td.osta_lastresponse:before { content: "Zadnje obvestilo";}
+	html[lang="sl"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="sl"] .list td.osta_team:before { content: "Skupina";}
+
+	html[lang="sr-CS"] #ticketTable td.ticket-updated:before { content: "Poslednje ažuriranje";}
+	html[lang="sr-CS"] #ticketTable td.ticket-subject:before { content: "Naslov";}
+	html[lang="sr-CS"] .list td.osta_username:before { content: "Od";}
+	html[lang="sr-CS"] .list td.osta_assignee:before { content: "Dodeljeno";}
+	html[lang="sr-CS"] .list td.osta_duedate:before { content: "Tokom datuma";}
+	html[lang="sr-CS"] .list td.osta_closedate:before { content: "Datum zatvaranja";}
+	html[lang="sr-CS"] .list td.osta_datecreated:before { content: "Datum kreiranja";}
+	html[lang="sr-CS"] #ticketTable td.ticket-department:before { content: "Odsek";}
+	html[lang="sr-CS"] .list td.osta_lastmessage:before { content: "Poslednja poruka";}
+	html[lang="sr-CS"] .list td.osta_lastresponse:before { content: "Poslednji odgovor";}
+	html[lang="sr-CS"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="sr-CS"] .list td.osta_team:before { content: "Tim";}
+
+	html[lang="sv-SE"] #ticketTable td.ticket-updated:before { content: "Senast uppdaterad";}
+	html[lang="sv-SE"] #ticketTable td.ticket-subject:before { content: "Ämne";}
+	html[lang="sv-SE"] .list td.osta_username:before { content: "Från";}
+	html[lang="sv-SE"] .list td.osta_assignee:before { content: "Tilldelat till";}
+	html[lang="sv-SE"] .list td.osta_duedate:before { content: "Förfallodatum";}
+	html[lang="sv-SE"] .list td.osta_closedate:before { content: "Stängt Datum";}
+	html[lang="sv-SE"] .list td.osta_datecreated:before { content: "Skapad den";}
+	html[lang="sv-SE"] #ticketTable td.ticket-department:before { content: "Avdelning";}
+	html[lang="sv-SE"] .list td.osta_lastmessage:before { content: "Senaste Meddelande";}
+	html[lang="sv-SE"] .list td.osta_lastresponse:before { content: "Senaste Svar";}
+	html[lang="sv-SE"] #ticketTable td.ticket-status:before { content: "Status";}
+	html[lang="sv-SE"] .list td.osta_team:before { content: "Team";}
+
+	html[lang="th"] #ticketTable td.ticket-number:before { content: "Ticket number";}
+	html[lang="th"] #ticketTable td.ticket-updated:before { content: "'ปรับปรุงล่าสุดเมื่อ'";}
+	html[lang="th"] #ticketTable td.ticket-subject:before { content: "เรื่อง";}
+	html[lang="th"] .list td.osta_username:before { content: "'จาก";}
+	html[lang="th"] .list td.osta_assignee:before { content: "มอบหมายให้";}
+	html[lang="th"] .list td.osta_duedate:before { content: "วันครบกำหนด";}
+	html[lang="th"] .list td.osta_closedate:before { content: "วันปิด";}
+	html[lang="th"] .list td.osta_datecreated:before { content: "วันที่สร้าง";}
+	html[lang="th"] #ticketTable td.ticket-department:before { content: "แผนก";}
+	html[lang="th"] .list td.osta_lastmessage:before { content: "ข้อความล่าสุด";}
+	html[lang="th"] .list td.osta_lastresponse:before { content: "ตอบล่าสุด";}
+	html[lang="th"] #ticketTable td.ticket-status:before { content: "สถานะ";}
+	html[lang="th"] .list td.osta_team:before { content: "'ทีม";}
+
+	html[lang="tr"] #ticketTable td.ticket-number:before { content: "Talep Numaranız";}
+	html[lang="tr"] #ticketTable td.ticket-updated:before { content: "Son Güncelleme";}
+	html[lang="tr"] #ticketTable td.ticket-subject:before { content: "Konu";}
+	html[lang="tr"] .list td.osta_username:before { content: "Kimden";}
+	html[lang="tr"] .list td.osta_assignee:before { content: "Atanmış";}
+	html[lang="tr"] .list td.osta_duedate:before { content: "Bitiş Tarihi";}
+	html[lang="tr"] .list td.osta_closedate:before { content: "Kapanış Tarihi";}
+	html[lang="tr"] .list td.osta_datecreated:before { content: "Oluşturulma Tarihi";}
+	html[lang="tr"] #ticketTable td.ticket-department:before { content: "Bölüm";}
+	html[lang="tr"] .list td.osta_lastmessage:before { content: "Son Mesaj";}
+	html[lang="tr"] .list td.osta_lastresponse:before { content: "Son Yanıt";}
+	html[lang="tr"] #ticketTable td.ticket-status:before { content: "Durum";}
+	html[lang="tr"] .list td.osta_team:before { content: "Takım";}
+
+	html[lang="uk"] #ticketTable td.ticket-number:before { content: "Номер заявки";}
+	html[lang="uk"] #ticketTable td.ticket-updated:before { content: "Оновлено";}
+	html[lang="uk"] #ticketTable td.ticket-subject:before { content: "Тема";}
+	html[lang="uk"] .list td.osta_username:before { content: "Від";}
+	html[lang="uk"] .list td.osta_assignee:before { content: "Відповідальний";}
+	html[lang="uk"] .list td.osta_duedate:before { content: "Термін здачі";}
+	html[lang="uk"] .list td.osta_closedate:before { content: "Дата закриття";}
+	html[lang="uk"] .list td.osta_datecreated:before { content: "Дата створення";}
+	html[lang="uk"] #ticketTable td.ticket-department:before { content: "Відділ";}
+	html[lang="uk"] .list td.osta_lastmessage:before { content: "Останнє повідомлення";}
+	html[lang="uk"] .list td.osta_lastresponse:before { content: "Остання відповідь";}
+	html[lang="uk"] #ticketTable td.ticket-status:before { content: "Статус";}
+	html[lang="uk"] .list td.osta_team:before { content: "Команда";}
+
+	html[lang="vi"] #ticketTable td.ticket-number:before { content: "Mã yêu cầu";}
+	html[lang="vi"] #ticketTable td.ticket-updated:before { content: "Cập nhật Lần cuối";}
+	html[lang="vi"] #ticketTable td.ticket-subject:before { content: "Tiêu đề";}
+	html[lang="vi"] .list td.osta_username:before { content: "Từ";}
+	html[lang="vi"] .list td.osta_assignee:before { content: "Phân công";}
+	html[lang="vi"] .list td.osta_duedate:before { content: "Ngày hết hạn";}
+	html[lang="vi"] .list td.osta_closedate:before { content: "Ngày kết thúc";}
+	html[lang="vi"] .list td.osta_datecreated:before { content: "Ngày tạo";}
+	html[lang="vi"] #ticketTable td.ticket-department:before { content: "Phòng ban";}
+	html[lang="vi"] .list td.osta_lastmessage:before { content: "Tin nhắn cuối cùng";}
+	html[lang="vi"] .list td.osta_lastresponse:before { content: "Phản hồi cuối cùng";}
+	html[lang="vi"] #ticketTable td.ticket-status:before { content: "Tình trạng";}
+	html[lang="vi"] .list td.osta_team:before { content: "Nhóm";}
+
+	html[lang="zh-CN"] #ticketTable td.ticket-number:before { content: "咨询编号";}
+	html[lang="zh-CN"] #ticketTable td.ticket-updated:before { content: "最近更新";}
+	html[lang="zh-CN"] #ticketTable td.ticket-subject:before { content: "主题";}
+	html[lang="zh-CN"] .list td.osta_username:before { content: "发自";}
+	html[lang="zh-CN"] .list td.osta_assignee:before { content: "分配至";}
+	html[lang="zh-CN"] .list td.osta_duedate:before { content: "截止日期";}
+	html[lang="zh-CN"] .list td.osta_closedate:before { content: "关闭日期";}
+	html[lang="zh-CN"] .list td.osta_datecreated:before { content: "创建日期";}
+	html[lang="zh-CN"] #ticketTable td.ticket-department:before { content: "创建日期";}
+	html[lang="zh-CN"] .list td.osta_lastmessage:before { content: "最后消息";}
+	html[lang="zh-CN"] .list td.osta_lastresponse:before { content: "最后回复";}
+	html[lang="zh-CN"] #ticketTable td.ticket-status:before { content: "状态";}
+	html[lang="zh-CN"] .list td.osta_team:before { content: "团队";}
+
+	html[lang="zh-TW"] #ticketTable td.ticket-number:before { content: "案件編號";}
+	html[lang="zh-TW"] #ticketTable td.ticket-updated:before { content: "最後更新";}
+	html[lang="zh-TW"] #ticketTable td.ticket-subject:before { content: "主題";}
+	html[lang="zh-TW"] .list td.osta_username:before { content: "從";}
+	html[lang="zh-TW"] .list td.osta_assignee:before { content: "分配給";}
+	html[lang="zh-TW"] .list td.osta_duedate:before { content: "截止日期";}
+	html[lang="zh-TW"] .list td.osta_closedate:before { content: "關閉日期";}
+	html[lang="zh-TW"] .list td.osta_datecreated:before { content: "建立日期";}
+	html[lang="zh-TW"] #ticketTable td.ticket-department:before { content: "部門";}
+	html[lang="zh-TW"] .list td.osta_lastmessage:before { content: "最後一條消息";}
+	html[lang="zh-TW"] .list td.osta_lastresponse:before { content: "上一次回應";}
+	html[lang="zh-TW"] #ticketTable td.ticket-status:before { content: "狀態";}
+	html[lang="zh-TW"] .list td.osta_team:before { content: "團隊";
+	}
+}
+

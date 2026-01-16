@@ -1,0 +1,79 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Peringatan dan Notis
+  content: >
+    Peringatan dan Notis adalah automatik pemberitahuan e-mel yang dihantar kepada Ejen apabila pelbagai acara tiket dicetuskan.
+ticket_alert:
+  title: Isyarat tiket baru
+  content: >
+    <p> Amaran dihantar kepada ejen apabila tiket baru dicipta. </p><p class="info-banner"> <i class="icon-info-sign"></i>
+    Amaran ini tidak dihantar jika tiket adalah auto-diberikan melalui Penapis Tiket atau Topik Bantuan. </p>
+  links:
+    - 
+      title: Templat amaran tiket baru lalai
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Isyarat mesej baru
+  content: >
+    Amaran dihantar kepada ejen apabila mesej baru dari Pengguna dilampirkan pada tiket yang sedia ada.
+  links:
+    - 
+      title: Templat amaran mesej baru lalai
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Amaran Aktiviti Dalaman baru
+  content: >
+    Amaran dihantar kepada Ejen apabila aktiviti dalaman seperti nota dalaman atau balasan ejen dilampirkan kepada tiket.
+  links:
+    - 
+      title: Templat Lalai Aktiviti Tiket
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Amaran tugasan tiket
+  content: >
+    Amaran dihantar kepada ejen tugasan tiket.
+  links:
+    - 
+      title: Templat Lalai Amaran Tugasan Tiket
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Amaran pemindahan tiket
+  content: >
+    Peringatan dihantar kepada Ejen pada pemindahan tiket antara Jabatan-jabatan.
+  links:
+    - 
+      title: Templat amaran pemindahan tiket lalai
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Amaran tiket tertunggak
+  content: >
+    Peringatan dihantar kepada Ejen apabila tiket telah melampaui tempoh berdasarkan pada SLA atau Tarikh Akhir.
+  links:
+    - 
+      title: Templat amaran tiket basi lalai
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Manage SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: Amaran sistem
+  content: >
+    Peristiwa sistem penting yang dihantar kepada Pentadbir (%{config.admin_email}). Bergantung kepada konfigurasi <span class="doc-desc-title"> tahap Log </span>, kejadian itu juga boleh didapati di <span class="doc-desc-title">sistem log</span>
+  links:
+    - 
+      title: Lihat log sistem
+      href: /scp/logs.php
+    - 
+      title: Tukar Emel Admin
+      href: /scp/settings.php?t=emails

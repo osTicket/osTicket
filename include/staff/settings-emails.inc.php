@@ -156,12 +156,12 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                         $addr = sprintf('%s &lt;%s&gt;',
                                 $email->getName(),
                                 $email->getEmail());
-                        ?>
+                            ?>
                         <option value="<?php echo $id; ?>"<?php
                             echo ($config['default_smtp_id'] == $id) ? 'selected="selected"' : ''; ?>><?php
                             echo $addr; ?></option>
                         <?php
-                    }
+                        }
                     ?>
                  </select>&nbsp;<font class="error">&nbsp;<?php echo $errors['default_smtp_id']; ?></font>
                  <i class="help-tip icon-question-sign" href="#default_mta"></i>

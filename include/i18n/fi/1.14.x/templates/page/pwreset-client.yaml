@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Tämä pohja määrittää sähköpostiviestin asiakkaille, jotka valitsevat kirjautumissivulta<strong>Unohdin salasanani</strong>-linkin.
+name: "%{company.name} - Tukijärjestelmän Pääsynhallinta"
+body: >
+  <h3><strong>Hei %{user.name.first},</strong></h3> <div> Ylläpito osoitteessa %{url} on pyytänyt salasanan vaihtoa puolestasi.<br /> <br /> Jos et ole pyytänyt vaihtoa, voit poistaa ja ohittaa tämän viestin. Tilisi on turvassa. Tiliäsi ei ole lukittu, eikä salasanaa vaihdettu - sähköpostiosoitteesi on saatettu syöttää vahingossa.<br /> <br /> Klikkaa linkkiä alapuolella kirjautuaksesi tukikeskukseen ja vaihtaaksesi salasanasi<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ystävällisin terveisin, tukitiimi<br /> %{company.name}</em> </div>

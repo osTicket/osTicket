@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Respon Tersimpan
+  content: >
+    Buat <span class="doc-desc-title">Canned Response</span> yang bisa digunakan dalam merespon tiket. Ini bisa digunakan juga untuk <span class="doc-desc-title">Penjawab Tiket Otomatis</span> yang diatur oleh <span class="doc-desc-title">Saringan Tiket</span>.
+  links:
+    - 
+      title: Setup Filter Tiket
+      href: /scp/filters.php
+canned_attachments:
+  title: Lampiran Respon Tersimpan
+  content: >
+    Lampirkan berkas yang Anda ingin masukkan secara otomatis dalam respon tiket dengan memanfaatkan <span class="doc-desc-title"> Respon Tersimpan</span> yang baru.

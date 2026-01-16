@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Nytt ärende hjälpavsnitt
+  content: >
+    Välj ett <span class="doc-desc-title"> hjälpavsnitt</span> som ska associeras med ärendet, skapat via denna e-postadress. <br/> <br/> Formulär som är associerade med hjälpavsnittet kommer att kopplas till ärendet, men kommer inte att innehålla några data.
+  links:
+    - 
+      title: Hantera hjälpavsnitt
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Ny ärendeprioritering
+  content: >
+    Välj <span class="doc-desc-title"> prioritering</span> för nya ärenden skapade via denna e-postadress.
+new_ticket_department:
+  title: Ny ärendeavdelning
+  content: >
+    Välj den <span class="doc-desc-title"> avdelning</span> dit nya ärenden vidarebefordras från denna e-postadress.
+  links:
+    - 
+      title: Administrera avdelningar
+      href: /scp/departments.php
+auto_response:
+  title: Autosvar för nytt ärende
+  content: >
+    Du kan inaktivera autosvar till användare när ett nytt ärende skapas via denna e-postadress.
+username:
+  title: Användarnamn
+  0: >
+
+password:
+  title: Lösenord
+  0: >
+
+login_information:
+  title: E-post inloggningsinformation
+  content: >
+    <span class="doc-desc-title"> Användarnamn</span> och <span class="doc-desc-title"> Lösenord</span> krävs för att hämta e-post från IMAP / POP konton, samt för att skicka e-post via SMTP.
+mail_account:
+  title: Hämtar e-post
+  content: >
+    Hämta e-post från en IMAP- eller POP konto och konvertera dem till ärenden i ditt ärendesystem.
+  links:
+    - 
+      title: Hantera <span class="doc-desc-title"> E-post hämtning </span> &amp; <span class="doc-desc-title"> AutoCron</span> inställningar.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Fjärrvärd
+  content: >
+    Ange <span class="doc-desc-title"> värdnamn</span> och <span class="doc-desc-title"> port</span> för e-postservern. Detta hittar du i dokumentationen för ditt webbhotell-konto eller hos din e-post administratör.
+protocol:
+  title: E-post protokoll
+  content: >
+    Välj protokoll som stöds av e-postservern. IMAP rekommenderas och även SSL rekommenderas, om möjligt.
+fetch_frequency:
+  title: Hämtfrekvens
+  content: >
+    Ange hur ofta, i minuter, systemet ska söka efter ny e-post. <br/> <br/> Detta definierar även den genomsnittliga tiden det tar innan en användare får autosvar på sitt ärende.
+emails_per_fetch:
+  title: Antal e-postmeddelanden vid hämtning
+  content: >
+    Ange antalet e-postmeddelanden som ska bearbetas vid varje tillfälle.
+fetched_emails:
+  title: Hämtade e-postmeddelanden
+  content: >
+    Besluta vad som ska göras med bearbetad e-post: <br/> <br/> <span class="doc-desc-opt"> <b>Flytta till mapp</b></span>: detta kommer att säkerhetskopiera din e-post från INKORGEN till en mapp som du anger. Om mappen inte finns ännu på servern, försöker systemet automatiskt skapa den. (<b>Rekommenderas</b>) <hr><span class="doc-desc-opt"> <b>Ta bort e-post</b></span>: detta tar bort din e-post från INKORGEN när det behandlats. <hr><span class="doc-desc-opt"> <b>Gör ingenting</b></span>: detta kommer att lämna e-postmeddelanden i INKORGEN. Systemet kommer att lägga till meddelande-ID för din e-post och på så sätt försöka att inte hämta det igen. Detta alternativ kan dock orsaka att dubbla ärenden skapas. (<em>Rekommenderas inte</em>)
+smtp_settings:
+  title: SMTP-inställningar
+  content: >
+    E-post skickat från ärendesystemet kan skickas via en SMTP server. Detta rekommenderas om möjligt, eftersom det kommer att öka sannolikheten för e-postleverans, samt minskar risken för att e-post markeras som skräppost hos mottagaren.
+header_spoofing:
+  title: Möjliggöra "header spoofing"
+  content: >
+    Att aktivera detta gör det möjligt att skicka e-post från en adress annan än den som anges i inställningen för <span class="doc-desc-title"> E-postadress</span> ovan. <br/> <br/> Denna avancerade inställningen används vanligtvis när du skickar e-post från ett alias för denna e-postadress.
+

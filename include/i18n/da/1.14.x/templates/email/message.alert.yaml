@@ -1,0 +1,47 @@
+---
+#Email template: message.alert.yaml
+#Sent to staff members when a new message is posted by a user to a ticket.
+#This can occur if the users responds to an email from the system or visits
+#the customer web portal and posts a new message there.
+#---
+notes: |
+  Sendt til personalet, når en ny besked er indsendt af en bruger til en sag. Dette kan ske når brugeren reagerer på en email fra systemet, eller besøger webportalen og skriver en ny besked der.
+subject: |
+  Ny Besked Notifikation
+body: |
+  <h3><strong>Hej %{recipient.name},</strong></h3>
+  Der er kommet en ny besked i sag <a
+  href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Fra</strong>:
+      </td>
+      <td>
+           %{poster.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Afdeling</strong>:
+      </td>
+      <td>
+           %{ticket.dept.name}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>For at se eller svare i sagen, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >log venligst ind</span></a> i bestillingssystemet</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Din venlige kundesupport</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

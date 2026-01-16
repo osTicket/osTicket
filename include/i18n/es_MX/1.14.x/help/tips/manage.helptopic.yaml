@@ -1,0 +1,89 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Información sobre Tema de Ayuda
+  content: >
+    <span class="doc-desc-title"> Los temas de ayuda</span> Guía que información que recopila  los usuarios y cómo los Tickets son enrutados o asignados.
+topic:
+  title: Nombre del tema
+  content: >
+    Nombre único del tema de ayuda.
+status:
+  title: Estado
+  content: >
+    Si está deshabilitado o archivado, este <span class = "doc-desc-title"> Tema de ayuda </span> no estará disponible.
+type:
+  title: Tipo
+  content: >
+    Si un <span class="doc-desc-title">Tema de Ayuda</span> es etiquetado como Privado, este solo estará disponible para elegir por los Agentes cuando habran un nuevo Ticket desde el Panel del Personal.
+parent_topic:
+  title: Tema principal
+  content: >
+    Seleccione el Tema Padre al cual este <span class="doc-desc-title">Tema de Ayuda</span> pertenecerá. El Tema Padre aparecerá primero en el listado y este <span class="doc-desc-title">Tema de Ayuda</span> será listado a continuación del padre.
+custom_form:
+  title: Formulario personalizado
+  content: >
+    Formularios personalizados le ayudará a adquirir información más específica de los usuarios que son relevantes a este <span class="doc-desc-title"> tema de ayuda</span>.
+  links:
+    - 
+      title: Administrar formularios personalizados
+      href: /scp/forms.php
+priority:
+  title: Prioridad
+  content: >
+    Seleccione la prioridad asignada a nuevos Tickets relacionados con este <span class="doc-desc-title"> tema de ayuda</span>. <br><br>los filtros de Ticket puede anular la prioridad del nuevo Ticket.
+department:
+  title: Departamento
+  content: >
+    Elija el Departamento al que se enrutarán nuevos Tickets en este tema de ayuda.
+  links:
+    - 
+      title: Gestionar departamentos
+      href: /scp/departments.php
+sla_plan:
+  title: Plan SLA
+  content: >
+    Elija el plan NSA asociado con este <span class="doc-desc-title"> tema de ayuda</span>. <br><br>Esta selección anulará cualquier plan NSA seleccionado del Departamento
+  links:
+    - 
+      title: Gestionar planes de SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Página de agradecimiento
+  content: >
+    Elija la Página de Agradecimiento a la que el usuario es dirigido luego de abrir un Tickets perteneciente a este <span class="doc-desc-title">Tema de Ayuda</span>.
+  links:
+    - 
+      title: Gestionar páginas de agradecimiento
+      href: /scp/pages.php
+auto_assign_to:
+  title: Asignar automáticamente nuevos Tickets
+  content: >
+    Opcionalmente elija un Agente o Equipo para auto-asignar la apertura de nuevos tickets bajo este <span class="doc-desc-title">Tema de Ayuda</span>
+     <br><br> Los Filtros de Ticket pueden modificar esta asignación.
+  links:
+    - 
+      title: Gestión de personal y equipos
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Auto-Respuesta al Ticket
+  content: >
+    Si está habilitado, esta opción deshabilitará la auto-respuesta a los nuevos tickets que pertenezcan a este <span class="doc-desc-title">Tema de Ayuda</span>. <br><br> Esto modifica la opción de autorespuesta para el <span class="doc-desc-title">Departamento</span> así como la opción global <span class="doc-desc-title">Opciones de Autorespuesta</span>.
+  links:
+    - 
+      title: Configuración de autoresponder
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Números de Ticket personalizado
+  content: >
+    Elegir "Personalizado" aquí para anular el ticket de sistema por defecto numeración formato de entradas creado en este tema de ayuda.  Ver los consejos de ayuda en la configuración de entradas Página para más detalles sobre la configuración.

@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: 提醒和通知
+  content: >
+    提醒和通知可在触发多种咨询事件时自动发送电子邮件通知至代理。
+ticket_alert:
+  title: 新咨询通知
+  content: >
+    <p>创建新咨询时向代理发送提醒。</p><p class="info-banner"> <i class="icon-info-sign"></i>如果通过咨询筛选或帮助主题自动分配咨询，则不会发送提醒。</p>
+  links:
+    - 
+      title: 默认新咨询提醒模板
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: 新消息通知
+  content: >
+    用户将新消息添加至现有咨询时，发送提醒至代理。
+  links:
+    - 
+      title: 默认新消息提醒模板
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: 新的内部活动警报
+  content: >
+    警报发送给代理的时候，内部活动如内部提醒或代理人的答复会附加到一张工单上。
+  links:
+    - 
+      title: 默认咨询活动模板
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: 咨询分配提醒
+  content: >
+    咨询分配时发送提醒至代理。
+  links:
+    - 
+      title: 默认咨询分配提醒模板
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: 咨询变更时通知
+  content: >
+    在部门间传输咨询时发送提醒至代理。
+  links:
+    - 
+      title: 默认咨询变更通知模版
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: 过期咨询提醒
+  content: >
+    基于 SLA 或截止日期，在咨询过期时发送提醒至代理。
+  links:
+    - 
+      title: 默认旧咨询提醒模板
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: 管理 SLA
+      href: /scp/slas.php
+system_alerts:
+  title: 系统提醒
+  content: >
+    发送至管理员 (%{config.admin_email}) 的重要系统事件。根据配置的<span class="doc-desc-title">日志等级</span>，也可在<span class="doc-desc-title">系统日志</span>中使用这些事件
+  links:
+    - 
+      title: 查看系统日志
+      href: /scp/logs.php
+    - 
+      title: 更改管理员电子邮件
+      href: /scp/settings.php?t=emails

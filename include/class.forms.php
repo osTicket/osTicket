@@ -469,14 +469,14 @@ implements FormRenderer {
 ?>
       <table class="<?php echo 'grid form' ?>">
           <caption><?php echo Format::htmlchars($this->title ?: $form->getTitle()); ?>
-            <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
+                  <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
             <?php
             if ($form->getNotice())
                 echo sprintf('<div><small><p id="msg_warning">%s</p></small></div>',
                         Format::htmlchars($form->getNotice()));
             ?>
-        </caption>
-        <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
+          </caption>
+          <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
 <?php
       $row_size = 12;
       $cols = $row = 0;
@@ -509,13 +509,13 @@ implements FormRenderer {
               <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
                 id="field<?php echo $f->getWidget()->id; ?>"
                 data-field-id="<?php echo $f->get('id'); ?>">
+<!--osta-->
 <?php         $label = $f->get('label'); ?>
               <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
-                  for="<?php echo $f->getWidget()->id; ?>">
-                  <?php echo $label ? (Format::htmlchars($label).':') : '&nbsp;'; ?>
+                  for="<?php echo $f->getWidget()->id; ?>"></label>
+                  <?php echo $label ? (Format::htmlchars($label).':') : ''; ?>
                 <?php if ($f->isRequired()) { ?>
-                <span class="error">*</span>
-              </label>
+<!--osta-->
 <?php         }
               if ($f->get('hint')) { ?>
                   <div class="field-hint-text">
@@ -1582,7 +1582,7 @@ class PasswordField extends TextboxField {
     function __construct($options=array()) {
         parent::__construct($options);
         if (!isset($options['validator']))
-            $this->set('validator', 'password');
+        $this->set('validator', 'password');
     }
 
     protected function getMasterKey() {
@@ -1787,10 +1787,6 @@ class BooleanField extends FormField {
 
     function toString($value) {
         return ($value) ? __('Yes') : __('No');
-    }
-
-    function asVar($value, $id=false) {
-        return $this->toString($value);
     }
 
     function getClean($validate=true) {
@@ -2569,26 +2565,26 @@ class DatetimeField extends FormField {
                 "{$name}__lte" =>  $right->format('Y-m-d H:i:s'),
             ));
         case 'ndaysago':
-            $int = $intervals[(string) $value['int'] ?: 'd'] ?: 'DAY';
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
             $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
                 "{$name}__range" => array($now->minus($interval), $now),
             ));
         case 'ndays':
-            $int = $intervals[(string) $value['int'] ?: 'd'] ?: 'DAY';
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
             $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
                 "{$name}__range" => array($now, $now->plus($interval)),
             ));
         // Distant past and future ranges
         case 'distpast':
-            $int = $intervals[(string) $value['int'] ?: 'd'] ?: 'DAY';
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
             $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
                 "{$name}__lte" => $now->minus($interval),
             ));
         case 'distfut':
-            $int = $intervals[(string) $value['int'] ?: 'd'] ?: 'DAY';
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
             $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
                 "{$name}__gte" => $now->plus($interval),
@@ -3120,7 +3116,7 @@ class PriorityField extends ChoiceField {
             $id = $value;
 
         if (is_numeric($id))
-            return $this->getPriority($id);
+        return $this->getPriority($id);
 
         return $value;
     }
@@ -3286,7 +3282,7 @@ class DepartmentField extends ChoiceField {
           }
         }
 
-        $choices = array();
+            $choices = array();
 
         //get all depts unfiltered
         $depts = $config['hideDisabled'] ? Dept::getDepartments(array('activeonly' => true)) :
@@ -3298,7 +3294,7 @@ class DepartmentField extends ChoiceField {
 
             if ($staff->hasPerm(Dept::PERM_DEPT))
                 return $depts;
-        }
+            }
         //filter custom department fields when there is no staff
         else {
             $userDepts = Dept::getDepartments(array('publiconly' => true, 'activeonly' => true));
@@ -3306,17 +3302,17 @@ class DepartmentField extends ChoiceField {
             return $userDepts;
         }
 
-         //add selected dept to list
-         if($current_id)
+          //add selected dept to list
+          if($current_id)
             $active[$current_id] = $current_name;
-         else
+          else
             return $active;
 
-         foreach ($depts as $id => $name) {
+          foreach ($depts as $id => $name) {
             $choices[$id] = $name;
             if(!array_key_exists($id, $active) && $current_id)
                 unset($choices[$id]);
-         }
+          }
 
         return $choices;
     }
@@ -3336,7 +3332,7 @@ class DepartmentField extends ChoiceField {
 
     function getValue() {
          if (($value = parent::getValue()) && ($id=$this->getClean()))
-            return is_array($value) ? $value[$id] : $value;
+            return $value[$id];
      }
 
     function to_php($value, $id=false) {
@@ -3997,8 +3993,7 @@ class FileUploadField extends FormField {
         // Check invalid image hacks
         if ($file['tmp_name']
                 && stripos($file['type'], 'image/') === 0
-                && !(exif_imagetype($file['tmp_name'])
-                    || mime_content_type($file['tmp_name']) === 'image/svg+xml'))
+                && !exif_imagetype($file['tmp_name']))
             return false;
 
         return true;
@@ -4551,11 +4546,11 @@ class TextareaWidget extends Widget {
                     break;
                 case 'html':
                     if ($v) {
-                        $class = array('richtext', 'no-bar');
-                        $class[] = @$config['size'] ?: 'small';
+            $class = array('richtext', 'no-bar');
+            $class[] = @$config['size'] ?: 'small';
                         $attrs['class'] =  '"'.implode(' ', $class).'"';
-                        $this->value = Format::viewableImages($this->value);
-                    }
+            $this->value = Format::viewableImages($this->value);
+        }
                     break;
             }
         }
@@ -5248,8 +5243,6 @@ class FileUploadWidget extends Widget {
     );
 
     function render($options=array()) {
-        global $ost;
-
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
@@ -5335,7 +5328,6 @@ class FileUploadWidget extends Widget {
           url: 'ajax.php/form/upload/<?php echo $field_id; ?>',
           link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
-          data: {"__CSRFToken__": "<?php echo $ost->getCSRF()->getToken(); ?>"},
           fallback_id: 'file-<?php echo $id; ?>',
           allowedfileextensions: <?php echo JsonDataEncoder::encode(
             $config['__extensions'] ?: array()); ?>,
@@ -5979,12 +5971,12 @@ class ReferralForm extends Form {
                     'label' => '',
                     'flags' => hexdec(0X450F3),
                     'required' => true,
-                    'validator-error' => __('Agent selection required'),
+                            'validator-error' => __('Agent selection required'),
                     'configuration'=>array('prompt'=>__('Select Agent')),
-                            'visibility' => new VisibilityConstraint(
-                                    new Q(array('target__eq'=>'agent')),
-                                    VisibilityConstraint::HIDDEN
-                              ),
+                    'visibility' => new VisibilityConstraint(
+                        new Q(array('target__eq'=>'agent')),
+                        VisibilityConstraint::HIDDEN
+                      ),
                             )
                 ),
             'team' => new ChoiceField(array(
@@ -6186,7 +6178,7 @@ class TransferForm extends Form {
             break;
         default:
             throw new Exception(sprintf(__('%s: Unknown template style %s'),
-                        get_class($this), $options['template']));
+                        get_class(), $options['template']));
         }
 
         $form = $this;

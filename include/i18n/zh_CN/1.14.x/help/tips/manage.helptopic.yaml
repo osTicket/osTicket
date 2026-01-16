@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: 帮助主题信息
+  content: >
+    <span class="doc-desc-title">帮助主题</span>说明从用户中收集信息的内容以及咨询的发送或分配方式。
+topic:
+  title: 主题名称
+  content: >
+    唯一的帮助主题名称。
+status:
+  title: 状态
+  content: >
+    若禁用此功能，此<span class="doc-desc-title">帮助主题</span>将不可用。
+type:
+  title: 类型
+  content: >
+    如果<span class="doc-desc-title">帮助主题</span>标记为私有，则其仅可用于代理以选择在工作人员面板中打开新咨询的时间。
+parent_topic:
+  title: 父主题
+  content: >
+    选择此<span class="doc-desc-title">帮助主题</span>所属的父主题。父主题将首先显示在列表中，且此<span class="doc-desc-title">帮助主题</span>列在父主题后。
+custom_form:
+  title: 自定义表单
+  content: >
+    自定义表单将帮助您获取更多与此<span class="doc-desc-title">帮助主题</span>相关的用户特定信息。
+  links:
+    - 
+      title: 管理自定义表单
+      href: /scp/forms.php
+priority:
+  title: 优先级
+  content: >
+    选择与此<span class="doc-desc-title">帮助主题</span>相关的新咨询的分配优先级。<br><br>咨询筛选可编辑新咨询优先级。
+department:
+  title: 部门
+  content: >
+    选择此帮助主题下新咨询所发送的部门。
+  links:
+    - 
+      title: 管理部门
+      href: /scp/departments.php
+sla_plan:
+  title: SLA 计划
+  content: >
+    选择与此<span class="doc-desc-title">帮助主题</span>相关的 SLA 计划。<br><br>此选择将编辑所有挑选部门的 SLA 计划。
+  links:
+    - 
+      title: 管理 SLA 计划
+      href: /scp/slas.php
+thank_you_page:
+  title: 感谢页
+  content: >
+    选择在此<span class="doc-desc-title">帮助主题</span>下打开咨询后用户指向的感谢页。
+  links:
+    - 
+      title: 管理感谢页
+      href: /scp/pages.php
+auto_assign_to:
+  title: 自动分配新咨询
+  content: >
+    选择自动分配此<span class="doc-desc-title">帮助主题</span>下未完成咨询的代理或团队（可选）。<br><br>咨询筛选可编辑分配。
+  links:
+    - 
+      title: 管理工作人员和团队
+      href: /scp/staff.php
+ticket_auto_response:
+  title: 咨询自动回复
+  content: >
+    如果勾选，该设置将禁用此<span class="doc-desc-title">帮助主题</span>的新咨询自动回复。<br><br> 这可编辑<span class="doc-desc-title">部门</span>以及全球<span class="doc-desc-title">自动回复人设置</span>。
+  links:
+    - 
+      title: 自动回复人设置
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: 自定义咨询编号
+  content: >
+    选择”自定义“以编辑在此帮助主题中创建咨询的系统默认咨询编号格式。参见设置/咨询页面上的帮助提示以获取更多设置详细信息。

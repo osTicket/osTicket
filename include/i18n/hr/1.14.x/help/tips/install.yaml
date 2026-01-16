@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Naziv centra za podršku
+  content: |
+    <p>Naziv vaše tehničke podrške npr. [ime tvrtke] podrška</p>
+system_email:
+  title: Osnovna sistemska email adresa
+  content: |
+    <p>Osnovna email adresa npr. podrska@vašatvrtka.com - kasnije možete dodati još!</p>
+default_lang:
+  title: Osnovni sistemski jezik
+  content: |
+    <p>Osnovni podaci za odabrani jezik bit će instalirani u bazu podataka. Npr. email predlošci i osnovne sistemske stranice bit će instalirane za odabrani jezik.</p>
+  links:
+    - 
+      title: osTicket jezični paketi
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Ime
+  content: |
+    <p>Ime administratora</p>
+last_name:
+  title: Prezime
+  content: |
+    <p>Prezime administratora</p>
+email:
+  title: Adresa e-pošte
+  content: |
+    <p>Administratorova osobna email adresa. Obavezno mora biti drugačija od osnovne sistemske email adrese.</p>
+username:
+  title: Korisničko ime
+  content: |
+    <p>Administratorovo korisničko ime. Mora sadržavati najmanje tri (3) znaka.</p>
+password:
+  title: Zaporka
+  content: |
+    <p>Administratorska zaporka.  Mora sadržavati najmanje pet (5) znakova ili više.</p>
+password2:
+  title: Potvrdi zaporku
+  content: |
+    <p>Ponovno upišite administratorsku zaporku. Zaporke moraju biti identične.</p>
+db_prefix:
+  title: Prefiks MySQL tablice
+  content: |
+    <p>osTicket zahtjeva prefiks tablice kako bi se izbjegla mogući konflikti sa drugim tablicama unutar iste baze podataka</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>
+    Većina pružatelja hosting usluge koristi 'localhost' za ime lokalne baze podataka(hostname). Provjerite sa svojim hosting pružateljem ukoliko Vam 'localhost' ne radi.
+    </p>
+    <p>
+    Osnovni port je već dodan u php.ini. Nestandardni broj porta možete postaviti kao <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL baza podataka
+  content: |
+    <p>Naziv baze podataka koju će koristiti osTicket.</p>
+db_user:
+  title: MySQL korisničko ime
+  content: |
+    <p>MySQL korisnik mora imati sva izvršna prava nad bazom podataka.</p>
+db_password:
+  title: MySQL zaporka
+  content: |
+    <p>MySQL zaporka povezana sa gore navedenim korisnikom.</p>

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Định dạng tên nhân viên hỗ trợ
+  content: >
+    Chọn định dạng cho tên nhân viên hỗ trợ trên hệ thống. Email mẫu sẽ sử dụng nó nếu không có định dạng khác.
+staff_identity_masking:
+  title: Lớp nhận dạng nhân viên
+  content: >
+    Nếu kích hoạt, tính năng này sẽ ẩn tên nhân viên với Khách hàng trong bất kì cuộc trao đổi nào.
+#Authentication settings
+password_reset:
+  title: Chính sách hết hạn mật khẩu
+  content: >
+    Thiết lập mức độ thường xuyên (tính theo tháng) mà các nhân viên sẽ được yêu cầu thay đổi mật khẩu của họ. Nếu vô hiệu hoá (thiết lập để "Không hết hạn"), mật khẩu sẽ không cần thay đổi định kỳ.
+password_expiration_policy:
+  title: Chính sách hết hạn mật khẩu
+  content: >
+    Chọn mức độ thường xuyên các nhân viên được yêu cầu thay đổi mật khẩu. Nếu kích hoạt (VD:<span class="doc-desc-opt">Chế độ vô thời hạn</span>), mật khẩu sẽ không mất hiệu lực.
+allow_password_resets:
+  title: Cho phép đặt lại mật khẩu
+  content: >
+    Kích hoạt tính năng này nếu bạn muốn hiển thị đường dẫn<span class="doc-desc-title">Quên mật khẩu</span>trên trang<span class="doc-desc-title">Nhân viên đăng nhập</span>sau khi đăng nhập thất bại.
+reset_token_expiration:
+  title: Màn hình cài đặt lại mật khẩu
+  content: >
+    Chọn quảng thời gian (tính theo phút) mà <span class="doc-desc-title">mã đặt lại mật khẩu</span>có hiệu lực. Khi một nhân viên yêu cầu<span class="doc-desc-title">cài đặt lại mật khẩu</span>, họ sẽ được gửi email một mã cho phép cài đặt.
+staff_session_timeout:
+  title: Thời gian tạm ngưng của nhân viên
+  content: >
+    Lựa chọn thời gian nhàn rỗi tối đa (tính theo phút) trước khi nhân viên được yêu cầu đăng nhập lại.<br><br> Nếu bạn muốn vô hiệu hoá<span class="doc-desc-title">Agent Session Timeouts</span>, nhập giá trị 0.
+bind_staff_session_to_ip:
+  title: Nối thời gian giao dịch của nhân viên tới IP
+  content: >
+    Kích hoạt tính năng này nếu bạn muốn ghi nhớ địa chỉ IP của Nhân viên khi họ đăng nhập hệ thống.<br><br>Chế độ này không được khuyến cáo cho những người hay thay đổi địa chỉ IP.

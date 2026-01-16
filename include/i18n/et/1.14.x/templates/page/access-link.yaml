@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  See mall määrab kliendile saadetava juurdepääsulingiga emaili teate sisu. Pileti number ja emaili aadress on juurdepääsu lingi trigeriks.
+name: "Pileti [#%{ticket.number}] juurdepääsu link"
+body: >
+  <h3><strong>Tere, %{recipient.name.first}!</strong></h3> <div> Siin on juurdepääsu link piletile #%{ticket.number}, mille kasutajatugi on Sinu eest registreerinud %{url}.<br /> <br /> Pileti staatust saad jälgida allpoololeval lingile vajutades #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Kui Sa <strong>pole</strong> kasutajatoe poole pöördunud, siis kustuta see email ja ignoreeri seda. Sinu konto on endiselt turvaline ja keegi teine pole saanud sellele ligipääsu. Keegi on ilmselt Sinu emaili aadressi sisestades eksinud.<br /> <br /> --<br /> %{company.name} </div>

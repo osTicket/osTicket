@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Linha de Assinatura da Equipe
+  content: |
+    Crie as assinaturas dos colaboradores para responder aos tickets. Esta assinatura aparecerá como uma opção na parte inferior de uma resposta do ticket
+type:
+  title: Tipo de Conta
+  content: |
+    Administradores têm o privilégio de acessar o painel de Administrador. Funcionário só tenho acesso ao gerenciar tickets e a base de conhecimento
+group:
+  title: Grupo atribuído
+  content: |
+    Associação de grupo define o papel do funcionário no sistema. Visite a página de gerenciamento de grupo para definir qual acesso este funcionário tem para o help desk
+notes:
+  title: Notas internas
+  content: |
+    Coloque notas internas relativas à funcionário; notas só são visíveis ao funcionário cujo tipo de conta é Administrador

@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Die Startseite bezieht sich auf den Inhalt der Start-Ansicht im Benutzerportal. Diese Vorlage modifiziert den Inhalt oberhalb der beiden Links <strong>Neues Ticket eröffnen</strong> und <strong>Ticket-Status überprüfen</strong>.
+name: Start
+body: >
+  <h1>Willkommen im Support-Center</h1>
+  <p>
+  Um Ihre Anfragen schnell und effizient zu bearbeiten, nutzen wir ein Support-Ticket-System. Jede Support-Anfrage erhält eine eindeutige Ticketnummer, mit der Sie den Status und die Antworten online verfolgen können. Zu Ihrer Information bieten wir ein komplettes Archiv und den Verlauf von all Ihren Support-Anfragen. Eine gültige E-Mail-Adresse ist notwendig, um ein Ticket zu eröffnen und Antworten von uns zu erhalten. 
+  </p>

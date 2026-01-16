@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  La Página de Destino se refiere al contenido de la vista inicial del Portal del Cliente. La plantilla modifica el contenido visto por encima de los dos enlaces <strong>Abrir un Nuevo Ticket</strong> y <strong>Comprobar Estado del Ticket</strong>.
+name: Página de inicio
+body: >
+  <h1>Bienvenido al Centro de Soporte</h1>
+  <p>
+  Con el fin de agilizar las solicitudes de apoyo y un mejor servicio, utilizamos un sistema de ticket de soporte. Cada solicitud de ayuda se le asigna un número único que se puede utilizar para rastrear el progreso y respuestas en línea. Para su información le proporcionamos la historia de todas sus solicitudes de soporte. Se requiere una dirección de email válida para enviar un ticket.
+  </p>

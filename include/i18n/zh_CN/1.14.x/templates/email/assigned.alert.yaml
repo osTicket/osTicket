@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  当咨询被分配给员工时，则发送给他们。咨询能够被系统自动分配给员工，也能够被其他用户手动分配。使用%{assigner} 来区分由谁做这种分配。
+subject: |
+  安排给您的咨询
+body: |
+  <h3><strong>您好 %{assignee.name.first},</strong></h3>
+   %{assigner.name.short}给您安排了一条咨询 <a href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>来自于</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>主题</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>要阅读/回复此咨询, 请 <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >登录</span></a> 咨询支持系统</div>
+  <em style="font-size: small; ">您的友好客户帮助系统</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

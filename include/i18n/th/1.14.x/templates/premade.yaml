@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: OsTicket คืออะไร? (ตัวอย่าง)
+  response: |
+    osTicket เป็นโอเพนซอร์สซึ่งเป็นระบบทิคเก็ตสนับสนุน ที่ถูกใช้งานอย่างแพร่หลาย สิ่งที่น่าสนใจคือต้นทุนที่สูงขึ้นและการรองรับลูกค้าที่มีความซับซ้อน - เรียบง่าย, เชื่อถือได้ เบาสบาย, เป็นโอเพนซอร์ส, รันบนเว็บไซต์ ง่ายในการติดตั้งและใช้งาน
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Canned Attachments Rock!
+- 
+  isenabled: 1
+  title: ตัวอย่าง (ที่ มีตัวแปร)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

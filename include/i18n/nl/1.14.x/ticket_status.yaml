@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Open
+  state: open
+  mode: 3
+  sort: 1
+  flags: 1
+  properties:
+    description: >
+      Open Tickets.
+- 
+  id: 2
+  name: Opgelost
+  state: gesloten
+  mode: 1
+  sort: 2
+  flags: 1
+  properties:
+    allowreopen: true
+    reopenstatus: 1
+    description: >
+      Opgeloste Tickets
+- 
+  id: 3
+  name: Gesloten
+  state: gesloten
+  mode: 3
+  sort: 3
+  flags: 1
+  properties:
+    allowreopen: true
+    reopenstatus: 1
+    description: >
+      Afgesloten tickets. De tickets blijven toegankelijk voor cliënt en medewerkers.
+- 
+  id: 4
+  name: Gearchiveerd
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 1
+  properties:
+    description: >
+      Tickets zijn alleen administratief beschikbaar, maar niet meer toegankelijk voor cliënten.
+- 
+  id: 5
+  name: Verwijderd
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 1
+  properties:
+    description: >
+      Tickets die verwijderd worden. Niet meer beschikbaar in de wachtrijen.

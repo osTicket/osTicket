@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Bu şablon bir erişim linki kendi e-posta gönderildi Müşteriler için bildirim tanımlar. Bilet numarası ve e-posta adresi ile erişim sağlayabilir.
+name: "[#%{ticket.number}]  numaralı talep erişim bağlantısı"
+body: >
+  <h3><strong>Hi %{recipient.name.first},</strong></h3> <div> Bilet için bir erişim bağlantı isteği #%{ticket.number} en masası için sizin adınıza teslim edildi%{url}.<br /> <br />Bilet durumunu kontrol etmek için aşağıdaki bağlantıyı takip edin #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Eğer<strong>değil mi</strong> istek, silin lütfen yapmak ve bu e-postayı dikkate almayın. Hesabınız hala güvenli olduğunu ve kimsenin bilet erişimi verildi. Birisi yanlışlıkla e-posta adresinizi girmiş olabilir.<br /> <br /> --<br /> %{company.name} </div>

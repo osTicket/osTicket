@@ -1,0 +1,14 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Оповіщення для користувача, коли той залишив повідомлення в Заявці. Приходить якщо користувач відповів на системне повідомлення по електронній пошті або залишив повідомлення через сторінку клієнта.
+subject: |
+  Підтвердити повідомлення
+body: |
+  <h3> <strong>Доброго дня, %{recipient.name.first}! </strong> </h3> 
+  Відповідь на Ваш запит <a href="%{recipient.ticket_link}"> #%{ticket.number} </a> врахований. <br> <br> <div style = "color: rgb (127, 127, 127);"> Ваша команда: %{company.name}, <br> 
+  %{signature} </div> <hr>, <div style = "color: rgb (127, 127, 127); font-size: small; text-align: center"> <em> Ви можете подивитися прогрес запиту <a href="%{recipient.ticket_link}"> онлайн тут </a> </em> </div>

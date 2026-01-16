@@ -9,20 +9,20 @@ if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
         $status = $options['status'];
 
         if (strpos($status, 'closed') !== false) {
-            $actions += array(
-                    'reopen' => array(
-                        'icon' => 'icon-undo',
-                        'action' => __('Reopen')
-                    ));
+        $actions += array(
+                'reopen' => array(
+                    'icon' => 'icon-undo',
+                    'action' => __('Reopen')
+                ));
         }
 
 
         if (strpos($status, 'open') !== false) {
-            $actions += array(
-                    'close' => array(
-                        'icon' => 'icon-ok-circle',
-                        'action' => __('Close')
-                    ));
+        $actions += array(
+                'close' => array(
+                    'icon' => 'icon-ok-circle',
+                    'action' => __('Close')
+                ));
         }
     }
 }

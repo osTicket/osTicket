@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  当用户通过客户入口提交新的咨询时，此感谢页面会投放到客户入口。
+name: 谢谢
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  感谢您联系我们.
+  <br>
+  <br>
+  您的咨询请求已被创建，如有必要，我们的客户代表会尽快与您取得联系。</p>
+  <br>
+  <br>
+  支援团队
+  </div>

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Ny sak
+  content: >
+    Aktiver dette hvis du vil at autosvar sendes på nye saker.
+  links:
+    - 
+      title: Ny sak autosvar mal
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Ny sak av ansatte
+  content: >
+    Varsel sendes når en Agent skaper en sak på vegne av brukeren. <em>Agenten kan overstyre dette når du oppretter nye saker.</em>
+  links:
+    - 
+      title: Ny sak varsel mal
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Bekreftelse på ny melding
+  content: >
+    Bekreftelse sendes når en ny melding legges til en eksisterende sak.
+  links:
+    - 
+      title: Ny melding bekreftelsen mal
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Ny melding-varsel
+  content: >
+    Kringkast meldinger mottatt fra meldings sender til alle andre deltakere på denne saken.
+  links:
+    - 
+      title: Ny aktivitet varsel mal
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Varsel om overskridelse
+  content: >
+    sak nektet varsel sendes til brukeren på <span class="doc-desc-title"> Maksimal åpne saker</span> er brutt.
+  links:
+    - 
+      title: Overskredet varsel mal
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Angi <em>maksimal åpne saker</em>
+      href: /scp/settings.php?t=tickets

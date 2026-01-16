@@ -1,0 +1,39 @@
+---
+#Email template: ticket.notice.yaml
+#Sent to a user when a staff member creates a ticket on the user's behalf.
+#This is most commonly performed when user's call in on the phone.
+#---
+notes: |
+  Sendt til en bruger, når et personalemedlem opretter en sag på brugerens vegne.
+  Dette udføres normalvist, når brugeren ringer på telefonen.
+subject: |
+  %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Kære %{recipient.name.first},</strong></h3>
+  din bestilling er blevet oprettet <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> med følgende
+  automatiske svar:
+  <br>
+  <br>
+  Overskrift: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Emne: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{message}
+  <br>
+  %{response}
+  <br>
+  <br>
+  Hvis det er nødvendigt, vil en repræsentant følge op på dig så snart som muligt. 
+  Du kan også <a href="%{recipient.ticket_link}">se denne sag's fremskridt online</a>.
+  <br>
+  <br>
+  div style="color: rgb(127, 127, 127);">
+  Dit %{company.name} Team,<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>
+  Vi håber at svaret fik løst dit problem. Har du yderlige spørgsmål eller kommentarer, skal du besvare den her e-mail
+  eller <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >log ind på din konto</span></a> for at se en oversigt over dine bestillinger.</em></div>

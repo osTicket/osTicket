@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  ពុម្ពនេះកំណត់ទំព័រដែលបានបង្ហាញដល់អតិថិជនបន្ទាប់ពីការបញ្ចប់សំណុំបែបបទចុះឈ្មោះ។ ពុម្ពគួរតែនិយាយថាប្រព័ន្ធនេះត្រូវបានបញ្ជូនពួកគេជាតំណអះអាងអ៊ីមែលនិងអ្វីដែលជាជំហានបន្ទាប់ក្នុងដំណើរការចុះឈ្មោះ។
+name: "ការចុះបញ្ជីគណនី"
+body: >
+  <div><strong>សូមអរគុណសម្រាប់ការចុះឈ្មោះសម្រាប់គណនី។</strong><br/> <br /> យើងបានគ្រាន់តែជាការផ្ញើអ៊ីមែលទៅអាសយដ្ឋានដែលអ្នកបានបញ្ចូល។ សូមទៅតាមតំណក្នុងអ៊ីមែលនេះដើម្បីបញ្ជាក់គណនីរបស់អ្នកនិងទទួលបាននូវការចូលដំណើរការទៅសំបុត្ររបស់អ្នក។ </div>

@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  პორტალის სამადლობელო გვერდი, რომელზეც გადამისამართდება მომხმარებელი, ახლი მომართვის დამატების შემდეგ.
+name: გმადლობთ
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  მადლობა გამოხმაურებისათვის.
+  <br>
+  <br>
+  თქვენი მომართვა მიღებულია და ჩვენი წარმომადგენელი დაგიკავშირდევათ უახლოვეს დროს, აუცილებლობის შემთხვევაში.</p>
+  <br>
+  <br>
+  ტექ. მხარდაჭერის გუნდი
+  </div>

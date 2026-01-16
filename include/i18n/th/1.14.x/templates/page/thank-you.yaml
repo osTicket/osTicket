@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  หน้าเพจขอบคุณจะแสดงในพอร์ทัลองลูกค้าเมื่อผู้ใช้ระบบสร้างทิคเก็ตใหม่ผ่านทางพอร์ทัล
+name: ຂອບໃຈ
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  ขอบคุณที่ติดต่อเรา
+  <br>
+  <br>
+  คำขอทิคเก็ตได้ถูกสร้างแล้วและจะมีตัวแทนของหน่วยงานติดต่อกลับคุณในภายหลัง ถ้ามีความจำเป็น</p>
+  <br>
+  <br>
+  กลุ่มงานสนับสนุน
+  </div>

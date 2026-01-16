@@ -1,0 +1,77 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: সাহায্যকেন্দ্র
+  content: |
+    <p>সাপোর্ট সিস্টেমের নাম, যেমন [কোম্পানি নাম] সাপোর্ট</p>
+system_email:
+  title: ডিফল্ট সিস্টেমের ইমেইল
+  content: |
+    <p>ডিফল্ট ইমেইল ঠিকানা, যেমন: support@yourcompany.com - পরবর্তীতে আরও যোগ করা যাবে!</p>
+default_lang:
+  title: ডিফল্ট সিস্টেমের ভাষা
+  content: |
+    <p>Initial data for this language will be installed into the
+    database. For instance email templates and default system pages will
+    be installed for this language.</p>
+  links:
+    - 
+      title: osTicket ভাষার প্যাক
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: নামের প্রথম অংশ
+  content: |
+    <p>অ্যাডমিনের নামের প্রথম অংশ</p>
+last_name:
+  title: নামের শেষ অংশ
+  content: |
+    <p>অ্যাডমিনের নামের শেষ অংশ</p>
+email:
+  title: Email Address
+  content: |
+    <p>অ্যাডমিনের ব্যক্তিগত ইমেইল ঠিকানা। এটি অবশ্যই অ্যাডমিনের ডিফল্ট ইমেইল থেকে আলাদা হতে হবে।</p>
+username:
+  title: ব্যবহারকারী নাম
+  content: |
+    <p>অ্যাডমিনের লগইন নাম। নূন্যতম তিন(৩) অক্ষর বিশিষ্ট হতে হবে।</p>
+password:
+  title: পাসওয়ার্ড
+  content: |
+    <p>অ্যাডমিন পাসওয়ার্ড। নূন্যতম পাঁচ (৫) অক্ষর বিশিষ্ট হতে হবে।</p>
+password2:
+  title: পাসওয়ার্ড  পুনরায় লিখুন
+  content: |
+    <p>অ্যাডমিন পাওসওয়ার্ড পুনরায় লিখুন। অবশ্যই এক হতে হবে।</p>
+db_prefix:
+  title: মাইএসকিউএল টেবিল প্রিফিক্স
+  content: |
+    <p>একই নামে টেবিল তৈরী সংক্রান্ত জটিলতা এড়াতে osTicket টেবিল প্রিফিক্স ব্যবহার করে।</p>
+db_host:
+  title: মাইএসকিউএল হোস্টনাম
+  content: |
+    <p>
+    Most hosts use 'localhost' for local database hostname. Check with
+    your host if localhost fails.
+    </p>
+    <p>
+    Default port set in php.ini is assumed. A non-standard port number
+    can be specified as <code>hostname:port</code>
+    </p>
+db_schema:
+  title: মাইএসকিউএল ডাটাবেজ
+  content: |
+    <p>Name of the database osTicket will use.</p>
+db_user:
+  title: মাইএসকিউএল ব্যবহারকারী নাম
+  content: |
+    <p>The MySQL user must have full rights to the database.</p>
+db_password:
+  title: মাইএসকিউএল পাসওয়ার্ড
+  content: |
+    <p>MySQL password associated with above user.</p>

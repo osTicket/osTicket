@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Questo modello definisce l'email inviata al personale che fa clic sul link <strong> Password dimenticata</strong> nella pagina di autenticazione del pannello di controllo dello staff.
+name: "Reset della password dello Staff in osTicket"
+body: >
+  <h3><strong>Ciao %{staff.name.first},</strong></h3> <div>E' stato richiesto un ripristino della password del tuo account help desk all'indirizzo %{url}<br /> <br /> Se pensi che sia stato fatto per errore, elimina e ignora questa email. Il tuo account non è stato violato o modificato. Non è bloccato e la password non è stata reimpostata. Qualcuno potrebbe erroneamente aver digitato il tuo indirizzo email. <br /> <br /> Se vuoi cambiare la password, clicca sul link sottostante. <br /> <br /><a href="%{link}">%{link}</a><br /> <br /><em style="font-size: small">Centro di supporto</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

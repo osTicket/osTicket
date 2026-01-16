@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Apakah osTicket (sampel)?
+  response: |
+    osTicket adalah sistem tiket sokongan sumber terbuka yang meluas digunakan, alternatif yang menarik kepada kos yang lebih tinggi dan sistem sokongan pelanggan yang kompleks - mudah, ringan, boleh dipercayai, sumber terbuka, berasaskan web dan mudah untuk disediakan dan digunakan.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Lampiran tin Rock!
+- 
+  isenabled: 1
+  title: Sampel (dengan pembolehubah)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Tiket anda #%{ticket.number} dicipta pada %{ticket.create_date} adalah dalam
+    %{ticket.dept.name} jabatan.
+  0: |
+

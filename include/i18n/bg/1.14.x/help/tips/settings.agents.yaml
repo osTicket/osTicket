@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Форматиране името на сътрудника
+  content: >
+    Изберете формат за имената на сътрудниците в системата. Шаблоните за електронната поща ще използват този формат за имената, ако не е оказан друг формат в съответната променлива.
+staff_identity_masking:
+  title: Скриване на идентичността на сътрудника
+  content: >
+    Ако този параметър е включен, той ще скрие името на сътрудника при всяка комуникация от клиента.
+#Authentication settings
+password_reset:
+  title: Политика за срока на действие на паролите
+  content: >
+    Задава колко често (в месеци) сътрудниците ще са длъжни да променят паролата си. Ако е изключено (зададено е "Без прекратяване"), паролите няма да изтекат.
+password_expiration_policy:
+  title: Политика за срока на действие на паролите
+  content: >
+    Изберете колко често сътрудниците ще трябва да сменят своите пароли. Ако е изключено (т.е. е избрано <span class="doc-desc-opt">безкрайна валидност</span>), срокът за действие на паролите няма да изтича.
+allow_password_resets:
+  title: Разрешаване на смяна на паролата
+  content: >
+    Включете тази връзка, ак обихте искали да се показва връзката <span class="doc-desc-title">Forgot My Password</span> на <span class="doc-desc-title">Staff Log-In Page</span> след неуспешен опит за влизане.
+reset_token_expiration:
+  title: Времеви прозорец за смяна на паролата
+  content: >
+    Изберете продължителност от време (в минути), през което <span class="doc-desc-title"> токенът за смяна на паролата</span> ще бъде валиден. Когато сътрудник заявява <span class="doc-desc-title">смяна на паролата</span>, на него му се изпраща чрез имейл токен, който му позволява да направи тази смяна.
+staff_session_timeout:
+  title: Максимална продължителност на сесията на сътрудник
+  content: >
+    Изберете максималното време за бездействие (в минути), преди да се наложи да влезете в системата повторно. <br><br> Ако желаете да деактивирате <span class="doc-desc-title">Agent Session Timeouts</span>, въведете 0.
+bind_staff_session_to_ip:
+  title: Свързване на сесията на сътрудника с IP
+  content: >
+    Включете тази функция, ако искате сътрудника да бъде запомнен по текущия си IP адрес при влизане в системата. <br><br> Тази настройка не се препоръчва за потребители, които използват динамични IP адреси.

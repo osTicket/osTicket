@@ -1,0 +1,25 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  הערה נשלחה לנמענים הנוספים שקשורים לקריאה הזו לדוגמה מענה או הודעה.
+subject: |
+  השב: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>היקר %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em>בדיוק הגבתי לקריאה שקשורה אליכם.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>אתה מקבל את המייל הזה מכיוון שאתה נמען מקושר לקריאה
+  on ticket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.הנך מוזמן להגיב ולהשיב במייל זה
+  or <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >click here</a>הקש כאן על מנת לראות את הארכיון המלא של הקריאה.</em>
+  </div>

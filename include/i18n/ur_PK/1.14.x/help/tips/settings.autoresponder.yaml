@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: نیا ٹکٹ
+  content: >
+    اگر آپ ایک خودکار جواب کو نیا ٹکٹ بنانے پر صارف کو بھیجنا چاہتے ہیں تو اسے فعال کریں۔
+  links:
+    - 
+      title: نئے ٹکٹ کے خودکار جواب کا سانچہ
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: عملے کی طرف سے نئی ٹکٹ
+  content: >
+    اطلاع بھیجی جاتی ہے جب ایک ایجنٹ صارف کی طرف سے ٹکٹ بناتا ہے. <em> ایجنٹ نئے ٹریفک بنانے کے دوران اسے نظرانداز کر سکتے ہیں. </em>
+  links:
+    - 
+      title: نیا ٹکٹ کے نوٹس کا سانچہ
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: نئے پیغام کی توثیق
+  content: >
+    تصدیق کا نوٹس بھیجا جاتا ہے جب ایک نیا پیغام موجودہ ٹکٹ پر منسلک ہوتا ہے.
+  links:
+    - 
+      title: نئے پیغام کی توثیق کا سانچہ
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: نیا پیغام کا نوٹس
+  content: >
+    کسی ٹکٹ کے شراکت دار کے پیغام کو دیگر شرکا کے لئے نشر کرتا ہے.
+  links:
+    - 
+      title: نئ کاروائی کے نوٹس کا سانچہ
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: حد سے تجاوز کا نوٹس
+  content: >
+    ٹکٹ کے انکار کا نوٹس <span class="doc-desc-title"> صارف کو بھیج دیا گیا. زیادہ سے زیادہ کھلے ہوے ٹکٹ کے اصول </span> کو توڑا گیا.
+  links:
+    - 
+      title: حد سے تجاوزکرنے کے نوٹس کا سانچہ
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: <em>زیادہ سے زیادہ ٹکٹ کھولنے کی حد</em> مقرر کریں
+      href: /scp/settings.php?t=tickets

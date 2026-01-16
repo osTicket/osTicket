@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Lähetetään käyttäjille, kun he ylittävät sallitun maksimin avoimien tikettien määrän. Sallittua määrää voidaan muuttaa järjestelmänvalvojan sivulla ja määrät voidaan asettaa myös sähköpostikohtaisesti.
+subject: |
+  Avoimien tikettien maksimimäärä on saavutettu
+body: |
+  <h3><strong>Hyvä %{ticket.name.first},</strong></h3>
+  Sinulla on tällä hetkellä maksimimäärä avoimia tikettejä järjestelmässämme. Jotta voisit avata uuden tiketin sinun vanhoja tikettejä täytyy sulkea ensin. Päivittääksesi tai antaaksesi kommentteja avoimina oleviin tiketteihin <a
+  href="%{url}/tickets.php?e=%{ticket.email}">Kirjaudu tukipalveluun</a>.
+  <br>
+  <br>
+  Ystävällisin terveisin,<br/>
+  Asiakaspalvelu

@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Pomoć za novi tiket
+  content: >
+    Odaberite <span class="doc-desc-title">Temu pomoći</span> koja će automatski biti dodeljena tiketima kreiranim putem ove imejl adrese. <br/><br/> Obrasci povezani sa temom pomoći biće dodati na tiket, ali neće imati unetih podataka.
+  links:
+    - 
+      title: Upravljanje temama pomoći
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Prioritet novog tiketa
+  content: >
+    Odaberite<span class="doc-desc-title">prioritet</span> za nove tikete putem ove imejl adrese.
+new_ticket_department:
+  title: Odsek za novi tiket
+  content: >
+    Odaberi <span class="doc-desc-title">Odsek</span> kojem će biti dodeljeni novi tiketi otvoreni putem ove imejl adrese.
+  links:
+    - 
+      title: Upravljanje odsecima
+      href: /scp/departments.php
+auto_response:
+  title: Automatski odgovor na nove tikete
+  content: >
+    Možete isključti slanje automatskog odgovora korisniku kada otvori novu karticu putem ove imejl adrese.
+username:
+  title: Korisničko ime
+  0: >
+
+password:
+  title: Lozinka
+  0: >
+
+login_information:
+  title: Podaci za prijavu putem imejla
+  content: >
+    <span class="doc-desc-title">Korisničko ime</span> i <span class="doc-desc-title">Lozinka</span> potrebni su za preuzimanje poruka sa IMAP/POP mejl sandučeta kao i za slanje imejl poruka putem SMTP.
+mail_account:
+  title: Preuzimanje emaila
+  content: >
+    Preuzmi imejl poruke sa udaljenog IMAP ili POP sandučeta i pretvori ih u tikete u službi tehničke podrške.
+  links:
+    - 
+      title: Upravljanje <span class="doc-desc-title">Imejl Polling-om</span> &amp; <span class="doc-desc-title">AutoCron</span> podešavanje.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Udaljeni host
+  content: >
+    Unesite <span class="doc-desc-title">hostname</span> i <span class="doc-desc-title">broj porta</span> za svoj mejl server. Ovi podaci su Vam možda dostupni u dokumentaciji Vašeg hosting korisničkog naloga ili kod Vašeg imejl administratora.
+protocol:
+  title: Mail Box protokol
+  content: >
+    Odaberite Mail Box protokol koji je podržan od strane vašeg udaljenog mejl servera. IMAP je preporučljiv, a SSL je poželjan gde god je to moguće.
+fetch_frequency:
+  title: Učestalost preuzimanja
+  content: >
+    Unesite koliko često, u minutima, želite da sistem preuzima mejlove iz sandučeta. <br/><br/> Vaš izbor određuje prosečno odlaganje automatskog odgovora nakon što korisnik pošalje imejl u ovo sanduče.
+emails_per_fetch:
+  title: Broj imejl poruka po svakom preuzimanju
+  content: >
+    Unesite broj imejl poruka koje se obrađuju u jednom trenutku.
+fetched_emails:
+  title: Preuzete imejl poruke
+  content: >
+    Šta želite učiniti sa obrađenim imejl porukama: <br/><br/> <span class="doc-desc-opt"><b>Premesti u folder</b></span>: Ova opcija će napraviti backup imejl poruka i Vašeg INBOX-a u folder po Vašem izboru. Ukoliko folder još ne postoi na Vašem serveru, sistem će pokušati da ga kreira. (<b>Preporučeno</b>) <hr> <span class="doc-desc-opt"><b>Obriši imejl</b></span>: Ova opcija će obrisati imejl poruku iz Vašeg INBOX-a nakon što je obrađena. <hr> <span class="doc-desc-opt"><b>Ne čini ništa</b></span>: Ova opcija će ostaviti imejl poruke u Vašem INBOX-u. Sistem će spremiti ID-ove Vaših imejl poruka i pokušati ih ne preuzme. Ipak, ova opcija može uzrokovati duplikate otvorenih tiketa. (<em>Nije preporučljivo</em>)
+smtp_settings:
+  title: SMTP podešavanja
+  content: >
+    Imejl poruke poslate iz službe tehničke podrške mogu se slati kroz SMTP server. Ovo je preporučena opcija ukoliko je moguća, jer se tako povećavaju šanse za uspešnu dostavu poruke a smanjuje se šansa da će imejl biti oznaćen kao spam.
+header_spoofing:
+  title: Dopustite manipulaciju zaglavlja
+  content: >
+    Omogućite ovo kako biste dopustili slanje imejl poruka putem ovog sandučeta sa adrese koja nije navedena u podešavanjima <span class="doc-desc-title">Imejl adrese</span>. <br/><br/> Ova napredna opcija se koristi za slanje imejl poruka putem pseudonima ovog sandučeta.
+

@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Meklēšanas lauks
+  0: >
+
+advanced:
+  title: Papildus uzstādījumi
+  content: >
+    Narrow down your search parameters. Once you have selected your advanced search criteria and run the search, you can <span class="doc-desc-title">Export </span> the data at the bottom of the tickets page.
+open_tickets_table:
+  title: Atvērto pieteikumu tabula
+  content: >
+    Visi atvērtie pieteikumi, kurus nepieciešams izskatīt
+ticket:
+  title: Pieteikums
+  0: >
+
+date:
+  title: Datums
+  0: >
+
+subject:
+  title: Temats
+  0: >
+
+from:
+  title: No kā
+  0: >
+
+priority:
+  title: Priority
+  0: >
+
+assigned_to:
+  title: Piešķirts
+  0: >
+
+export:
+  title: Eksportēt
+  content: >
+    Eksportēt datus CSV failā. CSV failus var atvērt ar tādām programmām kā Microsoft Excel, Apple Pages, OpenOffice utt.
+advanced_search_dialog:
+  title: Padziļināta meklēšana
+  0: >
+
+adv_keyword:
+  title: Meklēt pēc atslēgas vārdiem
+  content: >
+    Atrast rezultātus, kas balstīti uz pieteikuma saraksta tēmu un ziņojuma saturu, kā arī visu tekstuālo saturu, kas piesaistīts izmantojot lietotāja vai pieteikuma papildus laukus.
+adv_date_range:
+  title: Meklēt pēc datuma intervāla
+  content: >
+    Definīcija šeit
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Atbilžu tipi
+  content: >
+    <b>Atbildēt visiem:</b> Šī atbilde tiks nosūtīta Lietotājam un Līdzstrādniekiem, ko izvēlējies iekļaut.</br><b>Atbildēt Lietotājam</b>Šī atbilde tiks nosūtīta tikai Lietotājam, bez Līdzstrādniekiem.</br><b>Neatbildēt uz e-pasta ziņu:</b>Lietotājiem neviena -epasta ziņa netiks izsūtīta, tomēr, Aģenta atbilde būs redzama <b>VISIEM</b> lietotājiem, kas apskatīs biļeti.

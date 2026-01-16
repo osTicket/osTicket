@@ -1,0 +1,29 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Sent to agents when a task is assigned to them or the team to which
+  they belong. Use %{assigner} to distinguish who made the assignment.
+subject: |
+  Jums priskirta užduotis
+body: |
+  <h3><strong>Sveiki %{assignee.name.first},</strong></h3>
+  Užduotis <a href="%{task.staff_link}">#%{task.number}</a> buvo priskirta jums, tai padarė %{assigner.name.short}
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Kad peržiūrėti užduoti, prašome <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >prisijungti</span></a> prie sistemos</div>
+  <em style="font-size: small; ">UAB RegoTech</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Paremta osTicket" width="126" height="19" style="width: 126px;">
+   
+

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Bentuk Tajuk
+  content: >
+    Teks tajuk ini dipaparkan dalam kotak kelabu diatas bidang borang
+form_instructions:
+  title: Borang arahan
+  content: >
+    Anda boleh menambah arahan tambahan yang mana akan membantu membimbing pengguna ke dalam konteks borang bidang dan mungkin menyerlahkan data yang diperlukan.
+field_sort:
+  title: Kedudukan paparan bidang
+  content: >
+    Klik pada ikon anak panah atas-bawah dan seret baris bidang untuk menyusun dalam borang ini. Menyusun keutamaan tidak boleh berkuatkuasa sehingga borang disimpan.
+field_label:
+  title: Label bidang
+  content: >
+    Label ini ditunjukkan sebagai prom untuk bidang ini. Biasanya, bidang jawapan pendek akan diberikan seperti ini: <br> <strong>Label:</strong>&nbsp; <input type="text">
+field_type:
+  title: Jenis kandungan bidang
+  content: >
+    Ini digunakan untuk menentukan jenis input yang dijangka daripada pengguna. Anda boleh memilih daripada jawapan pendek dan panjang, nombor telefon, tarikh dan masa, kotak, senarai seret-lepas, atau pilihan senarai biasa.
+  links:
+    - 
+      title: Senarai kebiasaan
+      href: /scp/lists.php
+field_visibility:
+  title: Bidang penglihatan
+  content: >
+    Pilih pilihan keterlihatan dan keperluan untuk bidang ini. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Tetapkan</th> <th>Hasil</th></tr> <tr><td>Pilihan</td> <td>Ejen and PenggunaAkhir boleh melihat bidang tersebut, tetapi tidak diperlukan untuk menjawab. Ejen dan PenggunaAkhir yang</td></tr><tr><td>Diperlukan</td> <td> boleh melihat bidang tersebut, dan kedua-duanya diperlukan untuk menjawab</td></tr><tr><td>Diperlukan untuk PenggunaAkhir</td> <td>Ejen dan PenggunaAkhir boleh melihat bidang tersebut, hanya PenggunaAkhir dikehendaki menjawab</td></tr> <tr><td>Diperlukan untuk Ejen</td> <td>Ejen dan PenggunaAkhir boleh melihat bidang tersebut, hanya Ejen dikehendaki menjawab</td></tr> <tr><td>Dalaman, Pilihan</td> <td>Hanya Ejen boleh melihat bidang tersebut, tetapi tiada jawapan diperlukan.</td></tr> <tr><td>Dalaman, Diperlukan</td> <td>Hanya Ejen boleh melihat bidang tersebut, dan jawapan diperlukan.</td></tr> <tr><td> Untuk PenggunaAkhir Sahaja</td> <td>Hanya PenggunaAkhir boleh melihat bidang tersebut, dan jawapan diperlukan.</td></tr> </tbody></table>
+field_variable:
+  title: Bidang automasi
+  content: >
+    Data bidang akan disediakan untuk e-mel dan halaman templat melalui nama yang digunakan di dalam ruangan ini. Sebagai contoh, bidang borang tiket yang biasa boleh didapati melalui <code>%{ticket.variable}</code>, di mana <strong> berubah </strong> adalah nama yang digunakan di dalam ruangan ini. <br><br><em> maklumat Syarikat boleh didapati melalui<code>% {</code> <code> syarikat.berubah} </code> dan maklumat pengguna boleh didapati melalui <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Keluarkan bidang ini
+  content: >
+    Menyemak dan menyimpan borang untuk mengeluarkan bidang dari borang ini.<br><br><em> Memadam bidang tidak membuang data yang dimasukkan sebelum ini dalam ruangan pada borang yang lengkap. Sebagai contoh, jika tiket yang dikemukakan sebelum ini mempunyai data untuk bidang, memadam bidang dari borang ini tidak akan menghapuskan data pada tiket.</em>

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Activitate tichet
+  content: >
+    Selectează un interval calendaristic pentru ca atât graficul cât și tabela  de mai jos (cf. <span class="doc-desc-title">Statistici</span>) sa se concentreze pe datele corespunzătoare intervalului. Grsaficul de mai jos va reflecta întotdeauna o vedere generală a întregelor date din sistem (de ex. populație). În orice caz, poți naviga prin tabela <span class="doc-desc-title">Statistici</span> de mai jos pentru a focaliza pe un subiect de interes particular (de ex. departamnte, subiecte sau membri ai personalului). În plus, poți exporta orice date afișate în tabela <span class="doc-desc-title">Statistici</span>.
+report_timeframe:
+  title: Intervalul de timp al Raportului
+  content: >
+    Alegeti data de inceput pentru perioada dorita folosind selectorul de data. Apoi alegeti durata pentru a defini data de final a perioadei dorite.
+statistics:
+  title: Statistici
+  content: >
+    Navighează la subiectul de interes făcând click pe tab-ul respectiv, pentru a vedea datele specifice. În tabel, cercurile reprezintă mărimea datelor conținute. Cu cât numărul dintr-o celulă e mai mare, cu atât cercul adiacent va fi mai mare.
+opened:
+  title: Deschis
+  content: >
+    Tichetele care au fost inițial deschise la Departament sau în Subiectul de Ajutor pe tichet, numărul de tichete pe care un Agent le-a deschis în numele unui Utilizator.
+assigned:
+  title: Alocat
+  content: >
+    Tichetele care au fost atribuite unui Agent sau unei echipe. Numărul reflectă tichetele care sunt atribuite manual agenților sau echipelor, tichetele revendicate și tichetele atribuite de la filtrele de tichete / alte reguli de atribuire automată.
+overdue:
+  title: Intarziat
+  content: >
+    Tichetele care au fost marcate "Restante" de sistem. Tichetele sunt marcate cu întârziere atunci când au încălcat planul SLA căruia i-au aparținut, determinându-le să aibă statutul de "Deschis" dincolo de data scadenței.
+closed:
+  title: Inchis
+  content: >
+    Numărul de tichete care sunt în prezent în starea Închis.
+reopened:
+  title: Redeschis
+  content: >
+    Numărul total de tichete Redeschise. Tichetele sunt redeschise ori de câte ori starea lor este schimbată de la închis la deschis.
+deleted:
+  title: Sters
+  content: >
+    Suma tichetelor care au fost șterse.
+service_time:
+  title: Durata serviciului
+  content: >
+    Se referă la durata de timp care începe la deschiderea unui tichet și se termină când tichetul este închis. Coloana "Ora de serviciu" măsoară timpul mediu de serviciu pe tichet, în ore.
+response_time:
+  title: Timp de raspuns
+  content: >
+    Afișează un timp mediu de răspuns de către un agent, în ore, la corespondența tichetului.

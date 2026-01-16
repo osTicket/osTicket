@@ -1,0 +1,68 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Nome do Serviço de Suporte
+  content: |
+    <p>O nome do seu serviço de suporte ex: Suporte técnico de [Company Name]</p>
+system_email:
+  title: Sistema de Correio Electrónico por defeito
+  content: |
+    <p>Correio Electrónico por defeito ex: suporte@nomedaempresa.com - pode adicionar mais tarde!</p>
+default_lang:
+  title: Língua por defeito do sistema
+  content: |
+    <p>Dados inicial para este idioma serão instalados no banco de dados. Por exemplo, email modelos e páginas de sistema padrão serão instaladas para este idioma.</p>
+  links:
+    - 
+      title: osTicket pacotes de idiomas
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Primeiro Nome
+  content: |
+    <p>Primeiro Nome do Administrador</p>
+last_name:
+  title: Apelido
+  content: |
+    <p>Apelido do Administrador</p>
+email:
+  title: Endereço de e-mail
+  content: |
+    <p>Correio electrónico do Administrador: Tem que ser diferente do correio electrónico por defeito do sistema.</p>
+username:
+  title: Nome de Utilizador
+  content: |
+    <p>Nome de utilizador do Administrador. Deve ter pelo menos 3 caracteres.</p>
+password:
+  title: senha de acesso
+  content: |
+    <p>Senha de acesso do Administrador. Tem que ter 5 ou mais caracteres.</p>
+password2:
+  title: Confirme a senha de acesso
+  content: |
+    <p> Digite de novo a senha de acesso. As palavras têm que coincidir</p>
+db_prefix:
+  title: Prefixo das Tabelas de MySQL
+  content: |
+    <p>osTicket exige um prefixo na tabela a fim de evitar conflitos possíveis da tabela numa base de dados partilhada.</p>
+db_host:
+  title: Servidor de MySQL
+  content: |
+    <p>A maioria dos servidores usam 'localhost' para o nome do servidor de base de dados local. Verifique com seu fornecedor se 'localhost' não funcionar. </p> <p>A porta padrão definida no php.ini vai ser utilizada. Um número de porta não-padrão pode ser especificado com <code>hostname:port</code></p>
+db_schema:
+  title: Base de Dados MySQL
+  content: |
+    <p>Nome da base de dados a utilizar pelo osTicket.</p>
+db_user:
+  title: nome de utilizador MySQL
+  content: |
+    <p>O utilizador de MySQL deve ter todas as permissões na base de dados.</p>
+db_password:
+  title: Senha de acesso do MySQL
+  content: |
+    <p>Senha de acesso de MySQL associada ao utilizador.</p>

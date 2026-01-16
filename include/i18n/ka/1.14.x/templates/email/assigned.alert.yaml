@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  თანამშრომლებს გაუგზავნეთ მათზე დაწერილი ბილეთი. ბილეთები შეიძლება დაევალოს ავტომატურად სისტემის მიერ  ან ხელით სტაფის სხვა წევრის მიერ. გამოიყენეთ %{assigner} რომ განასხვავოთ თუ ვინ შექმნა  დავალება.
+subject: |
+  თქვენ დაგევალათ ბილეთი
+body: |
+  <h3><strong>გამარჯობა %{assignee.name.first},</strong></h3>
+  ბილეთი <a href="%{ticket.staff_link}">#%{ticket.number}</a> თქვენ მოგაკუთვნათ %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>გან</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>თემა</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>ბილეთის სანახავად/საპასუხოდ, გთხოვთ <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >შესვლა</span></a>მხარდაჭერის საბილეთე სისტემაში</div>
+  <em style="font-size: small; ">თქვენი მეგობრული მომხმარებლის მხარდაჭერის სისტემა</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

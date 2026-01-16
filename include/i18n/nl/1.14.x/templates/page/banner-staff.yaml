@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Dit is het oorspronkelijke bericht en banner getoond op de pagina personeel Log In. Het eerste veld verwijst naar de rood-geformatteerde tekst die wordt weergegeven aan de bovenkant. De laatste textarea is voor de inhoud van de banner welke als een disclaimer dient.
+name: "Verificatie vereist"
+body: ""

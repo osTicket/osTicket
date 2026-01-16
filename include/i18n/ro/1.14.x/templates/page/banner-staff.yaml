@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Acesta este mesajul initial si banerul aratat pe pagina de autentificare a Angajatilor. Primul camp se refera la textul de culoare rosie care apare deasupra. Al doilea camp de text este pentru banerul care are trebui sa fie un disclaimer.
+name: "Autentificare obligatorie"
+body: ""

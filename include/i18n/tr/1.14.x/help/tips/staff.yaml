@@ -1,0 +1,25 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Personel imza satırı
+  content: |
+    Personellerin cevaplarında kullanacağı imzayı oluşturun. Bu imza talep cevabı yazılırken altta seçenek olarak görünecektir
+type:
+  title: Hesap türü
+  content: |
+    Yöneticiler, Yönetici Paneli erişim hakkına sahiptir. Personeller sadece taleplere ve bilgi bankasına erişebilirler
+group:
+  title: Atanan Grup
+  content: |
+     		
+    Grup üyeliği personelin sistemdeki rolünü belirler. Yardım masasında bu personel için hangi erişime izin vermek istiyorsanız grup yönetimi sayfasını ziyaret edin.
+notes:
+  title: Dahili notlar
+  content: |
+    Personel ile ilgili dahili notlar yerleştirin; Not yalnızca yönetici hesabı türü olan personel için görülebilir

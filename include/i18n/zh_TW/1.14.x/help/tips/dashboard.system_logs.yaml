@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: 系統日誌
+  content: >
+    這裡是你可以尋獲任何故障排除相關日誌記錄活動 （例如，錯誤、 警告或錯誤）。
+  links:
+    - 
+      title: 客製化您的紀錄類型可由登入後改變 < br / > <span class="doc-desc-title"> 日誌級別的預設值</span>。
+      href: /scp/settings.php?t=system
+date_span:
+  title: 日期範圍內
+  content: >
+    系統日誌</span>選擇您想要察看的日期範圍 <span class="doc-desc-title">.
+type:
+  title: 類型 
+  content: >
+    縮小選項可專注您特定類型的活動。<span class="doc-desc-opt"> 除錯</span> 表示嚴重，而 <span class="doc-desc-opt"> 錯誤</span> 表示的最嚴重程度。
+showing_logs:
+  title: 顯示 &hellip; 日誌
+  content: >
+    一定要檢查系統日誌上確保無多餘的頁面，<span class="doc-desc-title"> 頁面</span> 圈選下面部分。
+log_title:
+  title: 日誌標題
+  content: >
+    如果你想要的 <span class="doc-desc-title"> 日誌類型</span> 對結果進行排序，請按一下 <span class="doc-desc-title"> 日誌類型</span> 表頭。
+log_type:
+  title: 日誌類型
+  content: >
+    如果你想要的 <span class="doc-desc-title"> 日誌類型</span> 對結果進行排序，請按一下 <span class="doc-desc-title"> 日誌類型</span> 表頭。
+log_date:
+  title: 日誌日期
+  content: >
+    這是由軟體自動所生成的日期日誌。如果您想要 <span class="doc-desc-title"> 記錄日期</span> 對結果進行排序，只需按一下 <span class="doc-desc-title"> 日誌日期</span> 表頭。（使用上面的 <span class="doc-desc-title"> 日期期間</span> 表格縮小您日誌月曆期間）。
+ip_address:
+  title: IP 位址
+  content: >
+    這表示 <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Address</span> 客戶端或是代理商端在使用期間上 osTicket 上系統自動生成的日誌。

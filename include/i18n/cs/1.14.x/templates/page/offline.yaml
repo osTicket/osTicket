@@ -1,0 +1,16 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Stránka Mimo provoz se zobrazí na zákaznickém portále, pokud je systém zákaznické podpory vypnut.
+name: Mimo provoz
+body: |
+  <div><h1>
+  <span style="font-size: medium">Systém zákaznické podpory je mimo provoz</span>
+  </h1>
+  <p>Děkujeme Vám za Váš zájem.</p>
+  <p>Systém zákaznické podpory je momentálně mimo provoz, prosíme, navštivte
+  nás později.</p>
+  </div>

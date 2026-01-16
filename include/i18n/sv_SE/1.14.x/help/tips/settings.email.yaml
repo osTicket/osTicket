@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Standarduppsättning av e-postmallar
+  content: >
+    Välj en <span class="doc-desc-title">Uppsättning e-postmallar</span> som används för att skicka <span class="doc-desc-title">Autosvar</span> och <span class="doc-desc-title">Notifieringar</span> vid olika åtgärder som kan vidtas under ett ärendes livstid. <br><br> Avdelningar kan tilldelas en specifik uppsättning e-postmallar.
+  links:
+    - 
+      title: Hantera uppsättningar av e-postmallar
+      href: /scp/templates.php
+default_system_email:
+  title: E-postadress som används som standard för utgående e-post
+  content: >
+    Välj e-postadress som utgående e-postmeddelanden skickas från. <br><br> En <span class="doc-desc-title">Avdelning</span> kan ange sin egen <span class="doc-desc-title">e-postadress</span> och på så sätt åsidosätta det som anges här.
+  links:
+    - 
+      title: Hantera e-postadresser
+      href: /scp/emails.php
+default_alert_email:
+  title: Standardvarning e-post
+  content: >
+    Välj en e-postadress från vilken <span class="doc-desc-title">Meddelanden &amp; Notifieringar</span> till supportpersonalen skickas.
+  links:
+    - 
+      title: Hantera e-postadresser
+      href: /scp/emails.php
+admins_email_address:
+  title: Aministratörens e-postadress
+  content: >
+    Ange en e-postadress till administratör till vilken <span class="doc-desc-title">Systemfel</span> och <span class="doc-desc-title">Notifieringar om nya ärenden</span> (om dessa är aktiverade) skickas.
+  links:
+    - 
+      title: Hantera Meddelanden & Notifieringar
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Insamling av e-postadresser
+  content: >
+    Tillåt IMAP/POP-hämtning för konfigurerade och aktiva  <span class="doc-desc-title">e-postkonton</span>.
+  links:
+    - 
+      title: Hantera mejl-konton
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Samla in e-postadresser genom Auto-cron
+  content: >
+    Aktiverar regelbunden hämtning av e-post genom användning av en intern uppgiftshanterare baserat på supportpersonalens aktivitet. <br><br> Observera att e-post endast hämtas om någon är inloggad i kontrollpanelen för supportpersonal. En extern schemaläggare rekommenderas starkt för förutsägbara hämtningsintervall.
+  links:
+    - 
+      title: Använda en extern schemaläggare
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Rensa bort skräp från citerat svar
+  content: >
+    Om detta val aktiveras, raderas meddelandehistoriken mellan meddelanden. <br><br> Denna funktion påverkas även av inställningen för <span class="doc-desc-title">Skiljeetiketten för svar</span> nedan.
+reply_separator_tag:
+  title: Skiljeetikett för svar
+  content: >
+    Detta är en skiljelinje som användaren uppmanas svara ovanför. <br><br> <strong>Obs!</strong> detta är endast relevant om <span class="doc-desc-title">Rensa citerat svar från skräp</span> är aktiverat här ovan.
+emailed_tickets_priority:
+  title: Prioritet för ärenden som skickats in via e-post
+  content: >
+    Välj om du vill att inställning för prioritet/viktighetsgrad som användaren valt i sitt meddelande (t ex i Outlook) ska avgöra det nya ärendets prioritet. <br><br> Den här inställningen kan upphävas av <span class="doc-desc-title">Ärendefiltren</span>.
+  links:
+    - 
+      title: Skapa &amp; Hantera ärendefilter
+      href: /scp/filters.php
+accept_all_emails:
+  title: Acceptera alla e-postmeddelanden
+  content: >
+    Acceptera e-postmeddelanden från okända användare. <br><br>Avmarkeras detta val så kommer ärenden från okända e-postadresser ej att bli inregistrerade.
+accept_email_collaborators:
+  title: Tillåt e-postmedarbetare
+  content: >
+    Lägg till e-postdeltagare i <code><strong>Till-</strong></code> och <code><strong>kopia</strong></code>-fälten som ärendemedarbetare. <br /><br /> <em>Medarbetare kan alltid läggas till manuellt av supportpersonalen när dessa går in och tittar på ärendet.</em>
+default_mta:
+  title: Standard-MTA
+  content: >
+    <span class="doc-desc-title">Standard-MTA</span> hanterar leverans av utgående e-post utan SMTP-inställningar.
+ticket_response_files:
+  title: Filer till ärendesvar
+  content: >
+    Om detta aktiveras så bifogas varje bilaga som supportpersonen lägger med i ärendesvaret, även i e-postmeddelandet som skickas till användaren.
+verify_email_addrs:
+  title: Verifiera e-postadresser
+  content: >
+    Aktivera alternativet för att kontrollera om e-postadressen har en epost-växlare (MX) i domänens DNS. Detta är användbart för att upptäcka felaktigt skrivna e-postadresser.

@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Plantilla de correu electrònic per defecte
+  content: >
+    Selecciona <span class="doc-desc-title"> conjunt de plantilles de email</span>utilitzat per enviar <span class="doc-desc-title"> respostes automàtiques </span> i <span class="doc-desc-title"> avisos</span> per diverses accions que poden tenir lloc durant la vida de de un Ticket. <br><br> Els departaments poden assignar un conjunt de plantilles específic de correu electrònic.
+  links:
+    - 
+      title: Gestionar conjunts de plantilles de correu electrònic
+      href: /scp/templates.php
+default_system_email:
+  title: correu electrònic d'eixida per defecte
+  content: >
+    Trieu una adreça de correu electrònic des d'on s'envien missatges de correu electrònic . <br><br><span class="doc-desc-title"> Departament</span> pot establir la seua pròpia <span class="doc-desc-title"> adreça de correu electronic</span> que invalidarà la que es troba aquí.
+  links:
+    - 
+      title: Gestionar adreces de correu electrònic
+      href: /scp/emails.php
+default_alert_email:
+  title: Adreça electrònica d'Alertes
+  content: >
+    Triar una adreça electrònica que enviarà <span class="doc-desc-title"> alertes &amp; notificacions</span> als Agents.
+  links:
+    - 
+      title: Gestionar adreces de correu electrònic
+      href: /scp/emails.php
+admins_email_address:
+  title: Adreça de correu electrònic  de administrador
+  content: >
+    Introduixca l'adreça de correu electronic de  l'adminstrator al qual s'envien els<span class="doc-desc-title"> errors de sistema</span> i <span class="doc-desc-title">alertes de Ticket nou</span> (si es permeten).
+  links:
+    - 
+      title: Gestionar les alertes & noticies
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: S'estan obtenint correus electronics
+  content: >
+    Permetre IMAP/POP de votació per configurades i habilitades <span class="doc-desc-title"> Mail Boxes</span>.
+  links:
+    - 
+      title: Gestió de comptes de correu electronic
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Buscar correus electrònics utilitzant Auto-cron
+  content: >
+    Permet que la recuperació del correu electronic es faci utilitzant un asistent intern activat per l'activitat dels Agents.  <br><br>Si us plau fixi's que el correu electronic no será recuperat si ningú està connectat al tauler de Control de personal. Un planificador extern és molt recomanable per intervals de recuperació previsibles.
+  links:
+    - 
+      title: Utilitzant un planificador de tasques extern
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Franja de resposta citada
+  content: >
+    Si està activat, es borrarà tota la correspondència entre les comunicacions per e-mail. <br><br>Aquesta característica depèn de l'<span class="doc-desc-title"> etiqueta de separació dels temes</span>.
+reply_separator_tag:
+  title: Separador de etiquetes de resposta
+  content: >
+    Aquesta és una fitxa que indica que l'usuari a respodre damunt la línia. <br><br><strong>Nota:</strong> això només és rellevant si la <span class="doc-desc-title"> tira  la resposta citada</span>  estava habilitada anteriorment.
+emailed_tickets_priority:
+  title: Prioritat dels Tickets de Email
+  content: >
+    Decidixca si li agradaria l'opció prioritat/importància de correu electrònic de l'usuari (p. ex. OutLook) per a dictar prioritat de nou Ticket. <br><br>Aquesta configuració pot ser invalidada per un <span class="doc-desc-title"> Filtre de Ticket</span>.
+  links:
+    - 
+      title: Crea &amp; administra filtres de Ticket
+      href: /scp/filters.php
+accept_all_emails:
+  title: Acceptar tots els correus electrònics
+  content: >
+    Acceptar correus electronics  desde usuaris desconeguts. <br><br>Desactivant aquesta opció fara que alguns Tickets siguin rebutjats.
+accept_email_collaborators:
+  title: Acceptar correus electronics de col·laboradors
+  content: >
+    Afegir els participants correu electrònic inclòs en el <code><strong>a</strong></code> i <code><strong>CC</strong></code> camps com a col·laboradors del Ticket. <br /><br /> <em>col·laboradors sempre es pot afegir manualment pels Agents quan veien un Ticket de.</em>
+default_mta:
+  title: MTA per defecte
+  content: >
+    <span class="doc-desc-title"> El MTA per defecte </span> s'encarrega del procés de lliurament per a missatges de correu electrònic sortint sense configuració de SMTP.
+ticket_response_files:
+  title: Arxius de resposta de Ticket
+  content: >
+    Si està activat, qualsevol arxiu adjunt que un Agent pot adjuntar una resposta de Ticket també inclourà a l'e-mail a l'usuari.
+verify_email_addrs:
+  title: Verifica l'adreça de correu electrònic
+  content: >
+    Activa aquesta opció per comprovar si l'adreça de correu té un registre (MX) al DNS del domini. Això és útil per detectar adreces de correu mal introduïdes. Això és una comprovació addicional a la del format de l'adreça de correu.

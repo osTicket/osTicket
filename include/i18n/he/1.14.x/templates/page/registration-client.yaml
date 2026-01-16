@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  תבנית זו מגדירה את הודעת הדוא"ל הנשלחת ללקוחות כאשר נוצר משתמש חדש עבורם בפורטל הלקוחות או ע"י חבר צוות. הודעה זו משמשת לוידוא כתובת הדוא"ל. אנא השתמש בתגית %{link} במקום כלשהו בגוף ההודעה.
+name: "ברוכים הבאים ל%{company.name}"
+body: >
+  <h3><strong>שלום %{recipient.name.first},</strong></h3> <div> נוצר עבורך חשבון בפורטל התמיכה שלנו בכתובת %{url}.<br /> <br /> אנא הכנס ללינק המצורף על מנת לקבל גישה לפניות שלך.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">בברכה, צוות התמיכה <br /> %{company.name}</em> </div>

@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Ütemezés meghatározása
+  content: >
+    <b>Név</b>: Az ütemterv egyedi neve. <hr> <b>Típus</b>: Válassza ki az ütemezés típusát. <span class="doc-desc-title">Munka órák</span> meghatározza az SLA órák kiszámításánál figyelembe veendő órákat, ahol a<span class="doc-desc-title">Ünnepi órák</span> határozza meg a kizárt órákat. <hr> <b>Időzóna</b>: Válassz időzónát az ütemezéshez. Javasoljuk, hogy hagyja üresen <span class="doc-desc-title">Változó</span> időzónát. <br><br> Az változó időzóna lehetővé teszi, hogy az időpontok a felhasználás időpontjában a tényleges időzónához viszonyítva legyenek.
+

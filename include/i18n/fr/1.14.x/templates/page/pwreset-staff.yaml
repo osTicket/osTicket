@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Ce modèle définit le courriel envoyé aux employés qui choisissent le lien <strong>J'ai oublié mon mot de passe</strong> sur la page de connexion du personnel.
+name: "Réinitialisation du mot de passe pour le personnel d'osTicket"
+body: >
+  <h3><strong>Bonjour %{staff.name.first},</strong></h3> <div>Une demande de réinitialisation de mot de passe a été soumise pour vous pour le service d'assistance à %{url}. <br /><br />Si vous pensez que cela a été fait par erreur, supprimez et ignorer ce mail. Votre compte est toujours sécurisé et personne n'y a eu accès. Il n'est pas verrouillé et votre mot de passe n'a pas été réinitialisé. Quelqu'un pourrait avoir par erreur entré votre courriel. <br /><br />Suivez le lien ci-dessous pour vous connecter au support d'assistance et changer votre mot de passe. <br/><br/><a href="%{link}">%{link}</a><br/><br/><em style="font-size: small">amicalement, votre système de Support</em><br /><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Propulsé par osTicket" width="126" height="19" style="width: 126px" /></div>

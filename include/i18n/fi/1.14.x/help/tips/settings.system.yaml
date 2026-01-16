@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Helpdesk tila
+  content: >
+    Jos tilaksi asetetaan<span class="doc-desc-opt"> Offline</span>, asiakaskäyttöliittymä poistetaan käytöstä. Vain ylläpitäjillä on tällöin pääsy järjestelmään.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Tämä URL-osoite perustuu osTicket asennukseesi. Sitä käytetään suorissa sähköpostikeskusteluissa helpdeskin loppukäyttäjiin.
+helpdesk_name_title:
+  title: Tukipalvelun nimi
+  content: >
+    Tämä otsikko näkyy selaimen välilehden nimenä. Jos sivusto lisätään kirjanmerkkeihin, näkyy tämä otsikko sivun nimenä.
+default_department:
+  title: Oletusosasto
+  content: >
+    Valitse oletus <span class="doc-desc-title">osasto</span> tiketeille joita ei automaattisesti ohjata tiettyyn osastoon. <br/><br/> Tikettejä voidaan ohjata perustuen ohjeotsikoihin, saapuviin sähköposteihin sekä tikettisuodattimien asetuksiin.
+default_schedule:
+  title: Oletusaikataulu
+  content: >
+    Valitse oletusaikataulu, jota SLA käyttää, kun tiketit ovat myöhässä.
+  links:
+    - 
+      title: Hallitse aikatauluja
+      href: /scp/schedules.php
+default_page_size:
+  title: Oletus sivunkoko
+  content: >
+    Valitse kuinka monta kohdetta näytetään kerralla Henkilökunnan käyttöliittymän Tikettijono sivulla. Jokainen Käsittelijä voi myös määrittää omalle tilille yksilöllisen arvon <span class="doc-desc-title">Omat asetukset</span> sivulla.
+default_log_level:
+  title: Oletus lokitaso
+  content: >
+    Määrittele vähimmäistaso aiheille jotka tallennetaan <span class="doc-desc-title">Järjestelmälokiin</span>. <span class="doc-desc-opt">Korjaus</span> esittää vähiten vakavaa ja <span class="doc-desc-opt">Virhe</span> esittää kaikista vakavinta tasoa. Esimerkiksi, jos haluat kaikki tallennettavan <span class="doc-desc-title">Järjestelmälokeihin</span> valitse <span class="doc-desc-opt">Korjaus</span>.
+purge_logs:
+  title: Tyhjennä lokit
+  content: >
+    Määritä kuinka pitkään haluat säilyttää <span class="doc-desc-title">Järjestelmän lokeja</span> ennen poistamista.
+enable_richtext:
+  title: Ota käyttöön rikastettu teksti
+  content: >
+    Jos aktivoitu tämä sallii rtf-muotoilun Asiakkaan ja Käsittelijän viestinnässä.
+enable_avatars:
+  title: Ota käyttöön hahmot viestiketjussa
+  content: >
+    Ota tämä käyttöön näyttääksesi <span class="doc-desc-title">hahmot</span> keskusteluissa. <br><br> The <span class="doc-desc-title">Hahmojen lähde</span> voidaan asettaa 'Agentit ja käyttäjät' asetussivulla.
+  links:
+    - 
+      title: Tukihenkilöiden asetukset
+      href: /scp/settings.php?t=agents
+    - 
+      title: Asiakkaiden asetukset
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Käsittelijöiden törmäämisen välttäminen
+  content: >
+    Syötä ajan maksimipituus, jolloin Agentin on sallittua pitää lukkoa tiketissä tai tehtävässä ilman, että niissä on mitään aktiviteettia. <br><br> Syötä <span class="doc-desc-opt">0</span> poistaaksesi lukitusominaisuuden.
+allow_iframes:
+  title: Salli iFrame
+  content: >
+    Syötä pilkulla erotettu lista verkkotunnuksista, joissa kehyksiä käytetään. Jos jätät tyhjäksi, järjestelmän oletus on 'vain tämä'. Verkkotunnuksen jokerimerkki, HTTP/HTTPS URL-muodot ja porttinumerot ovat sallittuja. <br><br> <b>Esimerkki:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntaksitiedot (isäntä-lähde)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Pääsynhallintalista)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Päiväys &amp; Aika Asetukset
+  content: >
+    Seuraava asetus määrittelee oletusasetukset help deskin Päivämäärä ja Aika-asetuksille. Voit valita maakohtaiset oletusasetukset tai muokata asetuksia mieleiseksesi. Katso ICU-formatoinnista apua muokkaukseen. Alla olevat päivämäärät näyttävät esimerkin tuotetusta merkkijonosta.
+  links:
+    - 
+      title: Katso ICU päiväysten muotoilutaulukko
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Järjestelmän kielet
+  content: >
+    Valitse järjestelmän ensisijainen kieli ja vaihtoehtoisesti toissijaiset kielet.
+primary_language:
+  title: Järjestelmän ensisijainen kieli
+  content: >
+    Tämän kielen sisältö näytetään agenteille ja käyttäjille jos heidän valitsemansa kieliasetukset eivät ole juuri saatavilla. Tähän sisältyy käyttöliittymän sisältö, kuten myös muokatut sisällöt, kuten kiitos-sivut ja sähköpostitviestit. <br/><br/> Tämä on kieli, jolla näytetään kääntämättömät sisällöt.
+secondary_language:
+  title: Toissijainen kieli
+  content: >
+    Valitse kieliasetukset agenteille ja loppukäyttäjille. Käyttöliittymä tulee olemaan saatavilla näillä kielillä ja mukautettu sisältö, kuten kiitos-sivut yms, tulevat käännetyksi näille kielille.
+#Attachments
+attachments:
+  title: Liitteiden asetukset ja tallennus
+  content: >
+    Määrittele miten liitteet tallennetaan.
+default_storage_bk:
+  title: Tiedostotallenteiden backend
+  content: >
+    Valitse, miten liitteet varastoidaan.<br><br> Muita tallennusvaihtoehtoja voi lisätä asentamalla tallennusliitännäisiä
+max_file_size:
+  title: Tiedoston maksimikoko
+  content: >
+    Valitse maksimikoko tiedostoille, joita agentit tallentavat. Tämä sisältää liitteiden mallipohjat, Kirjaston artikkelit ja tikettien sekä tehtävien liitteet. Ylärajaa säädetään PHP:n<code>upload_max_filesize</code> asetuksella.
+  links:
+    - 
+      title: PHP ini-asetukset
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Kirjautuminen vaaditaan
+  content: >
+    Ottamalla tämän asetuksen käyttöön estetään liitteiden tarjoaminen todentamattomille käyttäjille. Toisin sanoen käyttäjien on kirjauduttava järjestelmään (sekä loppukäyttäjien että käsittelijöiden) voidakseen tarkastella liitteitä. <br> <br> Turvallisuuden kannalta tulee tiedostaa, että käyttäjän selain voi säilyttää aiemmin katsotut tiedostot välimuistissaan. Lisäksi kaikki asiakaspalvelun tiedostolinkit vanhenevat automaattisesti noin 24 tunnin jälkeen.

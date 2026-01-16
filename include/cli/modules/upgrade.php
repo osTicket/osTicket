@@ -51,10 +51,10 @@ class CliUpgrader extends Module {
         $cfg = $ost->getConfig();
 
         while (true) {
-            // If there's anythin in the model cache (like a Staff
-            // object or something), ensure that changes to the database
-            // model won't cause crashes
-            ModelInstanceManager::flushCache();
+                // If there's anythin in the model cache (like a Staff
+                // object or something), ensure that changes to the database
+                // model won't cause crashes
+                ModelInstanceManager::flushCache();
 
             if ($upgrader->getTask()) {
                 // More pending tasks - doTasks returns the number of pending tasks

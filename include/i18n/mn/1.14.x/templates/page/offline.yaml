@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Оффлайн хуудас нь Тусламжийн төв ажиллахгүй байх үед Хэрэглэгчийн порталд харагдана.
+name: Офлайн
+body: |
+  <div><h1>
+  <span style="font-size: medium">Тусламж систем ажиллахгүй байна</span>
+  </h1>
+  <p>Бидэнтэй холбогдох хүсэлт гаргасанд тань баярлалаа</p>
+  <p>Манай тусламж үйлчилгээний систем одоогоор  ажиллахгүй байна, та хэсэг хугацааны дараа дахин хандана уу</p>
+  </div>

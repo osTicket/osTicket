@@ -1,0 +1,23 @@
+{
+  "name": "itsjavi/bootstrap-colorpicker",
+  "description": "Simple and customizable colorpicker component for Twitter Bootstrap.",
+  "license": "MIT",
+  "homepage": "https://itsjavi.com/bootstrap-colorpicker/",
+  "keywords": [
+    "bootstrap",
+    "colorpicker"
+  ],
+  "support": {
+    "issues": "https://github.com/itsjavi/bootstrap-colorpicker/issues"
+  },
+  "authors": [
+    {
+      "name": "Javi Aguilar",
+      "homepage": "https://itsjavi.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "components/jquery": ">=1.10"
+  }
+}

@@ -1,0 +1,7 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+notes: >
+  Bu, heyətin daxil olduğu səhifədə görünən ilkin mesaj və bannerdir. Birinci boş sahə başda meydana gələn qırmızı formatlı mətnə istinad edilir. İmtina kimi işlənməli olan sonuncu mətn banner kontenti üçündür.
+name: "Şəxsiyyət təsdiqləməsi tələb olunur"
+body: ""

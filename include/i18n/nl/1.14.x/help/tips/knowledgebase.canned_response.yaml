@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Standaard antwoorden
+  content: >
+    Maak een <span class="doc-desc-title"> Standaard antwoord</span> die je kan opnemen in een ticket reactie. In feite, kan u zoveel <span class="doc-desc-title"> Standaard antwoorden</span> als je wil in een ticket reactie opnemen. Het kan ook opgenomen worden in de <span class="doc-desc-title"> Automatisch antwoord</span> door een <span class="doc-desc-title"> Ticket Filter</span>.
+  links:
+    - 
+      title: Maak een Ticket filter
+      href: /scp/filters.php
+canned_attachments:
+  title: Standaard bijlagen
+  content: >
+    Voeg een bestand toe dat automatisch kan toegevoegd worden aan een ticket reactie bij het nieuwe <span class="doc-desc-title"> Standaard Antwoord</span>.

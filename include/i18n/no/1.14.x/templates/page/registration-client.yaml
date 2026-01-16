@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Denne malen definerer epost sendt til klienter når kontoen har blitt opprettet i klienten Portal eller av en Agent på deres vegne. Denne e-posten fungerer som en e-postadresse verifikasjon. Bruk %{link} et sted i hovedteksten.
+name: "Velkommen til %{company.name}"
+body: >
+  <h3><strong>Hei %{recipient.name.first},</strong></h3> <div>Vi har opprettet en konto for deg på vår sakssystem %{url}.<br/> <br/> Følg linken nedenfor for å bekrefte kontoen og få tilgang til dine saker. <br/> <br/> <a href="%{link}"> %{link}</a> <br/> <br/> <em style="font-size: small"> %{company.name}</em></div>

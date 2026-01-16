@@ -1,0 +1,12 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Ovaj predložak definira sadržaj koji će biti prikazan klijentima nakon što potvrde svoj račun klikom na link u emailu. Predložak bi trebao informirati klijenta da je proces registracije korisničkog računa završen, te da sada korisnik može otvarati nove kartice ili pregledavati i uređivati postojeće.
+name: "Korisnički račun potvrđen!"
+body: >
+  <div> <strong>Hvala Vam što ste izradili korisnički račun.</strong><br /> <br /> Potvrdili ste svoju email adresu i uspješno aktivirali svoj korisnički račun. Sada možete otvoriti novu karticu za podršku ili pogledati i urediti postojeće kartice.<br /> <br /> <em>Vaš centar tehničke podrške</em><br /> %{company.name} </div>
+

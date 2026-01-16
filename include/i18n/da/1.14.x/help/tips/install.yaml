@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Helpdesk Navn
+  content: |
+    <p>Navnet på dit supportsystem eks. [Firmanavn] Supporten</p>
+system_email:
+  title: Standard System Email
+  content: |
+    <p>Standard email adresse fx support@yourcompany.com - du kan tilføje flere senere!</p>
+default_lang:
+  title: Standard systemsprog
+  content: |
+    <p>Oprindelige data for dette sprog vil blive installeret i databasen. For eksempel email skabeloner og standard systemsider vil blive installeret for dette sprog.</p>
+  links:
+    - 
+      title: osTicket sprogpakker
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Fornavn
+  content: |
+    <p>Admin's Fornavn</p>
+last_name:
+  title: Efternavn
+  content: |
+    <p>Admin's Efternavn</p>
+email:
+  title: Mailadresse
+  content: |
+    <p>Admins personlig email adresse. Skal være forskellig fra systemets standard email.</p>
+username:
+  title: Brugernavn
+  content: |
+    <p>Admin login navn. Skal være på mindst tre (3) tegn.</p>
+password:
+  title: Adgangskode
+  content: |
+    <p>Admin adgangskode.  Skal være fem (5) tegn eller mere.</p>
+password2:
+  title: Bekræft adgangskode
+  content: |
+    <p>Bekræft admin's adgangskode. Skal stemme overens.</p>
+db_prefix:
+  title: MySQL tabelprefikset
+  content: |
+    <p>osTicket kræver tabelprefikset for at undgå mulige tabel konflikter i en delt database.</p>
+db_host:
+  title: MySQL værtsnavn
+  content: |
+    <p>
+    De fleste værter bruge 'localhost' for lokale database værtsnavnet. Kontroller med din webhost hvis localhost mislykkes.
+    </p> 
+    <p>
+    Standardport i php.ini antages. En ikke-standard portnummer kan angives som <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL Database
+  content: |
+    <p>Navnet på databasen osTicket vil bruge.</p>
+db_user:
+  title: MySQL Brugernavn
+  content: |
+    <p>The MySQL bruger skal have fulde rettigheder til databasen.</p>
+db_password:
+  title: MySQL Adgangskode
+  content: |
+    <p>MySQL adgangskode forbundet med ovenfor bruger.</p>

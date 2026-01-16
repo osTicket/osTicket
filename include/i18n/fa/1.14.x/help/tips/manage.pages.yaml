@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: صفحات سایت
+  content: >
+    صفحات سایت می تواند به عنوان یک سیستم مدیریت محتوای کوچک استفاده گردد . شما می توانند چندین صفحه مانند خانه , صفحه در حال بازسازی  سایت  و صحفه تشکر از مشتری را تعیین کنید و تنظیمات مربوطه را در منوی  تنظیمات شرکت و موضوعات راهنما تغییر دهید .
+  links:
+    - 
+      title: تنظیمات شرکت 
+      href: /scp/settings.php?t=pages
+type:
+  title: نوع
+  content: >
+    صفحات  <span class="doc-desc-opt">آفلاین  </span>    هنگامی که سایت پشتیبانی شما غیر فعال شده است در پرتال مشتری نمایش داده می شود . صفحات  <span class="doc-desc-opt">خانه </span> به عنوان صفحه ی اصلی در پرتال مشتری نمایش داده می شود . صفحات   <span class="doc-desc-opt">تشکر </span>  بعد از ثبت یک درخواست توسط مشتری به او نمایش داده می شود .  صفحات   <span class="doc-desc-opt">سایر </span> می تواند به عنوان یک سیستم مدیریت محتوا استفاده شود .

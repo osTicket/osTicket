@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  תבנית זו מגדירה את התוכן שיוצג אחרי שלקוחות מצליחים להירשם בהצלחה על ידי אימות חשבונם. הדף אמור לידע את המשתמש שהרישום הושלם והלקוח יכול עכשיו לפתוח קריאה חדשה או לגשת לקריאות קודמות.
+name: "החשבון אושר!"
+body: >
+  <div><strong> תודה על פתיחת החשבון.</strong><br /><br /> אישרת את כתובת הדוא"ל והפעלת בהצלחה את חשבונך. את/ה מוזמן לפתוח קריאה חדשה ולנהל קריאות קיימות.<br /><br /><em>מרכז התמיכה לשרותך</em><br />%{company.name}</div>

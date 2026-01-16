@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: 시스템 로그
+  content: >
+    트러블슈팅 관련 로그 활동(에러, 경고, 버그)를 표시합니다.
+  links:
+    - 
+      title: 어떤 종류의 활동이 기록될 것인지 <br /><span class="doc-desc-title">기본 로그 레벨</span>을 통해 설정할 수 있습니다.
+      href: /scp/settings.php?t=system
+date_span:
+  title: 날짜 범위
+  content: >
+    기간을 지정하여<span class="doc-desc-title"> 시스템 로그</span>를 표시하는 것이 가능합니다.
+type:
+  title: Type
+  content: >
+    특정한 종류의 활동에 중요도를 선택합니다.<span class="doc-desc-opt"> 디버그</span> 중요하지 않음、<span class="doc-desc-opt"> 에러</span> 매우중요
+showing_logs:
+  title: 표시 &hellip; 로그
+  content: >
+    사용가능한 시스템로그를 표시하고 있는 페이지가 더이상 없는 것을 확인하기 위하여 반드시 이하의 <span class="doc-desc-title">페이지</span>단락을 조사해 주세요
+log_title:
+  title: 로그 제목
+  content: >
+    <span class="doc-desc-title">로그 제목</span>을 기준으로 정렬하려면 <span class="doc-desc-title">로그 제목</span> 표 헤더를 클릭하세요.
+log_type:
+  title: 로그 종류
+  content: >
+    <span class="doc-desc-title">로그 종류</span>를 기준으로 정렬하려면 <span class="doc-desc-title">로그 종류</span> 표 헤더를 클릭하세요.
+log_date:
+  title: 로그 날짜
+  content: >
+    이것은 소프트웨어에 따라서 로그가 생성된 날짜입니다. <span class="doc-desc-title">로그 날짜</span>으로 정렬하고 싶은 경우에는, <span class="doc-desc-title"> 로그 날짜</span>표 헤더를 클릭합니다. (위의<span class="doc-desc-title">날짜범위</span>폼을 사용하여, 로그의 날짜범위를 지정합니다.)
+ip_address:
+  title: IP 주소
+  content: >
+    이것은 로그가 기록되었을 때,osTicket을 사용하고 있던 에이전트나 클라이언트의<span class="doc-desc-title">IP 주소</span>를 의미합니다.

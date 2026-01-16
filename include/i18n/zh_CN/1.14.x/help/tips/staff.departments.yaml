@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: 类型
+  content: >
+    如果部门类型属于私有，则回复中无法使用部门签名且客户入口也无法显示部门分配。
+dept_manager:
+  title: 部门经理
+  content: >
+    您可选择一名代理作为部门经理以接收部门内的咨询提醒和通知。
+  0: 代理在无需成为部门成员的情况下，即可成为部门经理。

@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: 실행 순서
+  content: >
+    숫자를 입력하여 필터의 우선순위를 조정합니다. 숫자가 작을수록 필터는 높은 우선순위를 가지게 되어 다른 필터에 비해 먼저 실행됩니다. <br><br> 이 필터가 검색에서 마지막에 적용되게 하려면 <span class="doc-desc-title">이후 검색에서 동작 중단</span>을 활성화하세요.
+target_channel:
+  title: 채널
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>의 대상이 될 <span class="doc-desc-title">채널</span>을 선택하세요. <span class="doc-desc-title">채널</span>은 티켓이 시스템에 등록된 출처를 의미합니다. <br><br>예를 들어, <span class="doc-desc-opt">웹 양식</span>을 선택하면 클라이언트 포털의 웹 양식으로부터 접수된 티켓을 <span class="doc-desc-title">티켓 필터</span>가 걸러내게 됩니다.
+rules_matching_criteria:
+  title: 탐색 기준 규칙
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>의 검색 융통성을 선택합니다. <span class="doc-desc-title">티켓 필터</span>가 규칙 중 하나라도 일치하는 티켓을 필터링하도록 하려면 <span class="doc-desc-opt">일부 일치</span>를 선택하세요. <span class="doc-desc-title">티켓 필터</span>가 <em><strong>모든 규칙</strong></em>을 만족하는 티켓만을 필터링하게 하려면 <span class="doc-desc-opt">전부 일치</span>를 선택하세요.
+reject_ticket:
+  title: 티켓 거절
+  content: >
+    이 기능이 활성화 된 경우, 남은 처리 과정이 중단되며 이후의 모든 선택 동작들이 탐색에서 무시됩니다.
+reply_to_email:
+  title: 이메일로 답장
+  content: >
+    헬프데스크에서 이메일 신청서의 <span class="doc-desc-title">회신</span> 헤더를 활용하려면 이 옵션을 활성화하세요. 이 필드는 위 <span class="doc-desc-title">채널</span>에 <span class="doc-desc-opt">이메일</span>이 포함되어 있을 경우에만 적용됩니다.
+ticket_auto_response:
+  title: 티켓 자동답변 끄기
+  content: >
+    <em>노트: 이것은 <span class="doc-desc-title">부서</span>나 <span class="doc-desc-title">자동응답 설정</span>을 무시하게 합니다.</em>
+canned_response:
+  title: 자동 답변 템플릿
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>와 매치하여 사용자에게 보낼 이메일의 <span class="doc-desc-title">응답 템플릿</span>을 선택하세요. 어떤 <span class="doc-desc-title">템플릿 셋</span>이 기본으로 적용되는지 또는 매치되는 티켓의 <span class="doc-desc-title">부서</span>에 따라 <span class="doc-desc-title">새 티켓 자동응답</span> 템플릿이 사용됩니다.
+  links:
+    - 
+      title: 답변 템플릿 관리
+      href: /scp/canned.php
+    - 
+      title: 템플릿 셋 관리
+      href: /scp/templates.php
+    - 
+      title: 새로운 티켓의 자동답변 템플릿
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: 부서
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>와 매치하여 할당할 <span class="doc-desc-title">부서</span>를 선택하세요.
+  links:
+    - 
+      title: 부서 관리
+      href: /scp/departments.php
+priority:
+  title: 우선순위
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>와 매치하여 적용할 <span class="doc-desc-title">우선순위</span>를 선택하세요.<br /> <br /> <em>노트: 이 설정은 <span class="doc-desc-title">부서</span> 또는 <span class="doc-desc-title">도움말 항목</span> 설정을 무효화합니다.</em>
+sla_plan:
+  title: SLA 계획
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>와 매치하여 적용하고자 하는 <span class="doc-desc-title">SLA 계획</span>을 선택하세요.
+  links:
+    - 
+      title: SLA 계획 관리
+      href: /scp/slas.php
+auto_assign:
+  title: 자동 할당
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>와 매치되는 결과를 배정하고자 하는 에이전트 또는 팀을 선택하세요.
+  links:
+    - 
+      title: 에이전트 관리
+      href: /scp/staff.php
+    - 
+      title: 팀 관리
+      href: /scp/teams.php
+help_topic:
+  title: 도움말
+  content: >
+    <span class="doc-desc-title">티켓 필터</span>와 매치되는 결과에 적용하고자 하는 <span class="doc-desc-title">도움말 항목</span>을 선택하세요.
+  links:
+    - 
+      title: 문의 분류 관리
+      href: /scp/helptopics.php
+admin_notes:
+  title: 관리자 노트
+  content: >
+    이 노트들은 ‘<span class="doc-desc-title">관리자</span>’ 유형의 계정에만 보입니다.

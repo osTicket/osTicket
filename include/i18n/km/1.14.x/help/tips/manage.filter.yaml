@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: បញ្ជាប្រតិបត្តិ
+  content: >
+    បញ្ចូលលេខដែលគ្រប់គ្រងអាទិភាពនៃតម្រង។ នៅពេលដែលចំនួននេះគឺមានកម្រិត, ទាបអាទិភាពក្លាយទៅជាខ្ពស់ <br><br> ប្រសិនបើអ្នកចង់តម្រងនេះនឹងត្រូវបានអនុវត្ត, បើក <span class="doc-desc-title">Stop Processing Further On Match</span>.
+target_channel:
+  title: ឆានែល
+  content: >
+    ជ្រើសគោលដៅ <span class="doc-desc-title">Channel</span> សម្រាប់ <span class="doc-desc-title">ticket Filter</span> របស់អ្នក. The <span class="doc-desc-title">Channel</span>ជាប្រភពដែលសំបុត្រនេះបានមកដល់ប្រព័ន្ធ។<br><br> ឧទាហរណ៍ប្រសិនបើអ្នកជ្រើសរើសយក <span class="doc-desc-opt">Web Forms</span>, អ្នកចង់អនុវត្ត <span class="doc-desc-title">ticket Filter</span> សំបុត្រទាំងនោះដែលមានដើមកំណើតពីទម្រង់វិបផតថលអតិថិជន។
+rules_matching_criteria:
+  title: ក្បួនផ្គូផ្គងលក្ខណៈវិនិច្ឆ័យ
+  content: >
+    ជ្រើសរបៀបដែលអ្នកចង់ឱ្យការផ្គូផ្គងរបស់អ្នក <span class="doc-desc-title">ticket Filter</span> ក្លាយទៅជា។ ប្រសិនបើអ្នកចង់បាន <span class="doc-desc-title">ticket Filter</span> ដើម្បីផ្គូផ្គងណាមួយនៃច្បាប់នេះហើយបន្ទាប់មកបញ្ឈប់ការជ្រើស <span class="doc-desc-opt">Match Any</span>. ប្រសិនបើអ្នកចង់បាន <em><strong>all rules</strong></em> នៃ <span class="doc-desc-title">ticket Filter</span> ដែលត្រូវគ្នា, ជ្រើសយក <span class="doc-desc-opt">Match All</span>.
+reject_ticket:
+  title: ច្រានចោលករណី
+  content: >
+    ប្រសិនបើវាត្រូវបានបើក, ដំណើរការបន្ថែមទៀតត្រូវបានបញ្ឈប់និងជម្រើសផ្សេងទៀតទាំងអស់នៃសកម្មភាពដូចខាងក្រោមនឹងត្រូវបានមិនអើពើ នៅលើផ្គូផ្គង។
+reply_to_email:
+  title: ឆ្លើយតបអ៊ីម៉ែល
+  content: >
+    បើកវាប្រសិនបើអ្នកចង់ឱ្យតុជំនួយរបស់អ្នកគោរពបឋមកថាកម្មវិធីអ៊ីមែលរបស់អ្នកប្រើ <span class="doc-desc-title">Reply To</span> ។ វាលនេះគឺមានពាក់ព័ន្ធតែប៉ុណ្ណោះប្រសិនបើ <span class="doc-desc-title">Channel</span> ខាងលើរួមបញ្ចូល <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: បិទសំបុត្រឆ្លើយតបដោយស្វ័យប្រវត្តិ
+  content: >
+    <em>ចំណាំ: នេះនឹងជំនួសរាល់ <span class="doc-desc-title">Department</span> or <span class="doc-desc-title">Autoresponder settings</span>.</em>
+canned_response:
+  title: ចម្លើយកំណត់ជាមុនឆ្លើយតបដោយស្វ័យប្រវត្តិ
+  content: >
+    ជ្រើស<span class="doc-desc-title">Canned Response</span> អ្នកចង់ឱ្យផ្ញើទៅអ្នកប្រើនៅលើ <span class="doc-desc-title">Ticket Filter</span> ។  <span class="doc-desc-title">New Ticket Auto-Reply</span> ពុម្ពដែលបានប្រើអាស្រ័យលើអ្វីដែល <span class="doc-desc-title">template set</span> គឺត្រូវបានផ្ដល់ជាលំនាំដើមឬដើម្បីសំបុត្រផ្គូផ្គង <span class="doc-desc-title">Department</span>.
+  links:
+    - 
+      title: គ្រប់គ្រងចម្លើយកំណត់ជាមុន
+      href: /scp/canned.php
+    - 
+      title: គ្រប់គ្រងការកំណត់ទំព័រគំរូ
+      href: /scp/templates.php
+    - 
+      title: ករណីថ្មីទំព័រគំរូឆ្លើយតបដោយស្វ័យប្រវត្តិ
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: មន្ទីរ
+  content: >
+    ជ្រើស<span class="doc-desc-title">Department</span> អ្នកចង់ផ្គូផ្គង<span class="doc-desc-title">Ticket Filter</span> ដែលត្រូវបានផ្ដល់។
+  links:
+    - 
+      title: គ្រប់គ្រង Departments
+      href: /scp/departments.php
+priority:
+  title: អាទិភាព
+  content: >
+    ជ្រើស <span class="doc-desc-title">Priority</span> អ្នកចង់ផ្គូផ្គង <span class="doc-desc-title">Ticket Filter</span>.<br /> <br /> <em>ចំណាំ: នេះនឹងសរសេរជាន់លើ <span class="doc-desc-title">Department</span> or <span class="doc-desc-title"> Help Topic</span> settings.</em>
+sla_plan:
+  title: ផែនការសេវាកម្ម
+  content: >
+    ជ្រើស <span class="doc-desc-title">SLA Plan</span> អ្នកចង់ផ្គូផ្គង <span class="doc-desc-title">Ticket Filter</span>។
+  links:
+    - 
+      title: គ្រប់គ្រងគំរោងសេវាកម្ម
+      href: /scp/slas.php
+auto_assign:
+  title: ផ្ដល់ដោយស្វ័យប្រវត្តិ
+  content: >
+    ជ្រើសភ្នាក់ងារឬក្រុមមួយដែលអ្នកចង់ផ្គូផ្គង <span class="doc-desc-title">Ticket Filter</span>។
+  links:
+    - 
+      title: គ្រប់គ្រងភ្នាក់ងារ
+      href: /scp/staff.php
+    - 
+      title: គ្រប់គ្រងក្រុម
+      href: /scp/teams.php
+help_topic:
+  title: ប្រធានបទជំនួយ
+  content: >
+    ជ្រើស <span class="doc-desc-title">Help Topic</span> អ្នកចង់ផ្គូផ្គង <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: គ្រប់គ្រង Help Topics
+      href: /scp/helptopics.php
+admin_notes:
+  title: កំណត់ត្រា admin
+  content: >
+    ចំណាំទាំងនេះគឺអាចមើលឃើញបានតែចំពោះអ្នកដែលមានគណនីប្រភេទគឺ ‘<span class="doc-desc-title">Admin</span>.’

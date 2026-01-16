@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    Ak je vypnuté alebo archivované, toto <span class="doc-desc-title">oddelenie</span> nebude dostupné.
+type:
+  title: Typ
+  content: >
+    Vyberte <span class="doc-desc-opt">Súkromné</span> ak chcete utajiť priradenie tomuto oddeleniu na klientskom portáli.  Ak je označené ako <span class="doc-desc-opt">Súkromné</span>,  <span class="doc-desc-title">podpis oddelenia</span> nebude zobrazený v emailových odpovediach. <br/><br/> Minimálne jedno oddelenie musí byť označené ako <span class="doc-desc-opt">Verejné</span>
+email:
+  title: Email
+  content: >
+    Email použitý, keď je odpoveď posielaná užívateľom keď agent napíše odpoveď na tiket.
+template:
+  title: Nastavenie šablóny
+  content: >
+    <span class="doc-desc-title">Sada šablón</span> pre emaily, ktoré sa používajú v automatických odpovediach a v upozorneniach a oznámeniach pre tikety priradené tomuto oddeleniu.
+  links:
+    - 
+      title: Správa šablón
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    SLA pre tikety priradené pre toto oddelenie.
+  links:
+    - 
+      title: Definícia SLA
+      href: /scp/slas.php
+schedule:
+  title: Harmonogram
+  content: >
+    SLA harmonogram použitý pri zobrazení oneskorených tiketov, nastavený pre toto oddelenie. <br><br> Toto nastavenie je nadriadené nad nastaveniami v Systéme a v SLA harmonogramoch.
+  links:
+    - 
+      title: Spravovať harmonogramy
+      href: /scp/schedules.php
+manager:
+  title: Vedúci oddelenia
+  content: >
+    Vyberte <span class="doc-desc-title">vedúceho</span> tohoto oddelenia. <br/><br/> Vedúcim môže byť nastavené zasielanie špeciálnych upozornení a majú právo zrušiť pridelenia tiketov.
+  links:
+    - 
+      title: Správa upozornení &amp; a oznámení
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Príjemcovia&amp; upozornení a oznámení
+  content: >
+    Vyberte príjemcov pre nakonfigurované <span class="doc-desc-title">upozornenia a oznámenia</span>.
+  links:
+    - 
+      title: Nastavenie upozornení &amp; a oznámení
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Obmedzenie priradenia tiketov
+  content: >
+    Určuje, či ticket môže byť priradený ku všetkým agentom, agentom s primárnym alebo rozšíreným prístupom oddelenia alebo agentom s primárnym prístupom oddelenia.
+disable_auto_claim:
+  title: Vypnúť priraďovanie si požiadaviek
+  content: >
+    Táto voľba <strong>vypne</strong> možnosti priradenia si požadaviek pri odpovedi na nich pre toto oddelenie. <br><br> Pracovníci si však môžu stále ručne priradiť nepriradené požiadavky
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Definícia automatickej odpovede
+  content: >
+    Toto nastavenie prepíše globálne nastavenie automatických odpovedí pre definované oddelenie
+new_ticket:
+  title: Automatická odpoveď na nový tiket
+  content: >
+    Môžete zakázať zasielanie automatických odpovedí, keď je nový tiket presmerovaný tomuto oddeleniu.
+new_message:
+  title: Automatická odpoveď na novú správu
+  content: >
+    Môžete zakázať zasielanie automatických odpovedí, keď je vytvorená nová odpoveď k tiketu presmerovanom tomuto oddeleniu.
+auto_response_email:
+  title: Email pre automatickú odpoveď
+  content: >
+    Vyberte email z ktorého sú posielané automatické odpovede z tohto oddelenia.
+department_access:
+  title: Prístup pre skupiny
+  content: >
+    Povoľte pracovníkom iných oddelení prístup k tiketom priradeným tomuto oddeleniu.
+department_signature:
+  title: Podpis oddelenia
+  content: >
+    Podpis je použitý ako voľba pre <span class="doc-desc-opt">verejné</span> oddelenia na pracovníkových odpovediach.

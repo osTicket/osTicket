@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Stránky
+  content: >
+    Stránky mohou sloužit jako jednoduchý systém na správu obsahu. Můžete nadefinovat více stránek vstupních, pro off-line režim a s poděkováním, a pak je nastavit na společnosti a tématech podpory.
+  links:
+    - 
+      title: Nastavení společnosti
+      href: /scp/settings.php?t=pages
+type:
+  title: Typ
+  content: >
+    Stránky <span class="doc-desc-opt">off-line režimu</span> se zobrazují na klientském portálu, pokud je váš systém dočasně vypnut. <span class="doc-desc-opt">Vstupní</span> stránky jsou zobrazeny na domovské stránce portálu. Stránky <span class="doc-desc-opt">s poděkováním</span> se zobrazí po zadání požadavku uživatelem. <span class="doc-desc-opt">Ostatní</span> stránky můžete použít jako jednoduchý malý systém na správu obsahu (CMS).

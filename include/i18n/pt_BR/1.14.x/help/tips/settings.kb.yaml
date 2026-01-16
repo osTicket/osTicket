@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Configurações da Base de conhecimento
+  0: >
+
+knowledge_base_status:
+  title: Status da Base de conhecimento
+  content: >
+    Habilite essa configuração para permitir aos usuários acesso de auto-atendimento para seus artigos da base de conhecimento público. Categorias de <br><br>base de conhecimento e FAQs podem ser feitas internamente (visíveis somente por agentes).
+  links:
+    - 
+      title: Gerenciar a Base de conhecimento
+      href: /scp/kb.php
+restrict_kb:
+  title: Restringir Acesso à Base de Conhecimento
+  content: >
+    Ative esta opção para impedir usuários não cadastrados acessem seus artigos da base de conhecimento na interface do cliente.
+  links:
+    - 
+      title: Configurações de controle de acesso
+      href: /scp/settings.php?t=users
+canned_responses:
+  title: Resposta pronta
+  content: >
+    Habilite essa configuração para permitir que os agentes possam usar <span class="doc-desc-title"> Respostas Prontas</span> ao responder os Tikets .
+  links:
+    - 
+      title: Gerenciar respostas criadas
+      href: /scp/canned.php

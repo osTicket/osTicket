@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Šis šablons definē Pladies lapas saturu, kas tiks parādīts pēc tam, kad klients apstiprina jaunu pieteikumu Klientu portālā.
+name: Paldies
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Paldies, ka sazinājāties ar mums.
+  <br>
+  <br>
+  Servisa pieteikuma pieprasījums ir izveidots un pārstāvis ar Jums vistuvākajā laikā.</p>
+  <br>
+  <br>
+  Atbalsta komanda
+  </div>

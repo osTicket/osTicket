@@ -1,0 +1,74 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: ชื่อของแผนกช่วยเหลือ
+  content: |
+    <p>ชื่อของระบบสนับสนุนของคุณ อาทิเช่น ระบบสนับสนุนของ [ชื่อบริษัท]</p>
+system_email:
+  title: อีเมลล์เริ่มต้นของระบบ
+  content: |
+    <p>อีเมลเริ่มต้น เช่น support@yourcompany.com - คุณสามารถเพิ่มในภายหลังได้!</p>
+default_lang:
+  title: ภาษาเริ่มต้นของระบบ
+  content: |
+    <p>ข้อมูลเบื้องต้นของภาษานี้จะถูกติดตั้งลงใน ฐานข้อมูล ตัวอย่างเช่น แม่แบบอีเมลและหน้าระบบเริ่มต้นจะได้รับการติดตั้งสำหรับภาษานี้</p>
+  links:
+    - 
+      title: ชุดภาษาของ osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: ชื่อ
+  content: |
+    <p>ชื่อของผู้ดูแลระบบ</p>
+last_name:
+  title: นามสกุล
+  content: |
+    <p>นามสกุลของผู้ดูแลระบบ</p>
+email:
+  title: อีเมล
+  content: |
+    <p>อีเมลของผู้ดูแลระบบ จะต้องไม่ซ้ำกับอีเมลเริ่มต้นของระบบ</p>
+username:
+  title: ชื่อผู้ใช้
+  content: |
+    <p>ชื่อล็อกอินของผู้ดูแลระบบ ต้องประกอบด้วย (3) ตัวอักษรเป็นอย่างน้อย</p>
+password:
+  title: รหัสผ่าน
+  content: |
+    <p>รหัสผ่านของผู้ดูแลระบบ ต้องมีอย่างน้อย 5 ตัวอักษร</p>
+password2:
+  title: ยืนยันรหัสผ่าน
+  content: |
+    <p>พิมพ์รหัสผ่านของผู้ดูแลระบบอีกครั้ง จะต้องตรงกันกับข้างบน</p>
+db_prefix:
+  title: คำนำหน้าชื่อตารางใน MySQL
+  content: |
+    <p>osTicketต้องใช้คำนำหน้าตารางเพื่อหลีกเลี่ยงชื่อตารางที่อาจซ้ำกันในฐานข้อมูลที่ใช้ร่วมกัน</p>
+db_host:
+  title: ชื่อโฮสต์ของ MySQL
+  content: |
+    <p>
+    โฮสต์ส่วนใหญ่ใช้ 'localhost' สำหรับชื่อโฮสต์ฐานข้อมูลแบบโลคัล ให้ตรวจสอบกับ
+    โฮสต์ของคุณถ้า localhost เกิดข้อผิดพลาด
+    </p>
+    <p>
+    ค่าเริ่มต้นของพอร์ตที่ระบุในไฟล์ php.ini เป็นค่าตามสมมติฐาน คุณสามารถกำหนดค่าพอร์ตอื่นๆ ที่ไม่ใช่ค่ามาตรฐานได้โดยใช้รูปแบบ <code>hostname:port</code>
+    </p>
+db_schema:
+  title: ฐานข้อมูล MySQL
+  content: |
+    <p>ชื่อของฐานข้อมูลที่ osTicket จะใช้</p>
+db_user:
+  title: ชื่อผู้ใช้ของ MySQL
+  content: |
+    <p>ผู้ใช้ MySQL จะต้องมีสิทธิ์เต็มที่ในการใช้ฐานข้อมูล</p>
+db_password:
+  title: รหัสผ่าน MySQL
+  content: |
+    <p>รหัสผ่าน ของผู้ใช้ฐานข้อมูล MySQL ในช่องด้านบน</p>

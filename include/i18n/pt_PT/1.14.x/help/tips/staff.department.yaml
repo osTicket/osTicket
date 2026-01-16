@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Estado
+  content: >
+    Se desativado ou arquivado, este <span class="doc-desc-title"> Tópico de Ajuda</span> não estará disponível.
+type:
+  title: Tipo
+  content: >
+    Selecione <span class="doc-desc-opt"> privada</span> se desejar atribuições de máscara a este departamento no Portal do cliente.  Além disso, quando marcado como <span class="doc-desc-opt"> particular</span>, o <span class="doc-desc-title"> Departamento de assinatura</span> não será exibido em respostas de e-mail. <br/> <br/> Deve ser pelo menos um departamento <span class="doc-desc-opt"> público</span>
+email:
+  title: Email
+  content: >
+    Endereço de e-mail utilizado para as respostas dos agentes aos clientes.
+template:
+  title: Conjunto de modelos
+  content: >
+    E-mail <span class="doc-desc-title"> Conjunto de Modelo</span> usado para Auto-respostas ,alertas e avisos para chamados encaminhados a este departamento.
+  links:
+    - 
+      title: Gerir modelos
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Plano de SLA para pedidos atribuídos a este departamento.
+  links:
+    - 
+      title: Gerir planos de SLA
+      href: /scp/slas.php
+schedule:
+  title: Agendamento
+  content: >
+    Programação a ser usada pelo SLA ao colocar tickets, endereçados a este departamento, vencidos. <br> <br> Esta configuração tem influência sobre as configurações de agendamento do sistema e do SLA.
+  links:
+    - 
+      title: Gerir agendamentos
+      href: /scp/schedules.php
+manager:
+  title: Gestor de Departamento
+  content: >
+    Selecione um <span class="doc-desc-title"> Gerente</span> para este departamento. <br/> <br/> Os gerentes podem ser configurados para receber alertas especiais e também tem o direito de cancelar chamados.
+  links:
+    - 
+      title: Gerir alertas &amp; avisos
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Destinatários de alertas e avisos
+  content: >
+    Selecione os destinatários dos <span class="doc-desc-title"> alertas&amp;avisos</span> configurados.
+  links:
+    - 
+      title: Configurar alertas &amp; avisos
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Restrições à atribuição de pedidos
+  content: >
+    Determine se os Tickets podem ser atribuídos a todos os agentes, agentes com acesso Principal ou Estendido ao Departamento, ou somente aos agentes com acesso ao Principal ao Departamento.
+disable_auto_claim:
+  title: Desativar reivindicação automática
+  content: >
+    Ative esta opção para <strong>desabilitar</strong> a reivindicação automática na resposta para este departamento. <br><br> Os agentes ainda poderão reivindicar os pedidos não atribuídos
+disable_reopen_auto_assign:
+  title: Desactivar atribuição automática na reabertura
+  content: >
+    Verifique isto para <strong>disponível</strong> auto-atribuição de bilhetes reabertos para este departamento. <br><br> caso contrário, o Bilhete será automaticamente atribuído ao último Agente respondente
+auto_response_settings:
+  title: Configuração da resposta automática
+  content: >
+    Isto permite substituir a definição global de resposta automática para este departamento.
+new_ticket:
+  title: Auto-resposta a novo pedido
+  content: >
+    Pode desativar a resposta-automática enviado ao utilizador, quando um novo pedido é criado e enviado para este departamento.
+new_message:
+  title: Auto-resposta à nova mensagem
+  content: >
+    Você pode desativar a Reposta automática enviada ao usuário para confirmar uma mensagem recém postada por tickets neste departamento.
+auto_response_email:
+  title: Mensagem de resposta automática
+  content: >
+    Selecione um e-mail a partir do qual as respostas-automáticas deste departamento são enviadas.
+department_access:
+  title: Acesso do grupo
+  content: >
+    Permitir aos agentes de outros departamentos aceder aos pedidos deste departamento.
+department_signature:
+  title: Assinatura do departamento
+  content: >
+    Assinatura é disponibilizado como escolha, para Departamentos <span class="doc-desc-opt"> Público </span>, em respostas do agente.

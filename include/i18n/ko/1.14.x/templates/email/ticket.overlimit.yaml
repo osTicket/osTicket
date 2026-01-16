@@ -1,0 +1,17 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  최대 오픈 티켓 제한을 초과했을 때 사용자에게 전송됩니다. 이 제한은 "관리자 패널 '에서 이메일 주소 단위로 설정할 수 있습니다.
+subject: |
+  티켓 오픈 한도에 도달했습니다.
+body: |
+  <h3><strong>%{ticket.name.first}님,</strong></h3>
+  오픈 가능한 최대 티켓 수를 초과하였습니다. 추가 티켓을 오픈 하시려면 현재 진행중인 티켓 중 하나를 종료해야 합니다. 기존 티켓을 수정하거나 코멘트를 추가하려면 <a href="%{url}/tickets.php?e=%{ticket.email}">헬프데스크에 로그인</a> 하세요.
+  <br>
+  <br>
+  감사합니다.<br/>
+  고객지원시스템

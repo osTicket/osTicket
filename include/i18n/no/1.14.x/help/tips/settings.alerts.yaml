@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Varsler og meldinger
+  content: >
+    Varsler og meldinger er automatiske e-post beskjeder sendt til agenter når ulike saksrelaterte hendelser utløses.
+ticket_alert:
+  title: Nytt sak varsel
+  content: >
+    <p>Varsel sendes ut til agenter når en ny sak opprettes.</p><p class="info-banner"> <i class="icon-info-sign"></i> dette varselet sendes ikke ut hvis saken er automatisk tildelt via et saksfilter eller hjelpeemnet.</p>
+  links:
+    - 
+      title: Standardmal for varsel om ny sak
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Ny melding varsling
+  content: >
+    Varsling sendes til agenter når en ny melding fra brukeren legges til en eksisterende sak.
+  links:
+    - 
+      title: Standardmal for varsel om ny melding
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Varsel om ny intern aktivitet
+  content: >
+    Varsel sendt til agenter når intern aktivitet som internt notat eller agent svar er lagt til en sak.
+  links:
+    - 
+      title: Standardmal for saksaktivitet
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: varsel for tildeling av sak
+  content: >
+    Varsling sendes ut til agenter på saks tildeling.
+  links:
+    - 
+      title: Standardmal for tildeling av sak
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Varsling ved overføring
+  content: >
+    Varsling sendes ut til agenter på saks overføring mellom avdelinger.
+  links:
+    - 
+      title: Standardmal for varsling ved overføring av sak
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: varsel på forfalte saker
+  content: >
+    Varsling sendes til agenter når en sak forfaller basert på SLA eller forfallsdato.
+  links:
+    - 
+      title: Standardmal for varsling når sak forfaller
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Administrere SLAs
+      href: /scp/slas.php
+system_alerts:
+  title: Systemvarsler
+  content: >
+    Viktige systemhendelser som sendes til administratoren (%{config.admin_email}). Avhengig av det konfigurerte <span class="doc-desc-title"> Loggnivå</span> er hendelsene også gjort tilgjengelig i <span class="doc-desc-title"> Systemlogg</span>
+  links:
+    - 
+      title: Vis systemlogg
+      href: /scp/logs.php
+    - 
+      title: Endre Admin epost
+      href: /scp/settings.php?t=emails

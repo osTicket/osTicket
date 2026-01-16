@@ -1,0 +1,89 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Bantu Maklumat Topik
+  content: >
+    <span class="doc-desc-title">Topik Bantuan</span> membimbing maklumat apakah yang dikumpulkan dari Pengguna dan bagaimana tiket dihalakan atau diberikan.
+topic:
+  title: Nama Topik
+  content: >
+    Unik nama topik bantuan.
+status:
+  title: Status
+  content: >
+    Jika tidak diaktifkan atau diarkibkan, <span class="doc-desc-title">Topik Bantuan</span> ini tidak akan boleh didapati.
+type:
+  title: Jenis
+  content: >
+    Jika <span class="doc-desc-title">Topik Bantuan</span> dilabel sebagai Peribadi, ia hanya akan tersedia untuk Ejen untuk memilih apabila Ejen membuka tiket baru di bawah Panel Kakitangan.
+parent_topic:
+  title: Topik utama
+  content: >
+    Pilih Topik Induk yang mana <span class="doc-desc-title">Topik Bantuan</span> ini akan tergolong. Topik Induk akan muncul dahulu dalam senarai dengan <span class="doc-desc-title">Topik Bantuan</span> ini yang disenaraikan di belakang induk.
+custom_form:
+  title: Borang biasa
+  content: >
+    Borang biasa akan membantu anda mendapatkan maklumat yang lebih khusus daripada Pengguna yang berkaitan dengan ini <span class="doc-desc-title"> Bantuan Topik </span>.
+  links:
+    - 
+      title: Urus borang biasa
+      href: /scp/forms.php
+priority:
+  title: Keutamaan
+  content: >
+    Pilih Keutamaan yang diberikan kepada tiket baru yang berkaitan dengan <span class="doc-desc-title">Topik Bantuan</span>.<br><br> Penapis Tiket boleh mengatasi Keutamaan tiket baru.
+department:
+  title: Jabatan
+  content: >
+    Pilih Jabatan yang mana tiket baru di bawah Topik Bantuan ini akan dihalakan.
+  links:
+    - 
+      title: Urus Jabatan
+      href: /scp/departments.php
+sla_plan:
+  title: Rancangan SLA
+  content: >
+    Pilih pelan SLA yang berkaitan dengan <span class="doc-desc-title">Topik Bantuan</span>ini. <br><br> 
+    Pemilihan ini akan mengatasi mana-mana pelan SLA Jabatan yang dipilih
+  links:
+    - 
+      title: Urus rancangan SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Halaman Terima-Kasih
+  content: >
+    Pilih halaman Terima-Kasih di mana pengguna yang diarahkan selepas membuka tiket di bawah ini <span class="doc-desc-title"> Bantuan Topik </span>.
+  links:
+    - 
+      title: Mengurus halaman Terima-kasih
+      href: /scp/pages.php
+auto_assign_to:
+  title: Auto-tugas tiket baru
+  content: >
+    Secara pilihan memilih Ejen atau pasukan untuk tiket automatik menyerahhakkan dibuka dengan ini <span class="doc-desc-title">Topik Bantuan </span><br><br> Penapis Tiket boleh mengatasi tugasan.
+  links:
+    - 
+      title: Urus Kakitangan dan Pasukan
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Auto-Respon Tiket
+  content: >
+    Jika disemak, tetapan akan melumpuhkan tiket baru auto-respon untuk ini <span class="doc-desc-title"> Topik Bantuan</span>. <br><br> ini membatalkan tetapan autorespond untuk <span class="doc-desc-title"> Jabatan </span> dan juga global <span class="doc-desc-title"> Tetapan Autorespond </span>.
+  links:
+    - 
+      title: Tetapan autorespon
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Nombor Tiket Biasa
+  content: >
+    Pilih "kebiasaan" di sini untuk mengatasi sistem lalai tiket format penomboran untuk tiket dicipta dalam bantuan topik ini. Lihat bantuan dalam tips pada halaman tetapan / Tiket untuk maklumat lebih lanjut mengenai tetapan.

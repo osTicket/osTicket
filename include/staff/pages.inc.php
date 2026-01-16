@@ -102,9 +102,9 @@ else
                 $inuse = ($page->topics || in_array($page->id, $defaultPages));
                 ?>
             <tr id="<?php echo $page->id; ?>">
-                <td align="center">
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $page->id; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>>
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $page->id; ?>"
+                            <?php echo $sel?'checked="checked"':''; ?>><label></label></p>
                 </td>
                 <td>&nbsp;<a href="pages.php?id=<?php echo $page->id; ?>"><?php echo Format::htmlchars($page->getLocalName() ?: $page->getName()); ?></a></td>
                 <td class="faded"><?php echo $page->type; ?></td>

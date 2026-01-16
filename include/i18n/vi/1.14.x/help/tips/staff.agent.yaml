@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Tên đăng nhập
+  content: >
+    Hãy chọn <span class="doc-desc-title">username</span> của nhân viên mà chỉ riêng nhân viên đó mới có <span class="doc-desc-title">Bộ phận hỗ trợ</span>.
+email_address:
+  title: Địa chỉ email
+  content: >
+    Nhập email của nhân viên sẽ nhận được cảnh báo <span class="doc-desc-title">Alerts &amp; Thông báo </span> từ <span class="doc-desc-title">Help Desk</span>.
+  0: <br><br>
+  1: Nhân viên có thể đăng nhập vào bảng điều khiển nhân viên bằng username hoặc địa chỉ email.
+welcome_email:
+  title: Chào mừng đến Email
+  content: >
+    Khi gửi cho nhân viên mới link truy nhập, họ sẽ phải đặt lại Mật khẩu. Nếu chưa kiểm tra, bạn sẽ phải đặt lại Mật khẩu và chia sẻ thông tin đăng nhập cho nhân viên mới.
+account_password:
+  title: Mật khẩu
+  content: >
+    Với tư cách  <span class="doc-desc-title">quản trị viên</span>,  bạn có thể thay đổi Mật khẩu của nhân viên.
+forced_password_change:
+  title: Thay đổi mật khẩu bắt buộc
+  content: >
+    Kích hoạt nó nếu bạn muốn nhân viên mới thay đổi mật khẩu trong lần đăng nhập tiếp theo.
+agents_signature:
+  title: Chữ ký của nhân viên
+  content: >
+    Tạo ra một chữ ký cho các nhân viên mà có thể được chọn khi phúc đáp cho một yêu cầu.
+account_status:
+  title: Trạng thái tài khoản
+  content: >
+    Nếu trạng thái của nhân viên là  <span class="doc-desc-opt">khóa</span>, họ sẽ không thể đăng nhập tới bảng trợ giúp.
+assigned_group:
+  title: Nhóm được chỉ định
+  content: >
+     <span class="doc-desc-title">Nhóm</span>mà bạn muốn chọn  cho nhân viên này sẽ quyết định quyền của nhân viên đó trong  <span class="doc-desc-title">Bảng trợ giúp</span>.
+  links:
+    - 
+      title: Nhóm quản lý
+      href: /scp/groups.php
+primary_department:
+  title: Ban ngành ban đầu
+  content: >
+    Chọn <span class="doc-desc-title">Phòng ban</span> chính mà Nhân viên thuộc về và <span class="doc-desc-title">Vai trò</span> có hiệu quả.
+  links:
+    - 
+      title: Quản lý phòng ban
+      href: /scp/departments.php
+primary_role:
+  title: Vai trò chính
+  content: >
+    Chọn <span class="doc-desc-title">quyền hạn</span> chính cho cộng tác viên.
+primary_role_on_assign:
+  title: Sử dụng quyền chính cho các công việc
+  content: >
+    Bật tính năng này  để dự phòng <span class="doc-desc-title">vai trò chính</span>  khi nhân viên được gán yêu cầu hoặc tác vụ bên ngoài <span class="doc-desc-title">Phòng ban chính</span> và <span class="doc-desc-title">mở rộng truy cập</span> Phòng ban. Ngoài ra nhân viên chỉ có quyền xem.
+daylight_saving:
+  title: Daylight Saving
+  content: >
+    Kích hoạt tính năng này nếu bạn muốn Daylight Saving để tự động sử dụng trong múi giờ của nhân viên.
+limited_access:
+  title: Truy cập hạn chế
+  content: >
+    Nếu đã kích hoạt, nhân viên sẽ chỉ phải đăng nhập để yêu cầu chuyển giao trực tiếp hoặc thông qua Nhóm.
+directory_listing:
+  title: Danh sách thư mục
+  content: >
+    Nếu bạn muốn liệt kê nhân viên này trong <span class="doc-desc-title">thư mục nhân viên</span>.
+  links:
+    - 
+      title: Xem Thư mục nhân viên
+      href: /scp/directory.php
+vacation_mode:
+  title: Chế độ nghỉ
+  content: >
+    Nếu bạn thay đổi trạng thái nhân viên thành <span class="doc-desc-opt"> Trạng thái nghỉ </span>, nhân viên sẽ không nhận được bất cứ <span class="doc-desc-title"> cảnh báo &amp; thông báo </span> cũng như sẵn sàng nhận chuyển giao công việc.
+

@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+	<title>CodeMirror</title>
+	<link rel="stylesheet" type="text/css" href="plugin/codemirror/lib/codemirror.css">
+	<link rel="stylesheet" href="css/lucario.css">
+	<style>
+	#container {
+    width: 90%;
+    margin: 0 auto;
+	}
+	</style>
+</head>
+
+<body>
+
+<div id="container">
+
+<textarea class="codemirror-textarea">
+/* Add your custom CSS code here.
+
+For example:
+
+.example {
+    color: red;
+}
+
+For brushing up on your CSS knowledge, check out http://www.w3schools.com/css/css_syntax.asp
+
+End of comment */ 
+</textarea>
+
+</div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="plugin/codemirror/lib/codemirror.js"></script>
+<script src="plugin/codemirror/mode/css/css.js"></script>
+<script>
+$(document).ready(function() {
+	var code = $(".codemirror-textarea")[0]; 
+	var editor = CodeMirror.fromTextArea(code, {
+	lineNumbers: true,
+	theme: "lucario"
+	});
+});
+</script>
+</body>
+</html>

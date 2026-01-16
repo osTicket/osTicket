@@ -1,0 +1,10 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  La Page Hors Connexion s'affiche dans le Portail Client lorsque le Support d'Assistance est hors connexion.
+name: Hors-ligne
+body: |
+  <div><h1> <span style="font-size: medium">  Support hors Ligne</span></h1> <p>Merci d'utiliser notre outil de support.</p> <p>Notre helpdesk est actuellement hors ligne . Veuillez réessayer ultérieurement.</p> </div>

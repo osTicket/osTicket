@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Sags nummer format
+  content: >
+    Denne indstilling bruges til at generere opgavenumre. Brug hash tegn (`#`), hvor cifrene skal placeres. Enhver anden tekst i nummer formatet vil blive bevaret. <br/><br/> For eksempel, for sekscifrede tal, brug <code> ######</code>.
+sequence_id:
+  title: Opgave nummer sekvens
+  content: >
+    Vælg en sekvens, hvorfra man kan udlede nye opgave numre. Systemet har en forøgelse sekvens og en tilfældig sekvens som standard. Du kan oprette så mange sekvenser, som du ønsker.
+default_sla:
+  title: Standard SLA
+  content: >
+    Vælg standard SLA til at styre hvor længe en opgave kan stå åben, før den vil blive sat til "forsinket".
+  links:
+    - 
+      title: Opret flere SLA planer
+      href: /scp/slas.php
+default_priority:
+  title: Standard Prioritet
+  content: >
+    Vælg en standard <span class="doc-desc-title"> prioritet </span> for opgaver der ikke er tildelt en prioritet automatisk.
+task_attachment_settings:
+  title: Opgave tråd vedhæftninger
+  content: >
+    Konfigurer indstillinger for filer knyttet til <span class="doc-desc-title"> beskrivelses </span> feltet. Disse indstillinger anvendes til alle nye opgaver og nye meddelelser uanset kilden (webportal, Email, api, osv.).
+page_title:
+  title: Advarsler og Meddelelser
+  content: >
+    Advarsler og meddelelser er automatiseret e-meddelelser, der sendes til agenter, når forskellige opgave begivenheder udløses.
+task_alert:
+  title: Ny opgave meddelse
+  content: >
+    <p> Signal sendt ud til agenter, når en ny opgave oprettes. </p> <p class="info-banner"> <i class="icon-info-sign"> </i> Dette signal er ikke sendt ud hvis opgaven er automatisk tildelt. </p>
+  links:
+    - 
+      title: Standard Ny Opgave Signal skabelon
+      href: /scp/templates.php?default_for=task.alert
+activity_alert:
+  title: Ny aktivitet meddelelse
+  content: >
+    Signal sendt ud til agenter, når en ny meddelelse er vedlagt en eksisterende opgave.
+  links:
+    - 
+      title: Standard Ny Aktivitet Signal skabelon
+      href: /scp/templates.php?default_for=task.activity.alert
+assignment_alert:
+  title: Opgave tildeling meddelelse
+  content: >
+    Signal sendt ud til agenter på opgaven.
+  links:
+    - 
+      title: Standard Ny Opgave Signal skabelon
+      href: /scp/templates.php?default_for=task.assignment.alert
+transfer_alert:
+  title: Opgave overførsels meddelelse
+  content: >
+    Signal sendt ud til agenter på opgaveoverførsel mellem afdelinger.
+  links:
+    - 
+      title: Standard Opgave Overførsel Signal skabelon
+      href: /scp/templates.php?default_for=task.transfer.alert
+overdue_alert:
+  title: Forsinket opgave meddelelse
+  content: >
+    Signal sendt ud til agenter, når en opgave bliver forsinket baseret på SLA eller forfaldsdato.
+  links:
+    - 
+      title: Standard Forældet Opgave Signal skabelon
+      href: /scp/templates.php?default_for=task.overdue.alert
+    - 
+      title: Administrere SLA'er
+      href: /scp/slas.php
+

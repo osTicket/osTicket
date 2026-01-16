@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Tingkat Lanjut
+  content: >
+    Mempersempit parameter penelusuran. Sekali Anda telah memilih kriteria pencarian Anda dan menjalankan pencarian, Anda dapat <span class="doc-desc-title"> mengekspor</span> data di bagian bawah halaman Tiket.
+export:
+  title: Ekspor
+  content: >
+    Ekspor data Anda saat ini ke dalam CSV file. File CSV dapat dibuka dengan perangkat lunak spreadsheet (misalnya, Microsoft Excel, halaman Apple, OpenOffice, dll).

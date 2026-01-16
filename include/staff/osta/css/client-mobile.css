@@ -1,0 +1,424 @@
+@charset "utf-8";
+/* CSS Document */
+/*
+/*      CLIENT - Mobile
+*/
+
+
+/*
+/*      960 px
+*/
+
+@media only screen and (max-width:960px) {
+	
+/* ==========================================================================
+ HEADER
+========================================================================== */
+	#header,
+	#header-inner,
+	#content,
+	#nav-wrapper,
+	#nav-inner {
+		width: 100%;
+	}
+	#header {	
+		padding: 0;
+		background: var(--header-bg);
+		border: initial;
+		box-shadow: initial;
+		height: 60px;
+		top: 0;
+		z-index: 4;
+	}
+	#content {
+	    margin: 0 2% 0 2%!important;
+    	width: 96% !important;
+	}
+	#content.up {
+		top: -48px;
+	}
+	#container #left-logo {
+		margin: 17px 0 0 2%;
+		position: absolute;	
+	}
+	.rtl #container #left-logo {
+		margin: 17px 2% 0 2%;
+		position: relative;
+	}	
+	#nav {
+	    margin: 0 0 0 2%;
+	}
+	.pull-right.flush-right {
+	    margin: 0 2% 0 0;
+	}
+	#languages {
+    	margin: 0 2% 0 0;
+	}
+	button.c-hamburger.c-hamburger--htx {
+		display: none;
+	}
+	#flags {
+		width: 96.5% !important;
+	}
+/* ==========================================================================
+ HOME PAGE
+========================================================================== */
+	.main-content {
+		width: initial;
+	}	
+	#landing_page {
+		/*margin: 0 3%;*/
+	}
+	div[style="margin:0px 30px 0px 30px;padding:5px 0 0 0"] {
+		margin: 19px 42px 24px 24px !important;
+		padding: 0px !important;
+	}
+	h2[style="margin:0 0 19px 0;font-size:16pt"] {
+		line-height: 26px;
+	}
+	#one-landing p {
+		padding: 0 24px;
+	}
+	
+/* ==========================================================================
+  TYPOGRAPHY
+========================================================================== */
+	h1 {
+		font-size: 22px;
+	}
+	
+/* ==========================================================================
+ OPEN TICKET open.inc.php
+========================================================================== */
+	#ticketForm div input,
+	input[type="tel"],
+	#ticketForm div select {
+		width: -webkit-fill-available;
+	}
+	#clientLogin {
+    margin: 29px 0px 30px 0px;
+	}
+	select, input.dp, input#query, input[type="text"], input[type="search"], input[type="email"], .form-field, .form_table input[type=text], .form_table input[type=password], .form_table textarea, select#topicId {
+		width: 97%;
+		}
+	input[type="tel"] {
+		width: calc(97% - 93px) !important;
+	}	
+
+/* ==========================================================================
+ PRE-FOOTER
+========================================================================== */
+	#pre-footer .form-wrapper {
+	}
+}
+
+@media only screen and (max-width:670px) {
+	.flag {
+		height: 18px;
+		display: inline-block;
+		margin: 0 0px 7px 0;
+	}
+}
+
+/*
+/*      600 px
+*/
+
+@media only screen and (max-width:600px) {
+	
+/* ==========================================================================
+ HEADER
+========================================================================== */
+	#flags {
+		display: none;
+	}
+	.rtl #container #left-logo {
+		margin: 17px 65px 0 2%;
+		position: relative;
+	}
+	
+/* ==========================================================================
+  TYPOGRAPHY
+========================================================================== */
+	h1 {
+		margin-bottom: 6px !important;
+		font-size: 4vmax;
+	}	
+	#landing_page h1 {
+		margin-bottom: 12px !important;
+	}	
+
+/* ==========================================================================
+ VIEW TICKET
+========================================================================== */
+	.open-page tr:first-child td[colspan="2"] {
+		padding-top: 0px;
+	}
+	.login-page #one-view-page, 
+	.login-page #two-view-page {
+
+	}	
+	
+/* ==========================================================================
+ OPEN TICKET open.inc.php
+========================================================================== */
+	#content.up,
+	#content.down {
+		top: 47px;
+		margin-bottom: 62px !important;
+	}
+	#more-options h1 {
+		font-size: 4vmax;
+	}
+	
+	
+/* ==========================================================================
+ ??? FRONT PAGE
+========================================================================== */		
+
+	#landing-intro {
+		padding: 0px;
+		font-size: calc(14px + .2vw);
+	}	
+    #one-client-index,
+    #two-client-index {
+        width: auto;
+        float: none;
+    }	
+	#two-client-index {
+		margin: 3% 12%;
+	}
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		font-size: 3.5vmin;
+	 	text-align: center;
+	}
+	#ticket-open, #ticket-view {
+		min-height: unset;
+	}
+	#ticket-open-inner-text, #ticket-view-inner-text {
+		margin-top: 24px;
+	}
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		min-height: unset;
+	}
+}
+@media only screen and (max-width: 460px) {
+	#two-client-index {
+		margin: 3% 2%;
+	}
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		font-size: 4.5vmin;
+	}
+ .form-wrapper button {
+    	width: 98px;
+	}
+	.form-wrapper input {
+		width: calc(100% - 107px) !important;
+	}
+} 
+@media only screen and (max-width: 400px) {
+	#ticket-open-inner-text-inner, #ticket-view-inner-text-inner {
+		font-size: 5.5vmin;
+	}	
+} 
+@media only screen and (max-width: 600px) {	
+	#more-options h1 {
+	    font-size: 4vmax;
+	}
+	#information {
+    	margin: -8px 0 34px 0;
+	}
+	.category-name,
+	.other-resources {
+		font-size: 20px;
+	}
+	.form-wrapper input::-webkit-input-placeholder {
+    	font-size: 92% !important;
+	}
+	.form-wrapper button {
+		font-size: 80%;
+	}	
+
+/* ==========================================================================
+ VIEW (login)
+========================================================================== */
+  #one-view-page,
+    #middle-view-page,
+    #two-view-page {
+    width: auto;
+    float: none;
+  	}
+	.view-page #one-view-page,	
+	.login-page #one-view-page {
+    	border-radius: 5px 5px 0 0;
+	}	 
+	.view-page #two-view-page,	
+	.login-page #two-view-page {
+    	border-radius: 0 0 5px 5px;
+	}		
+  #one-view-page {
+		border: 1px solid #ddd;
+		border-bottom: 0px;
+	}
+  #middle-view-page {
+		background: url('../../osta/img/100x1.png') #fff;
+		background-position: center center;
+		background-size: 100% 1px;
+		background-repeat: no-repeat;
+		border: 1px solid #ddd;
+		border-top: 0px;
+		border-bottom: 0px;
+		height: 60px;
+  	}
+  #two-view-page {
+		border: 1px solid #ddd;  
+		border-top: 0px;
+	}	
+	
+/* ==========================================================================
+ TICKETS
+========================================================================== */	
+	#ticketTable th {
+		display: none;
+	}	
+	td.ticket-desktop {
+		display: none;
+	}		
+	td.ticket-mobile {
+    	display: table-cell;
+	}
+	tr#ticket-mobile {
+		display: inline;
+	}	
+	#ticketTable tr:first-child td {
+		padding: 16px 2px 4px 0px;
+	}
+	#ticketTable tr:nth-child(2) td {
+		padding: 4px 2px 16px 0px;
+	}	
+	td[rowspan="2"] {
+		padding: 0 9px !important;
+	}	
+	.link.truncate {
+		font-weight: 500;
+	    color: #128dbe;	
+	}
+
+/* ==========================================================================
+ ALERTS: ERRORS, NOTICES AND WARNINGS
+========================================================================== */
+	#msg_notice, #msg_warning, #msg_error {
+    	width: calc(98% - 40px);
+	}
+
+/* ==========================================================================
+ SIDR MENU code in footer.inc
+========================================================================== */
+	#header {
+		position: fixed;
+	}
+	#nav-wrapper,
+	#nav {
+		display: none;
+	}	
+	.c-hamburger {
+		display: block;
+	}	
+	.pull-right.flush-right {
+		display: none;
+	}	
+	button.c-hamburger.c-hamburger--htx {
+	    display: inline;
+	}
+	div#right_menu a {
+	    color: #fff;
+	}
+	.sidr {
+	    z-index: 999998;
+	}
+	.sidr ul {
+		display: block;
+		margin: 0px 0 15px;
+		padding: 0;
+		border-bottom: none;
+	}
+	#header .sidr .sidr-inner ul li a {
+		font-weight: 400 !important;
+		color: var(--mobile-link-color);
+	}	
+	.sidr ul#nav-mobile li:nth-child(5) {
+		border-top: .5px solid #ffffff2b;
+	}
+	#sidr-right {
+    	margin-top: 60px;
+	}	
+	.sidr .sidr-inner {
+		/* padding: 0 0 15px; */
+		margin-top: 0px;
+	}	
+	.sidr-inner a[href*="/login.php"], 
+	.sidr-inner a[href*="/logout.php"] {
+		color: var(--nav-bar-link);
+		text-decoration: none!important;
+		letter-spacing: unset;
+		border: unset;
+		/* padding: unset !important; */
+		margin-left: unset;
+		background: unset;
+	}	
+	.sidr ul li:hover, .sidr ul li.active, .sidr ul li.sidr-class-active {
+		background: #00000014;
+	    box-shadow: unset;	
+	}	
+	.sidr ul li:hover>a, .sidr ul li:hover>span, .sidr ul li.active>a, .sidr ul li.active>span, .sidr ul li.sidr-class-active>a, .sidr ul li.sidr-class-active>span	
+		ul#nav-mobile {
+	    box-shadow: unset;
+	}
+	li#contact-id {
+		position: fixed;
+		bottom: 0px;
+		background: var(--mobile-menu-bg);
+		border-top: .5px solid rgba(0, 0, 0, 0.12);
+	    width: 220px;
+	}
+	div#welcome {
+    	padding: 13px 15px 17px 15px!important;
+		font-weight: 300;
+		color: var(--mobile-link-color);
+		font-size: 13px;
+	    background: #00000008;	
+	}
+	div#welcome svg {
+		position: relative;
+		top: 4px;
+		fill: var(--mobile-link-color);
+	}	
+	div[style="margin:0px 30px 0px 30px;padding:5px 0 0 0"] {
+		margin: 24px 0 !important;
+	}
+	#flags-mobile {
+		padding: 20px 17px;
+	}	
+	#flags-mobile .flag {
+		margin: 0 5px 10px 0;
+	}	
+}
+
+
+/*
+/*      Client - EXTRA SMALL SCREEN
+/*
+*/
+
+@media only screen and (max-width:400px) {
+	div#flags a {
+		padding-left: 6px;
+	}
+	div#x-section-1 {
+		padding-bottom: 10% !important;
+	}	
+	img.alignright.size-medium.wp-image-41 {
+		margin-bottom: 20px;
+	}	
+}
+

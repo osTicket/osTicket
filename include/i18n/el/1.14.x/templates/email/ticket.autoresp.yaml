@@ -1,0 +1,29 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Αποστέλλεται σε ένα χρήστη όταν δημιουργείται ένα νέο δελτίο
+subject: |
+  Ανοίχθηκε Δελτίο Υποστήριξης [#%{ticket.number}]
+body: |
+  <h3><strong>Αγαπητέ/ή %{recipient.name.first},</strong></h3>
+  <p>
+  Ένα αίτημα υποστήριξης έχει δημιουργηθεί και έλαβε τον αριθμό δελτίου: #%{ticket.number}.
+  Ένας εκπρόσωπος θα σας εξυπηρετήσει το συντομότερο δυνατόν. Μπορείτε
+  <a href="%{recipient.ticket_link}">να δείτε την πρόοδο του αιτήματος
+  online</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Κέντρο Υποστήριξης<br>
+  %{company.name} ,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Αν θέλετε 
+  να παρέχετε επιπλέον σχόλια ή πληροφορίες σχετικά με το θέμα,
+  παρακαλούμε απαντήστε στο παρόν email ή <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >συνδεθείτε στον λογαριασμό σας</span></a> για
+  ένα πλήρες ιστορικό των αιτημάτων υποστήριξης που έχετε υποβάλει.</em></div>

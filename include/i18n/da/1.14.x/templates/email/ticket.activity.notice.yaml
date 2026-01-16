@@ -1,0 +1,10 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Notits sendes til samarbejdspartnere på bestillings aktivitet fx svar eller en meddelelse.
+subject: |
+  SV: %{ticket.subject}
+body: |
+  <h3><strong>Kære %{recipient.name.first},</strong></h3> <div><em>%{poster.name}</em> logget lige en besked til en bestilling, som du deltager i.</div> <br>%{message} <br><br><hr><div style="color: rgb(127, 127, 127); font-size: small; text-align: center;"> <em>du får denne e-mail, fordi du er en samarbejdspartner på bestilling <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" > #%{ticket.number}</a>.  For at deltage, blot besvar denne e-mail eller <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" > Klik her</a> for en komplet oversigt af din bestilling tråd.</em> </div>

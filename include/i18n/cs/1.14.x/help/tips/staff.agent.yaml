@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Uživatelské jméno
+  content: >
+    Zadejte <span class="doc-desc-title">uživatelské jméno</span> pracovníka, které je jedinečné ve vašem <span class="doc-desc-title">systému zákaznické podpory</span>.
+email_address:
+  title: E-mail
+  content: >
+    Zadejte e-mailovou adresu pracovníka, na kterou bude dostávat <span class="doc-desc-title">výstrahy a oznámení</span> od <span class="doc-desc-title">systému zákaznické podpory</span>.
+  0: <br><br>
+  1: Pracovníci se mohou přihlásit do ovládacího panelu pracovníka buď uživatelským jménem nebo e-mailovou adresou.
+welcome_email:
+  title: Uvítací e-mail
+  content: >
+    Systém zašle novému pracovníkovi přístupový odkaz, pomocí nějž bude moci nastavit své heslo. Není-li vybráno, musíte heslo nastavit a přihlašovací informace sdělit novému pracovníkovi.
+account_password:
+  title: Heslo
+  content: >
+    Jako <span class="doc-desc-title">správce</span> můžete měnit heslo pracovníka.
+forced_password_change:
+  title: Vynucená změna hesla
+  content: >
+    Tato volba vynutí při příštím přihlášení nového pracovníka změnu jeho hesla.
+agents_signature:
+  title: Podpis pracovníka
+  content: >
+    Vytvořte podpis pracovníka, který může být použit při odpovědi na požadavek.
+account_status:
+  title: Stav účtu
+  content: >
+    Je-li stav pracovníka nastaven na <span class="doc-desc-opt">uzamčen</span>, nebude se moci přihlásit do systému zákaznické podpory.
+assigned_group:
+  title: Členství ve skupině
+  content: >
+    <span class="doc-desc-title">Skupina</span>, do které pracovníka zařadíte, bude určovat oprávnění pracovníka v <span class="doc-desc-title">systému zákaznické podpory</span>.
+  links:
+    - 
+      title: Správa skupin
+      href: /scp/groups.php
+primary_department:
+  title: Hlavní oddělení
+  content: >
+    Vyberte hlavní <span class="doc-desc-title">oddělení</span>, ke kterému pracovník patří a jeho skutečnou <span class="doc-desc-title">roli</span>.
+  links:
+    - 
+      title: Správa oddělení
+      href: /scp/departments.php
+primary_role:
+  title: Hlavní role
+  content: >
+    Vyberte hlavní <span class="doc-desc-title">roli</span>, ke které pracovník patří.
+primary_role_on_assign:
+  title: Použít hlavní roli pro přiřazení
+  content: >
+    Tato volba umožní ustoupit na <span class="doc-desc-title">hlavní roli</span>, pokud je pracovníkovi přiřazen požadavek nebo úkol mimo přiřazené <span class="doc-desc-title">hlavní oddělení</span> a oddělení s <span class="doc-desc-title">rozšířeným přístupem</span>. V opačném případě bude mít pracovník pouze právo prohlížení.
+daylight_saving:
+  title: Letní čas
+  content: >
+    Tato volba určuje, zda-li se má automaticky nastavovat letní čas pro časovou zónu tohoto pracovníka.
+limited_access:
+  title: Omezený přístup
+  content: >
+    Volba určuje, zda-li bude mít pracovník přístup pouze k požadavkům přiřazeným jemu či jeho týmu.
+directory_listing:
+  title: Výpis v adresáři
+  content: >
+    Tato volba určuje, zda-li bude pracovník vypsán v <span class="doc-desc-title">seznamu pracovníků</span>.
+  links:
+    - 
+      title: Zobrazit seznam pracovníků
+      href: /scp/directory.php
+vacation_mode:
+  title: Na dovolené
+  content: >
+    Změníte-li stav pracovníka na <span class="doc-desc-opt">na dovolené</span>, pracovníkovi nebudou zasílány žádné <span class="doc-desc-title">výstrahy a oznámení</span> a ani mu nebude možné přiřadit požadavek.
+

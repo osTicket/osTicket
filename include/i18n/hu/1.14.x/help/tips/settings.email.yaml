@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Alapértelmezett email sablon készlet
+  content: >
+    Válasszon egy <span class="doc-desc-title">Email Sablon Készletet</span>, amit az <span class="doc-desc-title">Automatikus válaszüzenetekhez</span> és a jegy élettartama során végbemenő folyamatok által generált egyéb <span class="doc-desc-title">Riasztásokhoz</span> használni kíván.<br><br> Az egyes Részlegekhez egyéni Email Sablon Készlet állítható be.
+  links:
+    - 
+      title: Email sablongyűjtemény kezelése
+      href: /scp/templates.php
+default_system_email:
+  title: Alapértelmezett kimenő email
+  content: >
+    Válasszon egy email címet, amiről a kimenő üzenetek elküldése történik. <br><br> A <span class="doc-desc-title">A Részleg</span> beállíthatja a saját <span class="doc-desc-title">email címét</span> ami felül fogja írni ezt a beállítást.
+  links:
+    - 
+      title: Email címek kezelése
+      href: /scp/emails.php
+default_alert_email:
+  title: Alapértelmezett e-mail értesítés
+  content: >
+    Válasszon egy email címet, amiről a <span class="doc-desc-title">Riasztások &amp; Értesítések</span> ki lesznek küldve a kezelőknek.
+  links:
+    - 
+      title: Email címek kezelése
+      href: /scp/emails.php
+admins_email_address:
+  title: Adminisztrátor email címe
+  content: >
+    Adjon meg egy adminisztrátori email címet, amelyikre a <span class="doc-desc-title">Rendszerhibák</span> és az <span class="doc-desc-title">Új hibajegy Riasztások</span> (ha engedélyezett) küldésre kerülnek.
+  links:
+    - 
+      title: Riasztások és jelentések kezelése
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Email begyűjtés
+  content: >
+    Engedélyezze az IMAP/POP lekérdezést a beállított és engedélyezett <span class="doc-desc-title">Postafiókokhoz</span>.
+  links:
+    - 
+      title: Postafiókok kezelése
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Emailek begyűjtése CRON-al
+  content: >
+    Periodikusan ismétlődő email lekérdezéseket tesz lehetővé egy belső feladatkezelővel, aminek működését a kezelők tevékenysége váltja ki. <br><br> Figyelem: Az emailek nem lesznek lekérdezve, ha senki sincs bejelentkezve a Kezelői Kontroll Felületre. Ajánljuk egy külső feladat ütemező beállítását a kiszámítható lekérdezési intervallumok érdekében.
+  links:
+    - 
+      title: Külső Feladat Ütemező Használata
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Előzmény nélküli válasz
+  content: >
+    Ha engedélyezve van, minden korábbi levelezés el lesz távolítva az email kommunikációból. <br><br> Ez a funkció az alábbi <span class="doc-desc-title">Válasz elválasztó jel</span> helyzete alapján működik.
+reply_separator_tag:
+  title: Válasz elkülönítő jel
+  content: >
+    Ez egy jel, ami jelzi az ügyfélnek, hogy válaszoljon az alábbi szövegre. <br><br> <strong>Figyelem:</strong> ez csak abban az esetben működik, ha az <span class="doc-desc-title">Előzmény mentes válasz</span> funkció engedélyezve van.
+emailed_tickets_priority:
+  title: Elküldött hibajegyek Prioritása
+  content: >
+    Válassza ki, hogy szeretné-e, hogy az új hibajegy prioritását/fontosságát a felhasználó emailje (pl. Outlook) határozza meg. <br><br> Ezt a beállítást a <span class="doc-desc-title">Hibajegy szűrő</span> felülírhatja.
+  links:
+    - 
+      title: Hibajegy szűrők létrehozása &amp; kezelése
+      href: /scp/filters.php
+accept_all_emails:
+  title: Minden levél engedélyezése
+  content: >
+    Ismeretlen felhasználók emailjeinek fogadása. <br><br> Kikapcsolásakor ezek a hibajegyek el lesznek utasítva.
+accept_email_collaborators:
+  title: Emailt fogadó munkatársak
+  content: >
+    Adjon hozzá részvevőket a <code><strong>Címzett</strong></code> és a <code><strong>Másolatot kap</strong></code> mezőkbe. <br /><br /> <em>A munkatársak megadhatóak manuálisan is a kezelők által a hibajegy megtekintése során.</em>
+default_mta:
+  title: Alapértelmezett MTA
+  content: >
+    Az <span class="doc-desc-title">alapértelmezett üzenetküldő közvetítő (szerver)</span> gondoskodik az SMTP beállítás nélküli kimenő emailek kézbesítési folyamatáról.
+ticket_response_files:
+  title: Hibajegy válasz fájlok
+  content: >
+    Engedélyezés esetén a kezelő által a hibajegyhez csatolt bármely fájl megjelenik a felhasználónak küldött email csatolmányaként is.
+verify_email_addrs:
+  title: Email cím ellenőrzése
+  content: >
+    Engedélyezze ezt az opciót hogy ellenőrizze levélkezelő (MX) jelenlétét a címzett névtartományában. Hasznos a helytelenül bevitt emailcímek észlelésében. Az emailcímek formai ellenörzésével együtt lesz végrehajtva.

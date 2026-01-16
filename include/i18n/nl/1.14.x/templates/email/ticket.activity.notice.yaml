@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Kennisgeving die naar deelnemers gestuurd wordt bij ticket activiteit, bijv. een reactie of bericht.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Beste %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> Heeft zojuist een bericht toegevoegd aan een ticket waar u aan deelneemt.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>U krijgt deze e-mail omdat u deelneemt aan een ticket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Om deel te nemen, kunt u eenvoudig op deze e-mail reageren of <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >klik hier</a> voor een compleet archief van het ticket overzicht.</em>
+  </div>

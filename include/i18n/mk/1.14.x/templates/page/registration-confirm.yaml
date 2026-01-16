@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Овој шаблон ја одредува страницата која ќе се прикаже на клиентите по пополнувањето на формуларот за регистрација. Во шаблонот треба да се спомене дека од системот ќе им биде испратен линк за потврда по e-mail и кој е следниот чекор во процесот на регистрација.
+name: "Регистрација на профилот"
+body: >
+  <div><strong>Ви благодариме за регистрацијата на профилот.</strong><br/> <br /> Ви ја испративме на емаил, адресата која што ја внесивте. Ве молиме притиснете на линкот на добиениот емаил од нас, за да го потврдите вашиот профил и да добиете пристап до вашите билети. </div>

@@ -1,0 +1,24 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Aviso enviado a los colaboradores sobre la actividad de un Ticket, por ejemplo: una respuesta o un mensaje.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>Estimado(a) %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> ingresó un menaje a un ticket donde usted participa.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Usted está recibiendo este correo por que colabora en el ticket 
+  <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);">#%{ticket.number}</a>.  
+  Para participar, sólo conteste este correo o <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >de click aqui</a> para un archivo completo sobre el ticket.</em>
+  </div>

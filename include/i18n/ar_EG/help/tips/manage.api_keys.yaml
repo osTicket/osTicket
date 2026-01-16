@@ -1,0 +1,13 @@
+---
+api_key:
+  title: مفتاح API
+  content: >
+    يتم استخدام مفاتيح API لمصادقة العملاء الذين يقدمون تذاكر جديدة عبر واجهة برمجة التطبيقات (API). يتم استخدام مفاتيح API بدلاً من كلمات المرور. بما ان مفاتيح API تُرسل غير مشفرة، فإنها ترتبط بعنوان ال IP لكل عميل.
+  links:
+    - 
+      title: وثائق واجهة برمجة التطبيقات للـ osTicket
+      href: 'https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md'
+ip_addr:
+  title: عنوان الـ IP
+  content: >
+    عنوان الـ IP لعميل الشبكة. كل عنوان IP فريد للعميل سوف يتطلب مفاتيح API منفصلة

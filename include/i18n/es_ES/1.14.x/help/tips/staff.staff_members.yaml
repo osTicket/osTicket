@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Miembros del Equipo
+  content: >
+    La siguiente tabla muestra los resultados del filtro por encima de él. Si no hay ajustes de filtro son elegidos, entonces todos <span class="doc-desc-title">los agentes</span>(el personal)<span class="doc-desc-title">los miembros</span>son mostrados por páginas. Vea la sección de páginas a continuación para navegar a través de más resultados.
+status:
+  title: Estado
+  content: >
+    Esto mostrará si el <span class="doc-desc-title"> agente</span> es bloqueado, activo o activo (vacaciones).

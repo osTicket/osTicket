@@ -1,0 +1,139 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #flags:      (unused)
+  #name:       Display name of the column
+  #primary:    Data source for the field
+  #secondary:  Backup data source / default text
+  #filter:     What the field should link to
+  #'link:ticket':    Ticket
+  #'link:user':      User
+  #'link:org':       Organization
+  #'link:ticketP':   Ticket with hover preview
+  #truncate:
+  #'wrap':   Fold words on multiple lines
+  #annotations:
+  #c:        Annotation class name
+  #p:        Placement
+  #'a':    After column text
+  #'b':    Before column text
+  #'<':    Float to start (left)
+  #'>':    Float to end (right)
+  #conditions:
+  #crit:     Criteria for the condiditon, in the form of [field, method, value]
+  #prop:     Array of CSS properties to apply to the field
+  #'font-weight':
+  #'font-style':
+  #...
+  #extra:      (future use and for plugins)
+  #---
+  id: 1
+  name: "Tichet #"
+  primary: "număr"
+  filter: "link:ticketP"
+  truncate: "împachetat"
+  annotations: '[{"c":"TicketSourceDecoration","p":"b"}]'
+  conditions: '[{"crit":["isanswered","nset",null],"prop":{"font-weight":"bold"}}]'
+- 
+  id: 2
+  name: "Data creării"
+  primary: "creat"
+  secondary: null
+  filter: "date:full"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 3
+  name: "Subiect"
+  primary: "cdata__subject"
+  filter: "link:ticket"
+  truncate: "elipsă"
+  annotations: '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"},{"c":"LockDecoration","p":"<"}]'
+  conditions: '[{"crit":["isanswered","nset",null],"prop":{"font-weight":"bold"}}]'
+- 
+  id: 4
+  name: "Nume utilizator"
+  primary: "user__name"
+  truncate: "împachetat"
+  annotations: '[{"c":"ThreadCollaboratorCount","p":">"}]'
+  conditions: "[]"
+- 
+  id: 5
+  name: "Prioritate"
+  primary: "cdata__priority"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 6
+  name: "Stare"
+  primary: "status__id"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 7
+  name: "Data inchidere"
+  primary: "closed"
+  filter: "date:full"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 8
+  name: "Alocat către"
+  primary: "atribuit"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 9
+  name: "Data scadentă"
+  primary: "data scadentă"
+  secondary: "est_duedate"
+  filter: "date:human"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 10
+  name: "Ultima actualizare"
+  primary: "ultima actualizare"
+  filter: "date:full"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 11
+  name: "Departament"
+  primary: "dept_id"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 12
+  name: "Ultimul mesaj"
+  primary: "thread__lastmessage"
+  filter: "date:human"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 13
+  name: "Ultimul raspuns"
+  primary: "thread__lastresponse"
+  filter: "date:human"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"
+- 
+  id: 14
+  name: "Echipa"
+  primary: "team_id"
+  truncate: "împachetat"
+  annotations: "[]"
+  conditions: "[]"

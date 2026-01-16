@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  這個內部訊息將顯示在專員登入畫面。第一個欄位以紅色字顯示在最頂端。
+name: "需要身份驗證"
+body: ""

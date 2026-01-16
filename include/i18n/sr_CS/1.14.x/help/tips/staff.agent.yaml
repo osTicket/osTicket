@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Korisničko ime
+  content: >
+    Molimo odaberite agentovo <span class="doc-desc-title">Korisničko ime</span> koje je jedinstveno za Vaš <span class="doc-desc-title">Tiketing sistem</span>.
+email_address:
+  title: Adresa elektronske pošte
+  content: >
+    Unesite agentovu adresu elektronske pošte na koju će primati <span class="doc-desc-title">Upozorenja i obaveštenja</span> od <span class="doc-desc-title">Tiketing sistema</span>.
+  0: <br><br>
+  1: Osoblje se može ulogovati u kontrolni panel osoblja bilo sa korisničkim imenom ili sa imejl adresom.
+welcome_email:
+  title: Imejl dobrodošlice
+  content: >
+    Pošaljite novom agentu link za pristup preko koga će agent biti u mogućnosti da podesi sopstvenu lozinku. Ukoliko je isključeno, morate podesiti lozinku i proslediti informacije za prijavu novom zaposlenom.
+account_password:
+  title: Lozinka naloga
+  content: >
+    Kao <span class="doc-desc-title">Administrator</span>, možete promeniti agentovu lozinku.
+forced_password_change:
+  title: Primorana promena lozinke
+  content: >
+    Omogućite ovo ukoliko želite da agent obavezno promeni svoju lozinku prilikom sledećeg prijavljivanja.
+agents_signature:
+  title: Agentov potpis
+  content: >
+    Napraviti potpis za agenta koji će moći da se selektuje prilikom odgovaranja na tiket.
+account_status:
+  title: Status naloga
+  content: >
+    Ukoliko je agentov status <span class="doc-desc-opt">Zaključan</span>, neće moći da se uloguje na Tiketing sistem.
+assigned_group:
+  title: Dodeljene grupe
+  content: >
+    Ona <span class="doc-desc-title">Grupa</span> za koju odaberete da joj agent pripada će odrediti koja prava agent ima unutar <span class="doc-desc-title">Tiketing sistema</span>.
+  links:
+    - 
+      title: Upravljanje grupama
+      href: /scp/groups.php
+primary_department:
+  title: Primarno odeljenje
+  content: >
+    Izabrati prvobitno<span class="doc-desc-title">odeljenje</span>kojem ovaj agent pripada i efektivnu <span class="doc-desc-title">Ulogu</span>.
+  links:
+    - 
+      title: Upravljanje odsecima
+      href: /scp/departments.php
+primary_role:
+  title: Prvobitna Uloga
+  content: >
+    Izabrati prvobitno<span class="doc-desc-title">odeljenje</span> kojem ovaj agent pripada.
+primary_role_on_assign:
+  title: Korišćenje Prvobitne Uloge Za Dodeljivanja
+  content: >
+    Omogućite da se povuče u <span class="doc-desc-title">prvobitnu ulogu</span> ukoliko su agentu dodeljeni tiketi i zadaci izvan <span class="doc-desc-title">prvobitnog odeljenja </span>i<span class="doc-desc-title">produžen je pristup</span>odeljenjima. U suprotnom će agentov pristup biti samo iz ugla posmatrača.
+daylight_saving:
+  title: Letnje računanje vremena
+  content: >
+    Omogućite ovu opciju ako želite da se letnje računanje vremena automatski uzima u obzir za agentovu vremensku zonu.
+limited_access:
+  title: Ograničen pristup
+  content: >
+    Ako je omogućeno, agent će imati pristup jedino tiketima koji su mu direktno dodeljenji ili kroz tim.
+directory_listing:
+  title: Spisak direktorijuma
+  content: >
+    Omogućite ovo ukoliko želite da se agent prikazuje u <span class="doc-desc-title">Direktorijumu zaposlenih</span>.
+  links:
+    - 
+      title: Poseti direktorijum osoblja
+      href: /scp/directory.php
+vacation_mode:
+  title: Slobodni dani
+  content: >
+    Ukoliko promenite agentov status u <span class="doc-desc-opt">Slobodni dani</span>, agent neće primiti ni jedan <span class="doc-desc-title">Upozorenja i obaveštenje</span> niti biti na raspolaganju za dodelu tiketa.
+

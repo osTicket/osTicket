@@ -1,0 +1,9 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+notes: >
+  Bu şablon heyət idarə paneli səhifəsində <strong>şifrəmi unutmuşam</strong> linkini seçən heyətə göndərilən e-poçtu müəyyən edir.
+name: "osTicket heyət şifrə sıfırlaması"
+body: >
+  <h3><strong>Salam %{staff.name.first},</strong></h3> <div> Şifrə sıfırlama təklifi sizin adınızdan helpdesk üçün %{url}da təqdim olunub.<br /> <br /> Əgər siz bunun xəta olduğunu düşünürsünüzsə, e-poçta əhəmiyyət verməyin və silin. Sizin hesabınız hələ də təhlükəsizdir və sizdən başqa heç kimə giriş icazəsi verilməyib. Kilidli deyil və şifrə sıfırlanmayıb. Kimsə səhvən sizin e-poçtu daxil edib.<br /> <br />Help deskə daxil olmaq və şifrənizi dəyişmək üçün aşağıdakı linkə daxil olun.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Sizin dost müştəri dəstək sisteminiz</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

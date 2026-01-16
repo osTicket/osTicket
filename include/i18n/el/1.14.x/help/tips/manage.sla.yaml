@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Όνομα
+  content: >
+    Επιλέξτε ένα περιγραφικό όνομα για το παρόν <span class="doc-desc-title">Σχέδιο SLA</span> που θα χαρακτηρίζει τον σκοπό του.
+grace_period:
+  title: Περίοδος Χάριτος
+  content: >
+    Καθορίστε τον αριθμό των ωρών από το άνοιγμα ενός δελτίου, μετά την παρέλευση των οποίων αυτό θα χαρακτηριστεί εκπρόθεσμο. <br><br> <em>Οι ώρες μετρώνται από την ώρα δημιουργίας του δελτίου αιτήματος.</em>
+transient:
+  title: Μεταβατικές
+  content: >
+    Οι μεταβατικές SLA θεωρούνται προσωρινές και μπορούν να παρακαμφθούν από μια μη μεταβατική SLA κατά την μεταφορά σε <span class="doc-desc-opt">Τμήμα</span> ή όταν αλλάξει ο <span class="doc-desc-title">Τομέας Βοήθειας</span>.
+schedule:
+  title: Πρόγραμμα
+  content: >
+    Επιλέξτε το Πρόγραμμα που θα χρησιμοποιηθεί με το SLA όταν εμφανίζονται αιτήματα που έχουν καθυστερήσει. <br><br>Σημειώστε ότι οι ρυθμίσεις του τμήματος μπορούν να υπερισχύουν του προγράμματος.
+  links:
+    - 
+      title: Διαχείριση Προγραμμάτων
+      href: /scp/schedules.php

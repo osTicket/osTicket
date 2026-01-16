@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Enviada ao membro da equipe quando um chamado é atribuído a ele. Chamados podem ser atribuídos automaticamente pelo sistema ou manualmente por um outro membro da equipe.  Use %{assigner} para distinguir quem fez o trabalho.
+subject: |
+  Chamado atribuído a você
+body: |
+  <h3><strong>Olá %{assignee.name.first},</strong></h3>
+  O chamado <a href="%{ticket.staff_link}">#%{ticket.number}</a> foi designado para você por %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>De</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Assunto</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Para ver / responder ao chamado, favor <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >acessar</span></a> o sistema de atendimento</div>
+  <em style="font-size: small; ">Seu amigo, Sistema de Atendimento</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

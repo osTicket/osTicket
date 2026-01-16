@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  See mall määrab, mis email saadetakse kliendile, kui konto on loodud kliendi portaalis või agendi poolt nende nimel. See email saadetakse emaili aadressi valideerimiseks. Palun kasuta kusagil sisu osas linki %{link}.
+name: "Tere tulemast %{company.name}"
+body: >
+  <h3><strong>Tere %{recipient.name.first}!</strong></h3> <div> Oleme loonud sulle konto meie kasutajatoe süsteemis aadressil %{url}.<br /> <br /> Palun vajuta lingile, et aktiveerida oma konto ja pääseda ligi piletitele. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Sinu sõbralik kasutajatugi <br /> %{company.name}</em> </div>

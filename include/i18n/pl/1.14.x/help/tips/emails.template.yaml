@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Szablony Email
+  content: >
+    Zestawy szablonów e-mail są wykorzystywane do wysyłania automatycznych odpowiedzi i alertów dla różnych działań, które mogą mieć miejsce podczas trwania zgłoszenia.
+template_to_clone:
+  title: Szablon do powielenia
+  content: >
+    Wybierz zestaw szablonów do klonowania lub zacznij ze standardowymi szablonami e-mail.
+language:
+  title: Język
+  content: >
+    Wybież żądany język z <span class="doc-desc-opt">magazynu</span> <span class="doc-desc-title">Zestaw Szablonów Email</span>. Zestawy Paczki językowe dostępne są  na osTicket.com.
+  links:
+    - 
+      title: osTicket pakiet językowy
+      href: https://osticket.com/download
+status:
+  title: Status
+  content: >
+    <span class="doc-desc-opt">Włączone</span> Zestawy Szablonów są dostępne do przypisania do Departamentów i do ustawienia jako domyślne systemowe. Obecnie używane Zestawy Szablonów nie mogą być <span class="doc-desc-opt">Wyłączone</span>.

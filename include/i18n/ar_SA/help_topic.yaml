@@ -1,0 +1,36 @@
+---
+- 
+  topic_id: 1
+  isactive: 1
+  ispublic: 1
+  dept_id: 1
+  priority_id: 2
+  topic: استفسار عام
+  notes: أسئلة حول المنتجات أو الخدمات
+- 
+  isactive: 1
+  ispublic: 1
+  dept_id: 1
+  priority_id: 1
+  topic: ردود الفعل
+  notes: |
+    التذاكر التي تتعلق أساساً بأقسام المبيعات و الفواتير
+- 
+  topic_id: 10
+  isactive: 1
+  ispublic: 1
+  dept_id: 1
+  priority_id: 2
+  topic: الإبلاغ عن مشكلة
+  notes: |
+    المشاكل المتعلقة بالمنتج أو الخدمة أو المعدات
+- 
+  topic_pid: 10
+  isactive: 1
+  ispublic: 1
+  dept_id: 1
+  sla_id: 1
+  priority_id: 3
+  topic: مشاكل الدخول
+  notes: |
+    التبليغ عن عدم القدرة على الوصول إلى الأصول المادية أو الافتراضية

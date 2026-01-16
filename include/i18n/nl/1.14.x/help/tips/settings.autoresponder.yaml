@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nieuw ticket
+  content: >
+    Activeer dit indien u bij een nieuw ticket een automatisch antwoord wilt verzenden naar de gebruiker.
+  links:
+    - 
+      title: Automatisch antwoordsjabloon bij een nieuw ticket
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nieuw ticket van Staff
+  content: >
+    Het bericht dat namens de gebruiker gestuurd wordt als een ticket wordt aangemaakt<em> Een agent kan dit overrulen bij het maken van nieuwe tickets</em>
+  links:
+    - 
+      title: Nieuw ticket berichtlayout
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Nieuw bericht bevestiging
+  content: >
+    Bevestigingsmelding verzonden wanneer een nieuw bericht is toegevoegd aan een bestaand ticket.
+  links:
+    - 
+      title: Nieuw bevestigingsbericht sjabloon
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Nieuw bericht melding
+  content: >
+    Stuur een melding namens de aanmelder naar alle medewerkers van het ticket.
+  links:
+    - 
+      title: Nieuwe activiteit melding template
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Melding wanneer de limiet is bereikt
+  content: >
+    Ticket geweigerd melding verzonden naar de gebruiker met als reden: <span class="doc-desc-title">Maximum Open Tickets</span> .
+  links:
+    - 
+      title: Liemiet bereikt melding template
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Stel het <em>maximaal aantal open tickets</em> in
+      href: /scp/settings.php?t=tickets

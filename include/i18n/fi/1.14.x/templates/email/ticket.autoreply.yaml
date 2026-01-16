@@ -1,0 +1,30 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Lähetetään käyttäjälle kun ensimmäinen automaattinen vastaus on lähetetty tukipyyntöön sen luontivaiheessa
+
+  Saatavilla olevat muuttujat korvaajiksi: %{ticket.*}, %{response}
+subject: |
+  Vs: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Hyvä %{recipient.name.first},</strong></h3>
+  Tukipyyntösi on vastaanotettu ja osoitettu tiketille <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> seuraavalla automaattisella vastauksella
+  <br>
+  <br>
+  Otsikko: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Aihe: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">Terveisin %{company.name} Tiimi,<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Toivomme, että tämä vastaus auttaa vastaamaan kysymyksiisi. Jos haluat antaa lisätietoja tähän liittyen, vastaa tähän viestiin tai <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >kirjaudu asiakastilillesi</span></a>, josta löydät täydellisen arkiston viesteistäsi.</em></div>

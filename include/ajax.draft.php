@@ -57,7 +57,7 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(422, "File not included properly");
 
         # Fixup for expected multiple attachments
-        $file = AttachmentFile::format($_FILES['file']);
+            $file = AttachmentFile::format($_FILES['file']);
 
         // Allow one file at a time.
         if (count($file) > 1)
@@ -67,29 +67,29 @@ class DraftAjaxAPI extends AjaxController {
                 ))
             );
 
-        # Allow for data-uri uploaded files
-        $fp = fopen($file[0]['tmp_name'], 'rb');
-        if (fread($fp, 5) == 'data:') {
-            $data = 'data:';
-            while ($block = fread($fp, 8192))
-              $data .= $block;
-            $file[0] = Format::parseRfc2397($data);
-            list(,$ext) = explode('/', $file[0]['type'], 2);
-            $file[0] += array(
-                'name' => Misc::randCode(8).'.'.$ext,
-                'size' => strlen($file[0]['data']),
-            );
-        }
-        fclose($fp);
+            # Allow for data-uri uploaded files
+            $fp = fopen($file[0]['tmp_name'], 'rb');
+            if (fread($fp, 5) == 'data:') {
+                $data = 'data:';
+                while ($block = fread($fp, 8192))
+                  $data .= $block;
+                $file[0] = Format::parseRfc2397($data);
+                list(,$ext) = explode('/', $file[0]['type'], 2);
+                $file[0] += array(
+                    'name' => Misc::randCode(8).'.'.$ext,
+                    'size' => strlen($file[0]['data']),
+                );
+            }
+            fclose($fp);
 
         // Check file type to ensure image
-        $type = $file[0]['type'];
-        if (strpos($file[0]['type'], 'image/') !== 0)
-            return Http::response(403,
-                JsonDataEncoder::encode(array(
-                    'error' => 'File type is not allowed',
-                ))
-            );
+            $type = $file[0]['type'];
+            if (strpos($file[0]['type'], 'image/') !== 0)
+                return Http::response(403,
+                    JsonDataEncoder::encode(array(
+                        'error' => 'File type is not allowed',
+                    ))
+                );
 
         // Check if file is truly an image
         if (!FileUploadField::isValidFile($file[0]))
@@ -100,33 +100,33 @@ class DraftAjaxAPI extends AjaxController {
             );
 
         // Verify file size is acceptable
-        if ($file[0]['size'] > $cfg->getMaxFileSize())
-            return Http::response(403,
-                JsonDataEncoder::encode(array(
-                    'error' => 'File is too large',
-                ))
-            );
-
-        // Paste uploads in Chrome will have a name of 'blob'
-        if ($file[0]['name'] == 'blob')
-            $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
-
-        $ids = $draft->attachments->upload($file);
-
-        if (!$ids) {
-            if ($file[0]['error']) {
+            if ($file[0]['size'] > $cfg->getMaxFileSize())
                 return Http::response(403,
                     JsonDataEncoder::encode(array(
-                        'error' => $file[0]['error'],
+                        'error' => 'File is too large',
                     ))
                 );
 
-            }
-            else
-                return Http::response(500, 'Unable to attach image');
-        }
+            // Paste uploads in Chrome will have a name of 'blob'
+            if ($file[0]['name'] == 'blob')
+                $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
 
-        $id = (is_array($ids)) ? $ids[0] : $ids;
+            $ids = $draft->attachments->upload($file);
+
+            if (!$ids) {
+                if ($file[0]['error']) {
+                    return Http::response(403,
+                        JsonDataEncoder::encode(array(
+                            'error' => $file[0]['error'],
+                        ))
+                    );
+
+                }
+                else
+                    return Http::response(500, 'Unable to attach image');
+            }
+
+            $id = (is_array($ids)) ? $ids[0] : $ids;
         if (!($f = AttachmentFile::lookup($id)))
             return Http::response(500, 'Unable to attach image');
 
@@ -242,7 +242,6 @@ class DraftAjaxAPI extends AjaxController {
 
         $draft = Draft::create(array(
             'namespace' => $namespace,
-            'body' => ''
         ));
         if (!$draft->save())
             Http::response(500, 'Unable to create draft');
@@ -313,8 +312,7 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Login required for image upload");
 
         $draft = Draft::create(array(
-            'namespace' => $namespace,
-            'body' => ''
+            'namespace' => $namespace
         ));
         if (!$draft->save())
             Http::response(500, 'Unable to create draft');

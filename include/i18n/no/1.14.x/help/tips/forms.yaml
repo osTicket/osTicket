@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Skjemaets overskrift
+  content: >
+    Denne tittelteksten vises i en grå boks over skjemafeltene
+form_instructions:
+  title: Skjema instruksjoner
+  content: >
+    Du kan legge til ekstra instruksjoner som vil hjelpe brukeren i sammenheng med skjemafeltene og muligens markere nødvendige data.
+field_sort:
+  title: Felt posisjon
+  content: >
+    Klikk på pilikonet opp, og dra feltraden for å sortere i dette skjemaet. Sorterings preferanser trer ikke i kraft før skjemaet lagres.
+field_label:
+  title: Feltetikett
+  content: >
+    Denne etiketten vises som ledetekst for dette feltet. Vanligvis vil et kortsvar-felt ville gjengis som denne: <br><strong>Etikett:</strong>&nbsp;  <input type="text">
+field_type:
+  title: Innholdstype
+  content: >
+    Dette brukes til å definere typen inndata fra brukeren. Du kan velge fra korte og lange svar, nummer, dato og klokkeslett, avmerkingsboks, rullegardinlisten eller et egendefinert liste utvalg.
+  links:
+    - 
+      title: Egendefinerte lister
+      href: /scp/lists.php
+field_visibility:
+  title: Felt synlighet
+  content: >
+    Velg en synlighet og krav alternativ for dette felt. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Innstilling</th> <th>Resultat</th></tr> <tr><td>Valgfri</td> <td>Agenter og sluttbrukere kan se feltet, men ingen trenger å svare.</td></tr> <tr><td>Påkrevet</td> <td>Agenter og sluttbrukere kan se feltet, og begge må svare</td></tr> <tr><td>Påkrevet for sluttbruker</td> <td>Agenter og sluttbrukere kan se feltet, kun sluttbruker er nødt til å svare</td></tr> <tr><td>Påkrevet for Agenter</td> <td>Agenter og sluttbrukere kan se feltet, bare agenter er nødt til å svare</td></tr> <tr><td>Intern, Valgfri</td> <td>Kun agenter kan se feltet, men ingen svar er nødvendig.</td></tr> <tr><td>Intern, Påkrevet</td> <td>Kun agenter kan se feltet, og et svar er nødvendig.</td></tr> <tr><td>Kun for sluttbruker</td> <td>Kun sluttbruker kan se feltet, og et svar er nødvendig.</td></tr> </tbody></table>
+field_variable:
+  title: Automatiserte felt
+  content: >
+    Feltdata vil være tilgjengelig for e-post og side maler via navnet som brukes i denne kolonnen. For eksempel er feltene for en vanlig sak tilgjengelig via <code>%{ticket.variable}</code>, hvor <strong>variabel</strong> er navnet som brukes i denne kolonnen.<br><br><em>Selskapet er tilgjengelig via <code>%{</code> <code>company.variable}</code> og brukerinformasjon er tilgjengelig via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Fjerne dette feltet
+  content: >
+    Kontroller og lagre skjemaet hvis du vil fjerne et felt fra dette skjemaet.<br><br><em>Slette et felt, fjerner ikke tidligere angitt data for feltet i utfylte skjemaer. For eksempel, hvis en tidligere innsendt sak har data for et felt, ved å slette feltet i dette skjemaet fjernes ikke data i saken.</em>

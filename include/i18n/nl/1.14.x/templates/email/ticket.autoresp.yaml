@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Wordt naar een  gebruiker verzonden wanneer een nieuw ticket is aangemaakt
+subject: |
+  Support ticket geopend [#%{ticket.number}]
+body: |
+  <h3><strong>Beste %{recipient.name.first},</strong></h3>
+  <p>
+  Een ondersteuningsverzoek is aangemaakt en heeft #%{ticket.number} toegewezen gekregen.
+  Een medewerker zal zo snel mogelijk op uw verzoek reageren. U kunt 
+  <a href="%{recipient.ticket_link}">de voortgang van dit ticket online volgen</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Uw %{company.name} Team,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Indien u aanvullende opmerkingen of informatie betreffende dit ondersteuningsverzoek wenst te geven, reageer dan alstublieft op deze e-mail of <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >log in op uw account</span></a> voor een volledige archief van uw ondersteuningsverzoeken.</em></div>

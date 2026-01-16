@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: 티켓 공유
+  content: >
+    <p> 조직 티켓 공유는 같은 조직에 속한 멤버가 갖고 있는 티켓을 해당 조직 멤버들이 접근할 수 있도록 합니다.</p> <p class="info-banner"> <i class="icon-info-sign"></i> 공동 작업하는 동료들이 언제나 티켓에 접근할 수 있습니다.</p>
+email_domain:
+  title: 메일 도메인
+  content: >
+    사용자는 메일 주소로 해당 조직에 자동으로 추가될 수 있습니다. 아래 박스에 1개 또는 콤마로 구분된 여러개의 도메인을 입력하세요. 예를 들면, 이메일 주소 @mycompany.com의 뒤에 있는 <code>mycompany.com</code>를 입력하면 됩니다..
+

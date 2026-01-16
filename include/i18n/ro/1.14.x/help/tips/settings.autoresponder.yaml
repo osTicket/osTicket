@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Tichet nou
+  content: >
+    Bifează dacă vrei să fie trimis un răspuns automat utilizatorului la introducerea unui tichet nou.
+  links:
+    - 
+      title: Șablonul pentru răspuns automat la tichet nou
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Tichet nou introdus de membrii personalului
+  content: >
+    Notificare trimisă când un agent crează un tichet în numele utilizatorului.<em>Agentul poate modifica acest comportament când crează tichete noi.</em>
+  links:
+    - 
+      title: Șablonul pentru notificările de tichet nou
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Confirmare pentru mesaj nou
+  content: >
+    Notificare de confirmare când un mesaj nou este adăugat la un tichet existent.
+  links:
+    - 
+      title: Șablonul pentru Confirmarea de mesaj nou
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Notificare de mesaj nou
+  content: >
+    Trimite mesaje primite de la emitatorul mesajului catre toti ceilalti participanti la tichet.
+  links:
+    - 
+      title: Template Notificare Activitate noua
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Notificare pentru limita maxima de tichete
+  content: >
+    Notificare pentru respingere Tichet trimis catre Utilizator la depasirea <span class="doc-desc-title">Numarului Maxim de Tichete Deschise</span>.
+  links:
+    - 
+      title: Sablon Notificare peste limita
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Stabileste <em>Numarul maxim de Tichete deschise</em>
+      href: /scp/settings.php?t=tickets

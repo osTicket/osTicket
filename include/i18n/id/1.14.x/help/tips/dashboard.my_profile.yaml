@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informasi Kontak
+  0: >
+
+username:
+  title: Nama pengguna
+  content: >
+    Hanya mereka agen dengan Admin status dapat mengubah nama pengguna. Jika Anda seorang agen dengan hak Admin, Anda dapat melakukannya dengan memilih agen untuk edit dari tabel <span class="doc-desc-title"> Anggota staf</span>.
+  links:
+    - 
+      title: Mengubah nama pengguna sebagai Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Zona waktu
+  0: >
+
+daylight_saving:
+  title: Daylight Saving
+  0: >
+
+maximum_page_size:
+  title: Maksimum ukuran halaman
+  0: >
+
+auto_refresh_rate:
+  title: Kecepatan Refresh otomatis
+  0: >
+
+default_signature:
+  title: Default tanda tangan
+  0: >
+
+default_paper_size:
+  title: Ukuran kertas standar
+  0: >
+
+show_assigned_tickets:
+  title: Tampilkan tiket ditugaskan
+  content: >
+    <p> Mengaktifkan pilihan ini akan menimpa pengaturan global yang menyembunyikan tiket-tiket yang ditugaskan dari antrian yang terbuka. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Pengaturan ini hanya tersedia ketika tiket yang ditugaskan telah dikeluarkan secara global. </p>
+password:
+  title: Kata Sandi
+  0: >
+
+current_password:
+  title: Kata sandi saat ini
+  0: >
+
+new_password:
+  title: Kata sandi baru
+  0: >
+
+confirm_new_password:
+  title: Konfirmasi kata sandi baru
+  0: >
+
+signature:
+  title: Tanda tangan
+  content: >
+    Membuat opsional <span class="doc-desc-title"> tanda tangan</span> yang mungkin muncul pada akhir tanggapan tiket Anda. Apakah ini <span class="doc-desc-title"> Signature</span> muncul, atau tidak, tergantung pada <span class="doc-desc-title"> Email Template</span> yang akan digunakan dalam tanggapan Tiket.
+  links:
+    - 
+      title: Membuat template email di Panel admin
+      href: /scp/templates.php

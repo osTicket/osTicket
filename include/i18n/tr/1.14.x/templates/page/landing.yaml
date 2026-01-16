@@ -1,0 +1,17 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Açılış sayfası Müşteri Portali'nin ilk açılışındaki içeriği tanımlar. Şablon <strong>Yeni Kayıt Oluştur</strong> ve <strong>Kayıt Durumunu Denetle</strong> seçeneklerinin üst kısmında kalan içeriği değiştirir.
+name: Açılış
+body: >
+  <h1>Destek Merkezine Hoşgeldiniz</h1>
+  <p>
+  Destek taleplerinize ve sizlere daha iyi hizmet verebilmek için bu Destek 
+  Talep Sisteminden faydalanmaktayız. Her destek talebinize faklı bir talep 
+  numarası atanarak, çevirimiçi takip edebilmeniz ve cevap yazabilmeniz sağlanmışır.
+  Referans olarak size tüm geçmiş ve arşivdeki destek taleplerinize ulaşma imkanı 
+  sunmaktayız. Destek talebinde bulunabilmek için geçerli bir e-posta hesabınız olmalıdır.
+  </p>

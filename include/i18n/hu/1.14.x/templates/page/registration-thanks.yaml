@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Ez a sablon határozza meg a megjelenítendő tartalmat az ügyfél sikeres regisztrációja után. Ez az oldal tájékoztatja a felhasználót arról, hogy a regisztrációja sikeresen befejeződött és most már beküldhet hibajegyeket vagy hozzáférhet létező hibajegyekhez.
+name: "Fiók megerősítve!"
+body: >
+  <div> <strong>Köszönjük, hogy regisztrálta felhasználói fiókját!</strong><br /> <br /> Megerősítette email címét és sikeresen aktiválta fiókját. Létrehozhat új hibajegyeket vagy kezelheti a meglévőket.<br /> <br /> <em>Ügyfélszolgálat</em><br /> %{company.name} </div>

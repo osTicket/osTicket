@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: İletişim Bilgileri
+  0: >
+
+username:
+  title: Kullanıcı adı
+  content: >
+    Kullanıcı Adını sadece Yönetici yetkisindeki Temsilciler değiştirebilie. Eğer  Yönetici ayrıcalıklarına sahip bir Temsilci iseniz bunu <span class="doc-desc-title">Personeller</span>tablosundan bir Temsilci seçerek yapabilirsiniz.
+  links:
+    - 
+      title: Kullanıcı adını Yönetici olarak değiştir
+      href: /scp/staff.php
+time_zone:
+  title: Saat dilimi
+  0: >
+
+daylight_saving:
+  title: Yaz saati uygulaması
+  0: >
+
+maximum_page_size:
+  title: Maksimum Sayfa Boyutu
+  0: >
+
+auto_refresh_rate:
+  title: Yenileme Derecesi
+  0: >
+
+default_signature:
+  title: Varsayılan İmza
+  0: >
+
+default_paper_size:
+  title: Varsayılan Kağıt Boyutu
+  0: >
+
+show_assigned_tickets:
+  title: Atanmış Talepleri Göster
+  content: >
+    <p>Bu opsiyon aktif edildiğinde atanmış olan biletler genel açık bilet listesinde görünmeyecektir. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Bu ayarlar ancak atanan biletler site genelinde dahil edilmez ise kullanılabilir.</p>
+password:
+  title: Şifre
+  0: >
+
+current_password:
+  title: Mevcut Şifreniz
+  0: >
+
+new_password:
+  title: Yeni Şifre
+  0: >
+
+confirm_new_password:
+  title: Yeni Şifreyi Onayla
+  0: >
+
+signature:
+  title: İmza
+  content: >
+    Destek kaydında verdiğiniz yanıtların altında görüntülenebilecek isteğe bağlı bir <span class="doc-desc-title">İmza</span> oluşturun. Bu <span class="doc-desc-title">İmzanın</span> görüntülenip görüntülenmeyeceği, <span class="doc-desc-title">Eposta Şablonunun</span> içeriğine bağlıdır.
+  links:
+    - 
+      title: Yönetici panelinden E-posta taslağı yarat
+      href: /scp/templates.php

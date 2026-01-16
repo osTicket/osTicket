@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informace k tématu podpory
+  content: >
+    <span class="doc-desc-title">Témata podpory</span> řídí, jaké informace jsou od zákázníků získávány a jak jsou požadavky směrovány a přiřazovány.
+topic:
+  title: Název tématu
+  content: >
+    Unikátní jméno tématu podpory.
+status:
+  title: Stav
+  content: >
+    Je-li <span class="doc-desc-title">téma podpory</span> vypnuto, nebo archivováno, nebude vůbec k dispozici.
+type:
+  title: Typ
+  content: >
+    Je-li <span class="doc-desc-title">téma podpory</span> označeno jako soukromé, bude k dispozici jen pracovníkům při zakládání nového požadavku v panelu pracovníků.
+parent_topic:
+  title: Nadřazené téma
+  content: >
+    Vyberte nadřazené téma, ke kterému toto <span class="doc-desc-title">téma podpory</span> má patřit. Vybrané nadřazené téma se bude zobrazovat v seznamu <span class="doc-desc-title">témat podpory</span> před tímto tématem.
+custom_form:
+  title: Uživatelský formulář
+  content: >
+    Uživatelské formuláře pomohou získat od zákazníků bližší informace, které mají vazbu k tomuto <span class="doc-desc-title">tématu podpory</span>.
+  links:
+    - 
+      title: Správa uživatelských formulářů
+      href: /scp/forms.php
+priority:
+  title: Priorit
+  content: >
+    Zvolte prioritu, která bude přiřazena novým požadavkům, jež jsou zadány pod toto <span class="doc-desc-title">téma podpory</span>. <br><br> Filtr požadavků může tuto prioritu přepsat.
+department:
+  title: Oddělení
+  content: >
+    Vyberte oddělení, kterému požadavky pod tímto tématem podpory budou směřovány.
+  links:
+    - 
+      title: Správa oddělení
+      href: /scp/departments.php
+sla_plan:
+  title: Plán SLA
+  content: >
+    Vyberte plán SLA tohoto <span class="doc-desc-title">tématu podpory</span>. <br><br> Tato volba přepíše jakýkoliv vybraný plán SLA oddělení.
+  links:
+    - 
+      title: Správa plánů SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Stránka s poděkováním
+  content: >
+    Vyberte stránku s poděkováním, která se zobrazí uživateli po založení požadavku v tomto <span class="doc-desc-title">tématu podpory</span>.
+  links:
+    - 
+      title: Správa stránek s poděkováním
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automatické přiřazení nových požadavků
+  content: >
+    Zde můžete vybrat pracovníka nebo tým, kterému bude přiřazen požadavek tohoto <span class="doc-desc-title">tématu podpory</span> <br><br> Filtry požadavku mohou toto přiřazení přepsat.
+  links:
+    - 
+      title: Správa pracovníků a týmů
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Automatická odpověď na požadavek
+  content: >
+    Tato volba, je-li zaškrtnuta, vypne automatické odpovědi na požadavky pro toto <span class="doc-desc-title">téma podpory</span>. <br><br> Tato volba také přepíše nastavení systému automatických odpovědí pro <span class="doc-desc-title">oddělení</span> a také systémové nastavení <span class="doc-desc-title">systému autom. odpovědí</span>.
+  links:
+    - 
+      title: Nastavení systému automatických odpovědí
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Vlastní číselná řada požadavků
+  content: >
+    Vybráním položky Vlastní se přepíšou výchozí systémová nastavení číselných řad pro toto téma podpory. Pro více informací viz nápověda v nastavení požadavků.

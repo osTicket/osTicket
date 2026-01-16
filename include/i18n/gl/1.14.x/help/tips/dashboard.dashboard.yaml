@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Actividade dos tickets
+  content: >
+    Selecciona un rango de datas para obter un gráfico e unha táboa (cf. <span class="doc-desc-title">Estatísticas</span>) abaixo para focalizalo nun dato que corresponda con esas datas. O gráfico reflectirá unha visión ampla de todo o sistema (por exemplo: poboación). Aínda así, podes navegar a través da táboa <span class="doc-desc-title">Statistics </span> para focalizala nunha determinada cuestión que che interese (Por exemplo, departamento, temas ou persoal). Ademais, podes exportar calquera dato que se estea mostrando na táboa  <span class="doc-desc-title">Estatísticas </span>.
+report_timeframe:
+  title: Informar sobre períodos de tempo
+  content: >
+    Selecciona unha data de comezo como data desexada utilizando o seleccionador. A continuación, escolle a duración dende esa data para definir a data de remate da túa mostra de datos.
+statistics:
+  title: Estatísticas
+  content: >
+    Desprázate ata o tema de interés picando na pestaña correspondente para poder ver a mostra de datos específica. Dentro da táboa, os círulos representan o tamaño dos datos nominais. Polo tanto, canto máis grande sexa o número dunha cela en particular maior será o círculo.
+opened:
+  title: Aberto
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Asignado
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Retrasado
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Pechado
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Reaberto
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Borrado
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Tempo de servizo
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Tempo de resposta
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

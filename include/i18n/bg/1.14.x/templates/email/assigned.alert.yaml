@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Изпраща се до служители, когато им се възложи заявка. Заявките могат да бъдат възложени автоматично от системата или ръчно от друг служител. Използвайте %{assigner} за да различите, кой е възложил заявката.
+subject: |
+  Билета е възложен на вас
+body: |
+  <h3><strong>Здравейте %{assignee.name.first},</strong></h3>
+  Възложена Ви е заявка <a href="%{ticket.staff_link}">#%{ticket.number}</a> от %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>От</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Тема</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>За да видите/отговорите на заявката, моля <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >влезте</span></a> в системата за поддръжка</div>
+  <em style="font-size: small; ">Вашата приятелска система за поддръжка</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

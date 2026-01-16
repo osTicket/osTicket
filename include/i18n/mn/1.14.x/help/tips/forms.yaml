@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Маягтын толгой
+  content: >
+    Энэ гарчиг нь формын талбаруудын дээрх саарал хэсэгт харагдана
+form_instructions:
+  title: Маягтын заавар
+  content: >
+    Та энд хэрэглэгчдэд тусламж болох нэмэлт зааврыг оруулж болно.
+field_sort:
+  title: Талбарыг харуулах байрлал
+  content: >
+    Дээш доош заасан сум бүхий дүрсээр талбаруудын дарааллыг тохируулна. Хадгалах хүртэл дараалал идэвхижихгүйг анхаарна уу.
+field_label:
+  title: Талбарын Гарчиг
+  content: >
+    Энэ талбарын гарчиг нь талбарын өмнө харагдана. Жишээ нь, богино хариулттай талбар нь дараах байдлаар харуулна:<br> <strong>Талбарын гарчиг:</strong>&nbsp; <input type="text">
+field_type:
+  title: Талбарын агуулгын төрөл
+  content: >
+    Энэ хэсэгт хэрэглэгчээс авах мэдээллийн бүтцийг тохируулна. Богино, урт хариулт, утасны дугаар, огноо, цаг, сонгох нүд, сонголттой цэс эсвэл тусгай жагсаалт байж болно.
+  links:
+    - 
+      title: Тусгай жагсаалт
+      href: /scp/lists.php
+field_visibility:
+  title: Талбарын харагдац
+  content: >
+    Талбарын харагдац болон заавал шаардлагатай эсэхийг сонгоно уу. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Тохируулга</th> <th>Үр дүн</th></tr> <tr><td>Заавал биш</td> <td>Ажилтан болон эцсийн хэрэглэгчид талбарыг харна, гэхдээ аль нь ч бөглөх албагүй </td></tr> <tr><td>Шаардлагатай</td> <td>Ажилтан болон эцсийн хэрэглэгчид талбарыг харна, хоёулаа заавал бөглөнө</td></tr> <tr><td>Эцсийн хэрэглэгчийн хувьд шаардлагатай</td> <td>Ажилтан болон эцсийн хэрэглэгч аль аль нь талбарыг харна, гэхдээ зөвхөн эцсийн хэрэглэгч бөглөх шаардлагатай</td></tr> <tr><td>Ажилтны хувьд шаардлагатай</td> <td>Ажилтан болон эцсийн хэрэглэгч аль аль нь талбарыг харна, гэхдээ зөвхөн ажилтан бөглөх шаардлагатай</td></tr> <tr><td>Дотоод хэрэгцээнд, заавал биш</td> <td>Зөвхөн ажилтнууд л харна, гэхдээ бөглөх албагүй</td></tr> <tr><td>Дотоод хэрэгцээнд, заавал шаардлагатай</td> <td>Зөвхөн ажилтнууд л харах бөгөөд заавал бөглөх шаардлагатай</td></tr> <tr><td>Зөвхөн эцсийн хэрэглэгчид хамаатай</td> <td>Зөвхөн эцсийн хэрэглэгчид харах бөгөөд заавал бөглөх шаардлагатай.</td></tr> </tbody></table>
+field_variable:
+  title: Талбарын автоматжуулалт
+  content: >
+    Энэ баганын нэрээр хуудас, мэйл зэрэгт талбарын утгыг харуулна. Жишээ нь, ердийн хүсэлтийн мэйлд <code>%{ticket.variable}</code> гэдэг нь <strong>variable</strong> талбарын утгыг харуулах юм.<br> <br> <em>Компанийн мэдээлэл нь <code>%{</code><code>company.variable}</code> хэрэглэгчийн мэдээлэл нь <code>%{ticket.user.variable}</code></em> байдлаар харуулна
+field_delete:
+  title: Энэ талбарыг устгах
+  content: >
+    Сонгож хадгалснаар талбарыг формоос хасна.<br> <br> <em>Талбарыг устгаснаар өмнө нь тухайн талбарт оруулсан утгуудыг устгахгүй.</em>

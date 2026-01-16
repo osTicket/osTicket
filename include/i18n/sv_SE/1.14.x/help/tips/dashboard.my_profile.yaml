@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktinformation
+  0: >
+
+username:
+  title: Användarnamn
+  content: >
+    Endast de i supportpersonalen som har Administratörsrättigheter kan redigera användarnamn. Om du är en person i supportpersonalen och har administratörsrättigheter så kan du åstadkomma detta genom att välja någon ur supportpersonalen att redigera i <span class="doc-desc-title">Personal-</span>tabellen.
+  links:
+    - 
+      title: Redigera ett användarnamn som administratör
+      href: /scp/staff.php
+time_zone:
+  title: Tidszon
+  0: >
+
+daylight_saving:
+  title: Sommartid
+  0: >
+
+maximum_page_size:
+  title: Maximal sidstorlek
+  0: >
+
+auto_refresh_rate:
+  title: Intervall för automatisk uppdatering
+  0: >
+
+default_signature:
+  title: Standardsignatur
+  0: >
+
+default_paper_size:
+  title: Standardpappersstorlek
+  0: >
+
+show_assigned_tickets:
+  title: Visa tilldelade ärenden
+  content: >
+    <p> Aktivering av det här alternativet kommer att åsidosätta den globala inställningen för att dölja tilldelade ärenden från öppna köer. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Den här inställningen är endast tillgänglig när tilldelade ärenden undantas globalt. </p>
+password:
+  title: Lösenord
+  0: >
+
+current_password:
+  title: Nuvarande lösenord
+  0: >
+
+new_password:
+  title: Nytt lösenord
+  0: >
+
+confirm_new_password:
+  title: Bekräfta nytt lösenord
+  0: >
+
+signature:
+  title: Signatur
+  content: >
+    Skapa en valfri <span class="doc-desc-title">Signatur</span> som kan visas i slutet av dina meddelanden. Om <span class="doc-desc-title">Signaturen</span> visas eller ej regleras i <span class="doc-desc-title">E-postmallen</span> som används när du svarar på ett meddelande.
+  links:
+    - 
+      title: Skapa e-postmallar i Administrations-panelen
+      href: /scp/templates.php

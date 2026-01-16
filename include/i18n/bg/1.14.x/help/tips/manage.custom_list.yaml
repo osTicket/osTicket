@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Списък по избор
+  content: >
+    Вашите <span class="doc-desc-title">потребителски списъци</span> ще ви позволят да създадете падащи кутийки с предварително зададени опции, от които клиентът може да избере във вашите <span class="doc-desc-title">потребителски формуляри</span>. Ако желаете да ползвате тези <span class="doc-desc-title">потребителски списъци</span> като <span class="doc-desc-title"> цел </span> във <span class="doc-desc-title">филтъра за заявки</span>, бъдете сигурни че сте добавили този списък във формуляра <span class="doc-desc-title">детайли за заявката</span>.
+name:
+  title: Име
+  0: >
+
+plural_name:
+  title: Име в множествено число
+  0: >
+
+sort_order:
+  title: Ред на сортиране
+  0: >
+
+list_s_initial_items:
+  title: Първоначални елементи на списъка
+  0: >
+
+value:
+  title: Стойност
+  0: >
+
+extra:
+  title: Допълнително
+  content: >
+    Съкращения и други. Ако се случи да използвате вътрешни кодове за предмети от този списък , тези кодове и съкращения могат да бъдат вписани в тази колона . Ако списъкът е обозначен като <span class="doc-desc-option"> TypeAhead</span>, тези съкращения могат да бъдат използвани за търсене на елементи в потребителските списъци.

@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Agent naam opmaak
+  content: >
+    Kies een opmaak voor de Agent namen in het systeem. Het mailsysteem zal deze opmaak gebruiken voor namen als geen andere opmaak is geselecteerd.
+staff_identity_masking:
+  title: Verberg identiteit
+  content: >
+    Als deze mogelijkheid is ingeschakeld, dan zal de naam van de medewerker niet zichtbaar zijn voor de cliënten bij communicatie.
+#Authentication settings
+password_reset:
+  title: Wachtwoord verloopbeleid
+  content: >
+    Stelt in hoe vaak (in maanden) een agent zijn wachtwoord moet wijzigen. Als deze optie is uitgeschakeld, verlopen wachtwoorden niet.
+password_expiration_policy:
+  title: Wachtwoord verloopbeleid
+  content: >
+    Kies hoe vaak Verantwoordelijken gevraagd zullen worden hun wachtwoord de wijzigen. Als dit uitgeschakeld is (d.w.z, <span class="doc-desc-opt">Geen Vervaldatum</span>), zullen wachtwoorden nooit vervallen.
+allow_password_resets:
+  title: Wachtwoord herstellen toestaan
+  content: >
+    Zet deze optie aan als je de link the <span class="doc-desc-title">Wachtwoord vergeten</span> op de <span class="doc-desc-title">Inlogpagina</span> wilt weergeven, na een onsuccesvolle inlogpoging.
+reset_token_expiration:
+  title: Wachtwoord herstellen Venster
+  content: >
+    Kies de duur (in minuten) waarvoor de <span class="doc-desc-title">Wachtwoord herstellen Tokens</span> ongeldig worden. Wanneer een Verantwoordelijke een <span class="doc-desc-title">Wachtwoord herstellen</span> actie uitvoert, zal een e-mail gestuurd worden om het herstellen toe te staan.
+staff_session_timeout:
+  title: Medewerker sessieverloop
+  content: >
+    Kies de minmale tijd (in minuten) dat het moet duren voordat een agent opnieuw moet inloggen. <br><br>Als je deze optie wilt uitschakelen, voer je het getal '0' in.
+bind_staff_session_to_ip:
+  title: Koppel de medewerker sessie aan een ipadres
+  content: >
+    Zet deze optie aan om Agenten te herkennen aan hun IP-adres.<br><br>Deze instelling is niet aanbevolen voor omgevingen met dynamische ip-adressen.

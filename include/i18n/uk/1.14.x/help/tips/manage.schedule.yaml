@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Налатування розкладу
+  content: >
+    <b> Ім'я </b>: Унікальне ім'я завдання. <hr> <b> Тип </b>: Виберіть тип Завдання. <span class = "doc-desc-title"> Години роботи </span> визначають години, які враховуються при розрахунку часу виконання SLA, в той час як <span class = "doc-desc-title"> вихідні дні </span> враховуватися не будуть. <hr> <b> Часовий пояс </b>: Виберіть часовий пояс для менеджера завдань. Рекомендується залишити поле порожнім у разі роботи з <span class = "doc-desc-title"> різними </span> часовими поясами. <br> <br> Якщо не вказувати часовий пояс, звіт часу буде вестися відповідно до поточного часового поясу.
+

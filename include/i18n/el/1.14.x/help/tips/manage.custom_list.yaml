@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Ειδικές Λίστες
+  content: >
+    Οι<span class="doc-desc-title">ειδικές λίστες</span> θα σας επιτρέψουν να δημιουργήσετε αναπτυσσόμενα πλαίσια με προκαθορισμένες επιλογές από τις οποίες ένας Πελάτης μπορεί να επιλέξει στις <span class="doc-desc-title">Ειδικές Φόρμες</span> σας. Αν θέλετε να χρησιμοποιήσετε αυτήν την <span class="doc-desc-title">ειδική λίστα</span> ως <span class="doc-desc-title">στόχο</span> σε ένα <span class="doc-desc-title">Φίλτρο Δελτίων</span>, μην ξεχάσετε να προσθέσετε αυτή τη λίστα στη φόρμα<span class="doc-desc-title">Λεπτομέρειες Δελτίου</span>.
+name:
+  title: Όνομα
+  0: >
+
+plural_name:
+  title: Όνομα
+  0: >
+
+sort_order:
+  title: Σειρά Ταξινόμησης
+  0: >
+
+list_s_initial_items:
+  title: Αρχικά Στοιχεία Λίστας
+  0: >
+
+value:
+  title: Τιμή
+  0: >
+
+extra:
+  title: Επιπλέον
+  content: >
+    Συντομογραφίες και παρόμοια. Αν τυχόν χρησιμοποιείτε εσωτερικούς κωδικούς για τα στοιχεία σε αυτήν τη λίστα, αυτοί οι κωδικοί και οι συντομογραφίες μπορούν να καταχωριστούν σε αυτή τη στήλη. Εάν η ειδική λίστα λειτουργεί ως <span class="doc-desc-option">TypeAhead</span>, αυτές οι συντομογραφίες μπορούν να χρησιμοποιηθούν για αναζήτηση των στοιχείων της ειδικής λίστας.

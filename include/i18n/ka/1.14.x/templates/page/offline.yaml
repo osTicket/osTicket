@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  The Offline Page appears in the Customer Portal when the Help Desk is offline.
+name: კავშირგარეშე
+body: |
+  <div><h1>
+  <span style="font-size: medium">მხარდაჭერის საბილეთე სისტემა კავშირგარეშე</span>
+  </h1>
+  <p>მადლობას გიხდით ჩვენთან კონტაქტით დაინტერესებისთვის.</p>
+  <p>ჩვენი დახმარების ცენტრი ამ მომენტისთვის კავშირგარეშეა,გთხოვთ, მოგვიანებით ხელახლა გადაამოწმოთ.</p>
+  </div>

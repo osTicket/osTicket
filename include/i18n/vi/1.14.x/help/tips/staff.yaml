@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Dòng chữ ký nhân viên
+  content: |
+    Tạo chữ ký của nhân viên để phản hồi lại yêu cầu. Chữ ký này sẽ đóng vai trò như một lựa chọn tại cuối bản yêu cầu phản hồi
+type:
+  title: Loại tài khoản
+  content: |
+    Quản trị viên có quyền truy cập vào bảng quản trị. Nhân viên chỉ có thể truy cập để quản lý yêu cầu và phần kiến thức chung
+group:
+  title: Nhóm được chỉ định
+  content: |
+    Thành viên nhóm xác định vai trò của nhân viên trong hệ thống. Truy cập trang quản lý nhóm để xác định nhân viên này có thể  truy cập đến bộ phận trợ giúp hay không
+notes:
+  title: Ghi chú nội bộ
+  content: |
+    Tạo các  ghi chú nội bộ liên quan đến nhân viên; ghi chú chỉ có thể được nhìn thấy bởi nhân viên có loại tài khoản là Admin

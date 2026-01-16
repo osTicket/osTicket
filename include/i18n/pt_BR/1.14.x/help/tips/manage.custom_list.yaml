@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Listas personalizadas
+  content: >
+    Suas <span class="doc-desc-title"> listas personalizadas</span> permitirão  você à criar caixas de menu suspenso com opções predefinidas que um cliente pode selecionar em seus <span class="doc-desc-title"> Formulários personalizados</span>. Se você gostaria de usar esta <span class="doc-desc-title"> lista personalizada</span> como um <span class="doc-desc-title"> direcionado</span> a um <span class="doc-desc-title"> Filtro de Tiket</span>, certifique-se de adicionar esta lista ao seu formulário de <span class="doc-desc-title"> Detalhes do Tiket</span>.
+name:
+  title: Nome
+  0: >
+
+plural_name:
+  title: Nome plural
+  0: >
+
+sort_order:
+  title: Ordem de classificação
+  0: >
+
+list_s_initial_items:
+  title: Coloque itens iniciais na lista
+  0: >
+
+value:
+  title: Valor
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Abreviaturas e tal. Se acontecer de você usar códigos internos para os itens nesta lista, esses códigos e abreviaturas podem ser inseridos nesta coluna. Se a lista personalizada é processada como um <span class="doc-desc-option"> TypeAhead</span>, essas abreviações podem ser usadas para pesquisar os itens de uma lista personalizada.

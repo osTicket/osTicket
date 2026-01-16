@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: گروه‌ها
+  content: >
+    از گروه ها برای تعریف دسترسی های کارشناسان در سیستم پشتیبانی استفاده می شود.  گروه ها همچنین می توانند دسترسی کارشناسان را به واحد های سازمانی دیگری بجز واحد سازمانی اصلی خودشان فراهم کنند.
+status:
+  title: وضعیت
+  content: >
+    در صورتی که گروه <span class="doc-desc-opt">غیر فعال</span> باشد، کارشناسان منتصب به این گروه نمیتوانند وارد سیستم شوند و هشدار ها و اطلاعیه های واحد سازمانی را دریافت نخواهند نمود.
+department_access:
+  title: دسترسی به واحد های سازمانی
+  content: >
+    تمام واحد های سازمانی ای را که اعضای گروه به آنها اجازه دسترسی دارند را تیک بزنید.

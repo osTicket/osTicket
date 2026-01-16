@@ -1,0 +1,74 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Formatarea numelui utilizatorului
+  content: >
+    Alegeți un format pentru numele utilizatorilor în întregul sistem. Șabloanele de e-mail vor fi utilizate pentru nume dacă nu este specificat alt format.
+#Authentication settings
+client_session_timeout:
+  title: Perioada de inactivitate pentru sesiunile utilizatorilor
+  content: >
+    Alege perioada de inactivitate (în minute) după care utilizatorii sunt forțați să se autentifice din nou.<br><br>Dacă dorești să invalidezi <span class="doc-desc-title">Perioada de inactivitate pentru sesiunile utilizatorilor</span>, introdu 0.
+registration_method:
+  title: Opțiuni pentru înregistrare
+  content: >
+    Setările <span class="doc-desc-title">„Metoda de înregistrare”</span> și <span class="doc-desc-title">„Înregistrare obligatorie”</span> sunt utilizate împreună pentru a configura modul în care utilizatorii se înregistrează și utilizează portalul web al aplicației. Tabelul de mai jos sintetizează modul în care cele două setări sunt interpretate de sistem.
+
+    <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" >
+    	<tbody style="vertical-align:top;">
+    		<tr>
+    			<th>Înregistrare obligatorie</th>
+    			<th>Metoda de înregistrare</th>
+    			<th>Rezultat</th>
+    		</tr>
+    		<tr>
+    			<td>Nu</td>
+    			<td>Public</td>
+    			<td>Înregistrarea e încurajată, dar nu e obligatorie pentru noile tichete</td>
+    		</tr>
+    		<tr>
+    			<td>Da</td>
+    			<td>Public</td>
+    			<td>Înregistrarea și autentificarea sunt obligatorii pentru noile tichete</td>
+    		</tr>
+    		<tr>
+    			<td>Nu</td>
+    			<td>Privat</td>
+    			<td>Oricine poate crea un tichet dar numai agenții își pot înregistra conturi</td>
+    		</tr>
+    		<tr>
+    			<td>Da</td>
+    			<td>Privat</td>
+    			<td>Accesul utilizatorilor se face doar pe bază de invitație</td>
+    		</tr>
+    		<tr>
+    			<td>Nu</td>
+    			<td>Invalidat</td>
+    			<td>Nimeni nu-și poate crea cont dar oricine poate crea tichete <em>(Acesta era modul de funcționare al aplicației osTichet anterior versiunii 1.9)</em></td>
+    		</tr>
+    		<tr>
+    			<td>Da</td>
+    			<td>Invalidat</td>
+    			<td>Invalidează crearea de noi tichete prin intermediul portalului web</td>
+    		</tr>
+    	</tbody>
+    </table>
+client_verify_email:
+  title: Impune verificarea prin e-mail
+  content: >
+    Debifează pentru a oferi utilizatorilor acces imediat la tichete prin intermediul paginii de autentificare „Verifică starea tichetului” din portalul pentru clienți. Dacă e bifată (starea implicită), utilizatorii vor primi un e-mail și vor trebui să urmeze un link din acest e-mail pentru a vizualiza tichetul.<br><br>Invalidarea verificării prin e-mail poate permite terțelor părți (de ex. colaboratori la tichet) să se substituie identității autorului tichetului.
+allow_auth_tokens:
+  title: Activează Tokens de autentificare
+  content: >
+    Activați această opțiune pentru a permite utilizarea tokens de autentificare pentru conectarea automată a utilizatorilor cu clic pe link-ul de accesare a tichetului.

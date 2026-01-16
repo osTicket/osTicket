@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Vyhledávání
+  0: >
+
+advanced:
+  title: Rozšířené
+  content: >
+    Zde můžete zúžit parametry hledání. Jakmile vyberete pokročilá kritéria hledání a spustíte vyhledání, získaná data můžete <span class="doc-desc-title">exportovat </span> pomocí odkazu ve spodní části stránky požadavků.
+open_tickets_table:
+  title: Seznam otevřených požadavků
+  content: >
+    Všechny aktuálně otevřené požadavky, kterým je potřeba se věnovat
+ticket:
+  title: Požadavek
+  0: >
+
+date:
+  title: Datum
+  0: >
+
+subject:
+  title: Předmět
+  0: >
+
+from:
+  title: Od
+  0: >
+
+priority:
+  title: Priorit
+  0: >
+
+assigned_to:
+  title: Přiděleno
+  0: >
+
+export:
+  title: Exportovat
+  content: >
+    Export vašich aktuálně zobrazených záznamů do CSV souboru. CSV soubory mohou být otevřeny jakýmkoliv tabulkovým programem (např. Microsoft Excel, Apple Pages, OpenOffice atd.).
+advanced_search_dialog:
+  title: Rozšířené hledání
+  0: >
+
+adv_keyword:
+  title: Hledání podle klíčových slov
+  content: >
+    Umožňuje najít shody v předmětech a tělech zpráv vlákna požadavku stejně jako ve veškerém textovém obsahu uživatelských položek.
+adv_date_range:
+  title: Hledat dle období
+  content: >
+    Zde definujte
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Typy odpovědí
+  content: >
+    <b>Odpovědět všem:</b> Odpověď bude odeslána uživateli a účastníkům, které zvolíte.</br> <b>Odpověď uživateli:</b> Odpověď bude odeslána pouze uživateli, nikoliv účastníkům.</br> <b>Neodesílejte odpověď:</b> Nebudou zaslány žádné oznámení, avšak odpověď agenta bude viditelná pro uživatele <b>ALL</b> při zobrazení v aplikaci.

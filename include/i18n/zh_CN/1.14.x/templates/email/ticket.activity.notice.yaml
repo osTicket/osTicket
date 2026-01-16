@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  发送至合作伙伴关于咨询活动的通知，例如回复或消息。
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>尊敬的 %{recipient.name.first}，</strong></h3>
+  <div>
+      <em>%{poster.name}</em>刚记录一条关于您参与咨询的消息。
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>您收到此邮件是因为您是咨询 <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number} 的合作伙伴</a>。要参与，只需回复此邮件或<a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >点击此处</a>获取咨询线程的完整存档文件。</em>
+  </div>

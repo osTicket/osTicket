@@ -1,0 +1,27 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Отправить сотрудникам, когда новое сообщение/примечание опубликовано в задаче. Это может
+  произойти, если сотрудник отвечает на электронную почту от имени системы заявок
+  или посещает веб-портал и отправляет новое сообщение там.
+subject: |
+  Активность в задаче [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Здравствуйте, %{recipient.name},</strong></h3>
+  Задача <a href="%{task.staff_link}">#%{task.number}</a> обновлена: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Для просмотра или ответа на задачу <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >войдите</span></a> в систему поддержки</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Ваша система поддержки клиентов</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Работает на osTicket" width="126" height="19" style="width: 126px;">

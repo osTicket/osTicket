@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Stranice web stranice
+  content: >
+    Stranice se mogu koristiti kao mini Content Management System (CMS). Možete definirati više odredišnih stranica, offline i Hvala Vam stranica, te ih konfigurirati u postavkama tvrtke i temama pomoći.
+  links:
+    - 
+      title: Postavke tvrtke
+      href: /scp/settings.php?t=pages
+type:
+  title: Vrsta
+  content: >
+    <span class="doc-desc-opt">Offline</span> stranice će biti prikazane na klijentovom portalu ukoliko vam je tehnička podrška onemogučena. <span class="doc-desc-opt">Odredišne</span>stranice se prikazuju na naslovnoj stranici klijentovog portala. <span class="doc-desc-opt">Hvala Vam</span> stranice prikazuju se nakon što korisnik otvori novu karticu. <span class="doc-desc-opt">Ostale</span> stranice se mogu koristiti kao jednostavan content management system (CMS).

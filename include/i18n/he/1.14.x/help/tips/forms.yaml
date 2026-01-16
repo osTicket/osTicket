@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: כותרת הטופס
+  content: >
+    טקסט  זה מוצג בתיבה אפורה מעל שדות הטופס
+form_instructions:
+  title: הוראות הטופס
+  content: >
+    באפשרותך להוסיף הוראות נוספות אשר יסייעו לך להנחות את המשתמש בשדות הטופס ואולי לסמן את הנתונים הדרושים.
+field_sort:
+  title: מיקום תצוגת שדה
+  content: >
+    לחץ על סמל החץ למעלה ולמטה וגרור את שורת השדה כדי למיין בתוך טופס זה. מיון העדפה לא ייכנס לתוקף עד הטופס נשמר.
+field_label:
+  title: תווית השדה
+  content: >
+    תווית זו מוצגת כהנחיה לשדה זה. בדרך כלל, שדה תשובה קצרה יצויין כ <br> <strong>תווית:</strong>&nbsp; <input type="text">
+field_type:
+  title: סוג התוכן של שדה
+  content: >
+    זה משמש כדי להגדיר סוג קלט צפוי מצד המשתמש. באפשרותך לבחור מתוך תשובות קצרות וארוכות, מספר הטלפון, תאריך ושעה, תיבת סימון, רשימה נפתחת, או מבחר רשימות מותאמות אישית.
+  links:
+    - 
+      title: רשימות מותאמות אישית
+      href: /scp/lists.php
+field_visibility:
+  title: נראות השדה
+  content: >
+    בחר נראות ואפשרות דרישה לשדה זה<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>הגדרה</th> <th>תוצאה</th></tr> <tr><td>אופציונלי</td> <td>סוכנים ומשתמשי קצה יכולים לראות את השדה, שניהם לא מחויבים למלא אותו</td></tr> <tr><td>נדרש</td> <td>סוכנים ומשתמשי קצה יכולים לראות את השדה, שניהם מחויבים למלא אותו</td></tr> <tr><td>נדרש למשתמשי קצה</td> <td>סוכנים ומשתמשי קצה יכולים לראות את השדה, רק משתמשי קצה מחויבים למלא אותו</td></tr> <tr><td>נדרש לסוכנים</td> <td>סוכנים ומשתמשי קצה יכולים לראות את השדה, רק סוכנים מחויבים למלא אותו</td></tr> <tr><td>פנימי, אופציונלי</td> <td>רק סוכנים יכולים לראות את השדה אך לא מחויבים למלא אותו</td></tr> <tr><td>פנימי, נדרש</td> <td>רק סוכנים יכולים לראות את השדה והם מחויבים למלא אותו</td></tr> <tr><td>למשתמשי קצה בלבד</td> <td>רק משתמשי קצה יכולים לראות את השדה והם מחויבים למלא אותו</td></tr> </tbody></table>
+field_variable:
+  title: שדות אוטומטיים
+  content: >
+    נתוני השדה יהיו זמינים לתבניות דואר אלקטרוני ותבנית דף באמצעות שימוש בשם בטור זה. לדוגמא, שדות בטופס כרטיסים הנפוצים  יהיו זמינים דרך  <code>%{ticket.variable}</code>, where <strong>variable</strong>הוא השם שמשתמשים בו בטור.<br><br><em> מידע על החברה זמין ב- <code>%{</code><code>company.variable}</code> ומידע משתמש זמין ב- <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: הסר את השדה הזה
+  content: >
+    בדוק ושמור את הטופס כדי להסיר שדה מטופס זה.<br> <br> <em> מחיקת שדה אינה מוחקת את הנתונים שהוזנו בעבר לשדה בטפסים מלאים. לדוגמא, אם כרטיס שהוגש בעבר יש לו נתונים לשדה, מחיקת השדה מטופס זה לא תמחק את הנתונים על הכרטיס.</em>

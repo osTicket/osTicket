@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Помош за нов тикет
+  content: >
+    Одберете <span class="doc-desc-title">Тема за помош</span> кои автоматски ќе бидат доделени на тикетите креирани преку меил адреса. . <br/><br/> Формите поврзани со темата за помош ќе бидат доделени на новоотворените тикети, но нема да има внесено податоци.
+  links:
+    - 
+      title: Управување на помошните теми
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Приоритет на новиот тикет
+  content: >
+    Одберете<span class="doc-desc-title">приоритет</span> за новоотворените тикети креирани со меил адреса.
+new_ticket_department:
+  title: Нов оддел за тикети
+  content: >
+    Одберете<span class="doc-desc-title">Оддел</span> кој ќе биде доделен на новите тикети креирани по пат на оваа меил адреса.
+  links:
+    - 
+      title: Управување на оддели
+      href: /scp/departments.php
+auto_response:
+  title: Автоматски одговор на новоотворените тикети
+  content: >
+    Можеш да ги исклучиш автоматските одговори на корисникот кога ќе отвори нов тикет по пат на меил адреса.
+username:
+  title: Корисничко име
+  0: >
+
+password:
+  title: Лозинка
+  0: >
+
+login_information:
+  title: Информации за најавување на емаил
+  content: >
+    <span class="doc-desc-title">Корисничко име</span> и <span class="doc-desc-title">Лозинка</span> се задолжителни за да се преземат меил пораките од IMAP / POP поштенските сандачиња како и да се испратат пораки преку SMTP.
+mail_account:
+  title: Преземање емаил
+  content: >
+    Преземи меил пораки од оддалечениот IMAP или POP mail box и претвои ги во тикети  во вашата техничка поддршка.
+  links:
+    - 
+      title: Управување <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> подесувања.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Оддалечен хост
+  content: >
+    Внесете<span class="doc-desc-title">име на хостот</span> и <span class="doc-desc-title">број на порта </span> за меил серверот. Овие податоци ви се достапни во документацијата на вашиот хостинг акаунт или кај вашиот меил администратор.
+protocol:
+  title: Mail Box протокол
+  content: >
+    Одберете mail box протокол кој е поддржан од страна на вашиот оддалечен меил сервер. Се препорачува IMAP, а пожелен е SSL онаму каде што ќе биде возможно.
+fetch_frequency:
+  title: Честота на преземање
+  content: >
+    Внесете колку често (во минути) сакате системот да ги прифаќа меиловите од mail box - от. <br/><br/> Вашиот избор одредува просечно доцнење на прифатените автоматски одговори после праќањето на меилот на овој mail box од корисникот.
+emails_per_fetch:
+  title: Меилови по преземање
+  content: >
+    Внесете број на меил пораки кои се процесираат во еден момент.
+fetched_emails:
+  title: Преземање меил пораки
+  content: >
+    Одлучете што сакате да правите со процесираните меилови: <br/><br/> <span class="doc-desc-opt"><b>Преместите во фолдер</b></span>: Оваа опција ќе направи backup меил порака во вашиот INBOX во фолдер по ваш избор. Доколку фолдерот сеуште не постои, системот ќе проба да го креира.(<b>Препорачано</b>) <hr> <span class="doc-desc-opt"><b>Избриши меил</b></span>: Оваа опција ќе ги избрише меил пораките од вашиот INBOX откако ќе бидат прцесирани. <hr> <span class="doc-desc-opt"><b>Не прави ништо</b></span>: Оваа опција ќе ги остави маил пораките во вашиот INBOX. Сепак оваа опција може да предизвика да бидат создадени дупликат тикети. Системот ќе се обиде да ги сними ID на пораките на маиловите и ќе се обиде да не ги дофати. (<em>Не се препорачува</em>)
+smtp_settings:
+  title: SMTP подесувања
+  content: >
+    Меил пораките пратени од техничката поддршка можат да се пратат преку SMTP сервер. Ова се препорачува доколку е возможно, бидејќи така се зголемуваат шансите за успешна достава на пораките т.е се смалува можноста дека меилот ќе биде означен како спам.
+header_spoofing:
+  title: Овозможи манипулација со заглавјето
+  content: >
+    Овозможете го ова за да испраќате меилов преку овој mail box од адреса која не е наведена во  <span class="doc-desc-title">Email Address</span> подесувања. <br/><br/> Оваа напредна опција се користи за испраќање меил пораки преку псевдоним на овој mail box.
+

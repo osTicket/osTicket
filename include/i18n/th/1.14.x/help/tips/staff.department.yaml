@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: สถานะ
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: ประเภท
+  content: >
+    เลือก<span class="doc-desc-opt">ส่วนตัว</span>ถ้าคุณต้องการกำหนดรูปแบบของแผนกนี้ในเว็บไซต์ลูกค้า  นอกจากนี้เมื่อกำหนดเป็น<span class="doc-desc-opt">ส่วนตัว</span> <span class="doc-desc-title">ลายเซ็นแผนก</span>จะไม่แสดงในการตอบกลับอีเมล์ <br/> <br/> อย่างน้อย 1 แผนกต้องเป็นแบบ<span class="doc-desc-opt">สาธารณะ</span>
+email:
+  title: Email
+  content: >
+    ที่อยู่อีเมล์ที่ใช้เมื่อมีการส่งข้อความโต้ตอบจาก Staff
+template:
+  title: ชุดต้นแบบ
+  content: >
+    Email <span class="doc-desc-title">Template Set</span> used for Auto-Responses and Alerts &amp; Notices for tickets routed to this Department.
+  links:
+    - 
+      title: จัดการแม่แบบ
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    ข้อตกลงระดับบริการสำหรับ Ticket ส่งไปแผนกนี้
+  links:
+    - 
+      title: จัดการแผน SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: ผู้จัดการแผนก
+  content: >
+    เลือก<span class="doc-desc-title">ผู้จัดการ</span>สำหรับแผนกนี้<br/> <br/> ผู้จัดการสามารถกำหนดค่าให้รับการแจ้งเตือนที่พิเศษ และยัง มีสิทธิที่จะยกเลิกกำหนด Ticket
+  links:
+    - 
+      title: จัดการประกาศและแจ้งเตือน &amp; 
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: แจ้งเตือนและผู้รับแจ้ง  &amp; 
+  content: >
+    เลือกผู้รับการกำหนดค่า <span class="doc-desc-title">แจ้งเตือน &amp; Notices</span>.
+  links:
+    - 
+      title: แจ้งเตือนการตั้งค่า &amp;
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: ตั๋วกำหนดข้อจำกัด
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Disable Auto Claim
+  content: >
+    Check this to <strong>disable</strong> auto-claim on response/reply for this department. <br><br> Agents can still manually claim unassigned tickets
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: การตั้งค่าระบบตอบรับอัตโนมัติ
+  content: >
+    This allows you to override the global Autoresponder settings for this Department.
+new_ticket:
+  title: การตอบกลับอัตโนมัติสำหรับ Ticket ใหม่
+  content: >
+    คุณอาจปิดใช้งานการตอบกลับอัตโนมัติที่ส่งไปยังผู้ใช้เมื่อ Ticket ใหม่ถูกสร้าง และส่งไปแผนกนี้
+new_message:
+  title: ข้อความใหม่ ตอบอัตโนมัติ
+  content: >
+    You may disable the Auto-Response sent to the User to confirm a newly posted message for tickets in this Department.
+auto_response_email:
+  title: อีเมล์ตอบกลับอัตโนมัติ
+  content: >
+    เลือกอยู่อีเมล์ที่ส่งตอบรับอัตโนมัติสำหรับแผนกนี้
+department_access:
+  title: เข้ากลุ่ม
+  content: >
+    Allow Agents of other Departments access to this Deparmtent's tickets.
+department_signature:
+  title: ลายเซ็นของแผนก
+  content: >
+    ลายเซ็นจะสร้างเป็นตัวเลือก สำหรับในแผนก <span class="doc-desc-opt">สาธารณะ</span> เพื่อให้ Staff เลือกเมื่อโต้ตอบใน Ticket แทน

@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Naslov obrasca
+  content: >
+    Ovaj naslov se prikazuje u sivom okviru iznad polja obrazaca
+form_instructions:
+  title: Uputstva obrazaca
+  content: >
+    Možete dodati još uputstava koja će pomoći korisnicima u korištenju obrazaca, te možete naglasiti obavezne podatke.
+field_sort:
+  title: Položaj prikaza polja
+  content: >
+    Kliknite na strelice gore i dolje, te odvucite polje na željeno mjesto unutar obrasca. Novi redosljed neće se primjenjivati sve dok se snimite načinjene promjene.
+field_label:
+  title: Naziv polja
+  content: >
+    Naziv će biti prikazan prije polja za unos. U praksi kratko polje izgledalo bi ovako:<br> <strong>Naslov:</strong>&nbsp; <input type="text">
+field_type:
+  title: Vrsta sadržaja polja
+  content: >
+    Ovim se definira vrsta unosa od strane korisnika. Možete odabrati kratki ili dugi odgovor, telefonski broj, datum i vrijeme, checkbox, padajući izbornik ili prilagođenu listu odabira.
+  links:
+    - 
+      title: Prilagođene liste
+      href: /scp/lists.php
+field_visibility:
+  title: Vidljivost polja
+  content: >
+    Odaberite vidljivost i obavezne opcije za ovo polje. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Postavke</th> <th>Rezultat</th></tr> <tr><td>Opcijonalno</td> <td>Djelatnici i korisnici vide polje, ali nisu obavezni odgovoriti.</td></tr> <tr><td>Obavezno</td> <td>Djelatnici i korisnici vide polje i obavezni su odgovoriti na njega </td></tr> <tr><td>Obavezno za korisnike</td> <td>Djelatnici i korisnici vide polje, ali samo korisnici su obavezni odgovoriti na njega.</td></tr> <tr><td>Obavezno za djelatnike</td> <td>Djelatnici i korisnici vide polje, ali samo su djelatnici obavezni odgovoriti na njega.</td></tr> <tr><td>Interno, Opcionalno</td> <td>Samo djelatnici vide polje, ali nisu dužni odgovoriti na njega.</td></tr> <tr><td>Interno, Obavezno</td> <td>Samo djelatnici vide polje i obavezni su odgovoriti na njega.</td></tr> <tr><td>Samo za korisnike</td> <td>Samo korisnici mogu vidjeti polje i obavezni su odgovoriti na njega.</td></tr> </tbody></table>
+field_variable:
+  title: Automatizacija polja
+  content: >
+    Podaci iz polja bit će dostupni za email i stranične predloške putem imena korištenih u ovom redu. Npr., polja na standardnoj kartici dostupna su putem <code>%{ticket.variable}</code>, gdje je <strong>varijabilno</strong>ime korišteno u redu.<br> <br> <em>Podaci o tvrtci su dostupni putem <code>%{</code><code>company.variable}</code> , a podaci o korisniku su dostupni putem <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Ukloni ovo polje
+  content: >
+    Provjerite i spremite obrazac kako biste uklonili polje iz obrasca.<br> <br> <em>Brisanje polja ne utječe na prije unesene podatke na već obrađenim obrascima. Npr., ukoliko prije otvorena kartica ima podatke unesene u polje, brisanje tog polja u obrascu neće izbrisati te podatke na već otvorenoj kartici.</em>

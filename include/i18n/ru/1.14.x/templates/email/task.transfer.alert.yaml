@@ -1,0 +1,27 @@
+---
+#Email template: task.transfer.alert.yaml
+#Sent to agents when a task is transfered to their department.
+#---
+notes: |
+  Оповещение отправляется всем сотрудникам отдела, когда задача передаётся в их отдел.
+subject: |
+  Задача #%{task.number} передана - %{task.dept.name}
+body: |
+  <h3>здравствуйте, %{recipient.name},</h3>
+  Задача <a href="%{task.staff_link}">#%{task.number}</a> была
+  перенаправлена в отдел %{task.dept.name} специалистом
+  <strong>%{staff.name.short}</strong>
+  <br>
+  <br>
+  <blockquote>
+      %{comments}
+  </blockquote>
+  <hr>
+  <div>Для просмотра или ответа на задачу <a
+  href="%{task.staff_link}">войдите</a> в систему поддержки.
+  </div>
+  <em style="font-size: small; ">Ваша дружелюбная система поддержки пользователей</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      alt="Работает на osTicket" style="width: 126px;"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

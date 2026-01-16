@@ -1,0 +1,27 @@
+---
+#Email template: task.overdue.alert.yaml
+#Sent to agents when a tasks transitions to overdue in the system.
+#Overdue tasks occur based on set due-date.
+#---
+notes: |
+  Надсилається агентам, коли зміна завдання прострочено в системі. Ознака прострочення завдання базується на дат і прогнозованого виконання.
+subject: |
+  Оповіщення про застарілу заявку
+body: |
+  <h3><strong>Вітаємо %{recipient.name}</strong>,</h3>
+  Завдання <a href="%{task.staff_link}">#%{task.number}</a> серйозно прострочене.
+  <br>
+  <br>
+  Ми всі повинні важко працювати, щоб гарантувати, що всі завдання вчасно виконуються.
+  <br>
+  <br>
+  Призначено,<br>
+  %{task.dept.manager.name}
+  <hr>
+  <div>Для перегляду або відповіді на завдання, будь ласка, <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >увійдіть</span></a> до системи підтримки користувачів. Ви отримали це повідомлення, тому що завдання призначено особисто Вам, вашій команді або відділу, членом якого Ви є.</div>
+  <em style="font-size: small">Дружелюбна <span style="font-size: smaller"
+  >(з деяким нетерпінням)</span> система підтримки користувачів</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Powered by osTicket" width="126" style="width: 126px;">

@@ -1,0 +1,22 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+notes: |
+  Yeni sorğu yaradılanda istifadəçiyə göndərin
+subject: |
+  Sorğu dəstəyi açıldı [#%{ticket.number}]
+body: |
+  <h3><strong>Əziz %{recipient.name.first},</strong></h3>
+  <p>
+  Dəstək üçün təklif yaradıldı və təyin edildi #%{ticket.number}.
+  Nümayəndə tez bir zamanda sizi izləyəcək. Siz <a href="%{recipient.ticket_link}">sorğunun irəliləyişinə online baxa bilərsiniz</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Sizin %{company.name} komanda,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Əgər əlavə olunmuş şərhlər və ya məsələ ilə bağlı məlumatla təmin etmək istəyirsinizsə, xahiş edirik, bu e-poçta cavab verin və ya dəstək təkliflərinizi tamamilə arxivləşdirmək üçün <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >hesabınıza daxil olun</span></a>.</em></div>

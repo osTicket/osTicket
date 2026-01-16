@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Tiek nosūtīts lietotājam, kad viņš pievieno pieteikumam jaunu ziņojumu. Tas notiek, kad lietotājs atbild uz elektronisko vēstuli, kuru nosūtījusi sistēma vai apmeklē portāla lappusi un izveido jaunu ziņojumu tur.
+subject: |
+  Ziņojuma apstiprinājums
+body: |
+  <h3><strong>Cienītais %{recipient.name.first},</strong></h3>
+  Jūsu atbilde atbalsta pieprasījumam <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> ir pieņemta zināšanai
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Jūsu %{company.name} palīdzības dienests,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Jūs varat aplūkot atbalsta pieprasījuma progresu <a
+  href="%{recipient.ticket_link}">tiešsaistē šeit. </a></em>
+  </div>

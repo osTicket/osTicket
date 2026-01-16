@@ -1,0 +1,22 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  티켓 활동(답변 혹은 메시지)이 발생하면 공동 작업자에게 알림이 전송됩니다.
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>%{recipient.name.first}님,</strong></h3>
+  <div>
+      <em>%{poster.name}</em>님이 당신이 참여하고 있는 티켓에 메시지를 남겼습니다.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>당신은 티켓 <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);">#%{ticket.number}</a>의 공동작업자이기 때문에 이 이메일을 받고 있습니다. 
+  티켓에 참여하려면 이 이메일에 회신하거나, 관련 티켓을 전부 저장하려면 <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);">여기</a>를 클릭하세요.</em>
+  </div>

@@ -1,0 +1,25 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Felhasználónak küldve új hibajegy létrehozásakor
+subject: |
+  Támogatási hibajegy megnyitva [#%{ticket.number}]
+body: |
+  <h3><strong>Kedves %{recipient.name.first},</strong></h3>
+  <p>
+  Támogatási kérelme a #%{ticket.number} számon létrejött.
+  A lehető leghamarabb munkatársunk felveszi Önnel a kapcsolatot.
+  Hibajegyének állapotát
+  <a href="%{recipient.ticket_link}">online nyomon tudja követni</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  %{company.name} csapata,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>További megjegyzés vagy információ esetén, kérjük, jelen emailre válaszoljon vagy <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >jelentkezzen be fiókjába</span></a> a kérdései archívumának megtekintéséhez.</em></div>

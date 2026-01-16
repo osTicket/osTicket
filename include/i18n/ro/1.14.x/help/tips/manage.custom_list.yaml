@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Liste personalizate
+  content: >
+    <span class="doc-desc-title">Lista personalizată</span> îți permite să creezi în <span class="doc-desc-title">formularele personalizate</span> casete drop-down cu opțiuni predefinite, în care clientul poate efectua selecțiii. Dacă dorești să utilizezi această <span class="doc-desc-title">listă personalizată</span> ca <span class="doc-desc-title">țintă</span> într-un <span class="doc-desc-title">filtru de tichet</span>, asigură-te că ai adăugat această listă în formularul <span class="doc-desc-title">Detalii tichet</span>.
+name:
+  title: Nume
+  0: >
+
+plural_name:
+  title: Numele la plural
+  0: >
+
+sort_order:
+  title: Ordinea de sortare
+  0: >
+
+list_s_initial_items:
+  title: Elementele inițiale ale listei
+  0: >
+
+value:
+  title: Valoare
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Prescurtări ș.a. Dacă se întâmplă să utilizezi coduri interne pentru elementele din această listă, acele coduri și prescurtări pot fi introduse în această coloană. Dacă lista personalizată e afișată în mod tampon <span class="doc-desc-option">TypeAhead</span>, aceste prescurtări pot fi utilizate pentru a căuta elementele listei personalizate.

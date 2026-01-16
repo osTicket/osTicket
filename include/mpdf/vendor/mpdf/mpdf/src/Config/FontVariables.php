@@ -198,7 +198,7 @@ class FontVariables
 					'useOTL' => 0xFF,
 				],
 				"eeyekunicode" => [/* Meetei Mayek */
-					'R' => "Eeyek-Regular.ttf",
+					'R' => "Eeyek.ttf",
 				],
 				"lannaalif" => [/* Tai Tham */
 					'R' => "lannaalif-v1-03.ttf",

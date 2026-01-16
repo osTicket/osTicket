@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Název helpdesku
+  content: |
+    <p>Název zákaznické podpory, např. Podpora firmy [Název Vaší firmy]</p>
+system_email:
+  title: Výchozí systémový e-mail
+  content: |
+    <p>Výchozí e-mail, např. podpora@vase-firma.cz - můžete přidat později!</p>
+default_lang:
+  title: Výchozí jazyk systému
+  content: |
+    <p>Výchozí data pro tento jazyk budou naistalována do databáze. Například šablony e-mailů a výchozích systémových stránek budou nainstalovány v tomto jazyce.</p>
+  links:
+    - 
+      title: Jazykové balíčky pro osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Jméno
+  content: |
+    <p>Jméno administrátora</p>
+last_name:
+  title: Příjmení
+  content: |
+    <p>Příjmení administrátora</p>
+email:
+  title: E-mail
+  content: |
+    <p>Osobní e-mail administrátora. Musí být rozdílný od výchozího systémového e-mailu.</p>
+username:
+  title: Uživatelské jméno
+  content: |
+    <p>Uživatelské jméno administrátora. Minimální délka jsou tři (3) znaky.</p>
+password:
+  title: Heslo
+  content: |
+    <p>Heslo administrátora. Musí být pět (5) a více znaků dlouhé.</p>
+password2:
+  title: Potvrdit heslo
+  content: |
+    <p>Heslo administrátora se musí shodovat. Zadejte ho prosím znovu.</p>
+db_prefix:
+  title: MySQL předpona
+  content: |
+    <p>osTicket vyžaduje předponu pro MySQL tabulku, aby se předešlo možnému konfliktu ve sdílené databázi.</p>
+db_host:
+  title: MySQL hostname
+  content: |
+    <p>
+    Většinou se pro hostname databáze používá "localhost". V případě, že "localhost" nefunguje, kontaktujte Vašeho poskytovatele hostingu.
+    </p>
+    <p>
+    Jako výchozí port se předpokládá port definovaný v souboru php.ini. Jinou hodnotu portu zadejte jako <code>název_hostname: port</code>
+    </p>
+db_schema:
+  title: MySQL databáze
+  content: |
+    <p>Název databáze, kterou bude používat osTicket.</p>
+db_user:
+  title: MySQL uživatel
+  content: |
+    <p>Uživatel MySQL databáze musí mít plný přístup k databázi.</p>
+db_password:
+  title: MySQL heslo
+  content: |
+    <p>Heslo do MySQL databáze přiřazené k výše uvedenému uživateli.</p>

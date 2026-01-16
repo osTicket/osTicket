@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Site Sayfaları
+  content: >
+    Site sayfaları mini bir içerik yönetim sistemi gibi hizmet verebilir. Birden çok giriş, kapalı site ve teşekkür sayfaları oluşturup şirket ayarları ya da yardım konuları bölümlerinde kullanabilirsiniz.
+  links:
+    - 
+      title: Şirket Ayarları
+      href: /scp/settings.php?t=pages
+type:
+  title: Tür
+  content: >
+    <span class="doc-desc-opt">Kapalı Site</span> sayfaları yardım masanız devre dışı olduğunda görüntülenir. <span class="doc-desc-opt">Giriş</span> sayfaları ana sayfada görüntülenir. <span class="doc-desc-opt">Teşekkür Ederiz</span> sayfaları kullanıcı bir kayıt oluşturduktan sonra görüntülenir. <span class="doc-desc-opt">Diğer</span> sayfaları mini bir içerik yönetim sistemi gibi kullanılabilir.

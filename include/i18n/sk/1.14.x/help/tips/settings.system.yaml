@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Stav Helpdesku
+  content: >
+    Ak je stav zmenený na <span class="doc-desc-opt">Offline</span>, klientovo rozhranie bude odpojené. Toto však neovplyvní interakciu normálneho Agenta s Agent panelom.
+helpdesk_url:
+  title: Helpdesk URL
+  content: >
+    Tento URL odkaz je základný pre osTicket inštaláciu. Používa sa v e-mailovej komunikácii k smerovaniu koncových používateľov späť na technickú podporu.
+helpdesk_name_title:
+  title: Helpdesk názov okna
+  content: >
+    Toto je názov, ktorý sa objaví na karte v prehliadači. Ak bude helpdesk zaradený medzi záložky prehliadača, použije sa tento názov ako názov záložky.
+default_department:
+  title: Predvolené oddelenie
+  content: >
+    Vyberte <span class="doc-desc-title">predvolené oddelenie</span> pre tikety, ktoré nie sú automaticky presmerované na konkrétne oddelenie. <br/><br/> Tikety môžu byť smerované na oddelenie na základe predmetu tiketu, zdrojového emailu alebo filtrácie tiketov.
+default_schedule:
+  title: Predvolený harmonogram
+  content: >
+    Vyberte predvolený harmonogram pre SLA, ktorý sa použije pri zobrazovaní oneskorených tiketov.
+  links:
+    - 
+      title: Spravovať harmonogramy
+      href: /scp/schedules.php
+default_page_size:
+  title: Predvolená veľkosť strany
+  content: >
+    Zadajte počet položiek na stránku v zobrazení fronty tiketov. Každý pracovník si môže zmeniť tento počet položiek v  <span class="doc-desc-title">Mojom nastavení</span>.
+default_log_level:
+  title: Predvolená úroveň logu
+  content: >
+    Definuje minimálnu úroveň hlásení, ktoré budú zaznamenané v<span class="doc-desc-title">systémovom logu</span>. <span class="doc-desc-opt">Debug</span> znamená podrobnú úroveň, a <span class="doc-desc-opt">Error</span> znamená len najdôležitejšie hlásenia. Napríklad, ak chcete vidieť všetky hlásenia v  <span class="doc-desc-title">systémových logoch</span>, vyberte <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Vymazanie logov
+  content: >
+    Definuje ako dlho budú hlásenia uchované v <span class="doc-desc-title">systémových logoch</span> dovtedy než budú vymazané.
+enable_richtext:
+  title: Povoliť formátovaný text
+  content: >
+    Nastavením tejto voľby je povolené použitie formátovania pomocou HTML v tele tiketu.
+enable_avatars:
+  title: Zobraziť ikony uživatelov vo vlákne
+  content: >
+    Táto voľba umožní zobrazene <span class="doc-desc-title">ikon používateľov</span> vo vlákne požiadavky. <br><br> <span class="doc-desc-title">Zdroj ikon používateľov</span> môže byť nastavený na stránke nastavenia pracovníkov.
+  links:
+    - 
+      title: Nastavenie pracovníkov
+      href: /scp/settings.php?t=agents
+    - 
+      title: Nastavenie používateľov
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Uzamknutie tiketov
+  content: >
+    Zadajte maximálnu dobu počas ktorej je tiket uzamknutý aj bez akejkoľvek aktivity agenta.<br><br> Zadajte <span class="doc-desc-opt">0</span> ak nechcete aktivovať túto voľbu.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Dátum  &amp; Možnosť času
+  content: >
+    Nasledujúce nastavenie definuje východzie nastavenie formátu pre dátum a čas vášho systému zákazníckej podpory. Môžete vybrať použitie východzieho nastavenia pre vybranú oblasť alebo použit vlastné nastavenie, ktoré vám bude viac vyhovovať. Pozrite sa na formátovacie reťazce ICU ako vzor formátovánia. Údaje zobrazená nižšiee ilustrujú výsled0k daného nastavenia.
+  links:
+    - 
+      title: Pozri definíciu dátumu v PHP
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Systémové jazyky
+  content: >
+    Vyberte prvotný jazyk systému a pripadne ďalšie jazyky pre vašich užívateľov a pracovníkov.
+primary_language:
+  title: Prvotný jazyk systému
+  content: >
+    Texty v tomto jazyku sú zobrazené používateľom a pracovníkom, pokiaľ ich vlastný jazyk nie je dostupný. To zahŕňa ako prostredie systému, tak vlastný obsah ako sú napríklad stránky s poďakovaním a e-mailové správy. <br/><br/> Toto je jazyk v ktorom sa budú zobrazovať všetky jazykové verzie nepreloženého obsahu.
+secondary_language:
+  title: Dalšie jazyky
+  content: >
+    Vyberte jazyky pre vašich zákazníkov a pracovníkov. V týchto jazykoch bude zobrazené prostredie systému a vlastní obsah ako sú napríklad stránky s poďakovaním, názvy tém podpory budú preložené do týchto jazykov.
+#Attachments
+attachments:
+  title: Nastavenie príloh a ich uloženia
+  content: >
+    Nastavenie ako uložiť prílohy.
+default_storage_bk:
+  title: Spôsob ukladania súborov
+  content: >
+    Vyberte, akým spôsobom budú ukladané prílohy. <br><br> Dodatočné služby ukladania môžu byť pridané zásuvnými modulmi ukladania
+max_file_size:
+  title: Maximálna veľkosť súboru
+  content: >
+    Vyberte maximálnu veľkosť prílohy nahraných pracovníkmi. Toto zahŕňa predpripravené prílohy, články báze znalostí a prílohy k odpovediam na požiadavky a úlohy. Horný limit je riadený voľbou <code>upload_max_filesize</code> v nastavení PHP.
+  links:
+    - 
+      title: Nastavenia PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Vyžaduje sa prihlásenie
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

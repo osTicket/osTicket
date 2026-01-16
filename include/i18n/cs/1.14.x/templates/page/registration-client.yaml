@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Tato šablona definuje e-mail zaslaný uživateli v případě, že jeho účet byl vytvořen v zákaznickém centru nebo pracovníkem jeho jménem. Tento e-mail slouží jako ověření e-mailové adresy. Použijte %{link} někde v těle e-mailu.
+name: "Vítejte ve společnosti %{company.name}"
+body: >
+  <h3><strong>Vážený/á %{recipient.name.first},</strong></h3> <div> byl vytvořen váš účet v <a href="%{url}">systému zákaznické podpory</a><br /> <br /> Kliknutím na níže zobrazený odkaz potvrdíte váš účet a získate tak přístup k vašim požadavkům.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Zákaznická podpora <br /> %{company.name}</em> </div>

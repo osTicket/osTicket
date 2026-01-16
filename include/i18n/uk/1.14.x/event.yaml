@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: створено
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: відкрита знову
+  description:
+- 
+  id: 4
+  name: призначено
+  description:
+- 
+  id: 5
+  name: випущений
+  description:
+- 
+  id: 6
+  name: передано
+  description:
+- 
+  id: 7
+  name: згадується
+  description:
+- 
+  id: 16
+  name: просрочено
+  description:
+- 
+  id: 9
+  name: відредаговано
+  description:
+- 
+  id: 10
+  name: переглянуто
+  description:
+- 
+  id: 11
+  name: помилка
+  description:
+- 
+  id: 12
+  name: співробітник
+  description:
+- 
+  id: 13
+  name: надіслати
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: об"єднані
+  description:
+- 
+  id: 16
+  name: не пов"язані
+  description:
+- 
+  id: 17
+  name: пов"язані
+  description:

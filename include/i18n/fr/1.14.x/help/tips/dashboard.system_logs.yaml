@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Journaux Système
+  content: >
+    C'est ici que vous trouverez  les dépannages relatifs aux activités de connexions (par exemple : erreurs, avertissements et bugs).
+  links:
+    - 
+      title: Personnaliser le type d'activité qui est journalisé en changeant le <br /><span class="doc-desc-title">Niveau de journal par défaut</span>.
+      href: /SCP/Settings.php?t=System
+date_span:
+  title: Période
+  content: >
+    Sélectionner la plage du calendrier que vous désirez visualiser dans <span class="doc-desc-title"> les journaux systèmes </span>.
+type:
+  title: Type
+  content: >
+    Choisissez une option pour réduire votre mise au point sur un type précis d'activité. <span class="doc-desc-opt">debug</span> représente la gravité moindre, et <span class="doc-desc-opt">erreur</span> représente la plus grande sévérité.
+showing_logs:
+  title: Affichage des &hellip;journaux
+  content: >
+    N'oubliez pas de consulter la section de la <span class="doc-desc-title">page</span> ci-dessous pour vous assurer qu'il n'y a pas plus de pages affichant les fichiers journaux disponibles.
+log_title:
+  title: Titre de journal
+  content: >
+    Cliquez sur <span class="doc-desc-title">titre de journal</span> si vous souhaitez trier les résultats selon le <span class="doc-desc-title">titre du journal</span>.
+log_type:
+  title: Type de journal
+  content: >
+    Cliquez sur <span class="doc-desc-title">type de journal</span> si vous souhaitez trier les résultats selon le <span class="doc-desc-title">type de journal</span>.
+log_date:
+  title: Date du journal
+  content: >
+    Il s'agit de la date du journal qui a été généré par le logiciel. Si vous souhaitez trier les résultats selon la <span class="doc-desc-title">date du journal</span>, cliquez simplement sur l'en-tête de table <span class="doc-desc-title">date du journal</span>. (Utiliser la<span class="doc-desc-title">période</span> ci-dessus pour affiner votre durée de calendrier des journaux.)
+ip_address:
+  title: Adresse IP
+  content: >
+    Il s'agit de l' <span class="doc-desc-title"> IP</span> <span class="doc-desc-title"> adresse</span> de l'agent ou du client qui utilisait osTicket au moment où que le journal a été généré.

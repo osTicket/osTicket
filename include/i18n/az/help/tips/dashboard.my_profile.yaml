@@ -1,0 +1,79 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+contact_information:
+  title: Əlaqə məlumatı
+  0: >
+
+username:
+  title: İstifadəçi adı
+  content: >
+    Yalnız İnzibatçı statuslu əməkdaşlar istifadəçi adını dəyişə bilər. Əgər Siz - İnzibatçı hüququna maliksinizsə <span class="doc-desc-title">Əməkdaşlar</span> table cədvəlindən seçib, istifadəçi adını dəyişə bilərsiniz.
+  links:
+    - 
+      title: İnzibatçı kimi istifadəçi adını dəyişmək
+      href: /scp/staff.php
+config2fa:
+  title: Two Factor Authentication
+  content: >
+    Two Factor Authentication adds an extra layer of security when logging into the helpdesk. Once you correctly submit your username and password, you will need to enter a token to finish logging into the helpdesk.
+time_zone:
+  title: Saat qurşağı
+  0: >
+
+daylight_saving:
+  title: Yay vaxtı
+  0: >
+
+maximum_page_size:
+  title: Səhifənin maksimal ölçüsü
+  0: >
+
+auto_refresh_rate:
+  title: Avtomatik yenilənmə müddəti
+  0: >
+
+default_signature:
+  title: Susmaya görə imza
+  0: >
+
+default_paper_size:
+  title: Susmaya görə kağızın ölçüsü
+  0: >
+
+show_assigned_tickets:
+  title: Tapşırılmış sorğuları göstər
+  content: >
+    <p> Enabling this option will override the global setting to hide assigned tickets from the open queues. </p> <p class="info-banner"> <i class="icon-info-sign"></i> This setting is only available when assigned tickets are excluded globally. </p>
+password:
+  title: Şifrə
+  0: >
+
+current_password:
+  title: Hazırki şifrə
+  0: >
+
+new_password:
+  title: Yeni şifrə
+  0: >
+
+confirm_new_password:
+  title: Yeni şifrəni təsdiq edin
+  0: >
+
+signature:
+  title: İmza
+  content: >
+    Sizin sorğu cavablarının sonunda ortaya çıxacaq ixtiyari <span class="doc-desc-title">imza</span> yaradın. Bu <span class="doc-desc-title">imzanın</span> görünüb görünməməsi sorğu cavabında istifadə olunan <span class="doc-desc-title">e-poçt şablonundan</span> asılıdır.
+  links:
+    - 
+      title: İnzibatçı panelində yeni məktub şablonlarını yaradın
+      href: /scp/templates.php

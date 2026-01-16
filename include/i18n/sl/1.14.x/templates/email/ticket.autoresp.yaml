@@ -1,0 +1,25 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Se pošlje uporabniku ko je oddan nov zahtevek za pomoč
+subject: |
+  Zahtevek za pomoč [#%{ticket.number}] je odprt
+body: |
+  <h3><strong>Pozdravljeni %{recipient.name.first},</strong></h3>
+  <p>
+  Zahtevek za pomoče je bil oddan in dodeljen #%{ticket.number}.
+  Predstavnik odgovoren za zahtevek vas bo o spremembah zahtevka obvestil kar se da hitro. 
+  Ogled napredka vašega zahtevka si lahko ogledate <a href="%{recipient.ticket_link}">tukaj</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Lep pozdrav ekipe podjetja %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Če želite k vašemu zahtevku podati dodatne komentarje,
+  odgovorite na to e-poštno sporočilo ali se <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >prijavite v vaš račun</span></a> kjer si lahko ogledate vso zgodovino vaših podanih zahtevkov.</em></div>

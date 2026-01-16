@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Tópico de Ajuda do Novo Pedido
+  content: >
+    Escolha um <span class="doc-desc-title"> Tópico de Ajuda</span> para ser automaticamente associado com os pedidos criados via este endereço de correio eletrónico. <br/> <br/> Os formulários associados com este tópico serão adicionados ao pedido, mas não terá quaisquer dados.
+  links:
+    - 
+      title: Gerir tópicos da ajuda
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Prioridade do Novo Pedido
+  content: >
+    Escolha a <span class="doc-desc-title">prioridade</span> para novos pedidos enviados deste endereço de e-mail.
+new_ticket_department:
+  title: Novo Departamento de Pedido
+  content: >
+    Escolha o <span class="doc-desc-title"> Departamento</span> para onde novos tickets criados através deste endereço de E-mail serão encaminhados.
+  links:
+    - 
+      title: Gerir departamentos
+      href: /scp/departments.php
+auto_response:
+  title: Auto-resposta a novo pedido
+  content: >
+    Você pode desativar a Resposta Automática enviada para o utilizador quando um novo ticket é criado através deste endereço de E-mail.
+username:
+  title: Nome de Utilizador
+  0: >
+
+password:
+  title: senha de acesso
+  0: >
+
+login_information:
+  title: Informações de e-mail
+  content: >
+    Para receber e-mail através de POP / IMAP e enviar e-mail através de SMTP, é necessário indicar o <span class="doc-desc-title">nome de utilizador</span> e<span class="doc-desc-title"> palavra-passe</span>.
+mail_account:
+  title: A obter e-mail
+  content: >
+    Recebe os e-mails de um servidor POP ou IMAP remoto e converte-os em pedidos no help desk.
+  links:
+    - 
+      title: Gerir configurações de <span class="doc-desc-title"> leitura de E-mail</span> &amp; <span class="doc-desc-title"> AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Host remoto
+  content: >
+    Insira o <span class="doc-desc-title"> hostname</span> e a <span class="doc-desc-title"> porta</span> do seu servidor de e-mail. Isto poderá estar disponível na documentação da sua conta de hosting ou do através do seu administrador de e-mail.
+protocol:
+  title: Protocolo da caixa de correio
+  content: >
+    Selecione o protocolo suportado pelo seu servidor e-mail. Recomenda-se o IMAP e a utilização de SSL sempre que possível.
+fetch_frequency:
+  title: Frequência de atualização
+  content: >
+    Insira a frequência, em minutos, de pesquisa da caixa de correio. <br/> <br/> Isto irá definir o atraso médio da resposta automática, depois de um utilizador enviar um email para essa caixa de correio.
+emails_per_fetch:
+  title: E-mails por atualização
+  content: >
+    Introduza o número de e-mails processados de cada vez.
+fetched_emails:
+  title: E-mails lidos
+  content: >
+    Decidir o que fazer com os e-mails processados: <br/> <br/> <span class="doc-desc-opt"> <b>Mover para Pasta</b></span>: isto irá fazer backup de seu email da caixa de entrada para uma pasta que você especificar. Se a pasta não existir ainda no servidor, o sistema tentará criá-la automaticamente. (<b>Recomendado</b>) <hr><span class="doc-desc-opt"> <b>Excluir E-mails</b></span>: isto irá apagar seu e-mail de caixa de entrada depois de processado. <hr><span class="doc-desc-opt"> <b>Não Fazer nada</b></span>: deixa os e-mails na sua caixa de entrada. O sistema irá gravar os ids das mensagens do seu e-mail para que não sejam processadas novamente. No entanto, esta opção pode causar tickets duplicados para serem criados. (<em>Não recomendado</em>)
+smtp_settings:
+  title: Definições SMTP
+  content: >
+    E-mail enviado a partir de help desk pode ser enviado através de um servidor SMTP. Isto é recomendado, se possível, pois irá aumentar a probabilidade de entrega de e-mail e torna-o menos provável de ser marcado como spam.
+header_spoofing:
+  title: Permitir falsificação de cabeçalho
+  content: >
+    Ativar para permitir que sejam enviados e-mails através desta caixa de correio de um endereço que não o dado na configuração de <span class="doc-desc-title"> Endereço de Email</span> acima. <br/> <br/> Esta configuração avançada é geralmente usada para enviar e-mails de aliases dessa caixa de correio.
+

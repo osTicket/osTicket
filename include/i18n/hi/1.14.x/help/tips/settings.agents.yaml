@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: प्रतिनिधि का नाम स्वरूपण
+  content: >
+    सिस्टम में कार्यकर्ताओ के नामकरण के लिये प्रारूप का निर्धारण करें। यदि प्रारूप का निर्धारण नही किया गया है तो Email templates का उपयोग कर लिया जायेगा।
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Password Expiration Policy
+  content: >
+    कार्यकर्ताओ के द्वारा अपने पासवर्ड को कितने अंतराल (महीनों में) में बदलना अनिवार्य हो का निर्धारण करें। यदि विकल्प निर्धारित नही है, तो पासवर्ड बदलने की आवस्यकता नही होगी।
+password_expiration_policy:
+  title: Password Expiration Policy
+  content: >
+    Choose how often Agents will be required to change their password. If disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords will not expire.
+allow_password_resets:
+  title: Allow Password Resets
+  content: >
+    यदि आप गलत पासवर्ड के उपयोग से लागिन नही कर पाए और <span class="doc-desc-title">अपना नया पासवर्ड बनाए</span> का लिंक <span class="doc-desc-title">कर्मचारी लागिन पेज मे</span> चाहते है तो इस विकल्प का चुनाव करें।
+reset_token_expiration:
+  title: Password Reset Window
+  content: >
+    Choose the duration (in minutes) for which the <span class="doc-desc-title"> Password Reset Tokens</span> will be valid. When an Agent requests a <span class="doc-desc-title">Password Reset</span>, they are emailed a token that will permit the reset to take place.
+staff_session_timeout:
+  title: Agent Session Timeout
+  content: >
+    कार्यकर्ता के लागिन के उपरांत अधिकतम समय (मिनट में) का निर्धारण करें जिसके उपरांत कार्यकर्ता को पुन: लागिन की आवस्यकता होगी।<br><br> यदि आप <span class="doc-desc-title">कार्यकर्ता सत्र समय समाप्ति</span> निर्धारण नही चाहते तो 0 प्रविष्टि करें।
+bind_staff_session_to_ip:
+  title: Bind Agent Session to IP
+  content: >
+    कार्यकर्ता द्वारा किसी IP से लागिन किये जाने को बनाए रखने के लिए इस विकल्प का चुनाव करें।<br><br> dynamic IP addresses वाले उपयोगकर्ताओ को इस विकल्प का चुनाव नही करने की सिफारिश की जाती है।

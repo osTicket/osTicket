@@ -1,0 +1,22 @@
+---
+#Email template: task.activity.notice.yaml
+#Notice sent to collaborators on task activity e.g reply or message
+#---
+notes: |
+  Соавторам отправляется извещение об активности по задаче - например, об ответе или сообщении.
+subject: |
+  Re: %{task.title} [#%{task.number}]
+body: |
+  <h3><strong>Здравствуйте, %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> только что добавил сообщение в задачу, в которой вы участвуете.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Вы получили это сообщение, потому что участником заявки
+  #%{task.number}. Для участия, просто ответьте на это письмо.</em>
+  </div>

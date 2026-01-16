@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  See on tekst, mis asub kliendi sisselogimise lehe päises. Siin on kasulik selgitada kliendile sisselogimise ja konto registreerimise tingimusi.
+name: "Logi sisse %{company.name}"
+body: >
+  Paremaks teeninduseks soovitame oma klientidel konto registreerida.

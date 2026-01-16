@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Anggota staf
+  content: >
+    Tabel berikut menampilkan hasil tapis diatas. Jika tidak menapis pengaturan yang dipilih, maka semua <span class = "doc-desc-title"> Agen </span> (Staf) <span class = "doc-desc-title"> Anggota </span> ditampilkan, dan dipecah oleh halaman. Lihat bagian halaman di bawah ini untuk menavigasi melalui hasil lebih lanjut.
+status:
+  title: Status
+  content: >
+    Ini akan menampilkan baik <span class="doc-desc-title">Agen</span> Dikunci, Aktif, atau Aktif (Liburan).

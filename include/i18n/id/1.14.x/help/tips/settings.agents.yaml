@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Format Nama Agen
+  content: >
+    Pilih sebuah format untuk nama Agen melalui sistem. Template Email akan menggunakannya untuk nama jika tidak ada format yang ditentukan.
+staff_identity_masking:
+  title: Penutup Identitas Staf
+  content: >
+    Jika diaktifkan, hal ini akan menyembunyikan nama Agen dari Pengguna selama komunikasi.
+#Authentication settings
+password_reset:
+  title: Kebijakan sandi kadaluarsa
+  content: >
+    Mengatur seberapa sering (dalam hitungan bulan) Agen diharuskan untuk mengganti kata sandi mereka. Jika tidak diaktifkan (set ke "Tanpa masa kadaluarsa"), kata sandi tidak akan pernah habis masa berlakunya.
+password_expiration_policy:
+  title: Kebijakan sandi kadaluarsa
+  content: >
+    Pilih seberapa sering Agen akan diminta untuk mengubah password mereka. Jika dinonaktifkan (yaitu,  Tidak ada Batas Waktu ), password tidak akan berakhir.
+allow_password_resets:
+  title: Izinkan Ganti Sandi
+  content: >
+    Aktifkan fitur ini jika Anda ingin menampilkan tautan <span class="doc-desc-title">Lupa Kata Sandi</span> pada <span class="doc-desc-title">Panel Login Staf</span> setelah gagal ketika melakukan login.
+reset_token_expiration:
+  title: Jendela Pengaturan Ulang Password
+  content: >
+    Pilih durasi (dalam menit) dimana <span class="doc-desc-title"> Token Atur Ulang Password</span> akan valid. Ketika agen melakukan permintaan <span class="doc-desc-title">Atur Ulang Password</span>, sebuah token akan diemail ke agen untuk mengizinkan pengaturan ulang password.
+staff_session_timeout:
+  title: Agen Batas Waktu Sesi
+  content: >
+    Pilih batas waktu maksimum idel (dalam satuan menit) Agen untuk melakukan login kembali.<br><br>Untuk menonaktfikan <span class="doc-desc-title">Batas Waktu Sesi Staf</span>, masukkan nilai 0.
+bind_staff_session_to_ip:
+  title: Mengikat Sesi Agen ke IP
+  content: >
+    Aktifkan pengaturan ini jika Anda ingin Agen dikenali dengan IP mereka ketika login.<br><br> Pengaturan ini tidak direkomendasikan untuk pengguna yang memiliki alamat IP dinamis.

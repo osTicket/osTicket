@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Skickas till användare när de har överskridit den maximala gränsen för antal öppna ärendet. Gränsen kan ändras i Admin-panelen, och definieras av antalet ärenden öppna av en särskild e-postadress.
+subject: |
+  Gränsen för antalet öppna ärenden uppnådd
+body: |
+  <h3><strong>Kära %{ticket.name.first},</strong></h3>
+  Du har uppnått maximalt tillåtet antal öppna ärenden. För att kunna öppna ett nytt ärende måste först något av dina befintliga ärenden stängas. För att uppdatera eller lägga till kommentarer till öppna ärenden är det bara att <a
+  href="%{url}/tickets.php?e=%{ticket.email}">logga in i din supportpanel</a>!
+  <br>
+  <br>
+  Tack,<br/>
+  Ärendehanteringssystemet

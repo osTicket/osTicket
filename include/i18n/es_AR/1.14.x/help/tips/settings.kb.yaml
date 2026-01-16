@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Knowledgebase
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+knowledge_base_settings:
+  title: Configuración de la Base de Conocimientos
+  0: >
+
+knowledge_base_status:
+  title: Estado de la Base de conocimientos
+  content: >
+    Habilita esta opción para permitir a los usuarios acceso al autoservicio para sus artículos de la base de conocimiento público.<br><br>La categoría de la base de conocimientos y FAQs pueden hacerse internas (visibles sólo por agentes.)
+  links:
+    - 
+      title: Administrar la Base de conocimientos
+      href: /scp/kb.php
+restrict_kb:
+  title: Restringir el acceso a la base de conocimientos
+  content: >
+    Habilite esta opción para evitar que los usuarios no registrados accedan a sus artículos de la base de conocimiento desde la interfaz del cliente.
+  links:
+    - 
+      title: Configuración de control de acceso
+      href: /scp/opciones.php?t=usuarios
+canned_responses:
+  title: Respuestas predefinidas
+  content: >
+    Habilita esta opción para permitir que los agentes utilicen <span class="doc-desc-title"> Respuestas predefinidas</span> al responder a los Tickets.
+  links:
+    - 
+      title: Gestionar las respuestas predefinidas
+      href: /scp/canned.php

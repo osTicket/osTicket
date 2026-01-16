@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Nadpis formuláře
+  content: >
+    Tento text nadpisu se zobrazí v šedém poli nad položkami formuláře
+form_instructions:
+  title: Pokyny formuláře
+  content: >
+    Můžete přidat další pokyny, které pomohou uživateli pochopit význam položek formuláře a které případně označí požadované údaje.
+field_sort:
+  title: Pozice zobrazení položky
+  content: >
+    Klikněte na ikonu šipek a přetáhněte řádek na správné místo v pořadí položek formuláře. Toto zařazení nebude aktivní, dokud nebude formulář uložen.
+field_label:
+  title: Popisek položky
+  content: >
+    Tento popisek je zobrazen jako název dané položky. Typicky položka typu krátká odpověď může být zobrazena takto:<br><strong>Popisek:</strong>&nbsp; <input type="text">
+field_type:
+  title: Typ obsahu položky
+  content: >
+    Tímto se definuje typ vstupu očekávaného od uživatele. Můžete zvolit krátkou a dlouhou odpověď, telefonní číslo, datum a čas, zatrhávací pole, rozbalovací seznam nebo uživatelský seznam.
+  links:
+    - 
+      title: Vlastní seznamy
+      href: /scp/lists.php
+field_visibility:
+  title: Viditelnost položky
+  content: >
+    Zvolte viditelnost a povinnost zadání této položky. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Nastavení</th> <th>Výsledek</th></tr> <tr><td>Volitelná</td> <td>Pracovníci i uživatelé vidí tuto položku, ale nejsou povinni ji vyplnit.</td></tr> <tr><td>Vyžadována</td> <td>Pracovníci i uživatelé vidí tuto položku a jsou povinni ji vyplnit.</td></tr> <tr><td>Vyžadována pro uživatele</td> <td>Pracovníci a uživatelé položku vidí, jen uživatelé jsou povinni ji vyplnit.</td></tr> <tr><td>Vyžadována pro pracovníky</td> <td>Pracovníci a uživatelé položku vidí, jen pracovníci jsou povinni ji vyplnit.</td></tr> <tr><td>Interní, volitelná</td> <td>Položku vidí pouze pracovníci, ale není potřeba ji vyplnit.</td></tr> <tr><td>Interní, vyžadována</td> <td>Položku vidí pouze pracovníci a je potřeba ji vyplnit.</td></tr> <tr><td>Pouze pro uživatele</td> <td>Položku vidí pouze uživatelé a je potřeba ji vyplnit.</td></tr> </tbody></table>
+field_variable:
+  title: Dostupnost položky
+  content: >
+    Tato položka bude dostupná pro šablony e-mailů a stránek pomocí názvu položky v tomto sloupci. Například položky obecného formuláře jsou dostupné pod <code>%{ticket.variable}</code>, kde <strong>variable</strong> je jméno užité v tomto sloupci.<br> <br> Informace o společnosti jsou dostupné pomocí <code>%{</code><code>company.variable}</code> a informace o zákazníkovi jsou dostupné pod <code>%{ticket.user.variable}</code></em>.
+field_delete:
+  title: Smazat položku
+  content: >
+    Pro odstranění položky z tohoto formuláře jej zaškrtněte a uložte.<br><br><em>Smazáním položky se neodstraní již zadané údaje této položky na již vyplněných formulářích. Například, pokud dříve odeslaný požadavek má údaje pro určitou položku, smazání položky z tohoto formuláře neodstraní údaje z požadavku.</em>

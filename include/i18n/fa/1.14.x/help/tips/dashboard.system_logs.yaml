@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: رویداد های سیستم
+  content: >
+    در این قسمت شما می توانید تاریخچه فعالیتهای عیب یابی را پیدا کنید (برای مثال خطا ها  و هشدارها و یا باگ ها)
+  links:
+    - 
+      title: شخصی سازی کنید که کدام نوع از فعالیت ها ثبت شود با تغییر <br /><span class="doc-desc-title">Default Log Level</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: "محدوده ی زمان\n"
+  content: >
+    دامنه تقویم خود را که دوست دارید نمایش داده شود انتخاب کنید در <span class="doc-desc-title">وقایع سیستم</span>.
+type:
+  title: نوع
+  content: >
+    یک گزینه را جهت محدود کردن نوع فعالیت خود انتخاب نمایید.<span class="doc-desc-opt">خطایابی</span>نشان دهنده حداقل شدت و<span class="doc-desc-opt">خطا</span>نشان دهنده حداکثر شدت.
+showing_logs:
+  title: نمایش &hellip; وقایع سیستم
+  content: >
+    مطمئن شوید برای بررسی<span class="doc-desc-title">صفحه</span>بخش زیر اطمینان می دهد که صفحه ی بیشتری برای نمایش گزارشات سیستمی وجود ندارد.
+log_title:
+  title: عنوان
+  content: >
+    کلیک کنید<span class="doc-desc-title">عنوان وقایع</span>سربرگ جدول اگر مایل به مرتب کردن نتیجه ها مطابق با<span class="doc-desc-title">عنوان وقایع</span>.
+log_type:
+  title: نوع رویداد
+  content: >
+    کلیک کنید<span class="doc-desc-title">عنوان وقایع</span>سربرگ جدول اگر مایل به مرتب کردن نتیجه ها مطابق با<span class="doc-desc-title">عنوان وقایع</span>.
+log_date:
+  title: تاریخ
+  content: >
+    تاریخ گزارش ایجاد شده توسط نرم افزار.اگر شما مایل هستید می توانید نتیجه ها را مرتب کنید مطابق با<span class="doc-desc-title">تاریخ رویداد</span>به سادگی کلید کنید بر روی<span class="doc-desc-title">تاریخ رویداد</span>سر برگ جدول.(بکار کیری<span class="doc-desc-title">فاصله زمانی</span>فرم بالا برای محدود کردن زمانی گزارش.)
+
+ip_address:
+  title: آدرس آی پی
+  content: >
+    این اشاره دارد به<span class="doc-desc-title">آی پی<span class="doc-desc-title">آدرس</span>هنگام ایجاد گزارش، هم راهبر و هم کاربر در حال استفاده از او اس تیکت بوده اند.

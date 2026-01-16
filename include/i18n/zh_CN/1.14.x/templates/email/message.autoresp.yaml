@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  当客户发布新消息到咨询里面时，发送给客户。这种情况在客户回复邮件，或者通过网页入口发布新消息时会出现。
+subject: |
+  消息确认
+body: |
+  <h3><strong>亲爱的 %{recipient.name.first},</strong></h3>
+  您的回复<a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> 已经增加备注
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  您的 %{company.name} 团队,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>您可以查看支持请求的进行 <a
+  href="%{recipient.ticket_link}">点击查看</a></em>
+  </div>

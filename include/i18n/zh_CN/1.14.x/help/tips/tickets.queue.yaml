@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: 搜索字段
+  0: >
+
+advanced:
+  title: 高级
+  content: >
+    缩小您的搜索参数范围。在选择高级搜索条件并开始搜索后，您可<span class="doc-desc-title">导出</span>咨询页面底部的数据。
+open_tickets_table:
+  title: 打开咨询表格
+  content: >
+    所有咨询当前均处于未完成状态且需等待进一步处理
+ticket:
+  title: 咨询
+  0: >
+
+date:
+  title: 日期
+  0: >
+
+subject:
+  title: 主题
+  0: >
+
+from:
+  title: 发自
+  0: >
+
+priority:
+  title: 优先级
+  0: >
+
+assigned_to:
+  title: 分配至
+  0: >
+
+export:
+  title: 导出
+  content: >
+    导出您的当前数据，以 CSV 文件格式查看。CSV 文件可通过任何电子表格软件（例如，Microsoft Excel、Apple Pages、OpenOffice 等）打开。
+advanced_search_dialog:
+  title: 高级搜索
+  0: >
+
+adv_keyword:
+  title: 关键词搜索
+  content: >
+    根据主题和咨询线程的消息正文以及用户和咨询自定义字段相关的所有文本内容查找匹配记录。
+adv_date_range:
+  title: 按日期范围搜索
+  content: >
+    定义此处
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: 回复类型
+  content: >
+    <b>回复所有:</b> 该回复会被发送至你选择纳入的用户和协作者。</br> <b>回复至用户:</b> 该回复只会被发送给用户，不包括协作者。</br> <b>不发送回复</b>不会发送电子邮件通知，但 <b>所有</b>查看该咨询用户都可以看见这个回复。

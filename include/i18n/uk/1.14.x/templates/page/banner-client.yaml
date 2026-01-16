@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Це визначає заголовок на сторінці для входу клієнта. Це може бути корисно для інформування Ваших клієнтів про можливість входу та реєстрації.
+name: "Увійти в %{company.name}"
+body: >
+  Щоб краще Вам допомагати, ми радимо клієнтам зареєструвати акаунт.

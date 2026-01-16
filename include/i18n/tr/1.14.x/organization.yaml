@@ -1,0 +1,12 @@
+---
+- 
+  #Initial organizations defined for the system.
+  #Fields:
+  #name - Descriptive name for the organization
+  #fields - custom fields
+  #---
+  name: osTicket
+  fields:
+    "address:| 1120 5th Street Alexandria, LA 71301 phone":
+      (318) 290-3674 website:
+        "https://osticket.com notes": Biz sadece yazılım geliştirmiyoruz, bunun yanı sıra osTicket'a destek veriyoruz. osTicket'ın özellik ve fonksiyonlarının tümünün tam potansiyelle çalıştırmamızı sağlamak için bize yardımcı olun. Profesyonel yardım almak için bizimle irtibata geçin. Topluluk desteği ve yardım dosyaları için lütfen web sitemizi ziyaret edin.

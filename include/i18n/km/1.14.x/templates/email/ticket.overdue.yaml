@@ -1,0 +1,24 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  ផ្ញើទៅឱ្យបុគ្គលិកពេលសំបុត្រហួសពេលកំណត់នៅក្នុងប្រព័ន្ធ។សំបុត្រហួសកាលកំណត់កើតមានឡើងដោយផ្អែកលើសំបុត្រ due date ព្រមទាំងសេវាកម្មដែលបានកំណត់សម្រាប់សំបុត្រ SLA។
+subject: |
+  ជូនដំណឹង stale សំបុត្រ
+body: |
+  <h3><strong>សួស្តី %{recipient.name}</strong>,</h3>
+  ករណី​, <a href="%{ticket.staff_link}">#%{ticket.number}</a> គឺហួសកាលកំណត់ធ្ងន់ធ្ងរ។
+  <br>
+  <br>
+  យើងទាំងអស់គ្នាគួរតែធ្វើដើម្បីធានាថាការលក់សំបុត្រទាំងអស់កំពុងត្រូវបានដោះស្រាយនៅក្នុងលក្ខណៈទាន់ពេលវេលា។<br>
+  <br>
+  Signed,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>ដើម្បីមើលឬឆ្លើយតបទៅនឹងសំបុត្រនេះទេសូម <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> ទៅប្រព័ន្ធករណីនេះ។ អ្នកកំពុងទទួលបានការជូនដំណឹងនេះទេព្រោះសំបុត្រនេះត្រូវបានផ្ដល់ដោយផ្ទាល់ទៅអ្នកឬទៅក្រុមមួយឬនាយកដ្ឋានដែលអ្នកមានជាសមាជិក។</div>
+  <em style="font-size: small"> ប្រព័ន្ធផ្តល់ជំនួយដល់អតិថិជនដែលងាយស្រួលរបស់អ្នក </em><br> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

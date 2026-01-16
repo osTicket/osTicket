@@ -1,0 +1,123 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: ヘルプデスクのステータス
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: ヘルプデスク用URL
+  content: >
+    このURLはosTikectインストール時にベースとなるURLです。
+    ヘルプデスク上でダイレクトにユーザーとメールによる問い合わせ対応を行うために使われます。
+
+helpdesk_name_title:
+  title: ヘルプデスク名/タイトル
+  content: >
+    ブラウザ上のタブに表示されるタイトルです。ヘルプデスクページをブックマークする場合、これはサイトページのタイトル/名称になります。
+default_department:
+  title: デフォルトの部門
+  content: >
+    自動的に部門にルーティングされないチケットのデフォルトの<span class="doc-desc-title">部門</span>を選択します。<br/><br/>チケットは、ヘルプトピック、受信メール、チケットフィルター設定に基づいてルーティングされます。
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: デフォルトのページサイズ
+  content: >
+    スタッフパネルのチケットキューのページごとに表示される項目の数を選択します。各エージェントは、 <span class="doc-desc-title">設定情報</span>で各自のアカウントにも、この数をカスタマイズできます。
+default_log_level:
+  title: デフォルトのログレベル
+  content: >
+    <span class="doc-desc-title">システムログ</span>に記録される問題の最小レベルを決定します。<span class="doc-desc-opt">デバッグ</span>は、最小の重要度を示し、<span class="doc-desc-opt">エラー</span>は最大の重要度を示します。たとえば、<span class="doc-desc-title">システムログ</span>ですべての問題を表示したい場合、<span class="doc-desc-opt">デバッグ</span>を選択します。
+purge_logs:
+  title: ログのパージ
+  content: >
+    <span class="doc-desc-title">システムログ</span>が削除されるまで保持する期間を決定します。
+enable_richtext:
+  title: リッチテキスト有効
+  content: >
+    有効にすると、クライアントとエージェント間でリッチテキストフォーマットを使用できます。
+enable_avatars:
+  title: スレッドビューでアバター有効化
+  content: >
+    これは有効にするとスレッド対応で、<span class="doc-desc-title">アバター</span>の表示を有効にします。 <br><br> <span class="doc-desc-title">アバターソース</span>はエージェント、ユーザー設定ページで設定できます。
+  links:
+    - 
+      title: エージェント設定
+      href: /scp/settings.php?t=agents
+    - 
+      title: ユーザー設定
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: エージェントの衝突防止
+  content: >
+    チケットのロックやアクティビティ無しのタスクを保持することをエージェントに許可する時間の最大の長さ位を入力します。 <br><br> ロックアウト機能を無効化する場合は、<span class="doc-desc-opt">0</span>を 入力してください。
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: 日付と時刻オプション
+  content: >
+    次の設定は、ヘルプデスクの日付 &amp; 時刻の既定の設定として定義されています。選択されたロケールあるいは、ユニークにすべき場合はカスタマイズされた形式を利用することができます。カスタマイズには、ICU形式文字列の書式を参照してください。以下に示す日付は、単にそれらに対応する値の結果を示しています。
+  links:
+    - 
+      title: ICU日付形式テーブルを見る
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: システム言語
+  content: >
+    エージェントとエンドユーザーが利用するインターフェイス向けにシステムのプライマリ言語とセカンダリ言語を選択します。
+primary_language:
+  title: システムプライマリ言語
+  content: >
+    エージェントとエンドユーザーの言語設定が利用できない場合、この言語のコンテンツがエージェントとエンドユーザーに表示されます。インターフェイスのコンテンツ及び、サンクスページとメールメッセージの様なカスタムコンテンツを含みます。 <br/><br/>これは、記載されるべきコンテンツの言語が未翻訳の場合です。
+secondary_language:
+  title: セカンダリ言語
+  content: >
+    エージェントとエンドユーザーの既定のオプションとして言語を選択します。インターフェイス、カスタムコンテンツサンクスページとヘルプトピック名で、これらの言語が利用できます。
+#Attachments
+attachments:
+  title: 添付設定とストレージ
+  content: >
+    添付の保存の仕方を設定
+default_storage_bk:
+  title: ファイルストレージバックエンド
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: 最大ファイルサイズ
+  content: >
+    エージェントによりアップロードできる添付ファイルの最大サイズを選択します。これは、ナレッジベース・チケット・タスク返信の添付ファイルを含みます。PHPの<code>upload_max_filesize</code>に上限が制限されます。
+  links:
+    - 
+      title: PHP ini 設定
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

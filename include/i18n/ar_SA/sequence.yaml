@@ -1,0 +1,8 @@
+---
+- 
+  id: 1
+  name: التذاكر العامة
+  next: 1
+  padding: 0
+  increment: 1
+  flags: 1

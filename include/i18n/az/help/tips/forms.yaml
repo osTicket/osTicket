@@ -1,0 +1,47 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+form_title:
+  title: Form başlığı
+  content: >
+    Bu ad aşağıda form sahəsində boz qutuda göstərilib
+form_instructions:
+  title: Form təlimatları
+  content: >
+    Siz form sahəsinin kontekstində gəzməyə kömək edəcək və ola bilsin ki, tələb olunan məlumatları vurğulayacaq əlavə təlimatlar əlavə edə bilərsiniz.
+field_sort:
+  title: Sahə görüntüsü pozisiyası
+  content: >
+    Formda sahə sırasını sinifləmək üçün yuxarı-aşağı ox işarəsinə klikləyin və yerini dəyişin. Sinifləndirməyin üstünlüyü formu yadda saxlamadıqca effekt göstərmir.
+field_label:
+  title: Sahə etiketi
+  content: >
+    Bu etiket bu sahə üçün tez verilir. Adətən olduğu kimi qısa cavab sahəsi belə göstərilir:<br> <strong>etiket:</strong>&nbsp; <input type="text">
+field_type:
+  title: Sahə məzmunu tipi
+  content: >
+    Bu, istifadəçi tərəfindən daxil olanlarının növünü təyin etmək üçün istifadə olunur. Siz qısa və ya uzun cavablardan, telefon nömrəsi, tarix və vaxt, işarə xanası, açılan siyahı və ya xüsusi seçilmiş siyahıdan seçə bilərsiniz.
+  links:
+    - 
+      title: Xüsusi siyahılar
+      href: /scp/lists.php
+field_visibility:
+  title: Sahənin görünməsi
+  content: >
+    Bu sahə üçün görünmə sahəsi və tələb variantları seçin. Sahə <tr><td>İxtiyari</td> <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>tənzimləmə</th> <th>nəticəsi</th></tr> <td>agentlər və son istifadəçilər  görə bilər, amma cavab vermək tələb olunmur. </td></tr> <tr><td>Tələb olunan</td> <td>agentlər və son istifadəçilər sahəni görə bilər və hər ikisi cavab verməyə məcburdur</td></tr> <tr><td>Son istifadəçilər üçün tələb olunur</td> <td>agentlər və son istifadəçilər sahəni görə bilər, ancaq son istifadəçilər cavab verməyə məcburdur</td></tr> <tr><td>Agentlər üçün tələb olunur</td> <td>agentlər və son istifadəçilər sahəni görə bilər, ancaq agentlər cavab verməlidir</td></tr> <tr><td>Daxili, tələb olunan</td> <td>ancaq agentlər sahəni görə bilər və cavab tələb olunur.</td></tr> <tr><td>Ancaq son istifadəçilər üçün</td> <td>ancaq son istifadəçilər sahəni görə bilər və cavab tələb olunur.</td></tr></tbody></table>
+field_variable:
+  title: Sahə avtomatlaşdırılması
+  content: >
+    Sahə məlumatları bu sütunda ad vasitəsilə istifadə olunan e-poçt və səhifə üçün görünəcək. Məsələn, ümumi sorğu formundakı sahələr  <code>%{ticket.variable}</code> vasitəsilə görünəcək, harada ki, <strong>müxtəliflik</strong> bu sütunda istifadə olunan addır. <br><br><em>Şirkət məlumatı <code>%{</code><code>şirkət.müxtəlifliyi}</code> və istifadəçi məlumatı <code>%{ticket.user.variable}</code></em> vasitəsilə görünəcək.
+field_delete:
+  title: Sahəni sil
+  content: >
+    Sahəni bu formdan silmək üçün formu dayandır və yadda saxla.<br> <br> <em> Sahəni silmək sahə üçün əvvəl daxil edilmiş məlumatı tamamlanmış formdan silmir. Məsələn, əgər əvvəl təsdiqlənmiş sorğunun sahə üçün məlumatı varsa, bu formdan sahənin silinməsi sorğudan məlumatı silməyəcək.</em>

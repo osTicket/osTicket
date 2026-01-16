@@ -1,0 +1,22 @@
+<div class="example">
+  <div class="panel panel-default">
+    {{#if (content "title")}}
+      <div class="panel-heading example-title"><h2>{{#block "title"}}{{/block}}</h2></div>
+    {{/if}}
+    <div class="panel-body">
+      {{#if (content "description")}}
+        <div class="example-description">
+          {{#block "description"}}{{/block}}
+        </div>
+      {{/if}}
+      <div class="example-demo">
+        {{#block "code"}}{{/block}}
+      </div>
+    </div>
+    <div class="panel-footer">
+      <div class="panel-footer--legend">Code</div>
+      <pre class="example-code prettyprint lang-html">
+        {{~#code}}{{~#block "code"}}{{~/block}}{{~/code}}</pre>
+    </div>
+  </div>
+</div>

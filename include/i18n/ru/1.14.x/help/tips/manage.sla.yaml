@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Имя
+  content: >
+    Выберите понятное имя для этого <span class="doc-desc-title">Плана SLA</span>, которое будет отражать его назначение.
+grace_period:
+  title: Льготный Период
+  content: >
+    Выберите количество часов от создания Заявки, после которых она будет автоматически отмечена как просроченная. <br><br> <em>Часы отсчитываются от времени создания Заявки.</em>
+transient:
+  title: Переходные
+  content: >
+    Переходные SLA считаются временными и могут быть переопределены непереходными SLA при перемещении между <span class="doc-desc-opt">Отдел</span>ами, или когда их <span class="doc-desc-title">Категория Заявки</span> меняется.
+schedule:
+  title: График
+  content: >
+    Выберите Расписание которое будет использоваться этим SLA при истечении времени выполнения Заявок.<br><br>Обратите внимание, что настройки Отдела могут переопределить это расписание.
+  links:
+    - 
+      title: Управление расписаниями
+      href: /scp/schedules.php

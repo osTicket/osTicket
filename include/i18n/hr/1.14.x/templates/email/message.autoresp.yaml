@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Obavijest poslana korisniku da je postavio odgovor na karticu. Ovo može značiti da je klijent odgovorio putem emaila ili je postavio odgovor na stranici tehničke podrške.
+subject: |
+  Potvrda o postavljanju poruke
+body: |
+  <h3><strong>Poštovani %{recipient.name.first},</strong></h3>
+  Vaš odgovor na karticu <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> je zabilježen
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Vaša %{company.name}<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Možete provjeriti tijek kartice za podršku <a
+  href="%{recipient.ticket_link}">ovdje</a></em>
+  </div>

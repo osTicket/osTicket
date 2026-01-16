@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: 新しいチケット ヘルプ トピック
+  content: >
+    このメールアドレスで作成されたチケットに自動的に関連付ける<span class="doc-desc-title">ヘルプトピック</span>を選択します。 <br/><br/> ヘルプトピックに関連するフォームがチケットに追加されますが、データは何も含まれません。
+  links:
+    - 
+      title: ヘルプ トピックを管理します。
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: 新しいチケットの優先順位
+  content: >
+    このメールアドレスで作成された新しいチケットの<span class="doc-desc-title">優先順位</span>を選択してください。
+new_ticket_department:
+  title: 新しいチケットの部門
+  content: >
+    このメールアドレスで作成された新しいチケットがルーティングされる<span class="doc-desc-title">部門</span>を選択してください。
+  links:
+    - 
+      title: 担当部門の管理
+      href: /scp/departments.php
+auto_response:
+  title: 新着チケット自動返信
+  content: >
+    このメールアドレスで新しいチケットが作成されたときにユーザーに送信される自動返信を無効にできます。
+username:
+  title: ユーザー名
+  0: >
+
+password:
+  title: パスワード
+  0: >
+
+login_information:
+  title: 電子メールのログイン情報
+  content: >
+    <span class="doc-desc-title"> ユーザー名</span> と <span class="doc-desc-title"> パスワード</span> は IMAP /POPからメールを取得するために必要なのと同様に電子メールを送信するにはSMTP を介する必要があります。
+mail_account:
+  title: 電子メールをフェッチします。
+  content: >
+    リモート IMAP または POP メール ボックスからメールを取得し、ヘルプ デスク チケットに変換します。
+  links:
+    - 
+      title: <span class="doc-desc-title"> メールのポーリング</span> と <span class="doc-desc-title"> AutoCron</span> の設定を管理します。
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: リモート ホスト
+  content: >
+    メール サーバーの <span class="doc-desc-title"> ホスト名</span> と <span class="doc-desc-title"> ポート</span> 番号を入力します。これはあなたのホスティング アカウントまたは電子メール管理者からマニュアルを取得し利用できることがあります。
+protocol:
+  title: メール ボックス プロトコル
+  content: >
+    リモートのメール サーバーによってサポートされるメール ボックス プロトコルを選択します。IMAP は推奨されており、SSL を可能な限りお勧めします。
+fetch_frequency:
+  title: 周波数をフェッチします。
+  content: >
+    システムがメールボックスをポーリングする間隔を分で入力します。<br/><br/>これは、このメールボックスにユーザーがメールを送信した後に自動返答を受信する平均遅延を定義します。
+emails_per_fetch:
+  title: 取得ごとのメール
+  content: >
+    一度に処理されるメールの数を入力します。
+fetched_emails:
+  title: 取得したメール
+  content: >
+    処理されたメールをどう扱うかを決定します: <br/><br/> <span class="doc-desc-opt"><b>フォルダーに移動</b></span>: これは、メールボックスにあるメールを指定したフォルダーニバックアップします。フォルダーがまだサーバーにない場合は、システムが自動的に作成を試行します。 (<b>推奨</b>) <hr> <span class="doc-desc-opt"><b>メールを削除</b></span>: これは、メールが処理されるとメールボックスからメールを削除します。<hr> <span class="doc-desc-opt"><b>何もしない</b></span>: これは、メールボックスにメールを残します。システムは、メールのメッセージ ID  を記録して、そのメールを再度取得しないようにします、ただし、このオプションでは、重複するチケットが作成されることがあります。(<em>推奨されません</em>)
+smtp_settings:
+  title: SMTP の設定
+  content: >
+    ヘルプデスクから送信されたメールは SMTP サーバーから送信できます。これはメールが配信される可能性を高め、迷惑メールとして扱われることが少なくなるので、できるだけこれを使用することを推奨します。
+header_spoofing:
+  title: ヘッダースプーフィングを許可
+  content: >
+    これを許可すると、上の <span class="doc-desc-title">メールアドレス</span>設定<br/><br/>に指定されたアドレス以外のアドレスから、このメールボックスを通じてメールを送信できます。この詳細設定は一般に、このメールボックスのエイリアスからメールを送信するときに使用されます。
+

@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: 名稱
+  content: >
+    選擇此 <span class="doc-desc-title"> SLA Plan</span>，將顯示用途與目的。
+grace_period:
+  title: 寬限期
+  content: >
+    系統將自動標籤當新ticket被創立之後超過時數的票。<br><br><em>小時計算由ticket創建時間起。</em>
+transient:
+  title: 瞬變
+  content: >
+    臨時的瞬態 SLA 可以被一個非瞬態 SLA <span class="doc-desc-opt"> 部門 </span> 轉變或更改它的 <span class="doc-desc-title"> 說明主題</span> 後重寫。
+schedule:
+  title: Schedule
+  content: >
+    Choose the Schedule to be used by this SLA when rendering tickets Overdue. <br><br> Please note that Department settings can override this schedule.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php

@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Este trimisa la membrii echipei atunci cand un tichet le este atribuit. Ticketele pot fi atribuite automat de catre sistem, sau manual de catre un alt membru. Puteti folosi %{assigner} pentru a evidentia care membru al echipei a atribuit tichetul.
+subject: |
+  Ti-a fost alocat un tichet
+body: |
+  <h3><strong>Salut %{assignee.name.first},</strong></h3>
+  Tichetul <a href="%{ticket.staff_link}">#%{ticket.number}</a> ti-a fost atribuit de  %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>De la</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Subiect</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Pentru a vizualiza/raspunde la acest tichet, te rugam <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logheaza-te</span></a> la centrul de suport tehnic.</div>
+  <em style="font-size: small; ">Cu respect, din partea centului de suport tehnic</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

@@ -1,0 +1,22 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+notes: |
+  Sorğu fəaliyyəti haqqında əməkdaşlara göndərilən bildiriş, məs., cavab verin və ya mesaj yazın.
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Əziz %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> iştirak etdiyiniz sorğunun mesajına daxil olun.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Siz sorğuda əməkdaş olduğunuz üçün bu e-poçtu əldə edirsiniz <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>. İştirak etmək üçün sadəcə bu e-poçta cavab verin və ya sorğunu tamamilə arxivləşdirmək üçün <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >buraya klikləyin</a>.</em>
+  </div>

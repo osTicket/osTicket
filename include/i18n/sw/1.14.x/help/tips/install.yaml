@@ -1,0 +1,76 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Jina la dawati la usaidizi
+  content: |
+    <p>JIna la mfumo wa msaada yako mfano [ JIna la kampuni] usaidizi</p>
+system_email:
+  title: mfumo chaguo-msingi barua pepe
+  content: |
+    <p> anuani ya barua pepe chaguo-msingi usaidizi@kampuniyako.com - unaweza kuongeza zaidi badaye!</p>
+default_lang:
+  title: Default System Language
+  content: |
+    <p>Initial data for this language will be installed into the
+    database. For instance email templates and default system pages will
+    be installed for this language.</p>
+  links:
+    - 
+      title: osTicket Language Packs
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: JIna la Kwanza
+  content: |
+    <p>Jina la kwanza la msimamizi</p>
+last_name:
+  title: Jina la mwisho
+  content: |
+    <p>Jina la mwisho la msimamizi</p>
+email:
+  title: Anuani ya barua pepe
+  content: |
+    <p>Anuani ya barua pepe ya msimamizi. Lazima iwe tofauti na barua pepe ya mfumo chaguo-msingi .</p>
+username:
+  title: Jina la mtumiaji
+  content: |
+    <p>JIna la kuingia la msimamizi. Lazima iwe angalau vibambo tatu (3).</p>
+password:
+  title: nywila
+  content: |
+    <p>Nywila ya msimamizi. Lazima iwe vibabmbo tano (5) au zaidi.</p>
+    kibambo
+password2:
+  title: Thibitisha nywila
+  content: |
+    <p>Andika tena nywila la msimamizi. Lazima ifuanane</p>
+db_prefix:
+  title: MySQL Meza Kiambishi awali
+  content: |
+    <p>osTicket inahitaji meza ya kiambishi awali ili kuepuka migogoro ya meza inayowezekana katika hifadhidata ambayo inagawizwa</p>
+db_host:
+  title: MySQL Jina la mwenyeji
+  content: |
+    <p>
+    Wenyeji wengi hutumia 'kiambomwenyeji' kama jina la mwenyeji katika hifadhidata. Angalia na mwenyeji wako kama kiambomwenyeji imeshindwa.
+    </p>
+    <p>
+    kituo chaguo-msingi ambayo imewekwa kwa php.ini imekiri. Nambari ya Kituo isio kawaida inaweza maalumishwa kama <code> jina la mwenyenji: Kituo</code>
+    </p>
+db_schema:
+  title: MySQL hifadhidata
+  content: |
+    <p>Jina la hifadhidata osTicket itatumia.</p>
+db_user:
+  title: MySQL JIna la mtumiaji
+  content: |
+    <p>Mtumiaji wa MySQL lazima awe na haki hasa ya hifadhidata .</p>
+db_password:
+  title: MySQL Nywila
+  content: |
+    <p>MySQL Nywila imehusunishwa na mtumiaji huyu.</p>

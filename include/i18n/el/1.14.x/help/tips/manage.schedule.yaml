@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Ορισμός Προγράμματος
+  content: >
+    <b>Όνομα</b>: Μοναδικό όνομα για το πρόγραμμα. <hr><b>Τύπος</b>: Ορισμός τύπου προγράμματος. Οι <span class="doc-desc-title">Ώρες Εργασίας</span> καθορίζουν τις ώρες που περιλαμβάνονται κατά τον υπολογισμό των ωρών SLA, ενώ οι <span class="doc-desc-title">Ώρες Διακοπών</span> ορίζουν τις ώρες που δεν περιλαμβάνονται. <hr><b>'Ωρα Ζώνης</b>: Ορισμός της ώρας ζώνης για το πρόγραμμα. Προτείνεται να μείνει κενό για μια <span class="doc-desc-title">ασταθή</span> ώρα ζώνης. <br><br>Οι ασταθείς ώρες ζώνης επιτρέπουν τις ώρες να είναι σχετικές με την ενεργή ώρα ζώνης κατά τη χρήση.
+

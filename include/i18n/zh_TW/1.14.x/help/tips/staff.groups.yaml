@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: 群組
+  content: >
+    群組用來定義專員在支援中心的權限。除了專員主要的部門，還可以定義其他部門的存取權限。
+status:
+  title: 狀態
+  content: >
+    如果<span class="doc-desc-opt">禁用</span>，分配至此群組的專員會無法登入且無法接收部門提醒 &amp; 通知。
+department_access:
+  title: 部門權限
+  content: >
+    選擇群組成員允許存取的部門。

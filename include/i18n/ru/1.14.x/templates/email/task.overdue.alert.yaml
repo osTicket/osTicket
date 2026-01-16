@@ -1,0 +1,29 @@
+---
+#Email template: task.overdue.alert.yaml
+#Sent to agents when a tasks transitions to overdue in the system.
+#Overdue tasks occur based on set due-date.
+#---
+notes: |
+  Отправляется сотрудникам, когда задача в системе переходит в статус просроченных.
+  Просроченные задачи возникают на основании установленной даты или SLA.
+subject: |
+  Оповещение о просроченной задаче
+body: |
+  <h3><strong>Здравствуйте, %{recipient.name}</strong>,</h3>
+  Задача <a href="%{task.staff_link}">#%{task.number}</a> давно просрочена.
+  <br>
+  <br>
+  Мы все должны упорно трудиться, чтобы обрабатывать все задачи вовремя
+  <br>
+  <br>
+  С уважением,<br>
+  %{task.dept.manager.name}
+  <hr>
+  <div>Для ответа или просмотра задачи, пожалуйста <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >войдите</span></a> в систему поддержки. Вы получили это уведомление,
+  потому что вы или ваша команда участвуете в указанной заявке.</div>
+  <em style="font-size: small">Ваша дружелюбная <span style="font-size: smaller"
+  >(although with limited patience)</span> система поддержки пользователей</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Работает на osTicket" width="126" style="width: 126px;">

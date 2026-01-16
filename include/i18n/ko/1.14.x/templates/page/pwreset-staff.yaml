@@ -1,0 +1,11 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  이 템플릿은 직원 제어 패널 로그인 페이지의 <strong>비밀번호 분실</strong> 링크를 선택한 직원에게 보낼 이메일을 정의합니다.
+name: "osTicket 지원 패스워드 재설정"
+body: >
+  <h3> <strong> %{staff.name.first} 님 </strong> </h3> <div>귀하를 대신하여 %{url} 헬프데스크 앞으로 패스워드 재설정 요청이 전송되었습니다.<br/> <br/>
+  이 이메일이 잘못된 것이라 생각된다면 이 이메일을 무시하고 삭제하세요. 당신의 계정은 아직 안전하며, 아무도 당신의 계정으로 접근하지 않았습니다. 계정이 잠기지 않았으며 비밀번호도 초기화되지 않았습니다. 누군가 실수로 당신의 이메일 주소를 입력했을 수 있습니다.<br/> <br/>헬프 데스크에 로그인하여 패스워드를 변경하려면 아래 링크를 클릭하세요.<br/> <br/> <a href="%{link}"> %{link} </a> <br/> <br/> <em style = "font-size : small"> 고객 지원 시스템 </em> <br/> <img src = "cid : b56944cb4722cc5cda9d1e23a3ea7fbc"alt = "Powered by osTicket"width = "126"height = "19"style = "width : 126px"/> </div>

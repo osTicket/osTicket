@@ -1,0 +1,13 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Tiek nosūtīts lietotājiem, kad sasniegts maksimālais atvērto pieteikumu skaits. Limits tiek noteikts Administrācijas panelī un tiek definēts kā maksimālais atvērto pieteikumu skaits no konkrētas e-pasta adreses.
+subject: |
+  Sasniegts atvērto pieteikumu limits
+body: |
+  <h3><strong>Cienītais %{ticket.name.first},</strong></h3> Jūs esat sasniedzis maksimālo atvērto pieteikumu skaitu. Lai atvērtu jaunu pieteikumu, vienu no iepriekš atvērtajiem pieteikumiem ir jāaizver. Lai ātri atjaunotu vai pievienotu komentāru atvērtam pieteikumam nepieciešams ieiet <a
+  href="%{url}/tickets.php?e=%{ticket.email}">palīdzības dienesta vietnā.</a>. <br> <br> Paldies,<br/> atbalsta pieteikumu sistēma

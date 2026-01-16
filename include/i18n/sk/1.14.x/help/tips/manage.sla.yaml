@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: Meno
+  content: >
+    Vyberte názov opisujúci <span class="doc-desc-title">SLA</span>.
+grace_period:
+  title: Trvanie SLA
+  content: >
+    Definuje počet hodín, po uplynutí ktorých sa tiket označený ako oneskorený (premeškaný).  <br><br> <em>Hodiny sa počítajú od času otvorenia tiketu.</em>
+transient:
+  title: Dočasne
+  content: >
+    Dočasné SLA môže byť prepísané iným SLA pri zmene<span class="doc-desc-opt">oddelenia</span>, alebo zmene <span class="doc-desc-title">predmetu tiketu</span>.
+schedule:
+  title: Harmonogram
+  content: >
+    Vyberte, ktorý harmonogram sa má použiť pri tejto SLA, pri zobrazovaní oneskorených tiketov. <br><br> Prosím, berte do úvahy, že nastavenia Oddelenia môžu tento harmonogram zmeniť.
+  links:
+    - 
+      title: Spravovať harmonogramy
+      href: /scp/schedules.php

@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  這個將修改台端登入頁面。他可有助於告知台端關於登入及註冊相關政策。
+name: "登入到 %{company.name}"
+body: >
+  為了提供更好的服務品質，我們鼓勵我們的客戶要註冊一個帳號。

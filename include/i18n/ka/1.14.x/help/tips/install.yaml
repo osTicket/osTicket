@@ -1,0 +1,77 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: დახმარების ცენტრის სახელი
+  content: |
+    თქვენი დახმარების სისტემის სახელი მაგ. (კომპანიის სახელი) მხარდაჭერა
+system_email:
+  title: სისტემის ძირითადი ელფოსტა
+  content: |
+
+    <p>ძირითადი ელფოსტის მისამართი მაგ. support@tqvenikompania.ge - მოგვიანებით თქვენ შეძლებთ დაამატოთ სხვა მისამართებიცr!</p>
+
+default_lang:
+  title: სისტემის ნაგულისხმები ენა
+  content: |
+    <p>ამ ენის ძირითადი მონაცემები დამატებულ იქნება მონაცემთა ბაზაში. მაგალითად, email შაბლონები და სისტემის ძირითადი გვერდები დაისტალირდება ამ ენის გამოყენებით.</p>
+  links:
+    - 
+      title: osTicket ენების პაკეტები
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: სახელი
+  content: |
+    <p>ადმინის სახელი</p>
+
+last_name:
+  title: გვარი
+  content: |
+    <p>ადმინის გვარი</p>
+
+email:
+  title: ელფოსტის მისამართი
+  content: |
+    <p>ადმინის პირადი მისამართი. უნდა განსხვავდებოდეს სისტემის ძირითად მისამართისგან.</p>
+
+username:
+  title: მომხმარებელი
+  content: |
+    <p>ადმინის მომხმარებლის სახელი. უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს.</p>
+
+password:
+  title: პაროლი
+  content: |
+    <p>ადმინის პაროლი. უნდა შეიცავდეს 5 ან მეტ სიმბოლოს.</p>
+
+password2:
+  title: დაადასურეთ პაროლი
+  content: |
+    <p>გაიმეორეთ ადმინის პაროლი. იგი უნდე ემთხვევოდეს უკვე მითითებულს.</p>
+
+db_prefix:
+  title: MySQL-ის ცხრილეის პრეფიქსი
+  content: |
+    <p> OS ბილეთისაჭიროებს  ცხრილის პრეფიქსს, რათა თავიდან ავიცილოთ ცხრილთა შესაძლო კონფლიქტი გაზიარებულ მონაცემთა ბაზაში</p>
+db_host:
+  title: MySQL ჰოსტი
+  content: |
+    <p>ჰოსტების უმრავლესობა იყენებს  'localhost'-ს ლოკალური მონაცემთა ბაზის ჰოსტსახელისთვის. გადაამოწმეთ თქვენი ჰოსტი თუ  ლოკალური ჰოსტში შეცდომა მოხდება.</p>
+    <p> პორტი ნაგულისხმევად მომართულია php.ini-ში. არა სტანდატრული პორტის ნომერი შეიძლება განისაზღვროს როგორც <code>hostname:port</code></p>
+db_schema:
+  title: MySQL მონაცემთა ბაზა
+  content: |
+    <p>მონაცემთა ბაზიზ სახელი, რომელსაც გამოიყენებს osTicket-ს.</p>
+db_user:
+  title: MySQL მოხმარებელი
+  content: |
+    <p>MySQL-ის მომხმარებელს უნდა ჰქონდეს მონაცემთა ბაზის სრული მართვის უფლებები.</p>
+db_password:
+  title: MySQL პაროლი
+  content: |
+    <p>MySQL-ის პაროლი დაკავშირებული ზემოდ მოცემულ მოხმარებელთან.</p>

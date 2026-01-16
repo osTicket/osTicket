@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Šis šablonas apibrėžia pranešimą klientams, kuriems elektroniniu paštu buvo nusiųsta prieigos nuoroda. Užklausos numeris ir elektroninio pašto adresas suaktyvina prieigos nuorodą.
+name: "Užklausos [#%{ticket.number}] Prieigos nuoroda"
+body: >
+  <h3><strong>Laba diena%{recipient.name.first},</strong></h3><div>Prieigos nuoroda užklausai #%{ticket.number} buvo pateikta Jūsų vardu paglbos sistemai %{url}.<br /><br /> Paspauskite nuorodą žemiau, kad patikrintumėte užklausos #%{ticket.number} būseną.<br /><br /><a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /><br />Jeigu <strong>Jūs</strong>nepateikėte prašymo, prašome ištrinti ir nekreipti dėmesio į šį laišką. Jūsų paskyra vis dar saugi ir niekam nebuvo suteikta galimybė pasiekti užklausą. Kažkas galėjo klaidingai įvesti Jūsų elektroninio pašto adresą.<br /><br />--<br />%{company.name}</div>

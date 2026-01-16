@@ -1,0 +1,101 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Stare
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Tip
+  content: >
+    Selectează <span class="doc-desc-opt">Privat</span> dacă dorești ca atribuirile către acest Departament să fie ascunse în Portalul Clienților. În plus, atunci cân Departamentul e etichetat <span class="doc-desc-opt">Privat</span>, <span class="doc-desc-title">Semnătura Departamentului</span> nu va fi afișată în răspunsurile prin email. Cel puțin un Departament trebuie să fir <span class="doc-desc-opt">Public</span>.
+email:
+  title: Email
+  content: >
+    Adresa utilizată pentru a trimite Utilizatorilor e-mail când Agenții postează Răspunsuri la Tichete.
+template:
+  title: Setul de șabloane
+  content: >
+    <span class="doc-desc-title">Șablon</span>ul de email utilizat pentru Răspunsuri Automate și 
+    Notificările &amp; Alertele la tichetele rutate către acest Departament.
+  links:
+    - 
+      title: Admistreaza sabloane
+      href: /scp/templates.php
+sla:
+  title: ANS
+  content: >
+    Acord la nivel de serviciu pentru tichetele rutate către acest Departament.
+  links:
+    - 
+      title: Administrare Planuri SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Manager Departament
+  content: >
+    Selectează un <span class="doc-desc-title">Manager</span> pentru acest departament.<br/><br/>Managerii pot fi configurați să primească alerte speciale și de asemenea să aibe dreptul să de-asigneze tichete.
+  links:
+    - 
+      title: Administreaza alerte și notificari
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: ' Destinatarii Notificărilor și Alertelor'
+  content: >
+    Selectează destinatarii Notificărilor și Alertelor configurate
+  links:
+    - 
+      title: Configureaza Alerte &amp; Notificari
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Restrictii alocare tichete
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Dezactiveaza revendicarea automată
+  content: >
+    Debifați pentru a <strong> dezactiva </strong> pentru acest departament, revendicarea automată a unui tichet in momentul trimterii unui răspuns. <br> <br> Agenții vor putea în continuare să revendice manual biletele nealocate
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Setările pentru răspuns automat
+  content: >
+    Această opțiune îți permite să ignori setările globale pentru Răspuns Automat ale acestui Departament.
+new_ticket:
+  title: Raspunsul automat la tichete noi
+  content: >
+    Poți invalida Răspunsul Automat trimis Utilizatorului când un tichet nou este creat și rutat către acest Departament.
+new_message:
+  title: Nou mesaj de autoraspuns
+  content: >
+    Poți invalida Răspunsul Automat trimis Utilizatorului pentru a confirma un mesaj nou postat la tichetele acestui Departament.
+auto_response_email:
+  title: Email de raspuns automat
+  content: >
+    Selectează o adresă de e-mail de la care sunt trimise Răspunsurile Automate pentru acest Departament.
+department_access:
+  title: Acces Grup
+  content: >
+    Acordă acces Agenților celorlalte Departamente la tichetele acestui Departament.
+department_signature:
+  title: Semnatura departament
+  content: >
+    Semnătura e disponibilă ca opțiune la Răspunsurile Agenților pentru Departamentele <span class="doc-desc-opt">Public</span>e.

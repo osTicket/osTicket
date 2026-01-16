@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nytt ärende
+  content: >
+    Aktivera detta val om du vill att ett autosvar skickas till användaren som anmäler ett nytt ärende.
+  links:
+    - 
+      title: Mall för autosvar vid nytt ärende
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nytt ärende skapat av supportpersonalen
+  content: >
+    Notifiering som skickas när någon i supportpersonalen skapar ett ärende för kunds räkning. <em>Supportpersonalen kan upphäva detta vid skapande av nytt ärende.</em>
+  links:
+    - 
+      title: Ny mall för notifiering vid nytt meddelande
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Bekräftelse vid nytt meddelande
+  content: >
+    Bekräftelse som skickas när ny information läggs till i ett ärende.
+  links:
+    - 
+      title: Ny mall för meddelandebekräftelse
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Notifiering vid nytt meddelande
+  content: >
+    Meddelanden från den som ursprungligen skapat ärendet till alla övriga deltagare i ärendet.
+  links:
+    - 
+      title: Ny mall för händelsenotifiering
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Meddelande om antal öppna ärenden överskridits
+  content: >
+    Nekande-notifiering vid nytt ärende som skickas till användaren vid brott mot <span class="doc-desc-title">Maximalt antal öppnade ärenden</span>.
+  links:
+    - 
+      title: Mall för notifiering av överskriden gräns
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Ange <em>Maximalt antal öppna ärenden</em>
+      href: /scp/settings.php?t=tickets

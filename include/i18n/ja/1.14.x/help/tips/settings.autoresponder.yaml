@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: 新着チケット
+  content: >
+    新しいチケットでユーザーに自動返信を送るには、これを有効にします。
+  links:
+    - 
+      title: 新着チケット自動返信のテンプレート
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: スタッフによる新着チケット
+  content: >
+    エージェントがユーザーに代わってチケットを作成するときに送られる通知。<em>エージェントは新しいチケットを諾成するときにこれを上書きすることができます。</em>
+  links:
+    - 
+      title: 新しいチケット通知テンプレート
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: 新着メッセージ確認
+  content: >
+    新しいメッセージが既存のチケットに追加されるときに送られる確認通知。
+  links:
+    - 
+      title: 新着メッセージ確認のテンプレート
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: 新着メッセージ通知
+  content: >
+    メッセージの送信者からチケットの他のすべての参加者に送られるブロードキャストメッセージ。
+  links:
+    - 
+      title: 新しいアクティビティ通知テンプレート
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: 制限超過通知
+  content: >
+    <span class="doc-desc-title">最大オープンチケット</span>違反についてユーザーに送信されるチケット拒否の通知。
+  links:
+    - 
+      title: 制限超過通知のテンプレート
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: <em>最大オープンチケット</em>の設定
+      href: /scp/settings.php?t=tickets

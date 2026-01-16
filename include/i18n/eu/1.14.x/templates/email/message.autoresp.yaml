@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Bidali Langileei Erabiltzaile batek mezu berri bat idaztean ticket batean. Hau gertatu ahal da erabiltzaileak sistemako email bati erantzutean edo web portalean mezu bat jartzen duenean .
+subject: |
+  Mezu Confirmazioa
+body: |
+  <h3><strong><Kaixo %{recipient.name.first},</strong></h3>
+  Zure erantzuna laguntza eskaerari <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> erregistrata izan da
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Zure %{company.name} Taldea,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Zure eskaeraren progresioa ikusteko <a
+  href="%{recipient.ticket_link}">egin click hemen</a></em>
+  </div>

@@ -1,0 +1,12 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  このテンプレートは、クライアントがアカウントを確認して登録が正常に完了した後に表示されるコンテンツを定義します。このページは、登録が完了し、クライアントがチケットを送信するか既存のチケットにアクセスできることをユーザーに知らせる必要があります。
+name: "アカウントを確認 ！"
+body: >
+  <div> <strong>アカウントのご登録ありがとうございます。</strong><br /> <br /> 
+  お客様のメールアドレスが確認され、アカウントが正常にアクティブになりました。新しいチケットをオープンするか既存のチケットにアクセスできます。<br /> <br /> <em>サポートセンター</em><br /> %{company.name} </div>

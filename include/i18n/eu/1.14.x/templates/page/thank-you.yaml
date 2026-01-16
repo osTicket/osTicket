@@ -1,0 +1,22 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Eskerrak Emateko orrialdea erakusten da erabiltzaile batek tiket berri bat
+  bidaltzen duenean atariaren bidez.
+name: Eskerrik Asko
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Eskerrik asko gurekin harremanetan jartzeagatik.
+  <br>
+  <br>
+  Laguntza eskaera bat sortu da eta laster arduradun bat jarriko da zurekin
+  harremanetan beharrezkoa izanez gero.</p>
+  <br>
+  <br>
+  Soporte Taldea
+  </div>

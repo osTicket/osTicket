@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Sähköpostiviestien oletuspohjasarja
+  content: >
+    Valitse <span class="doc-desc-title">Sähköpostiviestin pohjasarja</span> jota käytetään lähettäessä <span class="doc-desc-title">Automaattisia vastauksia</span> ja <span class="doc-desc-title">Ilmoituksia</span> eri tapahtumien yhteyksissä Tiketin elinkaaren aikana. <br><br> Osastoille voidaan asettaa omat Sähköpostiviestien pohjasarjat.
+  links:
+    - 
+      title: Hallinnoi Sähköpostiviestien pohjasarjoja
+      href: /scp/templates.php
+default_system_email:
+  title: Oletus Sähköpostiviestin Lähetysosoite
+  content: >
+    Valitse sähköpostiosoite, josta sähköpostit lähetetään. <br><br> <span class="doc-desc-title">Osasto</span> voi asettaa oman <span class="doc-desc-title">Sähköpostiosoitteen</span>, joka korvaa tänne on asetetun osoitteen.
+  links:
+    - 
+      title: Hallinnoi Sähköpostiosoitteita
+      href: /scp/emails.php
+default_alert_email:
+  title: Hälytyksen oletus sähköposti-osoite
+  content: >
+    Valitse sähköpostiosoite josta <span class="doc-desc-title">Ilmoitukset &amp; Muistutukset</span> lähetetään Käsittelijöille.
+  links:
+    - 
+      title: Hallinnoi Sähköpostiosoitteita
+      href: /scp/emails.php
+admins_email_address:
+  title: Järjestelmänvalvojan sähköpostiosoite
+  content: >
+    Syötä Järjestelmänvalvojan sähköpostiosoite johon <span class="doc-desc-title">Järjestelmän virheet</span> ja <span class="doc-desc-title">Uusien Tikettien ilmoitukset</span> (jos aktivoitu) lähetetään.
+  links:
+    - 
+      title: Muokkaa Ilmoituksia ja Muistutuksia
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Sähköpostiviestien nouto
+  content: >
+    Salli IMAP/POP automaattitarkastuksien käyttö asetettuihin ja käytössä oleviin <span class="doc-desc-title">Sähköpostilaatikoihin</span>.
+  links:
+    - 
+      title: Hallinnoi Sähköpostilaatikkoja
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Nouda sähköpostiviestit käyttäen Auto-cronia
+  content: >
+    Sallii säännöllisen sähköpostien noutamisen käyttäen sisäistä tehtävänhallintaa joka käynnistetään Käsittelijöiden toimenpiteistä.  <br><br> Huomaa että sähköpostiviestejä ei noudeta mikäli kukaan ei ole kirjautunut Henkilökunnan käyttöliittymään. Ulkopuolinen tehtävänhallinta on erittäin suositeltavaa noutovälien ennakoimiseksi.
+  links:
+    - 
+      title: Käytössä ulkoinen tehtävien ajoitus
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Alkuperäisen Viestin Vastaus
+  content: >
+    Jos sallittu, tämä poistaa edeltävän kirjeenvaihdon sähköpostikommunikoinnista. <br><br> Tämä ominaisuus on riippuvainen <span class="doc-desc-title">Vastauksen erotinmerkistä</span> alla.
+reply_separator_tag:
+  title: Vastauksen Erotinmerkki
+  content: >
+    Tämä merkki ohjaa Asiakkaan vastaamaan viivan yläpuolelle. <br><br> <strong>Muistutus:</strong> tällä on merkitystä vain jos<span class="doc-desc-title">Vastaa alkuperäiseen viestiin</span> on aktivoitu yläpuolella.
+emailed_tickets_priority:
+  title: Sähköpostitukipyyntöjen prioriteetti
+  content: >
+    Valitse haluatko uuden tiketin prioriteetin/tärkeyden määräytyvän Asiakkaan sähköpostiohjelman mukaan (esim. Outlook). <br><br> Tämä asetus voidaan ohittaa <span class="doc-desc-title">Tikettisuodattimessa</span>.
+  links:
+    - 
+      title: Luo &amp; Hallitse Tikettisuodattimia
+      href: /scp/filters.php
+accept_all_emails:
+  title: Hyväksy kaikki sähköpostiviestit
+  content: >
+    Salli sähköpostiviestit tuntemattomilta Asiakkailta. <br><br> Tämän asetuksen poistaminen aiheuttaa tikettien hylkäämisiä.
+accept_email_collaborators:
+  title: Salli Sähköpostiviestien Omistajat
+  content: >
+    Lisää osanottajat sähköpostin <code><strong>Vastaanottaja</strong></code> ja <code><strong>Kopio</strong></code> kentistä tiketin omistajiksi. <br /><br /> <em>Omistajia voidaan aina manuaalisesti lisätä Käsittelijän toimesta tiketin käsittelyn yhteydessä.</em>
+default_mta:
+  title: Oletus MTA
+  content: >
+    <span class="doc-desc-title">Oletus MTA</span> huolehtii sähköpostin lähetyksestä ilman SMTP asetuksia.
+ticket_response_files:
+  title: Tiketin Vastausliitteet
+  content: >
+    Jos aktivoitu mikä tahansa liite jonka Käsittelijä liittää tiketin vastaukseen sisältyy myös Asiakkaalle lähetettävään sähköpostiviestiin.
+verify_email_addrs:
+  title: Varmenna sähköpostiosoite
+  content: >
+    Kun tämä asetus otetaan käyttöön, tarkistetaan onko sähköpostiosoitteella mail exchager(MX)-tietue toimialueen nimipalvelussa. Tämä on hyödyllistä, kun tarkistetaan väärin kirjoitettuja sähköpostiosoitteita. Tarkistus suoritetaan muotoilutarkistuksen lisäksi.

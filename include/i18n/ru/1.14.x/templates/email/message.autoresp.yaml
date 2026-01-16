@@ -1,0 +1,14 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Отправляется пользователю, когда тот размещает сообщение в заявке. Это происходит, когда пользователь отвечает на сообщение электронной почты от системы или посещает страницу портала и оставляет сообщение там.
+subject: |
+  Подтверждение сообщения
+body: |
+  <h3><strong>Уважаемый, %{recipient.name.first},</strong></h3>
+  Ваш ответ на запрос поддержки <a href="%{recipient.ticket_link}"> #%{ticket.number}</a> был учтён. <br><br><div style="color: rgb(127, 127, 127);"> Ваша команда %{company.name}, <br>
+  %{signature}</div> <hr>, <div style="color: rgb(127, 127, 127); font-size: small; text-align: center"> <em>Вы можете посмотреть прогресс запроса поддержки <a href="%{recipient.ticket_link}">онлайн здесь</a></em></div>

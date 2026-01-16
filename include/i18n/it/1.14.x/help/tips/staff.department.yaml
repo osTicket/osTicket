@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Stato
+  content: >
+    Se disabilitato o archiviato, questo <span class="doc-desc-title"> Dipartimento </span> non sarà disponibile.
+type:
+  title: TIPO
+  content: >
+    Selezionare <span class="doc-desc-opt"> privato</span> se desideri assegnare a questo reparto i ticket nel Portale Client.  Inoltre, quando etichetti come <span class="doc-desc-opt"> privato</span>, la <span class="doc-desc-title"> firma del reparto</span> non verrà visualizzata nelle risposte e-mail. <br/> <br/> Almeno un reparto deve essere <span class="doc-desc-opt"> pubblico</span>
+email:
+  title: Email
+  content: >
+    Indirizzo email utilizzato quando vengono inviate  mail agli utenti quando gli operatori rispondono ai ticket.
+template:
+  title: Impostazioni modello
+  content: >
+    E-mail <span class="doc-desc-title"> Template Set</span> usato per risposte automatiche e avvisi &amp; notizie per ticket indirizzati a questo reparto.
+  links:
+    - 
+      title: Gestisci Modelli
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Service Level Agreement per i ticket assegnati a questo reparto.
+  links:
+    - 
+      title: Gestire i piani di SLA
+      href: /scp/slas.php
+schedule:
+  title: Pianificazione
+  content: >
+    Pianificazione usata dagli SLA in caso di ritardi sui ticket indirizzati a questo Dipartimento. <br><br> Questa impostazione prende la precedenza su quelle di sistema e di pianificazione SLA.
+  links:
+    - 
+      title: Gestisci pianificazioni
+      href: /scp/schedules.php
+manager:
+  title: Gestione Reparti
+  content: >
+    Selezionare un <span class="doc-desc-title"> Manager</span> per questo reparto. <br/><br/> I Manager possono essere configurati per ricevere avvisi speciali e hanno anche il diritto di annullare l'assegnazione dei ticket.
+  links:
+    - 
+      title: Gestire gli avvisi &amp; comunicazioni
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Avvisi &amp; comunicazioni ai destinatari
+  content: >
+    Selezionare i destinatari di <span class="doc-desc-title"> avvisi &amp; comunicazioni</span>.
+  links:
+    - 
+      title: Configurare avvisi &amp; comunicazioni
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Restrizioni per l'assegnazione di ticket
+  content: >
+    Determina se è possibile assegnare i ticket a tutti gli agenti, agli agenti con accesso primario o esteso al dipartimento o solo agli agenti con accesso al Dipartimento principale.
+disable_auto_claim:
+  title: Disabilita reclamo automatico
+  content: >
+    Seleziona per <strong>disabilitare</strong> l'auto-assegnazione per risposte provenienti da questo dipartimento.<br><br>Gli Agenti possono sempre riservare i Tickets non assegnati
+disable_reopen_auto_assign:
+  title: Disattiva auto-assegnazione sui riaperti
+  content: >
+    Selezionalo per <strong>disattivare</strong> l'auto-assegnazione dei ticket riaperti per questo dipartimento. <br><br> Altrimenti, il ticket verrà auto-assegnato all'ultimo agente che ha risposto
+auto_response_settings:
+  title: Impostazioni di autorisponditore
+  content: >
+    Questo consente di sovrascrivere le impostazioni dell' autoresponder per questo reparto.
+new_ticket:
+  title: Risposta automatica per i nuovi ticket
+  content: >
+    Si può disattivare la risposta automatica inviata all'utente quando un nuovo ticket è creato e indirizzato a questo reparto.
+new_message:
+  title: Nuovo messaggio Auto-risposta
+  content: >
+    Si può disattivare la risposta automatica inviata all'utente per confermare che il ticket è stato assegnato a questo reparto.
+auto_response_email:
+  title: Autorisponditore Email
+  content: >
+    Selezionare l'indirizzo di posta elettronica dal quale vengono inviate risposte automatiche per questo reparto.
+department_access:
+  title: Accesso al gruppo
+  content: >
+    Consentire gli operatori di altri reparti l'accesso ai ticket di questo reparto.
+department_signature:
+  title: Firma del reparto
+  content: >
+    La firma è resa disponibile come una scelta, come<span class="doc-desc-opt"> pubblico</span>reparto, sulle risposte dell'operatore.

@@ -1,0 +1,22 @@
+---
+#Welcome ticket template
+#When the system if first installed and the installer finishes setting up
+#the database, it creates a first ticket with a welcome message to the
+#administrator
+#---
+deptId: 1 #support
+topicId: 1 #support
+name: Support osTicket
+email: support@osticket.com
+source: Web #notrans
+subject: osTicket a été installé!
+message: |
+  <p>
+  Merci d'avoir choisi osTicket.
+  </p><p>
+  Veuillez rejoindre les <a href="http://osticket.com/forums"> forums d'osTicket</a> et notre <a href="http://osticket.com/updates"> liste de diffusion</a> afin de rester à jour sur les dernières nouvelles, les alertes de sécurité et les mises à jour. Les forums d'osTicket sont également un excellent endroit pour obtenir aide, conseils, astuces ou pour aider d'autres utilisateurs d'osTicket. Outre les forums, le wiki d'osTicket fournit une collection utile du matériel pédagogique, documentation et notes de la communauté. Nous accueillons vos contributions à la communauté d'osTicket. 
+  </p> <p>
+  Si vous êtes à la recherche d'un meilleur niveau de support, nous fournissons des services professionnels et un support professionnel avec temps de réponse garantis et l'accès à l'équipe de développement de base. Nous pouvons également vous aider à personnaliser osTicket ou encore ajouter de nouvelles fonctionnalités au système pour répondre à vos besoins uniques. 
+  </p> <p>
+  Si l'idée de la gestion et de la mise à niveau de cette installation d'osTicket est intimidante, vous pouvez essayer osTicket comme un service hébergé à <a href="http://www.supportsystem.com"> http://www.supportsystem.com/</a> - aucune installation requise et nous pouvons importer vos données !  Avec l'infrastructure clé en main du SupportSystem, vous obtenez le meilleur d'osTicket, vous laissant libre de vous concentrer sur vos clients sans la charge de veiller à ce que l'application soit stable, maintenue et sûre. </p> <p>Cordialement,</p> <p>-<br/> L'équipe osTicket http://osticket.com/</p> <p><strong>PS.</strong> Il ne faut pas juste faire des clients heureux, faites d'heureux clients !
+  </p>

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Canned Response
+  content: >
+    បង្កើត <span class="doc-desc-title">Canned Response</span> ដែលអាចត្រូវបានរួមបញ្ចូលនៅក្នុងការឆ្លើយតបសំបុត្រមួយ។ វាអាចត្រូវបានប្រើជា <span class="doc-desc-title">Ticket Auto-Response</span> បង្កើតឡើងដោយ <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: រៀបចំត្រងសំបុត្រ
+      href: /scp/filters.php
+canned_attachments:
+  title: ឯកសារភ្ជាប់ដែលបានកំណត់ជាមុន
+  content: >
+    ភ្ជាប់ឯកសារដែលអ្នកចង់ឱ្យត្រូវបានរួមបញ្ចូលដោយស្វ័យប្រវត្តិនៅក្នុងការឆ្លើយតបសំបុត្រមួយដែលប្រើប្រាស់ថ្មី <span class="doc-desc-title"> Canned Response</span>.

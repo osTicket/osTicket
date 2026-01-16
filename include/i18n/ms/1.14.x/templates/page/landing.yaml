@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Halaman Utama adalah kandungan yang terdapat di dalam pandangan pertama Portal Pelanggan. Templat ini mengubah kandungan yang terdapat di atas 2 pautan <strong>Buka Tiket Baru</strong> dan <strong> Semak Status Tiket</strong>.
+name: Mendarat
+body: >
+  <h1>Selamat datang ke Pusat Sokongan</h1> <p> Dalam usaha untuk menyelaraskan permintaan sokongan dan lebih baik kepada anda, kami menggunakan sistem tiket sokongan. Setiap permintaan sokongan diberikan nombor tiket yang unik yang mana anda boleh gunakan untuk mengesan kemajuan dan maklum balas dalam talian. Untuk rujukan anda kami menyediakan arkib dan sejarah semua permintaan sokongan anda. Alamat email yang sah diperlukan untuk menghantar tiket. </p>

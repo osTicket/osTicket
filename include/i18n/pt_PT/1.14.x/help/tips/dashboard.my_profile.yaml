@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informação de contacto
+  0: >
+
+username:
+  title: Nome de Utilizador
+  content: >
+    Somente os agentes com status de Admin podem alterar o nome de utilizador. Se é um agente com previlégios de Admin, pode realizar essa operação seleccionando o Agente a editar na tabela de <span class="doc-desc-title">Membros do Staff</span> table.
+  links:
+    - 
+      title: Mudar um nome de utilizador como Administrador
+      href: /scp/staff.php
+time_zone:
+  title: Fuso horário
+  0: >
+
+daylight_saving:
+  title: Horário de Verão
+  0: >
+
+maximum_page_size:
+  title: Tamanho máximo da página
+  0: >
+
+auto_refresh_rate:
+  title: Taxa de actualização automática
+  0: >
+
+default_signature:
+  title: Assinatura padrão
+  0: >
+
+default_paper_size:
+  title: Tamanho de papel padrão
+  0: >
+
+show_assigned_tickets:
+  title: Mostrar Pedidos Atribuídos
+  content: >
+    <p> Se activar esta opção irá substituir a configuração global para esconder os tickets atribuídos das filas abertas. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Esta definição só está disponível quando os tickets atribuídos são excluídos globalmente. </p>
+password:
+  title: senha de acesso
+  0: >
+
+current_password:
+  title: Password actual
+  0: >
+
+new_password:
+  title: Nova Password
+  0: >
+
+confirm_new_password:
+  title: Confirmar a nova password
+  0: >
+
+signature:
+  title: Assinatura
+  content: >
+    Criar uma <span class="doc-desc-title">Assinatura</span> opcional que provavelmente aparecerá no final das suas respostas aos Ticket. Se esta <span class="doc-desc-title">Assinatura</span> é exibida, ou não, depende do <span class="doc-desc-title">Modelo de E-Mail</span> que vai ser usado na resposta ao Ticket.
+  links:
+    - 
+      title: Criar modelos de correio electrónico no painel de administração
+      href: /scp/templates.php

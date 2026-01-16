@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: osTicket (គំរូ) គឺជាអ្វី?
+  response: |
+    osTicket ជាប្រភពបើកចំហប្រព័ន្ធសំបុត្រ open source ticketing system ដែលអាចប្រើជាជម្រើសគួរឱ្យទាក់ទាញ សម្រាប់ជំនួសឱ្យប្រព័ន្ធ Systems ផ្សេងទៀត ដែលមានការចំណាយខ្ពស់និងស្មុគ្រស្មាញ។ osTicket គឺ សាមញ្ញ, ទំងន់ស្រាល, អាចជឿទុកចិត្ត, ប្រភពកូដបើកចំហ open source, ហើយ​គឺ​ជា បណ្តាញ web-based ដែលមានភាពងាយស្រួលក្នុងការដំឡើងនិងប្រើប្រាស់។
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: ឯកសារភ្ជាប់ដែលបានកំណត់ជាមុនគឺល្អមែនទែន!
+- 
+  isenabled: 1
+  title: គំរូ (ជាមួយនឹងអថេរ variables)
+  response: |
+    សួស្តី %{ticket.name.first},
+    <br>
+    <br>
+    ករណីរបស់អ្នក #%{ticket.number} បានបង្កើតនៅ %{ticket.create_date} គឺនៅ
+    %{ticket.dept.name} ផ្នែក។
+  0: |
+

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Denne malen definerer epost sendt til klienter som velger lenken <strong>Glemt mitt passord</strong> på klient Logg på-siden.
+name: "%{company.name} sakssystem tilgang"
+body: >
+  <h3><strong>Hei %{user.name.first},</strong></h3> <div>Forespørsel om tilbakestilling  av passord er sendt deg på dine vegne av brukerstøtten hos %{url}.<br/> <br/> Hvis du føler at dette er gjort feil, slett og se bort fra denne e-posten. Kontoen er fortsatt sikker og ingen har fått tilgang til den. Den er ikke låst og passordet er ikke tilbakestilt. Noen kan feilaktig lagt inn din e-postadresse. <br/> <br/> Følg linken nedenfor for å logge inn på sakssystemet og endr ditt passord. <br/> <br/> <a href="%{link}"> %{link}</a> <br/> <br/> <em style="font-size: small"> Vennlig hilsen <br/> %{company.name}</em></div>

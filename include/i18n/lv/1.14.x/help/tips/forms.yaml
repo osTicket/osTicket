@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Formas virsraksts
+  content: >
+    Virsraksta teksts tiek parādīts pelēkā blokā virs formas laukuma
+form_instructions:
+  title: Formas instrukcijas
+  content: >
+    Jūs varat pievienot papildus instrukcijas, kas palīdzēs lietotājam apgūt formas kontekstu un, iespējams, izcelt nepieciešamos datus.
+field_sort:
+  title: Lauka attēlošanas pozīcija
+  content: >
+    Uzspiediet uz agšup-lejup ikonas un pārvelciet laukuma rindiņu, kārtošain formas iekšienē. Kārtošanas iestatījumi nestāsies spēkā, kamēr forma netiks saglabāta.
+field_label:
+  title: Lauka etiķete
+  content: >
+    Šī etiķete informē par lauka ievadi. Parasti lauks ar īso atbildi tiks attēlots šādi: <br><strong>Etiķete:</strong>&nbsp;<input type="text">
+field_type:
+  title: Lauka satura veids
+  content: >
+    Tiek izmantots, lai definētu no lietotāja gaidāmo datu ievades tipu. Jūs varat izvēlēties šādus variantus: īsa vai gara atbilde, telefona numurs, datums un laiks, izvēles lodziņš, izvēršamais saraksts vai pielāgota saraksta izvēlne.
+  links:
+    - 
+      title: Pielāgotie saraksti
+      href: /scp/lists.php
+field_visibility:
+  title: Lauka redzamība
+  content: >
+    Izvēlieties šī lauka redzamības un pieejamības iespējas. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th>Iestatījumi</th> <th>Rezultāts</th></tr> <tr><td>Opcionāls</td> <td> Aģenti un Gala Lietotāji var redzēt šos laukus, bet tos nav obligāti jāaizpilda</td></tr> <tr><td>Nepieciešams</td> <td>Aģenti un Gala Lietotāji var redzēt šos laukus un šos laukus gan Aģentiem, gan Gala Lietotājiem jāaizpilda obligāti</td></tr> <tr><td>Nepieciešams Gala Lietotājiem</td> <td> Aģenti un Gala Lietotāji var redzēt šos laukus, bet tos jāaizpilda tikai Gala Lietotājiem</td></tr> <tr><td>Nepieciešams Aģentiem</td><td>Aģenti un Gala Lietotāji var redzēt šos laukus, bet tos jāaizpilda tikai Aģentiem</td></tr> <tr><td>Iekšējais, opcionāls</td> <td> Tikai Aģenti var redzēt šos laukus, bet tos nav obligāti jāaizpilda. </td></tr> <tr><td>Iekšējais, Nepieciešams</td> <td>Tikai Aģenti var redzēt šos laukus un tos obligāti jāaizpilda</td></tr> <tr><td>Tikai Gala Lietotājiem</td> <td>Tikai Gala Lietotāji var redzēt šos laukus un tos obligāti jāaizpilda</td></tr> </tbody></table>
+field_variable:
+  title: Lauka automatizācija
+  content: >
+    Lauka saturētie dati būs pieejami e-pasta un lapas šabloniem pēc vārda, kurš tiek izmantots šinī kolonnā. Piemēram, lauki kopējajā pieteikumu formā būs pieejami caur<code>%{ticket.variable}</code>, kur <strong>mainīgais</strong> - tas ir vārds vai vērtība, kas tiek izmantots šinī kolonnā.<br><br><em>Informācija par kompāniju ir pieejama caur<code>%{</code><code>company.variable}</code> un lietotāja informācija ir pieejama caur <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Izdzēst šo lauku
+  content: >
+    Pārbaudiet un saglabājiet formu, lai izdzēstu no šīs formas lauku. <br><br> <em>Lauka izdzēšana neizdzēš informāciju, kas šinī laukā ievadīta jau pabeigtajās formās. Piemēram, ja iepriekš kāds pieteikums bija izveidots ar datiem šinī laukā, lauka izdzēšana neizdzēsīs pieteikumā esošos datus.</em>

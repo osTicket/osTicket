@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Uus pilet
+  content: >
+    Luba see, kui soovid, et automaatvastus saadetakse kasutajale uue pileti korral.
+  links:
+    - 
+      title: Uue pileti automaatvastuse mall
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Uus pilet meeskonna poolt
+  content: >
+    Saadetav teatis, kui agent loob pileti kasutaja nimel. <em>Agent saab selle uue pileti loomisel üle kirjutada.</em>
+  links:
+    - 
+      title: Uue pileti teate mall
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Uue sõnumi kinnitus
+  content: >
+    Saadetav kinnitusteade, kui olemasolevale piletile tuleb uus vastus.
+  links:
+    - 
+      title: Uue sõnumi kinnituse mall
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Uue sõnumi teade
+  content: >
+    Sõnum, mille saavad kõik pileti osalejad.
+  links:
+    - 
+      title: Uue tegevuse teate mall
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Limiidi ületamise teade
+  content: >
+    Teade kasutajale pileti avamisest tagasilükkamise kohta, seoses <span class="doc-desc-title">maksimaalselt avatud piletite</span> arvu ületamisega.
+  links:
+    - 
+      title: Limiidi ületamise teate mall
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Määra <em>maksimaalselt avatud piletite</em> arv
+      href: /scp/settings.php?t=tickets

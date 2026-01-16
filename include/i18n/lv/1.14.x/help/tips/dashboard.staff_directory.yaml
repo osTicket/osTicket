@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Personāla locekļi
+  content: >
+    Šī tabula parāda augšējā filtra rezultātus. Ja filta iestatījumi netika izvēlēti, tad visi <span class="doc-desc-title"> Personāla locekļi </span> ir parādīti un sadalīti pa lapām. Skatīt lapu sadaļu lejā, lai apskatītu pārējos rezultātus.
+apply_filtering_criteria:
+  title: Iestatīt filtrēšanas kritērijus
+  content: >
+    Izvēlieties <span class="doc-desc-title"> Departamentu </span>, kurš ir saistīts ar Jūs interesējošo jautājumu. Jūs varat meklēt specifisku Lietotāju.

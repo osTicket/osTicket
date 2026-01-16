@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Ez a sablon határozza meg az ügyfélnek kiküldött emailt, miután kiválasztotta az <strong>Elfelejtett jelszó</strong> hivatkozást a ügyfél bejelentkezési oldalon.
+name: "%{company.name} ügyfélszolgálati belépés"
+body: >
+  <h3><strong>Kedves %{user.name.first},</strong></h3> <div> jelszó visszaállítási kérelmet küldött az oldalunkon: %{url}.<br /> <br /> Ha úgy érzi, hogy ez hibából történt, akkor hagyja figyelmen kívül és törölje ezt az emailt. A felhasználói fiókja még mindig biztonságos és senki más nem férhet hozzá. A fiók nem került felfüggesztésre és a jelszó nem került visszaállításra. Véletlenül kerülhetett beírásra az email címe.<br /> <br /> Kövesse az alábbi linket, hogy ügyfélszolgálatunkra belépve megváltoztassa jelszavát.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ügyfélszolgálat <br /> %{company.name}</em> </div>

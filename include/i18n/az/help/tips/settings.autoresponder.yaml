@@ -1,0 +1,54 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+new_ticket:
+  title: Yeni sorğu
+  content: >
+    Əgər siz yeni sorğuda istifadəçiyə avtomatik cavabın göndərilməsini istəyirsinizsə bunu aktiv edin.
+  links:
+    - 
+      title: Yeni sorğu avtomatik cavab şablonu
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Heyət tərəfindən yeni sorğu
+  content: >
+    Agent istifadəçi adından sorğu yaradanda xəbərdarlıq göndərin. <em>Agent bunu yeni sorğular yaradanda ləğv edə bilər.</em>
+  links:
+    - 
+      title: Yeni sorğu xəbərdarlığı şablonu
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Yeni mesaj təsdiqi
+  content: >
+    Təsdiq xəbərdarlığı mövcud sorğuya yeni mesaj əlavə olunanda gəlir.
+  links:
+    - 
+      title: Yeni mesaj təsdiqi şablonu
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Yeni mesaj xəbərdarlığı
+  content: >
+    Yayım mesajları sorğudakı bütün digər mesaj təqdim edən iştirakçılardan qəbul olunur.
+  links:
+    - 
+      title: Yeni fəaliyyət xəbərdalığı şablonu
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Limitin dolması xəbərdarlığı
+  content: >
+    <span class="doc-desc-title">Maksimum sorğu açılması</span> pozulanda istifadəçiyə sorğu təqzibi xəbərdarlığı göndərilir.
+  links:
+    - 
+      title: Limit dolması xəbərdarlıq şablonu
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: <em>Maksimum sorğu açılması</em> quraşdır
+      href: /scp/settings.php?t=tickets

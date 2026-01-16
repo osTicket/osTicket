@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Názov formulára
+  content: >
+    Tento text titulku sa ukáže nad poľom formulára
+form_instructions:
+  title: Inštrukcie formulára
+  content: >
+    Môžete pridať ďalšie pokyny, ktoré pomôžu navigovať používateľa a prípadne zvýrazniť požadované údaje.
+field_sort:
+  title: Pozícia poľa na displeji
+  content: >
+    Kliknite na šípky a presuňte požadovaný riadok. Zoradenie sa prejaví až po uložení formulára.
+field_label:
+  title: Označenie poľa
+  content: >
+    Toto označenie poľa sa zobrazí ako výzva, pole pre krátku odpoveď môže byť vyjadrené napríklad ako::<br> <strong>Label:</strong>&nbsp; <input type="text">
+field_type:
+  title: Typ obsahu poľa
+  content: >
+    Toto sa používa pre definovanie typu vstupu očakávaného použivateľo. Môžete zvoliť krátku a dlhú odpoveď, telefónne číslo, dátum a čas, zaškrtávacie pole, rozbaľovací zoznam albo zoznam s výberom možností.
+  links:
+    - 
+      title: Vlastný zoznam
+      href: /scp/lists.php
+field_visibility:
+  title: Viditeľnosť poľa
+  content: >
+    Zvoľte viditeľnosť a voľbu povinného zadania pre toto pole. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Nastavenie</th> <th>Výsledok</th></tr> <tr><td>Voliteľné</td> <td>Agenti i koncoví používatelia vidia toto pole, ale nie sú povinní ho vyplniť.</td></tr> <tr><td>Povinné</td> <td>Agenti i koncoví používatelia vidia toto pole a sú povinní ho vyplniť.</td></tr> <tr><td>Povinné pre koncových používateľov</td> <td>Agenti i koncoví používatelia vidia toto pole, iba koncoví používatelia sú povinní ho vyplniť.</td></tr> <tr><td>Povinné pre Agentov</td> <td>Agenti i koncoví používatelia vidia toto pole, iba agenti sú povinní ho vyplniť.</td></tr> <tr><td>Interné, voliteľné</td> <td>Toto pole vidí jen agenti, ale nie sú povinní ho vyplniť.</td></tr> <tr><td>Interné, povinné</td> <td>Toto pole vidia iba agenti a sú povinní ho vyplniť.</td></tr> <tr><td>Iba pre koncových používateľov</td> <td>Toto pole vidia iba koncoví používatelia a sú povinní ho vyplniť.</td></tr> </tbody></table>
+field_variable:
+  title: Automatizácia poľa
+  content: >
+    Pole bude dostupné pre e-mail a šablóny stránky cez meno použité v stĺpci. Napríklad, polia vo formulári pre tickety sú dostupné cez <code>%{ticket.variable}</code>, kde <strong>variable</strong> je názov použitý v danom stĺpci.<br> <br> <em>Informácie o spoločnosti sú dostupné cez <code>%{</code><code>company.variable}</code> a údaje o používateľovi sú dostupné cez <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Vymazať toto pole
+  content: >
+    Pre odstránenie poľa z tohoto formulára ho preverte a uložte.<br> <br> <em>Zmazaním poľa sa neodstránia už zadané dáta poľa na vyplnených formulároch. Napríklad pokiaľ skôr odoslaná požiadavka má dáta pre určité pole, zmazanie poľa z tohoto formulára neodstráni dáta z požiadavky.</em>

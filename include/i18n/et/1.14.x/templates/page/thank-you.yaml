@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Antud mall defineerib kliendile kuvatava aitäh lehe sisu, pärast kliendiportaalis pileti sisestamist.
+name: Aitäh
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Täname pöördumise eest.
+  <br>
+  <br>
+  Pilet on loodud ja meie spetsialist võtab vajadusel peagi Teiega ühendust.</p>
+  <br>
+  <br>
+  Kasutajatoe meeskond
+  </div>

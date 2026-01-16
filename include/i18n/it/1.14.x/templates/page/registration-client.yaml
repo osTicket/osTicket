@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Questo modello definisce l'email inviata ai clienti quando il loro account è stato creato nel portale clienti o da un operatore per loro conto. Questa email serve per verificare l'indirizzo e-mail. Si prega di utilizzare %{link} da qualche parte nel testo.
+name: "Benvenuti in %{company.name}"
+body: >
+  <h3><strong>Ciao %{recipient.name.first},</strong></h3> <div> Abbiamo creato un account per te nel nostro help desk all'indirizzo %{url}.<br /> <br /> Segui il link qui sotto per confermare il tuo account e poter accedere ai tuoi ticket.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Help Desk <br /> %{company.name}</em> </div>

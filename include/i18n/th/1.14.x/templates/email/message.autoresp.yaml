@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  ส่งไปยังผู้ใช้ระบบ เมื่อผู้ใช้ระบบโพสต์ข้อความใหม่ไปยัง Ticket กรณีนี้จะเกิดขึ้นเมื่อผู้ใช้ตอบกลับอีเมลจากระบบ หรือเข้าไปยังเว็บพอร์ทัลของลูกค้า และโพสต์ข้อความใหม่ที่นั่น
+subject: |
+  ยืนยันข้อความ
+body: |
+  <h3><strong>ถึง %{recipient.name.first},</strong></h3>
+  การตอบกลับ <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> ของคุณ ได้รับทราบแล้ว
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Your %{company.name} Team,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>คุณสามารถดูความคืบหน้าการร้องขอการสนับสนุน <a
+  href="%{recipient.ticket_link}">ออนไลน์ได้ที่นี่</a></em>
+  </div>

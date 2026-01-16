@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Standard-E-Mail-Vorlagensatz
+  content: >
+    Wählen Sie den <span class="doc-desc-title">E-Mail-Vorlagensatz</span> aus, der zum Senden von <span class="doc-desc-title">Auto-Antworten</span> und <span class="doc-desc-title">Benachrichtigungen</span> für verschiedene Aktionen, die während der Ticketlebensdauer erfolgen können, verwendet wird. <br><br>Abteilungen kann ein bestimmter E-Mail-Vorlagensatz zugewiesen werden.
+  links:
+    - 
+      title: E-Mail-Vorlagensätze verwalten
+      href: /scp/templates.php
+default_system_email:
+  title: Standard-E-Mail-Adresse für ausgehende E-Mails
+  content: >
+    Wählen Sie eine E-Mail-Adresse aus, von der die ausgehenden E-Mails versendet werden. <br><br>Eine <span class="doc-desc-title">Abteilung</span> kann seine eigene <span class="doc-desc-title"> E-Mail-Adresse</span> festlegen, die außer Kraft setzt, was hier eingestellt wird.
+  links:
+    - 
+      title: E-Mail-Adressen verwalten
+      href: /scp/emails.php
+default_alert_email:
+  title: Standard-E-Mail-Adresse für Benachrichtigungen
+  content: >
+    Wählen Sie eine E-Mail-Adresse aus, von der <span class="doc-desc-title">Benachrichtigungen</span> an Agenten versendet werden.
+  links:
+    - 
+      title: E-Mail-Adressen verwalten
+      href: /scp/emails.php
+admins_email_address:
+  title: E-Mail-Adresse des Administrators
+  content: >
+    Geben Sie eine Administrator E-Mail-Adresse an, zu der <span class="doc-desc-title">Systemfehler</span> und <span class="doc-desc-title">Benachrichtigungen</span> über neue Tickets (falls aktiviert) gesendet werden.
+  links:
+    - 
+      title: Benachrichtigungen verwalten
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: E-Mails abrufen
+  content: >
+    Erlaube IMAP/POP-Abruf für konfigurierte und aktivierte <span class="doc-desc-title">Postfächer</span>.
+  links:
+    - 
+      title: Postfächer verwalten
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Abrufen von E-Mails mit auto-cron
+  content: >
+    Erlaubt das periodische Abrufen von E-Mails über einen internen Taskmanager, welcher durch Aktivität der Agenten getriggert wird. <br><br> Bitte beachten Sie, dass keine E-Mails abgerufen werden, wenn niemand im Agenten-Bereich angemeldet ist. Es wird dringend empfohlen einen externen Aufgabenplaner einzusetzen, damit die E-Mail-Abrufintervalle prognostizierbar sind.
+  links:
+    - 
+      title: Externen Aufgabenplaner benutzen
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Zitierte Antwort entfernen
+  content: >
+    Wenn aktiviert, wird die vorangegangene Korrespondenz in den E-Mails entfernt. <br><br>Diese Funktion ist abhängig von der Einstellung <span class="doc-desc-title">Trennzeichen für Antworten</span>.
+reply_separator_tag:
+  title: Trennzeichen für Antworten
+  content: >
+    Dies ist ein Zeichen, welches den Benutzer darauf hinweisen soll, über der Linie zu antworten<br><br><strong>Hinweis:</strong> Dies ist nur relevant, wenn die Einstellung <span class="doc-desc-title">Zitierte Antwort entfernen</span> aktiviert ist.
+emailed_tickets_priority:
+  title: Ticket-Priorität für E-Mails
+  content: >
+    Wählen Sie, ob die Priorität/Wichtig-Markierung aus der E-Mail des Benutzers (z.B. bei Outlook) die Priorität des neuen Ticket bestimmt. <br><br>Diese Einstellung kann durch einen <span class="doc-desc-title">Ticket-Filter</span> überschrieben werden.
+  links:
+    - 
+      title: Ticket-Filter erstellen &amp; verwalten
+      href: /scp/filters.php
+accept_all_emails:
+  title: Alle E-Mails akzeptieren
+  content: >
+    Akzeptieren Sie E-Mails von unbekannten Benutzern. <br><br>Wenn Sie diese Einstellung deaktivieren, führt das dazu, dass Tickets zurückgewiesen werden.
+accept_email_collaborators:
+  title: Beteiligte Personen (CC) zulassen
+  content: >
+    Fügt die in den E-Mails enthaltenen Adressen des <code><strong>Empfänger-</strong></code> und <code><strong>CC-</strong></code>Feldes als "Beteiligte Personen" hinzu.<br /><br /> <em>Beteiligte Personen können immer manuell von Agenten in der Ansicht des Tickets hinzugefügt werden.</em>
+default_mta:
+  title: Standard-MTA
+  content: >
+    Der <span class="doc-desc-title">Standard-MTA</span> kümmert sich um den E-Mail-Versand von ausgehenden E-Mails ohne SMTP-Einstellung.
+ticket_response_files:
+  title: Ticket-Antwortdateien
+  content: >
+    Wenn aktiviert, werden alle Anhänge, die ein Agent an ein Ticket anhängt, auch in der E-Mail an den Benutzer enthalten sein.
+verify_email_addrs:
+  title: E-Mail-Adressen verifizieren
+  content: >
+    Aktivieren Sie diese Option, um zu prüfen ob eine E-Mail-Adresse einen MX-Eintrag im DNS der Domäne besitzt. Dies ist hilfreich um falsch eingegebene E-Mail-Adressen zu erkennen. Dies wird zusätzlich zur Prüfung der E-Mail-Adresse auf korrekte Syntax durchgeführt.

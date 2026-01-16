@@ -1,0 +1,77 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: ឈ្មោះ helpdesk
+  content: |
+    <p> ឈ្មោះរបស់ឧប្រព័ន្ធគាំទ្ររបស់អ្នក [ឈ្មោះក្រុមហ៊ុន] ការគាំទ្រ</p>
+system_email:
+  title: លំនាំដើមអ៊ីម៉ែលរបស់ប្រព័ន្ធ
+  content: |
+    <p> អាសយដ្ឋានអ៊ីមែលលំនាំដើមឧ support@yourcompany.com - អ្នកអាចបន្ថែមច្រើនទៀតនៅពេលក្រោយ! </p>
+default_lang:
+  title: ប្រព័ន្ធភាសាលំនាំដើម
+  content: |
+    <p>ទិន្នន័យដំបូងសម្រាប់ភាសានេះនឹងត្រូវបានដំឡើងចូលទៅក្នុង
+    មូលដ្ឋានទិន្នន័យ database ។ឧទាហរណ៍ អ៊ីម៉ែលប្រព័ន្ធលំនាំដើមនឹង ទំព័រប្រព័ន្ធលំនាំដើម
+    ត្រូវបានដំឡើងសម្រាប់ភាសានេះ។</p>
+  links:
+    - 
+      title: កញ្ចប់ភាសា
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: ឈ្មោះដំបូង
+  content: |
+    <p>ឈ្មោះដំបូងរបស់អ្នកគ្រប់គ្រង</p>
+last_name:
+  title: នាមត្រកូល
+  content: |
+    <p>ឈ្មោះចុងក្រោយរបស់អ្នកគ្រប់គ្រង</p>
+email:
+  title: Email អ៊ីម៉ែល
+  content: |
+    <p>អាសយដ្ឋានអ៊ីម៉ែលផ្ទាល់ខ្លួនរបស់អ្នកគ្រប់គ្រងរបស់ខ្លួន។ ត្រូវតែខុសគ្នាពីអ៊ីមែលលំនាំដើមរបស់ប្រព័ន្ធ។</p>
+username:
+  title: Username
+  content: |
+    <p>ឈ្មោះចូលរបស់អ្នកគ្រប់គ្រងរបស់ខ្លួន។ ត្រូវតែមានយ៉ាងហោចណាស់បី (3) តួអក្សរ។</p>
+password:
+  title: ពាក្យសម្ងាត់
+  content: |
+    <p>ពាក្យសម្ងាត់អ្នកគ្រប់គ្រងរបស់ខ្លួន។ ត្រូវតែប្រាំ (5) តួអក្សរឬច្រើនជាងនេះ។</p>
+password2:
+  title: បញ្ជាក់លេខសំងាត់
+  content: |
+    <p>វាយពាក្យសម្ងាត់អ្នកគ្រប់គ្រង។ ត្រូវតែផ្គូផ្គង។</p>
+db_prefix:
+  title: បុព្វបទតារាង MySQL ។
+  content: |
+    <p>osTicket តម្រូវឱ្យបុព្វបទតារាងក្នុងគោលបំណងដើម្បីជៀសវាងជម្លោះតុដែលអាចធ្វើបាននៅក្នុងមូលដ្ឋានទិន្នន័យរួមមួយ។</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>
+    Host ភាគច្រើនប្រើ 'localhost' សម្រាប់ local database hostname. ពិនិត្យមើលការជាមួយ
+    host របស់អ្នកបើ localhost បរាជ័យ។
+    </p>
+    <p>
+    Default port កំណត់នៅក្នុង php.ini ។ លេខច្រក port no មិនស្តង់ដារ
+    អាចត្រូវបានបញ្ជាក់ជា <code>hostname:port</code> 
+    </p>
+db_schema:
+  title: MySQL Database
+  content: |
+    <p>ឈ្មោះរបស់ osTicket មូលដ្ឋានទិន្នន័យនឹងប្រើ។</p>
+db_user:
+  title: MySQL Username
+  content: |
+    <p>អ្នកប្រើ MySQL ត្រូវតែមានសិទ្ធិពេញលេញទៅមូលដ្ឋានទិន្នន័យ។</p>
+db_password:
+  title: MySQL ពាក្យសម្ងាត់
+  content: |
+    <p>ពាក្យសម្ងាត់ដែលបានផ្សារភ្ជាប់ជាមួយនឹងអ្នកប្រើ MySQL ខាងលើ។ </p>

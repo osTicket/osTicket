@@ -1,0 +1,21 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Kjo ndërfaqe përcakton përmbajtjen tekstuale në faqën "Ju-Faleminderit" pasi
+  klienti dorëzon një kërkesë të re në Portal.
+name: Faleminderit
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Kërkesën Tuaj e kemi pranuar. Ju faleminderit!
+  <br>
+  <br>
+  Kërkesa për mbështetje është krijuar nga Ju, një përfaqësues së shpejti do te ju përgjigjet nëse është e nevojshme .</p>
+  <br>
+  <br>
+  Ekipi mbështetës
+  </div>

@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Ovaj predložak definira inicijalni email (opcionalno) poslan djelatnicima kada je račun otvoren u njihovo ime.
+name: "Dobro došli na osTicket"
+body: >
+  <h3><strong>Pozdrav %{recipient.name.first},</strong></h3> <div> Izradili svo Vam korisnički račun u našoj tehničkoj podršci na %{url}.<br /> <br /> Molimo vas da kliknete na link kako biste potvrdili svoj račun i dobili pristup svojim karticama.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška<br /> %{company.name}</em> </div>

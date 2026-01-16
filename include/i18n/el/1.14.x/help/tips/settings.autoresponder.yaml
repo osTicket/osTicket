@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Νέο Αίτημα
+  content: >
+    Ενεργοποιήστε αυτή την επιλογή αν επιθυμείτε να αποστέλλεται στον Χρήστη αυτόματη απόκριση κατά την δημιουργία νέου αιτήματος.
+  links:
+    - 
+      title: Πρότυπο Αυτόματης Απόκρισης σε Νέα Αιτήματα
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Νέο Δελτίο από το Προσωπικό
+  content: >
+    Ειδοποίηση που αποστέλλεται όταν ένας Eκπρόσωπος δημιουργεί ένα Δελτίο αιτήματος για λογαριασμό του Χρήστη. <em> Ο Εκπρόσωπος μπορεί να παρακάμψει αυτή τη δυνατότητα κατά τη δημιουργία νέων δελτίων.</em>
+  links:
+    - 
+      title: Πρότυπο Ενημέρωσης για Νέο Αίτημα
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Επιβεβαίωση Νέου Μηνύματος
+  content: >
+    Ενημέρωση επιβεβαίωσης που αποστέλλεται όταν ένα νέο μήνυμα προσαρτάται σε υπάρχον δελτίο.
+  links:
+    - 
+      title: Πρότυπο Επιβεβαίωσης Νέου Μηνύματος
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Ενημέρωση για Νέο Μήνυμα
+  content: >
+    Πολλαπλά μηνύματα που λαμβάνονται από αυτόν που υποβάλλει το μήνυμα σε όλους τους άλλους συμμετέχοντες στο δελτίο.
+  links:
+    - 
+      title: Πρότυπο Ενημέρωσης για Νέα Δραστηριότητα
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Ειδοποίηση υπέρβασης ορίου
+  content: >
+    Ενημέρωση άρνησης αιτήματος αποστέλλεται στον Χρήστη κατα την παραβίαση του <span class="doc-desc-title">Μέγιστου Αριθμού Ανοικτών Αιτημάτων</span>.
+  links:
+    - 
+      title: Πρότυπο Ενημέρωσης για Υπέρβαση Ορίου
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Ορισμός <em>Μέγιστου Αριθμού Ανοικτών Αιτημάτων</em>
+      href: /scp/settings.php?t=tickets

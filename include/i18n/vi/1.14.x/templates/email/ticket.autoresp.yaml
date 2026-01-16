@@ -1,0 +1,23 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Gửi đến một người dùng khi một yêu cầu mới được tạo ra
+subject: |
+  Yêu cầu hỗ trợ đã được mở [#%{ticket.number}]
+body: |
+  <h3><strong>Gửi%{recipient.name.first},</strong></h3>
+  <p>
+  Một yêu cầu hỗ trợ đã được tạo và chỉ định #%{ticket.number}.
+  Một đại diện sẽ hỗ trợ bạn ngay khi có thể. Bạn có thể<a href="%{recipient.ticket_link}">xem quá trình thực hiện lệnh trực tuyến</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Đội của bạn%{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Nếu bạn muốn cung cấp thêm bình luận hoặc thông tin liên quan đến vấn đề này, hãy trả lời thư hoặc<a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >đăng nhập vào tài khoản của bạn</span></a>để có được một kho lưu trữ hoàn chỉnh cho các yêu cầu hỗ trợ của bạn.</em></div>

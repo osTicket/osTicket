@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: アラートと通知
+  content: >
+    アラートと通知は、さまざまなチケットイベントがトリガーされたときにエージェントに送信される自動メール通知です。
+ticket_alert:
+  title: 新規チケットの投稿
+  content: >
+    <p> 新しいチケットが作成されたときにエージェントに送信されるアラート。</p><p class="info-banner"> <i class="icon-info-sign"></i>このアラートは、チケットフィルターまたはヘルプトピックを通じてチケットが自動割り当てされた場合は送信されません。</p>
+  links:
+    - 
+      title: 新着チケットアラートのデフォルトテンプレート
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: 新着メッセージのアラート
+  content: >
+    ユーザーからの新しいメッセージが既存のチケットに追加された時にエージェントに送られるアラート。
+  links:
+    - 
+      title: 新着メッセージアラートのデフォルトテンプレート
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: 新着内部アクティビティアラート
+  content: >
+    内部ノートの更新やエージェントに返信があった際にエージェントへアラートが送信されます。
+  links:
+    - 
+      title: チケット・アクティビティのデフォルトテンプレート
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: チケットアサインアラート
+  content: >
+    チケットがアサインされた時にエージェントに送られるアラート。
+  links:
+    - 
+      title: チケットアサインアラートのデフォルトテンプレート
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: チケット転送アラート
+  content: >
+    部門間のチケットの転送時にエージェントに送られるアラート。
+  links:
+    - 
+      title: チケット転送アラートのデフォルトテンプレート
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: 期限切れチケットアラート
+  content: >
+    SLAまたは対応期限に基づきチケットが期限切れになった時にエージェントに送られるアラート。
+  links:
+    - 
+      title: 放置チケットアラートのデフォルトテンプレート
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: SLAの管理
+      href: /scp/slas.php
+system_alerts:
+  title: システムアラート
+  content: >
+    管理者 (%{config.admin_email}) に送られる重要なシステムイベント。 設定された<span class="doc-desc-title">ログレベル</span>によって、イベントは<span class="doc-desc-title">システムログ</span>でも使用できます。
+  links:
+    - 
+      title: システムログの表示
+      href: /scp/logs.php
+    - 
+      title: 管理者メールアドレスの変更
+      href: /scp/settings.php?t=emails

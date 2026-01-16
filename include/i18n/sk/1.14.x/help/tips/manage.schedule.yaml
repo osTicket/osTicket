@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Nastavenie harmonogramu
+  content: >
+    <b>Názov</b>: Jedinečný názov harmonogramu. <hr> <b>Typ</b>: Vyberte typ harmonogramu. <span class="doc-desc-title">Pracovné hodiny</span> určujú hodiny, ktoré budú zahrnuté pri výpočte SLA hodín a <span class="doc-desc-title">sviatočné hodiny</span> sú hodiny, ktoré sa počítať nebudú.<hr> <b>Časová zóna</b>: Vyberte časovú zónu harmonogramu. Odporúčame ju nevyplňovať kvôli <span class="doc-desc-title">pohyblivej</span> časovej zóne.<br><br> Pohyblivá časová zóna umožňuje, aby boli časy relatívne k nastavenej časovej zóne.
+

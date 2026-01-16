@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: نام کاربری
+  content: >
+    لطفا یک <span class="doc-desc-title">نام کاربری</span> انتخاب کنید که در این <span class="doc-desc-title">برنامه</span> یکتا باشد.
+email_address:
+  title: آدرس ایمیل
+  content: >
+    ایمیل کارشناس را وارد کنید تا <span class="doc-desc-title">هشدارها و خبرها</span> از طریق <span class="doc-desc-title">برنامه</span> برایشان ارسال شود.
+  0: <br><br>
+  1: کارمند می تواند هم با ایمیل و هم با نام کاربری به صفحه مدیریت خودش وارد شود.
+welcome_email:
+  title: ایمیل خوش آمد گویی
+  content: >
+    فرستاده شدن لینک برای انتخاب کلمه عبور توسط کارمند ، اگر انتخاب نکنید خودتان باید یک کلمه عبور انتخاب کنبد و آنرا به اطلاع کارمند برسانید.
+account_password:
+  title: کلمه عبور حساب کاربری
+  content: >
+    به عنوان <span class="doc-desc-title">مدیر</span> ، ممکن است که بخواهید کلمه ی عبور کارمند را تغییر دهید.
+forced_password_change:
+  title: تغییر اجباری کلمه عبور
+  content: >
+    این قسمت را فعال کنید تا کارشناس مجبور باشد در دفعه ی بعد که وارد میشود کلمه ی عبور دلخواه خود را اعمال کند.
+agents_signature:
+  title: امضای کارشناس
+  content: >
+    یک امضا برای کارشناس ایجاد کنید تا در هنگام پاسخ دادن به نامه ها امضا کند.
+account_status:
+  title: وضعیت حساب کاربری
+  content: >
+    اگر وضعیت کارشناسان <span class="doc-desc-opt">قفل شده</span> باشد ، نمی توانند وارد برنامه شوند.
+assigned_group:
+  title: گروه اختصاص داده شده
+  content: >
+    <span class="doc-desc-title">گروه</span>ی که برای این کارشناس تعیین کردید مجوزهای این کارشناس در<span class="doc-desc-title"> برنامه</span> را مشخص می کند.
+  links:
+    - 
+      title: مدیریت گروه ها
+      href: /scp/groups.php
+primary_department:
+  title: واحد سازمانی اصلی
+  content: >
+    <span class="doc-desc-title">دپارتمان</span> پیشفرض که پشتیبان به <span class="doc-desc-title">نقش</span> آن مربوط می‌باشد را انتخاب نمایید.
+  links:
+    - 
+      title: مدیریت واحد های سازمانی
+      href: /scp/departments.php
+primary_role:
+  title: نقش اولیه
+  content: >
+    <span class="doc-desc-title">دپارتمان</span> اولیه را برای عضویت کارشناس مشخص کنید.
+primary_role_on_assign:
+  title: برای پروژه ها از یک قانون اولیه استفاده کنید
+  content: >
+    Enable this to fallback to the <span class="doc-desc-title">primary role</span> when this agent is assigned tickets and tasks outside of the <span class="doc-desc-title">primary department</span> and <span class="doc-desc-title">extended access</span> departments. Otherwise the agent will have view only access.
+daylight_saving:
+  title: Daylight Saving
+  content: >
+    اگر میخواهید ساعت در زمان مناسب به طور اتوماتیک یک ساعت عقب یا جلو برود این قسمت را فعال کنید.
+limited_access:
+  title: دسترسی محدود
+  content: >
+    اگر در حالت فعال باشد ، کارشناس فقط به تیکتهایی که مستقیما و یا از طریق گروه به او اختصاص یافته دسترسی خواهد داشت.
+directory_listing:
+  title: نمایش فهرست
+  content: >
+    اگر قصد دارید این کارشناس را در<span class="doc-desc-title">فهرست کارمندادن</span> قرار دهید این قسمت را فعال کنید.
+  links:
+    - 
+      title: مشاهده فهرست کارکنان
+      href: /scp/directory.php
+vacation_mode:
+  title: مرخصی
+  content: >
+    اگر وضعیت کارشناس را به <span class="doc-desc-opt">مرخصی</span> تغییر دهید ، کارشناس هیچ <span class="doc-desc-title">هشدار و اطلاعی </span> را دریافت نمی کند و همچنین نمیتوانید کاری را به او اختصاص دهید.
+

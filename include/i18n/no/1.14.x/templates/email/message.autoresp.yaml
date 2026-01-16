@@ -1,0 +1,12 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Sendt til en bruker når brukeren skriver et nytt innlegg i en sak. Dette kan skje både hvis brukeren svarer på en e-post fra systemet eller besøker kundeportalen og legger inn en ny melding der.
+subject: |
+  Meldings bekreftelse
+body: |
+  <h3><strong>Kjære %{recipient.name.first},</strong></h3> Ditt svar på forespørselen <a href="%{recipient.ticket_link}"> #%{ticket.number}</a> er mottatt <br><br><div style="color: rgb(127, 127, 127);"> Vennlig hilsen %{company.name} <br>% %{signature}</div> <hr><div style="color: rgb(127, 127, 127); font-size: small; text-align: center"> <em>du kan se saks forespørselens fremgang<a href="%{recipient.ticket_link}"> på nettet her</a></em></div>

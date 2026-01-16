@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Отправляется сотрудникам, когда заявка помечается системой как просроченная. Просроченный статус заявки устанавливается как на основании указанного в заявке крайнего срока исполнения, так и срока SLA определенного для этой заявки.
+subject: |
+  Оповещение о просроченной заявке
+body: |
+  <h3><strong>Здравствуйте, %{recipient.name}</strong>,</h3>
+  Заявка <a href="%{ticket.staff_link}">#%{ticket.number}</a> серьезно просрочена.
+  <br>
+  <br>
+  Мы должны усердно работать, чтобы гарантировать своевременное рассмотрение и решение всех заявок.
+  <br>
+  <br>
+  С уважением,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Для просмотра или ответа на заявку, пожалуйста, <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >войдите</span></a> в систему поддержки. Вы получили это уведомление, так как заявка назначена непосредственно вам, команде или отделу членом которого вы являетесь.</div>
+  <em style="font-size: small">Ваша <span style="font-size: smaller"
+  >(хотя и с ограниченным терпением)</span> система поддержки клиентов</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Работает на osTicket" width="126" style="width: 126px;">

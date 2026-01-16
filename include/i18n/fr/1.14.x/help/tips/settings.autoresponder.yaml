@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nouveau ticket
+  content: >
+    Activer cette option si vous voulez envoyer une réponse automatique à l'utilisateur lors de la création d'un nouveau billet.
+  links:
+    - 
+      title: Modèle de réponse automatique lors de la création d'un nouveau ticket
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nouveau ticket par l'équipe
+  content: >
+    Notification envoyé lorsqu'un Agent crée un billet au nom de l'utilisateur. <em>Agent peut substituer cela lors de la création de nouveaux billets.</em>
+  links:
+    - 
+      title: Modèle d'avis de nouveau ticket
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Confirmation de nouveau message
+  content: >
+    Avis de confirmation envoyé lorsqu'un nouveau message est ajouté à un ticket existant.
+  links:
+    - 
+      title: Modèle d'un nouveau message de confirmation
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Alerte de nouveau message
+  content: >
+    Diffuser des messages reçus de l'expéditeur du message à tous les autres participants du ticket.
+  links:
+    - 
+      title: Modèle d'avis de nouvelle activité
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Avis de dépassement
+  content: >
+    Ticket refusé. Un avis a été envoyé à l'utilisateur concernant le dépassement du nombre <span class="doc-desc-title">Maximum de Billets Ouverts</span>.
+  links:
+    - 
+      title: Modèle d'avis de dépassement
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Définir <em>nombre de tickets ouverts maximum</em>
+      href: /scp/settings.php?t=tickets

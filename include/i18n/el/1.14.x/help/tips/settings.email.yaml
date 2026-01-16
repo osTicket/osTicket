@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Προεπιλεγμένο Σετ Προτύπων Email
+  content: >
+    Επιλέξτε το <span class="doc-desc-title">Σετ Προτύπων Email</span> που θα χρησιμοποιείται για την αποστολή <span class="doc-desc-title">Αυτόματων Αποκρίσεων</span> και <span class="doc-desc-title">Ειδοποιήσεων</span> για διάφορες ενέργειες που μπορούν να λάβουν χώρα κατά τον κύκλο ζωής ενός Δελτίου Αιτήματος. <br><br> Στα Τμήματα μπορεί να οριστεί ένα συγκεκριμένο Σετ Προτύπων Email.
+  links:
+    - 
+      title: Διαχείριση Σετ Προτύπων Email
+      href: /scp/templates.php
+default_system_email:
+  title: Προεπιλεγμένη Ηλ. Διεύθυνση Εξερχομένων Ηλ. Μηνυμάτων
+  content: >
+    Επιλέξτε μια ηλ. διεύθυνση από την οποία θα αποστέλλονται τα εξερχόμενα ηλ. μηνύματα. <br><br> Κάθε <span class="doc-desc-title">Τμήμα</span> μπορεί να ορίσει τη δική του <span class="doc-desc-title">ηλ. διεύθυνση</span> που θα παρακάμψει ό,τι οριστεί εδώ.
+  links:
+    - 
+      title: Διαχείριση Ηλ. Διευθύνσεων
+      href: /scp/emails.php
+default_alert_email:
+  title: Προεπιλεγμένη Ηλ. Διεύθυνση Ειδοποιήσεων
+  content: >
+    Επιλέξτε μια ηλεκτρονική διεύθυνση από την οποία θα αποστέλλονται <span class="doc-desc-title">Ειδοποιήσεις &amp; Ενημερώσεις</span> στους Εκπροσώπους.
+  links:
+    - 
+      title: Διαχείριση Ηλ. Διευθύνσεων
+      href: /scp/emails.php
+admins_email_address:
+  title: Ηλ. Διεύθυνση Διαχειριστή
+  content: >
+    Πληκτρολογήστε μια ηλεκτρονική διεύθυνση διαχειριστή στην οποία θα αποστέλλονται (εάν η λειτουργία ενεργοποιηθεί) <span class="doc-desc-title">Σφάλματα Συστήματος</span> και <span class="doc-desc-title">Ειδοποιήσεις για Νέα Αιτημάτα</span>.
+  links:
+    - 
+      title: Διαχείριση Ειδοποιήσεων & Ενημερώσεων
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Λήψη Email
+  content: >
+    Να επιτρέπεται ο περιοδικός έλεγχος (polling) IMAP/POP για τις <span class="doc-desc-title">Θυρίδες Ηλεκτρονικού Ταχυδρομείου</span> που έχουν διαμορφωθεί και ενεργοποιηθεί.
+  links:
+    - 
+      title: Διαχείριση Θυρίδων Ηλ. Αλληλογραφίας
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Λήψη ηλ. μηνυμάτων με χρήση Auto-cron
+  content: >
+    Ενεργοποιεί την περιοδική λήψη email με χρήση ενός εσωτερικού συστήματος διαχείρισης λειτουργιών που ενεργοποιείται από την δραστηριότητα των Εκπροσώπων. <br><br> Παρακαλούμε σημειώστε ότι τα emails δεν θα λαμβάνονται εάν κανείς δεν είναι συνδεδεμένος στον Πίνακα Ελέγχου Προσωπικού. Συνιστάται η χρήση εξωτερικού συστήματος προγραμματισμού λειτουργιών προκειμένου να υπάρχουν προβλέψιμα διαστήματα λήψης ηλεκτρονικής αλληλογραφίας.
+  links:
+    - 
+      title: Χρήση Εξωτερικού Συστήματος Προγραμματισμού Λειτουργιών
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Αποφυγή Παράθεσης στην Απάντηση
+  content: >
+    Εάν ενεργοποιηθεί, αυτή η επιλογή θα προκαλέσει αφαίρεση της παλαιότερης αλληλογραφίας κατά τις επικοινωνίες μέσω email. <br><br> Αυτή η λειτουργία εξαρτάται από το <span class="doc-desc-title">Διαχωριστικό Απάντησης</span>, βλ. παρακάτω.
+reply_separator_tag:
+  title: Διαχωριστικό Απάντησης
+  content: >
+    Είναι ένα ενδεικτικό αναγνωριστικό που οδηγεί τον Χρήστη να απαντήσει πάνω από την γραμμή. <br><br> <strong>Σημείωση:</strong> αυτή η ρύθμιση λαμβάνεται υπ' όψιν μόνο εάν είναι ενεργοποιημένη η επιλογή <span class="doc-desc-title">Αποφυγή Παράθεσης στην Απάντηση</span> βλ. παραπάνω.
+emailed_tickets_priority:
+  title: Προτεραιότητα Αιτημάτων Απεσταλμένων με Email
+  content: >
+    Επιλέξτε εάν επιθυμείτε η ένδειξη προτεραιότητας/βαρύτητας που έχει οριστεί από το λογισμικό ηλ. αλληλογραφίας του Χρήστη (π.χ. το OutLook) να υπαγορεύσει την προτεραιότητα ενός νέου αιτήματος υποστήριξης. <br><br> Αυτή η ρύθμιση μπορεί να παρακαμφθεί μέσω ενός <span class="doc-desc-title">Φίλτρου Δελτίων</span>.
+  links:
+    - 
+      title: Δημιουργία &amp; Διαχείριση Φίλτρων Δελτίων
+      href: /scp/filters.php
+accept_all_emails:
+  title: Αποδοχή Όλων των Ηλ. Μηνυμάτων
+  content: >
+    Αποδοχή emails από άγνωστους Χρήστες. <br><br> Εάν αυτή η ρύθμιση δεν επιλεγεί, θα προκληθεί απόρριψη αιτημάτων υποστήριξης.
+accept_email_collaborators:
+  title: Αποδοχή Συνεργατών Βάσει Email
+  content: >
+    Προσθήκη συμμετεχόντων βάσει του ηλ. μηνύματος, όπως αυτοί αναφέρονται στα πεδία <code><strong>Προς</strong></code> και <code><strong>Κοιν.</strong></code> με την ιδιότητα των συνεργατών στο δελτίο αιτήματος. <br /><br /> <em>Είναι πάντα δυνατή η προσθήκη συνεργατών με μη αυτόματο τρόπο από τους Εκπροσώπους κατά την προβολή ενός Δελτίου αιτήματος.</em>
+default_mta:
+  title: Προεπιλεγμένο MTA
+  content: >
+    Η ρύθμιση <span class="doc-desc-title">Προεπιλεγμένο MTA</span> εφαρμόζει την λειτουργία αποστολής της εξερχόμενης αλληλογραφίας χωρίς ρυθμίσεις πρωτοκόλλου SMTP.
+ticket_response_files:
+  title: Αρχεία Απόκρισης σε Δελτίο
+  content: >
+    Εάν ενεργοποιηθεί, τα οποιαδήποτε συνημμένα που ένας Εκπρόσωπος μπορεί να επισυνάψει σε μια απόκριση σε δελτίο, θα συμπεριληφθούν επίσης στο ηλεκτρονικό μήνυμα (email) που θα σταλεί στον Χρήστη.
+verify_email_addrs:
+  title: Verify Email Addresses
+  content: >
+    Ενεργοποιήστε αυτή την επιλογή για να ελέγχετε αν μια διεύθυνση email έχει διακομιστή αλληλογραφίας (MX) στο DNS του τομέα της. Αυτό είναι χρήσιμο για να αποκαλύψετε λάθη στις διευθύνσεις email. Αυτό είναι ένας επιπλέον έλεγχος εκτός του ελέγχου για την ορθότητα της διεύθυνσης του email.

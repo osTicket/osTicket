@@ -106,8 +106,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               if($d->save()) {
                                   $type = array('type' => 'edited', 'status' => 'Active');
                                   Signal::send('object.edited', $d, $type);
-                                  $num++;
-                              }
+                                $num++;
+                            }
                             }
 
                             if ($num > 0) {
@@ -192,8 +192,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                                 foreach($_POST['ids'] as $k=>$v) {
                                     if($v!=$cfg->getDefaultDeptId() && ($d=Dept::lookup($v))) {
                                       $d->delete();
-                                      $i++;
-                                    }
+                                        $i++;
+                                }
 
                                 }
                                 if($i && $i==$count)

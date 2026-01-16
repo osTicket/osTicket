@@ -1,0 +1,65 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  id: 1
+  name: Açmaq
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Sorğunu açın.
+- 
+  id: 2
+  name: Həll olundu
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Həll olunmuş sorğular
+- 
+  id: 3
+  name: Qapalı
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Bağlanmış sorğular. Bu sorğular mütəxəssislərin və müraciət edənlərin səhifəsində görsənəcək.
+- 
+  id: 4
+  name: Arxivləşdirildi
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Sorğular yalnız inzibati olaraq görünür, lakin onlar müraciət edənin və sorğu növbəsi səhifəsində görsənməyəcək.
+- 
+  id: 5
+  name: Silindi
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Sorğular silinmək üçün sıralandı. Sorğu sıralamasında qəbul edilən deyil.

@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Tai e-laiško šablonas  išsiunčiamas klientams , kurie pasirenka <strong>Pamiršote savo slaptažodį</strong> nuoroda Kliento Prisijungimo puslapyje.
+name: "%{company.name} Pagalbos sistemos priėjimas"
+body: >
+  <h3><strong>Sveiki %{user.name.first},</strong></h3> <div> Buvo pateiktas prašymas pakeisti slaptažodį jūsų HellpDesk sistemoje %{url}.<br /> <br /> Jei manote, kad tai klaida, ištrinkite arba ignoruokite pranešimą. Jūsų paskyra yra saugi, ir niekam be jūsų žinios nebus suteiktos teisės. Jūsų paskyra neužblokuota, ir slaptažodis nepakeistas. Tikriausiai kažkas suklydo įvesdamas jūsų e-pašto adresą.<br /> <br /> Paspauskite nuorodą žemiau, kad prisijungtumėte prie savo paskyros ir pasikeistumėte slaptažodį.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Jūsų draugiška klientų pagalbos sistema <br /> %{company.name}</em> </div>

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Trang chủ
+  content: >
+    Trang chủ có thể được sử dụng như một hệ thống quản trị nội dung mini (CMS). Bạn có thể xác định nhiều trang đích, trang offline và trang cảm ơn và cấu hình chúng trong phần cài đặt doanh nghiệp và tiêu đề trợ giúp.
+  links:
+    - 
+      title: Cài đặt doanh nghiệp
+      href: /scp/settings.php?t=pages
+type:
+  title: Loại
+  content: >
+    <span class="doc-desc-opt">Trang offline</span>được hiển trị trên cổng thông tin khách hàng nếu phần trợ giúp bị vô hiệu hóa.<span class="doc-desc-opt">Trang đích</span>được hiển thị trên trang chủ của cổng thông tin khách hàng.<span class="doc-desc-opt">Trang cảm ơn</span>được hiển thị sau khi một người dùng đưa ra lệnh.<span class="doc-desc-opt">Các trang khác</span>có thể được sử dụng như một hệ thống quản trị nội dung đơn giản (CMS).

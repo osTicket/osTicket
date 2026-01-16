@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Prioritet + sist oppdatert
+  columns: '["-cdata__priority","-lastupdate"]'
+- 
+  id: 2
+  name: Prioritet + sist opprettet
+  columns: '["-cdata__priority","-created"]'
+- 
+  id: 3
+  name: Prioritet + forfallsdato
+  columns: '["-cdata__priority","-est_duedate"]'
+- 
+  id: 4
+  name: Forfallsdato
+  columns: '["-est_duedate"]'
+- 
+  id: 5
+  name: Lukket dato
+  columns: '["-closed"]'
+- 
+  id: 6
+  name: Opprettet dato
+  columns: '["-created"]'
+- 
+  id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

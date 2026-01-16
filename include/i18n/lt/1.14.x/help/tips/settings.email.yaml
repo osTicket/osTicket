@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Numatytasis el. pašto šablonų rinkinys
+  content: >
+    Pasirinkite<span class="doc-desc-title">Elektroninio laiško šablonų rinkinį</span>naudojama siųsti<span class="doc-desc-title">Automatinius atsakymus</span> ir <span class="doc-desc-title">Perspėjimus</span>skirtingiems veiksmams, kurie gali vykti per užklausų gyvenimą.<br><br>Departamentui gali būti priskirtas specifinis elektroninio laiško šablonų rinkinys.
+  links:
+    - 
+      title: Tvarkyti pašto šablonų rinkinius
+      href: /scp/templates.php
+default_system_email:
+  title: Numatytasis siunčiamas elektroninis laiškas
+  content: >
+    Pasirinkite elektroninio pašto adresą iš kurio išeinantys elektroniniai laškai yra siunčiami<br><br><span class="doc-desc-title">Departamentas</span>gali nusistatyti nuosavą<span class="doc-desc-title">el.pašto adresą</span>, kuris pakeis, tai kas nustatyta čia.
+  links:
+    - 
+      title: Tvarkyti el. pašto adresus
+      href: /scp/emails.php
+default_alert_email:
+  title: Numatytasis įspėjimo el. paštas
+  content: >
+    Pasirinkite elektroninio pašto adresą iš kurio<span class="doc-desc-title">Įspėjimai&amp;Pranešimai</span>yra siunčiami agentui.
+  links:
+    - 
+      title: Tvarkyti el. pašto adresus
+      href: /scp/emails.php
+admins_email_address:
+  title: Administratoriaus el. pašto adresas
+  content: >
+    Įveskite administratoriaus elektroninio pašto adresą į kurį<span class="doc-desc-title">Sistemos klaidos</span> ir <span class="doc-desc-title">Naujos užklausos įspėjimai</span>(jeigu įjungta) yra siunčiami.
+  links:
+    - 
+      title: Tvarkyti įspėjimus & pranešimus
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Elektroninio pašto pasirinkimas
+  content: >
+    Leisti IMAP/POP tikrinimą sukonfigūruotoms ir įgalintoms <span class="doc-desc-title">Pašto dėžutėms</span>.
+  links:
+    - 
+      title: Tvarkyti pašto dėžutes
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Parinkti elektroninio pašto adresus naudojant Auto-cron
+  content: >
+    Įgalina periodinį elektroninių laiškų parinkimą, naudojant vidinę užklausų tvarkyklę pagal Agento veiklą.<br><br>Atkreipkite dėmesį, kad elektroniniai laiškai  nebus tikrinami, jei nėra prisijungusiųjų prie personalo valdymo skydo. Nuspėjamiems paėmimo intervalams  yra rekomenduojama išorinė užduočių planuoklė.
+  links:
+    - 
+      title: Naudojant išorinę užduočių planuoklę
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Iškirpti cituojamą atsakymą
+  content: >
+    Jei ši parinktis įjungta, bus pašalinti ankstesnio susirašinėjimo tarp elektronininio pašto adresų duomenys.<br><br>Ši funkcija yra susieta su <span class="doc-desc-title">Atsakymo atskyrimo žyme</span>žemiau.
+reply_separator_tag:
+  title: Atsakymo atskyrimo žymė
+  content: >
+    Tai yra žymė, susieta su vartotojo atsakymu virš linijos<br><br><strong>Pastaba:</strong>tai yra svarbu tik jei <span class="doc-desc-title">cituojamo atsakymo iškirpimas</span>yra įgalintas aukščiau.
+emailed_tickets_priority:
+  title: Siunčiamų bilietų prioritetas
+  content: >
+    Pasirinkite, ar norite, kad pirmenybės/svarbos parinktis Vartotojo el.paštui (pvz. OutLook) diktuotų naujos užklausos prioritetą.<br><br>Šio nustatymo gali būti nepaisoma pagal <span class="doc-desc-title">Užklausų filtrą</span>.
+  links:
+    - 
+      title: Sukurti &amp; Tvarkyti Bilietų Filtrus
+      href: /scp/filters.php
+accept_all_emails:
+  title: Priimti visus laiškus
+  content: >
+    Priima elektroninius laiškus iš nežinomų vartotojų.<br><br>Panaikinus šį nustatymą užklausos bus atmetamos.
+accept_email_collaborators:
+  title: Priimti el. laiškus iš bendradarbių
+  content: >
+    Įkelti elektroninio laiško dalyvius, įtrauktus į <code><strong>Kam</strong></code> ir <code><strong>CC</strong></code> laukelius kaip užklausos bendradarbiai.<br /><br /><em>Bendradarbiai visada gali būti įraukiami rankiniu būdu kuomet peržiūrima užklausa.</em>
+default_mta:
+  title: Numatytasis MTA
+  content: >
+    <span class="doc-desc-title">Numatytasis MTA</span>, rūpinasi elektroninio laiško pristatymo procesu siunčiamiems elektroniniams laiškams su SMTP parametru.
+ticket_response_files:
+  title: Užklausų atsako failai
+  content: >
+    Jeigu įgalinta, visi priedai, kuriuos agentas gali pridėti  prie atsakymo į užklausą, taip pat bus prikabinti prie elektroninio laiško vartotojui.
+verify_email_addrs:
+  title: Patvirtinti email adresą
+  content: >
+    Įgalinkite šią parinktį norėdami tikrinti ar elektroninio pašto adresas turi pašto keitiklį domeno DNS. Tai naudinga norint aptikti neteisingai įvestus elektroninio pašto adresus. Tai atliekama papildomai, kaip ir tikrinant elektroninio pašto taisyklingumą.

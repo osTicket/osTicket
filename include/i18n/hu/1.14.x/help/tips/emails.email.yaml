@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Új hibajegy súgótémakör
+  content: >
+    Válasszon egy <span class="doc-desc-title">Témakört</span>, amit automatikusan összekapcsol az erről az email címről érkező hibajegyekkel. <br/><br/> A témakörhöz tartozó űrlap hozzá lesz rendelve a jegyhez, de a mezők üresen maradnak.
+  links:
+    - 
+      title: Súgótémakör kezelése
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Új hibajegy prioritás
+  content: >
+    Válasszon <span class="doc-desc-title">prioritást</span> az erről az email címről érkező hibajegyekhez.
+new_ticket_department:
+  title: Új hibajegy részleg
+  content: >
+    Válasszon <span class="doc-desc-title">Részleget</span>, amelyhez hozzárendelné az erről az email címről érkező hibajegyeket.
+  links:
+    - 
+      title: Részlegek kezelése
+      href: /scp/departments.php
+auto_response:
+  title: Új hibajegy automatikus válasz
+  content: >
+    Kikapcsolhatja az ügyfélnek küldött Automatikus választ, amikor erről az email címről új hibajegy érkezik.
+username:
+  title: Felhasználónév
+  0: >
+
+password:
+  title: Jelszó
+  0: >
+
+login_information:
+  title: Email bejelentkezési adatok
+  content: >
+    A <span class="doc-desc-title">Felhasználónév</span> és <span class="doc-desc-title">Jelszó</span> megadása kötelező az emailek letöltéséhez IMAP / POP fiókból és email küldéséhez SMTP protokollal.
+mail_account:
+  title: Email letöltése
+  content: >
+    Emailek letöltése távoli IMAP vagy POP fiókból és átalakítása hibajegyekké az ügyfélszolgálati rendszerben.
+  links:
+    - 
+      title: <span class="doc-desc-title">Email lekérdezés</span> &amp; <span class="doc-desc-title">AutoCron</span> beállítások kezelése.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Távoli szerver
+  content: >
+    Adja meg az email szerver <span class="doc-desc-title">kiszolgálónevét</span> és a <span class="doc-desc-title">port</span> számát. Ezt megtalálja a fiókjához adott dokumentációban vagy elkérheti az email adminisztrátorától.
+protocol:
+  title: Levelező fiók protokoll
+  content: >
+    Válassza ki a távoli email szerver által támogatott postafiók protokollt. Amennyiben lehetséges, használja az IMAP protokollt és SSL hitelesítést.
+fetch_frequency:
+  title: Letöltés gyakorisága
+  content: >
+    Adja meg percben, hogy milyen gyakran töltse le a rendszer a leveleket. <br/><br/> Ez határozza meg az átlagos késleltetést az automatkius válasz küldése és a felhasználó által küldött email érkezése között.
+emails_per_fetch:
+  title: Levelek száma letöltésenként
+  content: >
+    Egy időben feldolgozott levelek száma.
+fetched_emails:
+  title: Letöltött levelek
+  content: >
+    Határozza meg, hogy mi legyen a feldolgozott emailekkel: <br/><br/> <span class="doc-desc-opt"><b>Áthelyezés mappába</b></span>: lementi a meghatározott mappába a levelet a beérkezett üzenetek közül. Ha a mappa nem létezik a szerveren, a rendszer automatikusan létrehozza azt. (<b>Javasolt</b>) <hr> <span class="doc-desc-opt"><b>Emailek törlése</b></span>: a feldolgozás után törli a levelet a beérkezett üzenetek közül. <hr> <span class="doc-desc-opt"><b>Ne tegyen semmit</b></span>: a beérkezett üzenetek között hagyja a levelet. A rendszer rögzíti az üzenet azonosítóját és megpróbálja nem letölteni azt újból. Ez az opció duplikált hibajegyekhez vezethet. (<em>Nem javasolt</em>)
+smtp_settings:
+  title: SMTP beállítások
+  content: >
+    Az ügyfélszolgálatból küldött emailek SMTP szerveren keresztül is küldhetőek. Amennyiben lehetséges, ez javasolt, mert növeli az email kézbesítésének valószínűségét és kisebb eséllyel lesznek levélszemétként megjelölve.
+header_spoofing:
+  title: Fejléc megváltoztatásának engedélyezése
+  content: >
+    Engedélyezze ezt, hogy a fent megadott <span class="doc-desc-title">email címtől</span> eltérő postafiókból küldjön emaileket. <br/><br/> Ez a haladó beállítás általában a postafiók alias címeiről küldött emilekre alkalmazandó.
+

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Uusi tiketti
+  content: >
+    Aktivoi tämä jos haluat automaattisesti vastata Asiakkaalle uuden tiketin luonnissa.
+  links:
+    - 
+      title: Uuden Tiketin automaattisen vastauksen pohja
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Henkilökunnan luoma uusi tiketti
+  content: >
+    Muistutus lähetetään kun Käsittelijä luo tiketin Asiakkaan puolesta. <em>Käsittelijä voi estää tämän luodessaan tikettejä.</em>
+  links:
+    - 
+      title: Uuden tiketin muistutuspohja
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Uuden viestin vahvistus
+  content: >
+    Vahvistusviesti lähetetään, kun olemassa olevaan tikettiin lisätään uusi viesti.
+  links:
+    - 
+      title: Uuden Viestin vahvistuspohja
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Uuden Viestin Muistutus
+  content: >
+    Välitä viestit jotka tehdään viestintätyökalussa kaikille tiketin osanottajille.
+  links:
+    - 
+      title: Uusi Tapahtuma ilmoituspohja
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Ilmoitus maksimimäärän ylittämisestä
+  content: >
+    Tiketin luonti estetty viesti Asiakkaalle <span class="doc-desc-title">Maksimi määrä avoimia tikettejä</span>.
+  links:
+    - 
+      title: Maksimimäärän ylityksen ilmoituspohja
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Aseta <em>Maksimi määrä avoimia tikettejä</em>
+      href: /scp/settings.php?t=users

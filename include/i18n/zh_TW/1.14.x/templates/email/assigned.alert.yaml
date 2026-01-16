@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  傳送工作人員訊息分配票券作業. 分配票券可以透過系統自動分配或是人工操作。使用 %{assigner} 可獲知此票券的分責。
+subject: |
+  指定給您的案件
+body: |
+  <h3><strong>您好 %{assignee.name.first},</strong></h3>
+  案件編號<a href="%{ticket.staff_link}">#%{ticket.number}</a> 將此案件分配給您的人員是 %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>由</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>主旨</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>要查詢/回覆案件， 請 <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >登入</span></a>到支援系統</div>
+  <em style="font-size: small; ">您最友善的客戶支援系統</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

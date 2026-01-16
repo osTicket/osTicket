@@ -1,0 +1,34 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Dikirim ke anggota staf ketika sebuah tiket mengalami keterlambatan di sistem.
+  Tiket yang terlambat terjadi berdasarkan tanggal kadaluarsa seperti yang telah 
+  ditetapkan di SLA.
+subject: |
+  Pemberitahuan Tiket Kadaluarsa
+body: |
+  <h3><strong>Halo %{recipient}</strong>,</h3>
+  Sebuah tiket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> 
+  saat ini sudah kadaluarsa.
+  <br>
+  <br>
+  Kami seharusnya bekerja keras untuk menjamin bahwa semua tiket 
+  sudah ditangani dalam batas waktu yang seharusnya.
+  <br>
+  <br>
+  Salam,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Untuk melihat atau merespon tiket, silahkan <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> ke sistem tiket. Anda sedang menerima pemberitahuan 
+  ini karena tiket yang ditugaskan langsung ke Anda atau tim atau bagian 
+  di mana Anda berada.</div>
+  <em style="font-size: small">Salam <span style="font-size: smaller"
+  >(although with limited patience)</span> Petugas Dukungan Sistem</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Didukung oleh osTicket" width="126" style="width: 126px;">

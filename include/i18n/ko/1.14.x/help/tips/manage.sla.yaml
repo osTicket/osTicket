@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+name:
+  title: 이름
+  content: >
+    <span class="doc-desc-title">SLA계획</span>의 목적에 맞는 기술명을 지정합니다.
+grace_period:
+  title: 유예기간
+  content: >
+    티켓이 생성 된 후 자동으로 만료 표시되는 시간을 설정합니다. <br> <br> <em> 시간은 티켓이 생성 된 때부터 측정됩니다. </em>
+transient:
+  title: 일시적
+  content: >
+    일시적인 SLA는 임시적인 것으로 간주되며 <span class = "doc-desc-title">도움말 항목</span> 이 변경되거나 <span class = "doc-desc-opt">부서</span> 이관에 따라 일시적이 아닌 SLA에 의해 무시될 수 있습니다.
+schedule:
+  title: Schedule
+  content: >
+    Choose the Schedule to be used by this SLA when rendering tickets Overdue. <br><br> Please note that Department settings can override this schedule.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php

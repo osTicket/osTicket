@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Ettevalmistatud vastus
+  content: >
+    Loo <span class="doc-desc-title">ettevalmistatud vastus</span>, mille võid lisada pileti vastuseks. Seda võib ka kasutada <span class="doc-desc-title">pileti automaatvastusena</span> <span class="doc-desc-title">piletite filtris</span>.
+  links:
+    - 
+      title: Loo piletite filter
+      href: /scp/filters.php
+canned_attachments:
+  title: Ettevalmistatud manused
+  content: >
+    Lisa manus, mida soovid automaatselt lisada pileti vastusele,  kus on uus <span class="doc-desc-title"> ettevalmistatud vastus</span>.

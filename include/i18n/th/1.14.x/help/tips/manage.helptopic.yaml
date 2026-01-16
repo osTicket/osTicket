@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: ข้อมูลหัวข้อการช่วยเหลือ
+  content: >
+    <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> ข้อมูลคำแนะนำที่ได้รวบรวมมาจากผู้ใช้และวิธีการที่ Ticket จะถูกส่งไปหรือ Ticket ที่ได้รับมอบหมายงาน
+topic:
+  title: ชื่อหัวข้อ
+  content: >
+    ชื่อเฉพาะหัวข้อการช่วยเหลือ
+status:
+  title: สถานะ
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: ประเภท
+  content: >
+    หาก <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> ถูกระบุว่าเป็นเฉพาะบุคคล หัวข้อนี้จะถูกใช้งานเฉพาะเจ้าหน้าที่เมื่อทำการเปิด Ticket ใหม่ในหน้าแผงเจ้าหน้าที่
+parent_topic:
+  title: หัวข้อหลัก
+  content: >
+    เลือกหัวข้อหลักที่ <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> นี้อยู่ภายใต้ โดยหัวข้อหลักจะแสดงแรกสุดในรายการโดย <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> จะอยู่ถัดมา
+custom_form:
+  title: แบบฟอร์มกำหนดเอง
+  content: >
+    ฟอร์มแบบกำหนดเองจะช่วยให้คุณได้รับข้อมูลเพิ่มเติมจากผู้ใช้งานที่เกี่ยวข้องกับ <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> นี้
+  links:
+    - 
+      title: จัดการฟอร์มแบบกำหนดเอง
+      href: /scp/forms.php
+priority:
+  title: ระดับความสำคัญ
+  content: >
+    เลือกระดับความสำคัญในการมอบหมายให้กับ Ticket ใหม่ที่เกี่ยวข้องกับ<span class="doc-desc-title">หัวข้อการช่วยเหลือ</span>นี้ <br><br>ตั๋วกรอง Ticket สามารถใช้กำหนดลำดับความสำคัญของ Ticket ใหม่ได้
+department:
+  title: แผนก
+  content: >
+    เลือกแผนกที่จะส่ง Ticket ใหม่ภายใต้หัวข้อการช่วยเหลือนี้
+  links:
+    - 
+      title: จัดการแผนก
+      href: /scp/departments.php
+sla_plan:
+  title: แผน SLA
+  content: >
+    เลือกแผน SLA ให้สัมพันธ์กับ <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span>นี้ <br><br> การเลือกนี้จะแทนที่แผน SLA แผนกที่เลือก
+  links:
+    - 
+      title: จัดการแผน SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: หน้าขอบคุณ
+  content: >
+    เลือกหน้าขอบคุณที่ผู้ใช้โดยตรงหลังจากเปิด Ticket ภายใต้<span class="doc-desc-title">หัวข้อการช่วยเหลือ</span>นี้
+  links:
+    - 
+      title: จัดการหน้าขอบคุณ
+      href: /scp/pages.php
+auto_assign_to:
+  title: มอบหมายงาน Ticket ใหม่อัตโนมัติ
+  content: >
+    ตัวเลือกเพิ่มเติมสำหรับเลือกเจ้าหน้าที่หรือทีมงานที่จะมอบหมายงานอัตโนมัติที่เปิดใน <span class="doc-desc-title">หัวข้อการช่วยเหลือ</span> <br><br> นี้ โดยจะแทนที่การมอบหมายงานจากตัวกรอง Ticket
+  links:
+    - 
+      title: บริหารเจ้าหน้าที่และทีมงาน
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Ticket ตอบรับอัตโนมัติ
+  content: >
+    หากเลือก การตั้งค่าจะปิดใช้งานการตอบรับ Ticket ใหม่อัตโนมัติสำหรับ<span class="doc-desc-title">หัวข้อการช่วยเหลือ</span>. <br><br> นี่จะแทนที่การตั้งค่าตอบรับอัตโนมัติสำหรับ <span class="doc-desc-title">แผนก</span> เช่นเดียวกับ <span class="doc-desc-title">การตั้งค่าระบบตอบรับอัตโนมมัติ</span> ทั่วโลก
+  links:
+    - 
+      title: การตั้งค่าระบบตอบรับอัตโนมัติ
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: ตั้งหมายเลข Ticket เอง
+  content: >
+    เลือก "กำหนดเอง" ที่นี่เพื่อแทนที่รูปแบบหมายเลข Ticket ระบบเริ่มต้นสำหรับ Ticket ที่สร้างขึ้นในหัวข้อการช่วยเหลือนี้ ดูเคล็ดลับความช่วยเหลือในการตั้งค่า / หน้ารายละเอียดเพิ่มเติมเกี่ยวกับการตั้งค่า Ticket

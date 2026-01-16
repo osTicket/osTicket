@@ -45,17 +45,18 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             $uform->render(array('staff' => false, 'mode' => 'create'));
         }
         else { ?>
-            <tr><td colspan="2"><hr /></td></tr>
-        <tr><td><?php echo __('Email'); ?>:</td><td><?php
+        <!--osta-->
+        <tr class="client-deets"><td><?php echo __('Email'); ?></td><td><?php
             echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td><?php echo __('Client'); ?>:</td><td><?php
+        <tr class="client-deets"><td><?php echo __('Client'); ?></td><td><?php
             echo Format::htmlchars($thisclient->getName()); ?></td></tr>
         <?php } ?>
     </tbody>
     <tbody>
     <tr><td colspan="2"><hr />
         <div class="form-header" style="margin-bottom:0.5em">
-        <b><?php echo __('Help Topic'); ?></b>
+        <!--osta-->
+        <b><?php echo __('Help Topic'); ?></b><font class="error">&nbsp;*&nbsp;<?php echo $errors['topicId']; ?></font>
         </div>
     </td></tr>
     <tr>
@@ -72,7 +73,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                           $(document.head).append(json.media);
                         }
                       });">
-                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
+                <!--osta-->
+                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?>&mdash;
+                </option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
                     foreach($topics as $id =>$name) {
@@ -80,7 +83,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                                 $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
                     }
                 } ?>
-            </select>
+			</select>
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
@@ -99,13 +102,17 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             $errors['captcha']=__('Please re-enter the text again');
         ?>
     <tr class="captchaRow">
-        <td class="required"><?php echo __('CAPTCHA Text');?>:</td>
-        <td>
-            <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
-            &nbsp;&nbsp;
-            <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
-            <em><?php echo __('Enter the text shown on the image.');?></em>
-            <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
+        <!--osta-->
+        <td colspan="2" class="required"><?php echo __('CAPTCHA Text');?>&nbsp;<font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font></td>
+	</tr>
+	<tr>
+        <td colspan="2">
+			<div id="captcha-image">
+				<span class="captcha"><img src="captcha.php" border="0" align="left"></span>		
+			</div>
+			<div id="captcha-text">
+				<input id="captcha" type="text" name="captcha" size="6" autocomplete="off">		
+			</div>
         </td>
     </tr>
     <?php
@@ -113,6 +120,17 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     <tr><td colspan=2>&nbsp;</td></tr>
     </tbody>
   </table>
+<!--osta-->
+<script>
+$('.required').closest('td').addClass("client-required");
+$(".required").html(function(i, html){
+    return html.replace("*", "");
+});
+$(".error").html(function(i, html){
+    return html.replace("*", "");
+});
+$( ".error" ).closest( "tr" ).addClass( "client-required" );
+</script>  
 <hr/>
   <p class="buttons" style="text-align:center;">
         <input type="submit" value="<?php echo __('Create Ticket');?>">

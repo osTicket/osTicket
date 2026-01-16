@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Información de contacto
+  0: >
+
+username:
+  title: Nombre de usuario
+  content: >
+    Solo aquellos Agentes con estado de administrador pueden cambiar un nombre de usuario. Si usted es un Agente con privilegios de Administrador, puede hacer esto seleccionando un Agente para editar desde la pestaña <span class="doc-desc-title">Miembros del Personal</span>.
+  links:
+    - 
+      title: Cambiar un nombre de usuario como administrador
+      href: /scp/staff.php
+time_zone:
+  title: Zona Horaria
+  0: >
+
+daylight_saving:
+  title: Horario de Verano
+  0: >
+
+maximum_page_size:
+  title: Tamaño máximo de página
+  0: >
+
+auto_refresh_rate:
+  title: Frecuencia de Actualización
+  0: >
+
+default_signature:
+  title: Firma Predeterminada
+  0: >
+
+default_paper_size:
+  title: Tamaño del papel predeterminado
+  0: >
+
+show_assigned_tickets:
+  title: Ver tickets asignados
+  content: >
+    <p>Al habilitar esta opción se omitirá la configuración global de ocultar tickets asignados desde la lista de tareas abiertas. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Esta configuración solo está disponible cuando los tickets asignados son excluidos globalmente. </p>
+password:
+  title: Contraseña
+  0: >
+
+current_password:
+  title: Contraseña actual
+  0: >
+
+new_password:
+  title: Nueva contraseña
+  0: >
+
+confirm_new_password:
+  title: Confirmar nueva contraseña
+  0: >
+
+signature:
+  title: Firma
+  content: >
+    Crea una <span class="doc-desc-title">firma</span> opcional, que puede aparecer al final de tus respuestas de Tickets. Si esta <span class="doc-desc-title">firma </span> aparece, o no, depende de la <span class="doc-desc-title"> la plantilla de correo</span> que será usada en la respuesta del ticket.
+  links:
+    - 
+      title: Crear plantillas de correo en el panel de administración
+      href: /scp/templates.php

@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Definition
+  content: >
+    <b>Nom</b>: Nom unique pour la planification. <hr> <b>Type</b>: Choisir le type de planification. <span class="doc-desc-title">Heures de Bureau</span> définir les heures à inclure lors du calcul du SLA, où <span class="doc-desc-title">Jours Fériés</span> sont exclus. <hr> <b>Timezone</b>: Choisir le fuseau horaire pour la planification. Il est recommandé de laisser vide pour les <span class="doc-desc-title">Floating</span> fuseaux. <br><br> Floating time zone allows for times to be relative to the effective time zone at the time of use.
+

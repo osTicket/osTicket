@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Je, osTicket ni nini? (sampuli)?
+  response: |
+    osTicket ni mfumo ya msaada ya tiketi iliyo na chanzo wazi na inatumika sana, ni ya kuvutia mbadala ya gharama ya juu na mfumo ngumu ya kusaidia mteja- rahisi, nyepesi, yenye utegemezi, chanzo wazi, msingi wa mtandao na rahisi kuanzisha na kutumia.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Majibu ambayo yako tayari  ambatisho mwamba!
+- 
+  isenabled: 1
+  title: Sampuli (na vigezo)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  이 템플릿은 고객 포털에서 등록된 고객이나 에이전트가 대리로 등록한 고객에게 전송되는 이메일을 정의합니다. 이 이메일는 이메일 주소 검증을 위해 사용됩니다. 본문 내에 %{link}를 사용하세요.
+name: "%{company.name}에 오신 것을 환영합니다."
+body: >
+  <h3> <strong> %{recipient.name.first} 님 </strong> </h3> <div>헬프데스크의 %{url}에  귀하의 계정을 만들었습니다. <br/> <br/>다음 링크에 접속하여 계정을 확인하고 티켓에 접근하세요.<br/> <br/> <a href="%{link}">%{link}</a> <br/> <br/> <em style = "font-size : small">고객 지원 시스템<br/>%{company.name}</em> </div>

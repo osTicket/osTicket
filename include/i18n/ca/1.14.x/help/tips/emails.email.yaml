@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Nou Ticket de tema d'ajuda
+  content: >
+    Escull un <span class="doc-desc-title"> tema d'ajuda</span> que s'associarà automàticament amb Tickets creats mitjançant aquest email. <br/> <br/> Formes associades amb el tema d'ajuda s'afegiran a l'entrada, però no tindràn cap dada.
+  links:
+    - 
+      title: Gestionar els temes d'ajuda
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Nova Prioritat de Ticket
+  content: >
+    Trieu la <span class="doc-desc-title"> prioritat</span> dels nous Tickets creats mitjançant ths adreça d'E-mail.
+new_ticket_department:
+  title: Nou departametn de Ticket
+  content: >
+    Triar el <span class="doc-desc-title"> Departament</span> al qual s'encaminarà nous Tickets creats mitjançant aquesta adreça electrònica.
+  links:
+    - 
+      title: Gestionar Departaments
+      href: /scp/departments.php
+auto_response:
+  title: Nou Ticket de resposta automática
+  content: >
+    Pot desactivar la resposta automàtica enviada a l'usuari quan es crea un nou Ticket mitjançant aquesta adreça d'email.
+username:
+  title: Nom d'usuari
+  0: >
+
+password:
+  title: Contrasenya
+  0: >
+
+login_information:
+  title: Informació d'accés al Email
+  content: >
+    <span class="doc-desc-title"> L'usuari</span> i <span class="doc-desc-title"> contrasenya</span>són necessaris per a buscar e-mail d'IMAP / POP tant per a caixes de correu, així com per enviar correu electrònic a través de SMTP.
+mail_account:
+  title: Busqueda d'Email
+  content: >
+    Buscar emails d'una safata d'entrada remota IMAP o POP i convertir-los en Tickets en el teu sistema de suport.
+  links:
+    - 
+      title: Administrar la configuració <span class="doc-desc-title"> de la enquesta d'email </span> &amp; <span class="doc-desc-title"> AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Host remot
+  content: >
+    Introduixca el número de <span class="doc-desc-title"> nom de host</span> i el <span class="doc-desc-title"> port</span> del servidor de correu. Això pot estar disponible en la documentació del seu compte de hosting o des de l'administrador del correu electrònic.
+protocol:
+  title: Protocol de la safata d'entrada del correu electronic
+  content: >
+    Seleccioneu el protocol de la safata d'entrada de correu compatible amb el seu servidor de correu remot. És recomanable IMAP i SSL si es possible.
+fetch_frequency:
+  title: freqüència de recerca
+  content: >
+    Introduïxca la freqüència, en minuts, amb què el sistema refresca la safata d'entrada del correu. <br/> <br/> Així es defineixen la demora mitjana en rebre una Auto-resposta després de que un usuari envie un correu electrònic a aquest correu.
+emails_per_fetch:
+  title: Emails per recerca
+  content: >
+    Introduixca el nombre de correus electrònics processats de cop.
+fetched_emails:
+  title: Correus electrònics obtinguts
+  content: >
+    Decidir què fer amb els correus electrònics processats: <br/> <br/> <span class="doc-desc-opt"> <b>moure de carpeta</b></span>: Açó moura el seu correu electrònic des de la safata d'entrada a una carpeta que especifiqueu. Si la carpeta no existeix encara al servidor, el sistema la intentarà crear automàticament. (<b>Recomanat</b>) <hr><span class="doc-desc-opt"> <b>Suprimir E-mail</b></span>: se suprimirà el seu correu electrònic des de la safata d'entrada un cop és processada. <hr><span class="doc-desc-opt"> <b>Fer res</b></span>: això deixarà e-mail al seu INBOX. El sistema es registre els identificadors de missatge de correu i tractar de no refetch-lo. Tanmateix, aquesta opció pot provocar Tickets duplicats. (<em>Opció no recomanada</em>)
+smtp_settings:
+  title: Escenes de SMTP
+  content: >
+    El correu electrònic enviat des del sistema de suport es pot enviar a través d'un servidor SMTP. Això es recomana, si és possible, ja que augmentarà la probabilitat de lliurament d'e-mail i farà menys propensos a ser marcat com a correu brossa els missatges.
+header_spoofing:
+  title: Permeten Spoofing la capçalera
+  content: >
+    Permetre això permetre enviar correus electrònics a través d'aquesta casella de correu d'una adreça altres que el que s'atorga en el marc <span class="doc-desc-title"> d'Adreça d'E-mail</span> anterior. <br/> <br/> Avançats entorn generalment s'aplica quan enviant correu d'àlies d'aquesta casella de correu.
+

@@ -1,0 +1,89 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: ヘルプトピック情報
+  content: >
+    <span class="doc-desc-title">ヘルプトピック</span>は、ユーザーからどのような情報が収集され、チケットがどのようにルーティングまたは割り当てられたかを示します。
+topic:
+  title: トピック名
+  content: >
+    固有のヘルプトピック名。
+status:
+  title: ステータス
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: タイプ
+  content: >
+    <span class="doc-desc-title">ヘルプトピック</span>にプライベートというラベルが付いている場合、エージェントがスタッフパネルで新しいチケットをオープンしたときに、エージェントが選択するためにのみ使用できます。
+parent_topic:
+  title: 親トピック
+  content: >
+    この<span class="doc-desc-title">ヘルプトピック</span>が属する親トピックを選択します。親トピックは、親の後に示されるこの<span class="doc-desc-title">ヘルプトピック</span>とともにリストで最初に表示されます。
+custom_form:
+  title: カスタムフォーム
+  content: >
+    カスタムフォームは、この<span class="doc-desc-title">ヘルプトピック</span>に関連するユーザーからのより特定した情報を取得するために役立ちます。
+  links:
+    - 
+      title: カスタムフォームの管理
+      href: /scp/forms.php
+priority:
+  title: 優先順位
+  content: >
+    この<span class="doc-desc-title">ヘルプトピック</span>に関連する新しいチケットに割り当てる優先順位を選択します。<br><br> チケットフィルターは新しいチケットの優先順位を上書きできます。
+department:
+  title: 部門
+  content: >
+    このヘルプトピックの新しいチケットがルーティングされる部門を選択します。
+  links:
+    - 
+      title: 担当部門の管理
+      href: /scp/departments.php
+sla_plan:
+  title: SLAプラン
+  content: >
+    この<span class="doc-desc-title">ヘルプトピック</span>に関連するSLAプランを選択します。<br><br> この選択は、選択された部門のあらゆるSLAプランを上書きします。
+  links:
+    - 
+      title: SLAプランの管理
+      href: /scp/slas.php
+thank_you_page:
+  title: お問い合わせ完了ページ
+  content: >
+    この<span class="doc-desc-title">ヘルプトピック</span>でチケットをオープン’した後にユーザーに表示されるお問い合わせ完了ページを選択します。
+  links:
+    - 
+      title: お問い合わせ完了ページの管理
+      href: /scp/pages.php
+auto_assign_to:
+  title: 新しいチケットの自動割り当て
+  content: >
+    オプションで、この<span class="doc-desc-title">ヘルプトピック</span>でオープンされたチケットを自動割り当てするエージェントまたはチームを選択します。<br><br> チケットフィルターは割り当てを上書きできます。
+  links:
+    - 
+      title: スタッフとチームの管理
+      href: /scp/staff.php
+ticket_auto_response:
+  title: チケット自動返信
+  content: >
+    チェックボックスをオンにすると、この<span class="doc-desc-title">ヘルプトピック</span>の新しいチケットの自動返信が無効になります。 <br><br> これは、<span class="doc-desc-title">部門</span>の自動返信設定
+    およびグローバル<span class="doc-desc-title">自動返信設定</span>を上書きします・
+  links:
+    - 
+      title: 自動返信設定
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: カスタムチケット番号
+  content: >
+    このヘルプトピックに作成されたチケットに対するシステムデフォルトチケット番号形式を上書きするには、ここで「カスタム」を選択してください。設定の詳細については、設定/チケットページでヘルプのヒントを参照してください。

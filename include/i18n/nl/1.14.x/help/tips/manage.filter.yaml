@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Volgorde van uitvoering
+  content: >
+    Voer een getal in dat de prioriteit van de filter bepaalt. Hoe lager het getal, hoe hoger de prioriteit van deze filter dat wordt uitgevoerd ten opzichte van een ander filter die een hogere orde van uitvoering zou kunnen hebben. <br><br>Als u deze filteractie wilt instellen als laatste filter dat toegepast moet worden, activeer <span class="doc-desc-title">Stoppen met verder verwerken</span>.
+target_channel:
+  title: Kanaal
+  content: >
+    Kies het doel <span class="doc-desc-title">Kanaal</span> voor uw <span class="doc-desc-title">Ticket Filter</span>. Het <span class="doc-desc-title">Kanaal</span> is de bron waardoor het ticket in het systeem zichtbaar is. <br><br>Bijvoorbeeld, kiest u <span class="doc-desc-opt">Webformulieren</span>, u zegt dat u het <span class="doc-desc-title">Ticket Filter</span> wilt toepassen op die tickets die afkomstig zijn van de klantenportaal webformulier.
+rules_matching_criteria:
+  title: Regels die aan criteria voldoen
+  content: >
+    Kies hoe elasitsch de zoekresultaten van uw <span class="doc-desc-title">Ticket Filter</span> mogen zijn. Als je wilt dat de <span class="doc-desc-title">Ticket Filter</span> overeenkomt met een van de regels, en daarna stopt, kies <span class="doc-desc-opt">Voldoet aan tenminste één</span>. Als je wil dat <em><strong>alle regels</strong></em> van de <span class="doc-desc-title">Ticket Filter</span> moeten voldoen, kies dan <span class="doc-desc-opt">Voldoet aan alle</span>.
+reject_ticket:
+  title: Ticket verwerpen
+  content: >
+    Als dit ingeschakeld is, zullen alle verdere processen gestopt worden en alle andere keuzen van acties eronder zullen worden genegeerd op overeenkomsten.
+reply_to_email:
+  title: Antwoord-Aan Email
+  content: >
+    Schakel dit in als je de Helpdesk de rechten wil geven aan een email toepassing van de gebruiker zijn <span class="doc-desc-title">Antwoord Aan</span> koptekst. Dit veld is enkel relevant als het <span class="doc-desc-title">Kanaal</span> hierboven <span class="doc-desc-opt">E-mail</span> bevat.
+ticket_auto_response:
+  title: Auto-antwoord op Tickets uitschakelen
+  content: >
+    <em>Opmerking: Dit zal elke <span class="doc-desc-title">Afdeling</span> of <span class="doc-desc-title">Automatisch-antwoord instelling</span> overschrijven.</em>
+canned_response:
+  title: Standaard Automatisch-antwoord
+  content: >
+    Kies een gewenst <span class="doc-desc-title">Standaard Antwoord</span> dat gemaild moet worden naar de gebruiker op een <span class="doc-desc-title">Ticket Filter</span> overeenkomst. Het <span class="doc-desc-title">Nieuwe Ticket Automatisch-antwoord</span> sjabloon dat wordt gebruikt hangt af van de<span class="doc-desc-title">sjablonen set</span> standaard ingesteld is, of van het overeenkomende ticket zijn <span class="doc-desc-title">Afdeling</span>.
+  links:
+    - 
+      title: Standaard antwoorden beheren
+      href: /scp/canned.php
+    - 
+      title: Sjabloon Sets beheren
+      href: /scp/templates.php
+    - 
+      title: Automatisch-antwoord van Nieuw Ticket Sjabloon
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Afdeling
+  content: >
+    Kies aan welke <span class="doc-desc-title">Afdeling</span> de overeenkomsten moeten worden toegekend bij een <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: Afdelingen beheren
+      href: /scp/departments.php
+priority:
+  title: Prioriteit
+  content: >
+    Kies welke <span class="doc-desc-title"> prioriteit</span> je wil toekennen aan de resultaten van de <span class="doc-desc-title"> Ticket Filter</span>. <br /> <br /> <em>Opmerking: <span class="doc-desc-title"> afdeling</span> of <span class="doc-desc-title"> Help-onderwerp</span> instellingen worden hiermee overschreven.</em>
+sla_plan:
+  title: Service niveau
+  content: >
+    Kies het <span class="doc-desc-title"> SLA Plan</span> dat u wil toepassen op de resultaten van de <span class="doc-desc-title"> Ticket Filter</span>.
+  links:
+    - 
+      title: Service plannen beheren
+      href: /scp/slas.php
+auto_assign:
+  title: Automatisch-toewijzen
+  content: >
+    Kies een Verantwoordelijke of een Team dat toegewezen moet worden aan de gevonden items van de <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: Vertegenwoordigers beheren
+      href: /scp/staff.php
+    - 
+      title: Teams beheren
+      href: /scp/teams.php
+help_topic:
+  title: Help onderwerpen
+  content: >
+    Kies het <span class="doc-desc-title">Help onderwerp</span> dat je wil toepassen op de tickets die gevonden zijn door deze <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: Help-onderwerpen beheren
+      href: /scp/helptopics.php
+admin_notes:
+  title: Admin notities
+  content: >
+    Deze notities zijn enkel zichtbaar voor diegenen wiens accounttype '<span class="doc-desc-title">Admin</span>' is.

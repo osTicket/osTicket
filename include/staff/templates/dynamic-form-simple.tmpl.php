@@ -23,7 +23,17 @@
         } ?>
         </div><div>
         <?php
-        $f->render($options);
+        if ( $f->getLabel() == "Priority Level") {
+            echo "
+            <div class='priority-levels'>
+				<div class='group' id='priority-4'><div class='color'>&nbsp;</div><div class='input-wrap'><input type='radio' name='" . $f->getWidget()->name . "' value='4' " . ( $f->getWidget()->value == 4 ? "checked='checked'" : "" ) . ">Emergency</div></div>
+				<div class='group' id='priority-3'><div class='color'>&nbsp;</div><div class='input-wrap'><input type='radio' name='" . $f->getWidget()->name . "' value='3' " . ( $f->getWidget()->value == 3 ? "checked='checked'" : "" ) . ">High</div></div>
+				<div class='group' id='priority-2'><div class='color'>&nbsp;</div><div class='input-wrap'><input type='radio' name='" . $f->getWidget()->name . "' value='2' " . ( $f->getWidget()->value == 2 ? "checked='checked'" : "" ) . ">Normal</div></div>
+				<div class='group' id='priority-1'><div class='color'>&nbsp;</div><div class='input-wrap'><input type='radio' name='" . $f->getWidget()->name . "' value='1' " . ( $f->getWidget()->value == 1 ? "checked='checked'" : "" ) . ">Low</div></div>
+            </div>";
+        }
+        else $f->render($options);
+        
         ?>
         </div>
         <?php

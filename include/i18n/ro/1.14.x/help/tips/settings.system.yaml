@@ -1,0 +1,123 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Status Helpdesk
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: Adresă URL Helpdesk
+  content: >
+    Acest URL este adresa de baza a instalării osTicket. Va fi folosită în comunicările prin email către utilizatorii finali pentru ai direcţiona către platforma de suport.
+helpdesk_name_title:
+  title: Denumire Platformă Suport
+  content: >
+    Acesta este titlul care va apărea în pagina browserului. Dacă pagina platformei dumneavoastră de suport va fi salvată, acest titlu va fi folosit.
+default_department:
+  title: Departament Implicit
+  content: >
+    Alege un <span class="doc-desc-title">departament</span> implicit pentru tichetele care nu sunt alocate în mod automat unui departament. <br/><br/> Tichetul poate proveni dintr-un subiect de suport, emailuri sau setări filtre tichete.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Dimensiunea implicită a Paginii
+  content: >
+    Alege numărul de elemente afişate pe pagina în Listele de Tichete din panoul de Angajat. Fiecare agent poate să işi personalizeze acest număr pentru contul lui în rubrica de <span class="doc-desc-title">Preferinţele mele</span>.
+default_log_level:
+  title: Nivelul implicit al detaliilor jurnalizate
+  content: >
+    Stabiliti nivelul minim de probleme care va fi inregistrat in <span class="doc-desc-title">Jurnalul de Sistem</span>. <span class="doc-desc-opt">Depanare</span> reprezinta cea mai mica severitate, si <span class="doc-desc-opt">Eroare</span> reprezinta cea mai grava severitate. De exemplu, daca doriti sa vedeti toate problemele in <span class="doc-desc-title">Jurnalul de sistem</span>, alegeti <span class="doc-desc-opt">Depanare</span>.
+purge_logs:
+  title: Sterge Jurnal
+  content: >
+    Stabileste cat timp ati dori sa mentineti <span class="doc-desc-title">Jurnalul de Sistem</span> inainte de a fi sterse.
+enable_richtext:
+  title: Activează text cu formatare
+  content: >
+    Daca este activat, va permite folosirea formatarii tip "Rich Text" in corespondenta dintre Clienti si Agenti.
+enable_avatars:
+  title: Activează avatare în vizualizarea tip conversație
+  content: >
+    Activează pentru a vedea <span class="doc-desc-title">Avataruri</span> în firul de corespondenţă. <br><br> <span class="doc-desc-title">Sursa Avatar</span> poate fi setată în paginile de setări Agenţi şi Utlizatori.
+     
+    Context | Request Context.
+  links:
+    - 
+      title: Setările Agenților
+      href: /scp/settings.php?t=agents
+    - 
+      title: Setările utilizatorilor
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Evitare Coliziuni Agent
+  content: >
+    Introdu intervalul maxim de timp permis unui agent pentru a bloca un tichet sau sarcină fără nici o activitate. <br><br>Introdu <span class="doc-desc-opt">0</span> pentru a dezactiva posibilitatea de blocare a tichetelor sau sarcinilor.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Optiuni Data &amp; Timp
+  content: >
+    Următoarele setări definesc valorile implicite pentru Dată &amp; Timp folosite de aplicație. Puteți alege să folosiți formatele implicite pentru regiunea selectată sau să particularizați formatele conform propriilor preferințe. Consultați formatele ICU ca referință pentru aceste particularizări. Datele afișate mai jos exemplifică rezultatul valorilor corespondente.
+  links:
+    - 
+      title: Vezi tabelul de formatare data ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Limbile sistemului
+  content: >
+    Alegeți limba principală și opțional limbi secundare pentru a localiza interfața folosită de agenți și clienți.
+primary_language:
+  title: Limba principală a sistemului
+  content: >
+    Conținutul în această limbă este afișat către agenți și clienți dacă preferințele de limbă ale acestora nu sunt disponibile pentru moment. Aceasta include conținutul interfeței precum și conținutul personalizat cum ar fi paginile de mulțumire sau mesaje email. <br/><br/> Aceasta este limba în care trebuie scrise versiunile netraduse ale conținutului dvs.
+secondary_language:
+  title: Limbi secundare
+  content: >
+    Selectați opțiunile de limbă pentru agenți ți clienți. Interfața va fi disponibilă în aceste limbi iar conținutul personalizat, cum ar fi paginile de mulțumire sau numele subiectelor de asistență vor putea fi traduse în aceste limbi.
+#Attachments
+attachments:
+  title: Setări pentru atașamente și tipuri de stocare
+  content: >
+    Configurați modul cum sunt stocate atașamentele.
+default_storage_bk:
+  title: Backend Stocare Fişiere
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Marimea maxima a fisierului
+  content: >
+    Alegeți dimensiunea maximă a fișierelor ce pot fi atașate de agenți. Aceasta include atașamente predefinite, articole din baza de cunoștințe sau atașamente la răspunsurile la tichete și sarcini. Limita superioară este controlată de parametrul PHP <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: Setări PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

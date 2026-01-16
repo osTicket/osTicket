@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  Dette er første melding og overskrift som vises på personalets Logg på-siden. Første feltet refererer til den rød-formaterte teksten som vises øverst. Den sistnevnte tekst området er overskrifts innholdet som skal være en ansvarsfraskrivelse.
+name: "Godkjenning kreves"
+body: ""

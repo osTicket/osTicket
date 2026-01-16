@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nome de Utilizador
+  content: >
+    Por favor, indique um <span class="doc-desc-title">username</span> que seja único no <span class="doc-desc-title">Help Desk</span>.
+email_address:
+  title: Endereço de e-mail
+  content: >
+    Introduza o e-mail do agente que receberá <span class="doc-desc-title"> alertas&amp;avisos</span> do <span class="doc-desc-title"> Help Desk</span>.
+  0: <br><br>
+  1: O log in do staff no painel de controlo pode ser feito com o nome de utilizador ou o endereço de e-mail.
+welcome_email:
+  title: E-mail de boas vindas
+  content: >
+    Enviar ao novo agente um link de acesso à conta onde poderá definir a própria palavra-passe. Se não ativar esta opção, precisa de definir a password e comunicar a mesma ao novo agente.
+account_password:
+  title: Password da conta
+  content: >
+    Como <span class="doc-desc-title">administrador</span>, pode alterar as palavras-passe dos agentes.
+forced_password_change:
+  title: Alteração forçada de palavra-passe
+  content: >
+    Ative se pretender forçar a alteração de palavra-passe no próximo login do novo agente.
+agents_signature:
+  title: Assinatura do agente
+  content: >
+    Crie uma assinatura para o agente que pode ser escolhida ao responder a um pedido.
+account_status:
+  title: Estado da conta
+  content: >
+    Se o estado do agente for <span class="doc-desc-opt">Bloqueado</span>, não vão conseguir entrar no help desk.
+assigned_group:
+  title: Grupo atribuído
+  content: >
+    O <span class="doc-desc-title">Grupo</span> que escolher para este agente, determinará as duas permissões no <span class="doc-desc-title">Help Desk</span>.
+  links:
+    - 
+      title: Gerir grupos
+      href: /scp/groups.php
+primary_department:
+  title: Departamento principal
+  content: >
+    Escolha o <span class="doc-desc-title">departamento</span>principal a que este Agente pertence e a sua <span class="doc-desc-title">Função</span>.
+  links:
+    - 
+      title: Gerir departamentos
+      href: /scp/departments.php
+primary_role:
+  title: Regra primária
+  content: >
+    Escolha a principal <span class="doc-desc-title">função</span> a que o agente pertence.
+primary_role_on_assign:
+  title: Escolha a Principal Função para as respetivas atribuições
+  content: >
+    Ative esta opção para recuar para o <span class="doc-desc-title">perfil principal</span> quando o agente está atribuído a tickets fora do <span class="doc-desc-title">departamento principal</span> e departamentos de <span class="doc-desc-title">acesso extendido</span>. De outra forma o agente só terá permissão de visualização.
+daylight_saving:
+  title: Horário de Verão
+  content: >
+    Ative esse recurso se você gostaria que o horário de verão apareça automaticamente para o fuso horário deste agente.
+limited_access:
+  title: Acesso limitado
+  content: >
+    Se ativado, o agente apenas tem acesso a pedidos atribuídos diretamente ou pela equipa.
+directory_listing:
+  title: Listagem de diretório
+  content: >
+    Ative se pretende que este agente seja listado no <span class="doc-desc-title">Directório de Staff</span>.
+  links:
+    - 
+      title: Visite o diretório de staff
+      href: /scp/directory.php
+vacation_mode:
+  title: Modo de férias
+  content: >
+    Se mudar os estado do agente para <span class="doc-desc-opt">Modo de férias</span>, este não receberá quaisquer <span class="doc-desc-title">notificações ou alertas</span>, nem estará disponível para a atribuição de pedidos.
+

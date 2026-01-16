@@ -1,0 +1,31 @@
+---
+#Email template: task.transfer.alert.yaml
+#Sent to agents when a task is transfered to their department.
+#---
+notes: |
+  נשלח לעובד כשמשימה מוקצת למחלקה שבא הוא חבר.
+subject: |
+  משימה#%{task.number} העבר - %{task.dept.name}
+body: |
+  <h3>Hi %{recipient.name},</h3>
+  Task <a href="%{task.staff_link}">#%{task.number}</a> הועבר ל %{task.dept.name} מחלקת
+  <strong>%{staff.name.short}</strong>
+  <br>
+  <br>
+  <blockquote>
+      %{comments}
+  </blockquote>
+  <hr>
+  <div>לתגובה, אנא  <a
+  href="%{task.staff_link}">כנס</a>למערכת תמיכה.
+  </div>
+  <em style="font-size: small; ">מערכת תמיכה
+  System</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      alt="Powered By osTicket" style="width: 126px;"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
+   
+  -> body
+  File: task.transfer.alert.yaml
+

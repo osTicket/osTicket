@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Vad är osTicket (exempel)?
+  response: |
+    osTicket är ett allmänt använt ärendesystem som skapats med öppen källkod. Ett attraktivt alternativ till dyra och komplexa kundsupportsystem. - Enkelt, pålitlig, öppen källkod, webbaserat och lätt att installera och använda.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Förinställda bilagor är super!
+- 
+  isenabled: 1
+  title: Exempel (med variabler)
+  response: |
+    Hej %{ticket.name.first}, 
+    <br>
+    <br>
+    Ditt ärende #%{ticket.number} som skapades %{ticket.create_date} är hos %{ticket.dept.name}-avdelningen.
+  0: |
+

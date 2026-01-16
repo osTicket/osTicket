@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: تیتر فرم
+  content: >
+    این متن در کادر خاکستری بالای فیلد های فرم نمایش داده می شود
+form_instructions:
+  title: دستورالعمل پر کردن فرم
+  content: >
+    متن راهنما برای فیلد مورد نظر و فیلدهای اجباری را مشخص کنید.
+field_sort:
+  title: موقعیت نمایش فیلد
+  content: >
+    بر روی فلش بالا-پایین کلیک کنید و فیلدها را با کشیدن مرتب کنید. تنظیمات شما در صورت ذخیره نکردن اثر نخواهد کرد.
+field_label:
+  title: برچسب زمینه 
+  content: >
+    این برچسب به عنوان تیتر یا سوال برای این فیلد نمایش داده می شود. یک فیلد جواب کوتاه بدین صورت نمایش داده میشه : <br><strong>برچسب:</strong>&nbsp;<input type="text">
+field_type:
+  title: نوع محتوا زمینه
+  content: >
+    برای تعریف نوع ورودی مورد نظر از کاربر استفاده می شود. می توانید پاسخ کوتاه یا بلند ، شماره تلفن ، تاریخ و زمان ، چک باکس ، لیست بازشو و یا لیست دلخواه را درای رابطه انتخاب کنبد.
+  links:
+    - 
+      title: لیستهای سفارشی
+      href: /scp/lists.php
+field_visibility:
+  title: قابلیت مشاهده فیلد
+  content: >
+    حالت نمایش و نیازمندی ها را برای این فیلد (اطلاع) انتخاب کنید.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th> تنظیمات</th><th>نتیجه</th></tr><tr><td>اختیاری</td><td>کارمندان و کاربران می توانند این فیلد را ببینند اما هیچ کدام مجبور نیستند پاسخ دهند.</td></tr><tr><td>ضروری</td><td>کارمندان و کاربران این فیلد (اطلاع) را می بینند و هردو باید جواب دهند و این فیلد نباید خالی بماند.</td></tr><tr><td>ضروری برای کارمندان</td><td>کارمندان و کاربران هر دو این فیلد را می توانند ببینند ، فقط کاربران مجبورند که پاسخ دهند.(کارمندان اختیاری)</td></tr><tr><td> ضروری برای کارمندان</td><td> کارمندان و کاربران هر دو می توانند این فیلد را ببینند ، فقط کارمنداد الزام به جواب دادن دارند.(کاربران اختیاری)</td></tr><tr><td>داخلی ، ضروری</td><td>فقط کارمندان این فیلد را می بینند ، و جواب دادن ضروریست.</td></tr><tr><td>فقط برای کاربران</td><td>فقط کاربران این فیلد را می بینند ، و جواب دادن ضروریست.</td></tr></tbody></table>
+field_variable:
+  title: فیلد خودکار
+  content: >
+    فیلد داده برای  قالب صفحات و ایمیل ها از طریق نامی که در این ستون استفاده شده است در دسترس خواهد بود برای مثال فیلدهای داخل فرم عمومی درخواستها از طریق <code>%{ticket.variable}</code> که <strong> متغیر  </strong> نام استفاده شده در این ستون میباشد <br><br><em> اطلاعات شرکت از طریق کد   <code>%{</code><code>company.variable}</code>  و اطلاعات کاربر از طریق <code>%{ticket.user.variable}</code></em> در دسترس میباشند .
+field_delete:
+  title: پاک کردن این فیلد
+  content: >
+    فیلد مورد نظر را برای حذف از این فرم انتخاب کنید.<br><br><em> حذف یک فیلد اطلاعات وارد شده مربوط به فرم های تکمیل شده ی قدیمی را ازبین نمی برد. برای مثال اگر تیکتی در گذشته ارسال کردید که حاوی فیلد و اطلاع خاصی بود و در حال حاضر آنرا پاک کرده اید مشکلی برای تیکت قدیمی پیش نخواهد آمد.</em>

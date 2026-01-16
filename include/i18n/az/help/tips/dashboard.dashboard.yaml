@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+ticket_activity:
+  title: Sorğu aktivliyi
+  content: >
+    Qrafik və cədvəldə (bax, <span class="doc-desc-title">statistika</span>) hər hansı bir məlumatın bu tarixlər üçün görülməsini istəyirsinizsə tarix diapazonunu seçin. Aşağıdakı qrafikdə sistemin bütün məlumatlarının ümumi icmalı həmişə əks olunacaq. Lakin siz ancaq sizi maraqlandıran mövzulara (məs, şöbə və ya heyət) <span class="doc-desc-title">statistika </span> cədvəlində gəzərək baxa bilərsiniz. Bundan əlavə, hal-hazırda  <span class="doc-desc-title">statistika </span> cədvəlində əks olunmuş istədiyiniz məlumatı çıxarda bilərsiniz.
+report_timeframe:
+  title: Hesabat müddəti
+  content: >
+    Vaxt seçimindən istifadə edərək istədiyiniz vaxt nümunəsinə görə başlanğıc vaxtı seçin. Sonra öz vaxt nümunənizin bitmə tarixini müəyyənləşdirmək üçün vaxtın uzunluğunu seçin.
+statistics:
+  title: Statistika
+  content: >
+    Xüsusi məlumat nümunəsini görmək üçün sifarişdə müvafiq hesaba klikləyərək faiz mövzusuna istiqamətləndirin. Cədvəldə dairələr şərti (nominal) məlumatların ölçüsünü təsvir edir. Ona görə də müəyyən -cell- qiyməti böyük olduqca qonşu dairə də böyük olacaq.
+opened:
+  title: Açıqdır
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Təyin edilib
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Müddəti bitib
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Qapalı
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Yenidən açılıb
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Silindi
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Xidmət müddəti
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Cavab müddəti
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

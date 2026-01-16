@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Nafn þjónustuborðs
+  content: |
+    <p>Nafn þjónustukerfis þ.e. Þjónustuborð [Fyrirtæki]</p>
+system_email:
+  title: Sjálfgefið tölvupóstfang kerfis
+  content: |
+    <p>Sjálfgefið tölvupóstfang t.d. support@yourcompany.com - þú getur bætt við fleirri netföngum seinna!</p>
+default_lang:
+  title: Sjálfgefið tungumál kerfis
+  content: |
+    <p>Grunngögn á þessu tungumáli vera sett í gagnagrunninn. Til dæmis, sniðmát fyrir tölvupóst og sjálfgefnar kerfissíður.</p>
+  links:
+    - 
+      title: osTicket Tungumálapakkar
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Fornafn
+  content: |
+    <p>Fornafn kerfisstjóra</p>
+last_name:
+  title: Eftirnafn
+  content: |
+    <p>Eftirnafn kerfisstjóra</p>
+email:
+  title: Tölvupóstur
+  content: |
+    <p>Persónulegt tölvupóstfang kerfisstjóra. Má ekki vera það sama og sjálfgefið tölvupóstfang kerfisins.</p>
+username:
+  title: Notendanafn
+  content: |
+    <p>Notendanafn kerfisstjóra. Verður að vera a.m.k. (3) stafir.</p>
+password:
+  title: Lykilorð
+  content: |
+    <p>Lykilorð kerfisstjóra. A.m.k. (5) stafir eða meira.</p>
+password2:
+  title: Staðfestið lykilorð
+  content: |
+    <p>Staðfestið lykilorð kerfisstjóra. Verður að passa.</p>
+db_prefix:
+  title: MySQL töflu forskeyti
+  content: |
+    <p>osTicket þarfnast töflu forskeytis til að koma í veg fyrir til að koma í veg fyrir árekstra í samnýttum gagnagrunni.</p>
+db_host:
+  title: MySQL Hýsingarheiti e. Hostname
+  content: |
+    <p>
+    Flestar hýsingar nota 'localhost' fyrir tengingu við gagngagrunnþjón. Ath hjá hýsingaraðila ef localhost virkar ekki.
+    </p>
+    <p>
+    sjálfgefið port í stillingum php.ini er notað. Annað port er hægt að stilla með <code>hostname:port</code>
+    </p>
+db_schema:
+  title: MySQL gagnagrunnur
+  content: |
+    <p>Nafn gagnagrunnsins sem osTicket mun nota.</p>
+db_user:
+  title: MySQL Notendanafn
+  content: |
+    <p>MySQL notandinn verður að hafa full réttindi í gagnagrunninn.</p>
+db_password:
+  title: MySQL lykilorð
+  content: |
+    <p>MySQL lykilorð tengd notandanum hér að ofan.</p>

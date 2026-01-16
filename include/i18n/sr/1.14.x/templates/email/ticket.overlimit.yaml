@@ -1,0 +1,19 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Шаље се корисницима када су прекорачили границу за максималан број отворених тикета. Овај лимит може се подесити у администраторском панелу, а дефинише се број отворених тикета по једној адреси електронске поште.
+subject: |
+  Достигнут лимит отворених тикета по једној адреси електронсе поште
+body: |
+  <h3><strong>Поштовани %{ticket.name.first},</strong></h3>
+  Ви сте достигли максималан дозвољени број отворених тикета по кориснику. Да би отворили нови тикет један од нерјешених тикета мора бити затворен. Измјена 
+  или додавање коментара на отворене тикете је једноставно. Само се <a
+  href="%{url}/tickets.php?e=%{ticket.email}">пријавите на наш систем за помоћ корисницима</a>.
+  <br>
+  <br>
+  Хвала,<br/>
+  Систем за подршку

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Podpisna linija zaposlenih
+  content: |
+    Ustvari podpis osebja za odgovor na zahtevek. Podpis se bo pojavil kot opcija na dnu odgovora na zahtevek
+type:
+  title: Vrsta uporabniškega računa
+  content: |
+    Administratorji imajo pravice dostopa do Admin Panel. Osebje ima dostop samo do upravljanja z zahtevki in do baze znanja
+group:
+  title: Dodeljena skupina
+  content: |
+    Članstvo v skupini definira vlogo uporabnika v sistemu. Obišči nastavitve skupine, da definiraš kakšen dostop ima uporabnik do pomoči
+notes:
+  title: Interni zapiski
+  content: |
+    Vstavi interne zaznamke za uporabnike; zaznamki so vidni le za uporabnike s avtorizacijo za admin

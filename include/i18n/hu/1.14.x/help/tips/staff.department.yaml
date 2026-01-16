@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Állapot
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Típus
+  content: >
+    Válassza a <span class="doc-desc-opt">Privát</span> státuszt, hogy elrejtsen egy Osztály hozzárendelését az Ügyfél portálon.  Ezen felül, ha az <span class="doc-desc-title">Osztály Aláírás</span>   <span class="doc-desc-opt">Privát</span> státuszú, nem fog megjelenni a válasz üzenetben. <br/><br/>Legalább egy Osztálynak<span class="doc-desc-opt">Publikusnak</span> kell lennie.
+email:
+  title: Email
+  content: >
+    E-mail cím használható, ha a felhasználó üzenetet kapott, hogy egy Agent válaszolt egy jegyre.
+template:
+  title: Sablon gyűjtemény
+  content: >
+    Email <span class="doc-desc-title">Minta készlet</span> használható az automatikus válaszok, figyelmeztetések &amp; jelentések esetén, amikor a jegy egy osztályhoz kerül. 
+  links:
+    - 
+      title: Sablonok kezelése
+      href: /scp/templates.php
+sla:
+  title: Rendelkezése állás
+  content: >
+    A jegy SLA az Osztályhoz került. 
+  links:
+    - 
+      title: SLA terv szerkesztése
+      href: /scp/slas.php
+schedule:
+  title: Ütemezett
+  content: >
+    Az ütemezés, amelyet az SLA használt a jegyek rendezésekor, erre a Részlegre irányította, lejárt. <br><br> Ez a beállítás elsőbbséget élvez a rendszer- és az SLA-ütemezési beállításokkal szemben.
+  links:
+    - 
+      title: Ütemezések kezelése
+      href: /scp/schedules.php
+manager:
+  title: Részlegvezető
+  content: >
+    Válasszon egy <span class="doc-desc-title">Menedzsert</span>az Osztály élére. <br/><br/> A Menedzser kijelölhető a figyelmeztetések címzettjének és jogában áll egy jegyet elutasítani/elirányítani. 
+  links:
+    - 
+      title: Figyelmeztetések &amp; Jelentések menedzselése
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Figyelmeztetés &amp; Jelentés címzett
+  content: >
+    Válassza ki a  <span class="doc-desc-title">Figyelmeztetések &amp; Jelentések </span>címzettjét
+  links:
+    - 
+      title: Figyelmeztetések &amp; Jelentések konfigurálása
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Jegy kezelési tilalmak
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Disable Auto Claim
+  content: >
+    Check this to <strong>disable</strong> auto-claim on response/reply for this department. <br><br> Agents can still manually claim unassigned tickets
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Automatikus válasz beállítások
+  content: >
+    Ez lehetővé teszi, hogy felülbírálja az Osztály általános Automatikus válasz beállításait.
+new_ticket:
+  title: Új hibajegy automatikus válasz
+  content: >
+    Ön letilthatja az Automatikus válasz, melyet a felhasználónak küld a rendszer, amikor az új jegy elkészült és egy Osztály megkapta feldolgozásra.
+new_message:
+  title: Új üzenet automatikus válasz
+  content: >
+    Ön letilthatja az Automatikus válasz, melyet a felhasználónak küld a rendszer, hogy megerősítse, hogy megkapta az új üzenetet egy jegy esetében ezen az Osztályon.
+auto_response_email:
+  title: Automatikus válasz e-mail
+  content: >
+    Válasszon egy s-mail címet, hogy melyik automata választ küldte a rendszer az Osztálynak.
+department_access:
+  title: Csoport jogosultságok
+  content: >
+    Agent hozzáférés engedélyezése más osztályok jegyeihez.
+department_signature:
+  title: Osztály aláírása
+  content: >
+    Aláírás elérhető a <span class="doc-desc-opt">Publikus</span> Osztályoknak, az Agent válaszokhoz.

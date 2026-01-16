@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Khung mẫu Email
+  content: >
+    Chế độ khung mẫu Email được sử dụng để gửi phản hồi tự động và cảnh báo cho các hành động khác nhau có thể xảy ra trong thời gian thực hiện lệnh.
+template_to_clone:
+  title: Từ khuôn mẫu đến bản sao
+  content: >
+    Chọn một khuôn mẫu để làm bản sao hoặc đơn giản bắt đầu với khuôn mẫu của email chứng khoán
+language:
+  title: Ngôn ngữ
+  content: >
+    Chọn ngôn ngữ mong muốn cho <span class="doc-desc-opt"> cổ phiếu</span> <span class="doc-desc-title"> Email mẫu thiết lập</span>. Gói ngôn ngữ có sẵn trên osTicket.com.
+  links:
+    - 
+      title: Các gói ngôn ngữ khác của os Ticket
+      href: https://osticket.com/download
+status:
+  title: Tình trạng
+  content: >
+    <span class="doc-desc-opt">Kích hoạt</span>Chế độ khuôn có thể kết hợp với các phòng ban và cài đặt hệ thống mặc định. Chế độ khuôn hiện tại đang sử dụng có thể không<span class="doc-desc-opt"> được kích hoạt</span>.

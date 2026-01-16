@@ -1,0 +1,97 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Domyślny zestaw szablonów wiadomości E-mail
+  content: >
+    Wybierz <span class="doc-desc-title">Szablon emaila</span> używany do wysłania <span class="doc-desc-title">Automatycznej odpowiedzi</span> i <span class="doc-desc-title">Alertów</span> różnych działań, które mogą mieć miejsce podczas trwania zgłoszenia. <br><br> Departament może być przypisany do poszczególnych zestawów emaili.
+  links:
+    - 
+      title: Zarządzaj zestawem szablonów Email
+      href: /scp/templates.php
+default_system_email:
+  title: Domyślny adres wychodzący
+  content: >
+    Wybierz adres e-mail, z którego wysyłane są wychodzące wiadomości e-mail.<br><br> <span class="doc-desc-title">Deparatment</span> może ustawić swój własny <span class="doc-desc-title">adres email </span>, nadpisując ustawiony tutaj.
+  links:
+    - 
+      title: Zarządzaj adresami E-mail
+      href: /scp/emails.php
+default_alert_email:
+  title: Domyślny Email do Powiadomień
+  content: >
+    Wybierz adres e-mail, z którego będą wysyłane <span class="doc-desc-title">Alerty &amp; Powiadomienia</span> do przedstawicieli.
+  links:
+    - 
+      title: Zarządzaj adresami E-mail
+      href: /scp/emails.php
+admins_email_address:
+  title: Adres E-mail administratora
+  content: >
+    Wprowadź adres e-mail, na który będą wysyłane <span class="doc-desc-title">Błędy systemu</span> i <span class="doc-desc-title">Alerty nowych zgłoszeń</span> (jeżeli włączone).
+  links:
+    - 
+      title: Zarządzaj alertami i wiadomościami
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Pobieranie wiadomości e-mail
+  content: >
+    Zezwól na pobieranie IMAP/POP dla skonfigurowanej i włączonej <span class="doc-desc-title">Skrzynki Email</span>.
+  links:
+    - 
+      title: Zarządzaj Skrzynką Pocztową
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Pobieranie wiadomości E-mail przy użyciu Auto-cron
+  content: >
+    Włącza periodyczne pobieranie emaili, przy użyciu wewnętrznego managera zadań, który jest powiązany z aktywnością Przedstawicieli.  <br><br> Proszę zwrócić uwagę że żadne emaile nie będą pobrane jeżeli żaden przedstawiciel nie będzie zalogowany do Panelu Sterowania. Zewnętrzny manager zadań jest wysoce zalecany, w celu zapobiegania zbyt dużym odstępom czasu w pobieraniu emaili.
+  links:
+    - 
+      title: Za pomocą harmonogramu zadań zewnętrznych
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Usuwaj cytowane odpowiedzi
+  content: >
+    Jeśli opcja jest włączona, spowoduje to usunięcie korespondencji poprzedzającą  pomiędzy komunikacją emaili. <br><br> Ta funkcja jest częściowo zależna od poniższego <span class="doc-desc-title">Znacznika Separującego Odpowiedź</span>.
+reply_separator_tag:
+  title: Tag separujący odpowiedź
+  content: >
+    To jest znacznik wskazujący, że odpowiedź użytkownika pojawi się powyżej tej linii.<br><br>
+    <strong>Uwaga:</strong> ma to zastosowanie tylko wtedy, gdy <span class="doc-desc-title">Usuwaj cytowane odpowiedzi</span> jest wyłączone powyżej.
+emailed_tickets_priority:
+  title: Priorytet zgłoszeń nadesłanych emailem
+  content: >
+    Wybierz, czy chcesz ustawić priorytet/znaczenie dla e-maili użytkowników (n.p. Outlook), aby narzucić priorytet nowym zgłoszeniom.<br><br> Ta opcja może być zastąpiona przez <span class="doc-desc-title">Filtr Zgłoszeń</span>.
+  links:
+    - 
+      title: Tworzenie i zarządzanie filtrami zgłoszeń
+      href: /scp/filters.php
+accept_all_emails:
+  title: Akceptuj wszystkie e-maile
+  content: >
+    Akceptuj emaile od nieznanych użytkowników. <br><br> Wyłączenie tej opcji spowoduje odrzucanie zgłoszeń od nieznanych użytkowników. 
+accept_email_collaborators:
+  title: Akceptuj emaile współuczestników
+  content: >
+    Dodaj adresy e-mail zawarte w polach <code><strong>Do</strong></code> i <code><strong>DW</strong></code> jako współuczestników przy zgłoszeniu.<br /><br /> <em>Współuczestnicy zawsze mogą zostać dodani ręcznie przez przedstawiciela oglądającego zgłoszenie.</em>
+default_mta:
+  title: Domyślnym MTA
+  content: >
+    <span class="doc-desc-title">Domyślny MTA</span> odpowiada za dostarczanie e-maili nie wykorzystując ustawień SMTP.
+ticket_response_files:
+  title: Pliki w odpowiedziach na zgłoszenie
+  content: >
+    Jeżeli włączymy tą opcje wszystkie załączniki zawarte w odpowiedzi na zgłoszenie będą również załączone do wiadomości email wysłanej do klienta.
+verify_email_addrs:
+  title: Weryfikuj adresy email
+  content: >
+    Włącz tą opcję, żeby sprawdzać czy adres e-mail ma MailExchanger (MX) w nazwie domeny DNS. Jest to przydatne do wykrywania niepopranie wpisanych adresów e-mail. Jest to wykonywane jako uzupełnienie do sprawdzania poprawności adresu e-mail.

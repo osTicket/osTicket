@@ -90,6 +90,13 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } ?>
 </tbody>
 </table>
+<!--osta-->
+<script>
+$('.required').closest('td').addClass("client-required");
+$(".required").html(function(i, html){
+    return html.replace("*", "");
+});
+</script>  
 <hr>
 <p style="text-align: center;">
     <input type="submit" value="<?php echo __('Register'); ?>"/>
@@ -99,7 +106,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </form>
 <?php if (!isset($info['timezone'])) { ?>
 <!-- Auto detect client's timezone where possible -->
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jstz.min.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jstz.min.js?0375576"></script>
 <script type="text/javascript">
 $(function() {
     var zone = jstz.determine();

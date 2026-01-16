@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Pole wyszukiwania
+  0: >
+
+advanced:
+  title: Zaawansowany
+  content: >
+    Zawęź kryteria wyszukiwania. Po wybraniu zaawansowanych kryteriów i uruchomieniu wyszukiwania, można <span class="doc-desc-title">Wyeksportować</span> dane zgłoszeń na dole strony.
+open_tickets_table:
+  title: Tabela otwartych zgłoszeń
+  content: >
+    Wszystkie zgłoszenia są aktualnie otwarte i wymagają uwagi
+ticket:
+  title: Zgłoszenie
+  0: >
+
+date:
+  title: Data
+  0: >
+
+subject:
+  title: Temat
+  0: >
+
+from:
+  title: Od
+  0: >
+
+priority:
+  title: Priorytet
+  0: >
+
+assigned_to:
+  title: Przypisane do
+  0: >
+
+export:
+  title: Eksport
+  content: >
+    Eksport danych aktualnie widocznych do pliki CSV. Pliki CSV można otworzyć za pomocą dowolnego arkusza kalkulacyjnego (np. Microsoft Excel, Apple Pages, OpenOffice itd.).
+advanced_search_dialog:
+  title: Wyszukiwanie zaawansowane
+  0: >
+
+adv_keyword:
+  title: Wyszukiwanie słów kluczowych
+  content: >
+    Wyszukiwanie na podstawie nazwy zgłoszenia i jego zawartości, a także na podstawie tekstowej zawartości związanej z zawartością indywidualnych pól użytkownika oraz zgłoszenia.
+adv_date_range:
+  title: Szukaj przez zakres dat
+  content: >
+    Definicja tutaj
+merge_types:
+  title: Scal typy
+  content: >
+    <b>Połącz wątki:</b>Wątki ze wszystkich zgłoszeń będą wyświetlane chronologicznie. </br> <b> Oddzielne wątki: </b> Wątki ze zgłoszeń będą wyświetlane pojedynczo.
+reply_types:
+  title: Rodzaje odpowiedzi
+  content: >
+    <b>Odpowiedz wszystkim:</b> Odpowiedź zostanie wysłana do Użytkownika oraz do Współuczestników których wybierzesz.</br> <b>Odpowiedz użytkownikowi:</b> Odpowiedź zostanie wysłana tylko do Użytkownika, a nie do Współuczestników.</br> <b>Nie wysyłaj odpowiedzi:</b> Żadne powiadomienia nie zostaną wysłane, jednakże odpowiedź Agenta będzie widoczna dla <b>WSZYSTKICH</b> Użytkowników podglądających zgłoszenie.

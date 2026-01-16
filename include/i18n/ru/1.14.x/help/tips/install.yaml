@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Название Службы Поддержки
+  content: |
+    <p>Название вашей службы поддержки, например, Служба Поддержки [Название Компании]</p>
+system_email:
+  title: Email системы по умолчанию
+  content: |
+    <p>Адрес электронной почты по умолчанию, например, support@yourcompany.com. Позже Вы сможете добавить другие адреса.</p>
+default_lang:
+  title: Язык системы по умолчанию
+  content: |
+    <p>Начальные данные для этого языка будут установлены в базу данных. Например, почтовые шаблоны и системные страницы по умолчанию.</p>
+  links:
+    - 
+      title: Языковые пакеты osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Имя
+  content: |
+    <p>Имя администратора</p>
+last_name:
+  title: Фамилия
+  content: |
+    <p>Фамилия администратора</p>
+email:
+  title: Адрес email
+  content: |
+    <p>Email администратора. Должен отличаться от основного Email системы.</p>
+username:
+  title: Имя пользователя
+  content: |
+    <p>Логин администратора. Должен быть не менее трех символов</p>
+password:
+  title: Пароль
+  content: |
+    <p>Пароль администратора.  Должен быть не менее пяти символов.</p>
+password2:
+  title: Подтвердить пароль
+  content: |
+    <p>Введите пароль повторно. Пароли должны совпадать.</p>
+db_prefix:
+  title: Префикс таблиц MySQL
+  content: |
+    <p>Для osTicket необходим префикс таблиц, чтобы избежать возможных конфликтов в общей базе данных.</p>
+db_host:
+  title: Имя хоста MySQL
+  content: |
+    <p>
+    Большинство серверов используют 'localhost', для имени хоста локальной базы данных. Используйте свое имя хоcта, если 'localhost' не подходит.
+    </p>
+    <p>
+    Порт по умолчанию указан в php.ini. Нестандартный номер порта, должен быть указан как <code>hostname:port</code>
+    </p>
+db_schema:
+  title: База данных MySQL
+  content: |
+    <p>Имя базы данных для osTicket.</p>
+db_user:
+  title: Имя пользователя MySQL
+  content: |
+    <p>Пользователь MySQL должен иметь полный доступ к базе данных.</p>
+db_password:
+  title: Пароль MySQL
+  content: |
+    <p>Пароль вышеуказанного пользователя MySQL.</p>

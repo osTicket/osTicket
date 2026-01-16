@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  當案件建立後發送通知給使用者
+subject: |
+  案件已列為處理中 [#%{ticket.number}]
+body: |
+  <h3><strong>親愛的 %{recipient.name.first},</strong></h3>
+  <p>
+  您的案件已被建立且被分配 #%{ticket.number}.
+  我們的專員將立即為您處理。您可
+  <a href="%{recipient.ticket_link}">線上查詢案件進度</a>。
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+   %{company.name} 團隊敬上
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>如果您想要追加或提供更多詳細的資訊，您可回覆本信件或 <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >登入到您的帳號</span></a>可查閱案件詳細完整內容。</em></div>

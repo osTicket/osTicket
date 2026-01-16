@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: កំណត់ហេតុប្រព័ន្ធ
+  content: >
+    នេះគឺជាកន្លែងដែលអ្នកនឹងរកឃើញtroubleshooting ណាមួយដែលទាក់ទងនឹងសកម្មភាពដោះស្រាយបញ្ហារបស់អ្នក (ឧកំហុសការព្រមានឬកំហុស) ។
+  links:
+    - 
+      title: ប្ដូរតាមបំណងនូវអ្វីដែលជាប្រភេទនៃសកម្មភាព ដោយការផ្លាស់ប្តូរ<br /><span class="doc-desc-title">លំនាំដើមកម្រិតកំណត់ហេតុ Default Log Level</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: កាលបរិច្ឆេទរយៈពេល
+  content: >
+    ជ្រើសជួរប្រតិទិនរបស់អ្នកដែលអ្នកចង់មើលនៅ <span class="doc-desc-title">System Logs</span>.
+type:
+  title: ប្រភេទ
+  content: >
+    ជ្រើសជម្រើសនេះដើម្បីកាត់បន្ថយការផ្តោតអារម្មណ៍របស់អ្នកនៅលើប្រភេទជាក់លាក់នៃសកម្មភាពមួយ។ <span class="doc-desc-opt">Debug</span> តំណាងឱ្យភាពធ្ងន់ធ្ងរ, និង<span class="doc-desc-opt">Error</span>តំណាងឱ្យភាពធ្ងន់ធ្ងរបំផុត។
+showing_logs:
+  title: បង្ហាញ&hellip;កំណត់ហេតុ
+  content: >
+    ត្រូវប្រាកដថាពិនិត្យមើល <span class="doc-desc-title">Page</span> ផ្នែកខាងក្រោមដើម្បីធ្វើឱ្យប្រាកដថា there are not more pages displaying available System Logs.
+log_title:
+  title: ចំណងជើងកំណត់ហេតុ
+  content: >
+    ចុច <span class="doc-desc-title">Log Title</span> បឋមកថាតារាងប្រសិនបើអ្នកចង់តម្រៀបលទ្ធផលនេះតាម <span class="doc-desc-title">Log Title</span>.
+log_type:
+  title: ប្រភេទកំណត់ហេតុ
+  content: >
+    ចុច <span class="doc-desc-title">Log Type</span> បឋមកថាតារាងប្រសិនបើអ្នកចង់តម្រៀបលទ្ធផលនេះតាម <span class="doc-desc-title">Log Type</span>.
+log_date:
+  title: កាលបរិច្ឆេទកំណត់ហេតុ
+  content: >
+    នេះគឺជាកាលបរិច្ឆេទកំណត់ហេតុនេះត្រូវបានបង្កើតដោយកម្មវិធីនេះ។ ប្រសិនបើអ្នកចង់តម្រៀបលទ្ធផលនេះតាម <span class="doc-desc-title">Log Date</span>, គ្រាន់តែចុច <span class="doc-desc-title">Log Date</span> បឋមកថាតារាង table header. (ប្រើ<span class="doc-desc-title">Date Span</span> formខាងលើដើម្បីកាត់បន្ថយ narrow រយៈពេលនៃការកំណត់ហេតុប្រតិទិនរបស់អ្នក។)
+ip_address:
+  title: IP Address
+  content: >
+    នេះសំដៅទៅលើ <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Address</span> ទាំងភ្នាក់ងារឬអតិថិជនដែលត្រូវបានប្រើប្រាស់នៅពេលដែលកំណត់ហេតុ osTicket ត្រូវបានបង្កើត។

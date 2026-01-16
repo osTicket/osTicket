@@ -1,0 +1,26 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Αποστέλλεται σε ένα χρήστη όταν ο χρήστης αποστέλλει ένα νέο μήνυμα σε ένα δελτίο. Αυτό μπορεί να συμβεί αν ο χρήστης ανταποκριθεί σε ένα μήνυμα ηλεκτρονικού ταχυδρομείου από το σύστημα ή αν επισκεφθεί το Portal Πελατών και αποστείλει από εκεί ένα νέο μήνυμα.
+subject: |
+  Επιβεβαίωση Μηνύματος
+body: |
+  <h3><strong>Αγαπητέ/ή %{recipient.name.first},</strong></h3>
+  Η απάντησή σας στο αίτημα υποστήριξης με αριθμό <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> έχει καταγραφεί
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Το Κέντρο Υποστήριξης <br>
+  %{company.name} ,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Μπορείτε να δείτε την πορεία του αιτήματος υποστήριξης <a
+  href="%{recipient.ticket_link}">online εδώ</a></em>
+  </div>

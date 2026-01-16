@@ -110,10 +110,10 @@ $qstr .= '&amp;order='.urlencode($order=='DESC' ? 'ASC' : 'DESC');
                     $sel=true;
                 ?>
             <tr id="<?php echo $id; ?>">
-                <td align="center">
-                  <input type="checkbox" class="ckb" name="ids[]"
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" class="ckb" name="ids[]"
                   value="<?php echo $id; ?>"
-                            <?php echo $sel ? 'checked="checked"' : ''; ?>> </td>
+                            <?php echo $sel ? 'checked="checked"' : ''; ?>><label></label></p></td>
                 <td><a href="teams.php?id=<?php echo $id; ?>"><?php echo
                 $team->getName(); ?></a> &nbsp;</td>
                 <td>&nbsp;<?php echo $team->isActive() ? __('Active') : '<b>'.__('Disabled').'</b>'; ?></td>

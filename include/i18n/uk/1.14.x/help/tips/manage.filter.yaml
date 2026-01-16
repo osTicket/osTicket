@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Виконання замовлення
+  content: >
+    Введіть номер, який керує пріоритетом фільтра. Чим нижче номер, тим вищий пріоритет матиме цей фільтр при виконанні в порівнянні з іншими фільтрами, які можуть мати більш високий порядок виконання. <br> <br> Якщо Ви хочете щоб цей фільтр був останнім фільтром, застосовуваним при збігу, ввімкніть <span class = "doc-desc-title"> припинити подальшу обробку при збігу </span>.
+target_channel:
+  title: Канал
+  content: >
+    Виберіть цільовий <span class = "doc-desc-title"> канал </span> для Вашого <span class = "doc-desc-title"> фільтру заявок </span>. <span class = "doc-desc-title"> Канал </span> - це джерело, через який заявка потрапила в систему. <br> <br> Приміром, якщо Ви виберете <span class = "doc-desc-opt"> Веб-форма </span>, це означатиме, що Ви хочете, щоб <span class = "doc-desc-title "> фільтр заявок </span> застосовувався до тих заявок, які прийшли з веб-форми порталу клієнта.
+rules_matching_criteria:
+  title: Правила, які відповідають умовам
+  content: >
+    Виберіть, наскільки гнучкими мають бути збіги з Вашим <span class = "doc-desc-title"> фільтром заявок </span>. Якщо Ви хочете, щоб <span class = "doc-desc-title"> фільтр заявок </span> задовольняв будь-які з правил - виберіть <span class = "doc-desc-opt"> відповідати будь-якому правилу </span>. Якщо Ви хочете, щоб <span class = "doc-desc-title"> фільтр заявок </span> задовольняв <em> <strong> всім правилам </strong> </em> - виберіть <span class = "doc-desc -opt"> відповідати всім правилам </span>.
+reject_ticket:
+  title: Відхилити заявку
+  content: >
+    Якщо ця опція включена, подальша обробка зупиняється і всі інші варіанти дій нижче будуть ігноруватися при збігу.
+reply_to_email:
+  title: Електронна пошта для відповіді
+  content: >
+    Увімкніть опцію, якщо Ви хочете, щоб Ваша система допомоги враховувала заголовок "<span class = "doc-desc-title"> Адреса відповіді </span>" поштовогї програми користувача. Це поле має сенс, тільки якщо <span class = "doc-desc-title"> канал </span> вище включає варіант <span class = "doc-desc-opt"> електронна пошта </span>.
+ticket_auto_response:
+  title: Вимкнути автоматичну відповідь на заявку
+  content: >
+    <em> Увага: Це перевизначить будь-які установки <span class = "doc-desc-title"> відділу </span> або <span class = "doc-desc-title"> автовідповідача </span>. </em>
+canned_response:
+  title: Швидкі відповіді
+  content: >
+    Виберіть <span class = "doc-desc-title"> план SLA </span>, який повинен застосовуватися до збігам <span class = "doc-desc-title"> фільтру заявок </span>.
+  links:
+    - 
+      title: Керування швидкими відповідями
+      href: /scp/canned.php
+    - 
+      title: Керування наборами шаблонів
+      href: /scp/templates.php
+    - 
+      title: Шаблон автовідповіді на нову заявку
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Відділ
+  content: >
+    Виберіть, якому <span class = "doc-desc-title"> відділу </span> повинні бути призначені збіги <span class = "doc-desc-title"> фільтру заявок </span>.
+  links:
+    - 
+      title: Управління відділами
+      href: /scp/departments.php
+priority:
+  title: Пріоритет
+  content: >
+    Виберіть рівень <span class = "doc-desc-title"> пріорітету </span>, який має бути застосований до збігу <span class = "doc-desc-title"> фільтру заявок </span>. <br /> <br /> <em> Увага: Це перевизначить установки <span class = "doc-desc-title"> відділу </span> чи <span class = "doc-desc-title"> категорії заявки </span>. </em>
+sla_plan:
+  title: SLA план
+  content: >
+    Виберіть <span class = "doc-desc-title"> план SLA </span>, який повинен застосовуватися до збігу <span class = "doc-desc-title"> фільтру заявок </span>.
+  links:
+    - 
+      title: Керування SLA планами
+      href: /scp/slas.php
+auto_assign:
+  title: Автоматичне призначення
+  content: >
+    Виберіть співробітника або команду, яким повинні бути призначені збіги <span class = "doc-desc-title"> фільтру заявок </span>.
+  links:
+    - 
+      title: Керування співробітниками
+      href: /scp/staff.php
+    - 
+      title: Керування групами
+      href: /scp/teams.php
+help_topic:
+  title: Розділ довідки
+  content: >
+    Виберіть <span class = "doc-desc-title"> категорію заявки </span>, яка має застосовуватися до збігу <span class = "doc-desc-title"> фільтру заявок </span>.
+  links:
+    - 
+      title: Управління категоріями заявок
+      href: /scp/helptopics.php
+admin_notes:
+  title: Нотатки адміністратора
+  content: >
+    Ці нотатки доступні тільки для тих, чий тип облікового запису є <span class="doc-desc-title"> адміністратор</span>.

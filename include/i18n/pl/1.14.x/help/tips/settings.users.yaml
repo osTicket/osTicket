@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Format nazwy użytkownika
+  content: >
+    Wybierz format nazw Użytkowników w całym systemie. Szablony e-mail będą go wykorzystywać jako nazwę, jeżeli nie zostanie zdefiniowany inny format.
+#Authentication settings
+client_session_timeout:
+  title: Limit czasu sesji użytkownika
+  content: >
+    Wybierz maksymalny czas bezczynności (w minutach) zanim użytkownik będzie musiał się ponownie zalogować. <br><br> Jeżeli chcesz wyłączyć wprowadź 0 w <span class="doc-desc-title">Czasie wygaśnięcia sesji użytkownika</span>.
+registration_method:
+  title: Opcje rejestracji
+  content: >
+    <span class="doc-desc-title">Metody rejestracji</span> i <span class="doc-desc-title">Wymagana rejestracja</span> są razem używane do konfiguracji sposobu rejestracji użytkowników i dostępu do portalu Systemu Pomocy. Tabela poniżej podsumowuje jak te dwa ustawienia są interpretowane przez system. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Wymagana rejestracja</th> <th>Metody rejestracji</th> <th>Wynik</th></tr> <tr><td>Nie</td><td>Publiczna</td> <td>Zachęca do rejestracji, ale nie jest wymagana dla nowych zgłoszeń</td></tr> <tr><td>Tak</td><td>Publiczna</td> <td>Rejestracja i logowanie są wymagane dla nowych zgłoszeń</td></tr> <tr><td>Nie</td><td>Prywatna</td> <td>Każdy może stworzyć zgłoszenie, ale tylko przedstawiciele mogą zarejestrować konta</td></tr> <tr><td>Tak</td><td>Prywatna</td> <td>Użytkownik ma dostęp tylko za zaproszeniem</td></tr> <tr><td>Nie</td><td>Wyłączona</td> <td>Nikt nie może założyć konta, ale każdy może stworzyć zgłoszenie.<em><0>Tak funkcjonował osTicket aż do wersji 1.9</em></td></tr> <tr><td>Tak</td><td>Wyłączona</td> <td>Wyłączenie nowych zgłoszeń za pośrednictwem portalu internetowego</td></tr> </tbody></table>
+client_verify_email:
+  title: Wymagaj weryfikacji E-mail
+  content: >
+    Wyłącz tę opcję, aby dać użytkownikom natychmiastowy dostęp do zgłoszeń za pośrednictwem "Sprawdź status zgłoszenia" na stronie logowania w portalu klienta. Jeśli opcja jest włączona, (co jest domyślne), użytkownik będzie zobowiązany do odebrania wiadomości e-mail oraz kliknięcie na link w e-mailu, aby zobaczyć zgłoszenie. <br><br> Wyłączenie weryfikacji e-mail, może pozwolić osobom trzecim (np. współuczestnicy zgłaszającego) na podszywanie się pod właściciela zgłoszenia.
+allow_auth_tokens:
+  title: Włącz uwierzytelnianie
+  content: >
+    Włącz tę opcję, aby umożliwić korzystanie z tokenów uwierzytelniania użytkowników do automatycznego logowania po kliknięciu na link zgłoszenia.

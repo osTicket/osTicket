@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Utförandeordning
+  content: >
+    Ange en siffra för filtrets prioritet. Lägre siffra innebär högre prioritet gentemot filter som har en högre siffra i utförandeordningen. <br><br> Om du vill att det här filtret ska vara det sista som används vid en matchning, väljer du <span class="doc-desc-title">Avsluta filtermatchning om denna regel matchar</span>.
+target_channel:
+  title: Kanal
+  content: >
+    Välj mål-<span class="doc-desc-title">kanal</span> för ditt <span class="doc-desc-title">ärendefilter</span>. <span class="doc-desc-title">Kanalen</span> är den väg som ärendet kom in i systemet. <br><br> Om du t ex väljer <span class="doc-desc-opt">Webb-formulär</span>, så menar du att du vill tillämpa <span class="doc-desc-title">ärendefilter</span> på de ärenden som kom från kundportalens webbformulär.
+rules_matching_criteria:
+  title: Regler som matchar kriterierna
+  content: >
+    Välj hur tänjbara dina <span class="doc-desc-title">ärendefilter-</span>-matchiningar ska vara. Om du vill att <span class="doc-desc-title">ärendefiltrena</span> ska matcha alla regler och sedan stanna, välj <span class="doc-desc-opt">Matcha någon</span>. Om du vill att <em><strong>alla regler</strong></em> i <span class="doc-desc-title">ärendefiltret </span> ska matchas, välj <span class="doc-desc-opt">Matcha alla</span>.
+reject_ticket:
+  title: Avvisa ärendet
+  content: >
+    Om detta är aktivt så förhindras all ytterligare behandling och alla efterföljande åtgärder ignoreras vid matchning.
+reply_to_email:
+  title: Svara till e-post
+  content: >
+    Aktiveras om du vill att supporten ska använda en användares <span class="doc-desc-title">Svara till</span>-fält. Detta fält är endast relevant i händelse av att <span class="doc-desc-title">kanalen</span> innehåller <span class="doc-desc-opt">e-postadress</span>.
+ticket_auto_response:
+  title: Inaktivera autosvar för ärende
+  content: >
+    <em>Notering: Detta kommer att upphäva alla eventuella <span class="doc-desc-title">Avdelnings-</span> eller <span class="doc-desc-title">Autosvars-inställningar</span>.</em>
+canned_response:
+  title: Standard-autosvar
+  content: >
+    Välj ett <span class="doc-desc-title">Standardsvar</span> som du vill ska skickas till användaren om <span class="doc-desc-title">Ärendefiltret</span> matchas. Det <span class="doc-desc-title">Nya ärende-autosvars</span>-mallen som används beror på vilken <span class="doc-desc-title">malluppsättning</span> som är vald som standard, eller till det matchade ärendets <span class="doc-desc-title">Avdelning</span>.
+  links:
+    - 
+      title: Hantera standardsvar
+      href: /scp/canned.php
+    - 
+      title: Hantera malluppsättningar
+      href: /scp/templates.php
+    - 
+      title: Ny Ärende-autosvarsmall
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Avdelning
+  content: >
+    Välj <span class="doc-desc-title">Avdelning</span> som du vill att <span class="doc-desc-title">Ärendefiltret</span> ska tilldela.
+  links:
+    - 
+      title: Administrera avdelningar
+      href: /scp/departments.php
+priority:
+  title: Prioritet
+  content: >
+    Välj <span class="doc-desc-title">Prioritets</span>-nivå för <span class="doc-desc-title">Ärendefiltrets</span> matchningar.<br /> <br /> <em>Notering: Detta upphäver <span class="doc-desc-title">Avdelnings-</span> och <span class="doc-desc-title"> Hjälpämnesrubrik</span>-inställningarna.</em>
+sla_plan:
+  title: SLA-regel
+  content: >
+    Välj <span class="doc-desc-title">SLA-regler</span> som du vill ska tillämpas vid matchningarna av <span class="doc-desc-title">ärendefiltret</span>.
+  links:
+    - 
+      title: Hantera SLA-regler
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-tilldela
+  content: >
+    Välj en person ur supportpersonalen eller från ett Team för vilken du vill att matchningen av <span class="doc-desc-title">Ärendefiltret</span> ska tilldelas.
+  links:
+    - 
+      title: Hantera supportpersonal
+      href: /scp/staff.php
+    - 
+      title: Hantera Team
+      href: /scp/teams.php
+help_topic:
+  title: Hjälpämnesrubrik
+  content: >
+    Välj <span class="doc-desc-title">Hjälpämnesrubrik</span> som du vill ska tillämpas vid matching av <span class="doc-desc-title">Ärendefiltret</span>.
+  links:
+    - 
+      title: Hantera hjälpavsnitt
+      href: /scp/helptopics.php
+admin_notes:
+  title: Administratörs-kommentarer
+  content: >
+    Dessa noteringar syns bara för dem som har ´<span class="doc-desc-title">Admin</span>-´konto.

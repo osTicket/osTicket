@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Новая категория Заявки
+  content: >
+    Выберите <span class="doc-desc-title">Категорию Заявки</span>, которая будет автоматически привязана к Заявкам, созданным с этого Адреса Почты. <br/><br/> Формы, связанные с этой Категорией проблем, будут добавлены в Заявку, но не будут содержать данных.
+  links:
+    - 
+      title: Управление Категориями Заявок
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Приоритет новой Заявки
+  content: >
+    Выберите <span class="doc-desc-title">приоритет</span> для новых Заявок, созданных через этот Адрес Почты.
+new_ticket_department:
+  title: Отдел для новых Заявок
+  content: >
+    Выберите <span class="doc-desc-title">Отдел</span>, которому будут направляться Заявки, созданные через этот Адрес Почты.
+  links:
+    - 
+      title: Управление Отделами
+      href: /scp/departments.php
+auto_response:
+  title: Автоответ на новую Заявку
+  content: >
+    Вы можете отключить Автоответ, отправляемый Пользователю, когда новая Заявка создается через этот Адрес Почты.
+username:
+  title: Имя пользователя
+  0: >
+
+password:
+  title: Пароль
+  0: >
+
+login_information:
+  title: Информация о Логине Почты
+  content: >
+    <span class="doc-desc-title">Имя Пользователя</span> и <span class="doc-desc-title">Пароль</span> требуются для получения почты из ящиков IMAP / POP, а также для отправки писем через SMTP.
+mail_account:
+  title: Получение Почты
+  content: >
+    Получение писем из удаленного ящика IMAP или POP и их преобразование в Заявки в Вашей системе помощи.
+  links:
+    - 
+      title: Управление <span class="doc-desc-title">Запросом Писем</span> и настройками <span class="doc-desc-title">AutoCron</span>.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Удаленный хост
+  content: >
+    Введите <span class="doc-desc-title">имя хоста</span> и <span class="doc-desc-title">порт</span> Вашего сервера почты. Эта информация может быть доступна в документации Вашего хостинга или от Вашего администратора почты.
+protocol:
+  title: Протокол электронной почты
+  content: >
+    Выберите почтовый протокол, который поддерживается Вашим удаленным почтовым сервером. Рекомендуется IMAP и SSL, если возможно.
+fetch_frequency:
+  title: Частота Выборки
+  content: >
+    Укажите, как часто, в минутах, система будет опрашивать почтовый ящик. <br/><br/> Это определит среднюю задержку получения Автоответа после отправления Пользователем письма на этот адрес.
+emails_per_fetch:
+  title: Писем На Выборку
+  content: >
+    Введите количество писем, обрабатываемых за раз.
+fetched_emails:
+  title: Выбранные Письма
+  content: >
+    Выберите, что делать с обработанными письмами: <br/><br/> <span class="doc-desc-opt"><b>Переместить в Папку</b></span>: Это переместит письмо из папки ВХОДЯЩИЕ в папку, которую Вы укажете. Если папка еще не существует на сервере, система попытается создать ее автоматически. (<b>Рекомендуется</b>) <hr> <span class="doc-desc-opt"><b>Удалить Письма</b></span>: Это удалит письмо из папки ВХОДЯЩИЕ после обработки. <hr> <span class="doc-desc-opt"><b>Ничего Не Делать</b></span>: Это оставит письмо во ВХОДЯЩИХ. Система запишет идентификатор письма, чтобы не получать его снова. Тем не менее, этот вариант может привести к созданию дублирующих Заявок. (<em>Не Рекомендуется</em>)
+smtp_settings:
+  title: Настройки SMTP
+  content: >
+    Письмо, отправляемое от службы помощи, может быть отправлено через сервер SMTP. Этот вариант рекомендуется, если возможен, так как он увеличивает вероятность доставки писем и уменьшает вероятность того, что письма будут отмечены как спам.
+header_spoofing:
+  title: Разрешить Подмену Заголовков
+  content: >
+    Включите для того, чтобы разрешить отправлять письма из этого ящика от другого адреса вместо указанного в настройке <span class="doc-desc-title">Адрес Электронной Почты</span> выше. <br/><br/> Эта настройка обычно используется при отправке писем от псевдонимов этого почтового ящика.
+

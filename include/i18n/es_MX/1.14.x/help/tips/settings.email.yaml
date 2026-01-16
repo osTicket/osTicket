@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Conjunto de plantillas de correo electrónico predeterminado
+  content: >
+    Seleccione <span class="doc-desc-title">Plantilla de Correo electrónico</span> utilizado para enviar <span class="doc-desc-title">respuestas automáticas</span> y <span class="doc-desc-title"> Auto-respuestas</span> por varias acciones que pueden tener lugar durante la vida útil de un Ticket. <br><br>los departamentos pueden ser asignados a un conjunto de plantillas de correo electrónico específica.
+  links:
+    - 
+      title: Administrar conjuntos de plantillas de correo electrónico
+      href: /scp/templates.php
+default_system_email:
+  title: Email de salida predeterminado
+  content: >
+    Elija una dirección de correo electrónico desde donde se envían correos electrónicos salientes. <br><br><span class="doc-desc-title"> departamentos</span> podrá tener su propia <span class="doc-desc-title"> dirección de correo electrónico</span> que predominará lo expresado aquí.
+  links:
+    - 
+      title: Administrar direcciones de correo electrónico
+      href: /scp/emails.php
+default_alert_email:
+  title: Correo electrónico de alerta por defecto
+  content: >
+    Elegir una dirección de correo electrónico que <span class="doc-desc-title"> las alertas &amp; y avisos</span> son enviados a los agentes.
+  links:
+    - 
+      title: Administrar direcciones de correo electrónico
+      href: /scp/emails.php
+admins_email_address:
+  title: Dirección de correo electrónico del administrador
+  content: >
+    Introduzca la dirección de correo electrónico del administrador que se envían <span class="doc-desc-title"> errores del sistema </span>y<span class="doc-desc-title"> Nuevas alertas de Ticket</span>(si están habilitados) son enviados.
+  links:
+    - 
+      title: Administrar alertas & avisos
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Buscar correo electrónico
+  content: >
+    Permite IMAP/POP de la interrogación para configurado y habilitado <span class="doc-desc-title"> Buzones de correo</span>.
+  links:
+    - 
+      title: Administrar buzones de correo
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Buscar mensajes de correo electrónico usando Auto-cron
+  content: >
+    Habilita la búsqueda de correo electrónico normales utilizando un gestor de tareas interno provocado por la actividad de los agentes.  <br><br>Por favor tenga en cuenta que los correos electrónicos no se recuperan si nadie está conectado al Panel de Control personal.El organizador de tareas externa es altamente recomendado para intervalos de búsqueda normales.
+  links:
+    - 
+      title: Usando intervalos de tareas externas
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Respuesta de zona citada
+  content: >
+    Si está habilitado, esto eliminará la correspondencia entre las comunicaciones por correo electrónico. <br><br>Esta función depende en relación a la <span class="doc-desc-title"> Etiqueta de Respuesta del separador</span>a continuación.
+reply_separator_tag:
+  title: Respuesta separador etiqueta
+  content: >
+    Este es un símbolo que indica al usuario para responder sobre la línea. <br><br><strong>Nota:</strong> sólo es relevante si está habilitada la <span class="doc-desc-title"> Respuesta citado tira</span> por encima.
+emailed_tickets_priority:
+  title: Prioridad de Tickets por Email
+  content: >
+    Elija si desea que la opción de prioridad o importancia del correo electrónico del usuario (por ejemplo, OutLook) dicte la prioridad del nuevo Ticket. <br><br>Esta configuración puede ser reemplazada por un <span class="doc-desc-title"> Filtro de Ticket</span>.
+  links:
+    - 
+      title: Crear y administrar los filtros de entrada
+      href: /scp/filters.php
+accept_all_emails:
+  title: Aceptar todos los correos electrónicos
+  content: >
+    Aceptar correos electrónicos de usuarios desconocidos. <br><br>Desmarcar esta opción resultará en rechazar los Tickets.
+accept_email_collaborators:
+  title: Aceptar correos electrónicos de colaboradores
+  content: >
+    Añadir el Email de los participantes incluidos en el<code><strong>a</strong></code> y  <code><strong>CC</strong></code> campos como colaboradores de Ticket. <br /><br /> <em>Los colaboradores pueden añadirse siempre manualmente por los agentes al ver un Ticket.</em>
+default_mta:
+  title: MTA por defecto
+  content: >
+    <span class="doc-desc-title"> MTA por defecto</span> se encarga del proceso de entrega de correo electrónico para mensajes salientes sin configuración de SMTP.
+ticket_response_files:
+  title: Archivos de respuesta del Ticket
+  content: >
+    Si está habilitado, cualquier archivo adjunto por un agente puede ser adjuntado a un Ticket de respuesta y además se incluirá un Email para el usuario.
+verify_email_addrs:
+  title: Compruebe las direcciones de correo
+  content: >
+    Habilita esta opción para comprobar si la dirección de email tiene registros (MX) configurados en su zona DNS. Esto es práctico para detectar direcciones de correo incorrectas. Además se seguirá revisando que la dirección de correo tenga el formato correcto.

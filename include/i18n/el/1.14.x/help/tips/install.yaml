@@ -1,0 +1,68 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Όνομα helpdesk
+  content: |
+    <p>Το όνομα του συστήματος υποστήριξης π.χ. [Επωνυμία εταιρείας] υποστήριξη</p>
+system_email:
+  title: Προεπιλεγμένο Email συστήματος
+  content: |
+    <p>Προεπιλεγμένη διεύθυνση Email π.χ. support@yourcompany.com - μπορείτε να προσθέσετε περισσότερα αργότερα!</p>
+default_lang:
+  title: Προεπιλεγμένη Γλώσσα Συστήματος
+  content: |
+    <p>Τα αρχικά δεδομένα για αυτή τη γλώσσα θα εγκατασταθούν στην βάση δεδομένων. Για παράδειγμα, τα πρότυπα email (πρότυπα ηλ. μηνυμάτων) και οι προεπιλεγμένες σελίδες συστήματος θα εγκατασταθούν γι' αυτή τη γλώσσα.</p>
+  links:
+    - 
+      title: Πακέτα Γλωσσών του osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Όνομα
+  content: |
+    <p>Όνομα διαχειριστή</p>
+last_name:
+  title: Επώνυμο
+  content: |
+    <p>Επώνυμο διαχειριστή</p>
+email:
+  title: Ηλεκτρονική Διεύθυνση
+  content: |
+    <p>Προσωπικό email Διαχειριστή. Πρέπει να είναι διαφορετικό από το προεπιλεγμένο email του συστήματος.</p>
+username:
+  title: Όνομα χρήστη
+  content: |
+    <p>Όνομα Διαχειριστή. Πρέπει να είναι τουλάχιστον (3) χαρακτήρες.</p>
+password:
+  title: Κωδικός πρόσβασης
+  content: |
+    <p>Κωδικός Διαχειριστή.Πρέπει να έχει πέντε (5) χαρακτήρες και πάνω.</p>
+password2:
+  title: Επιβεβαίωση κωδικού πρόσβασης
+  content: |
+    <p>Ξανά πληκτρολογήστε τον κωδικό διαχειριστή. Πρέπει να ταιριάζει.</p>
+db_prefix:
+  title: Πρόθεμα Πίνακα  MySQL
+  content: |
+    <p>Το osTicket απαιτεί πρόθεμα πίνακα προκειμένου να αποφευχθούν πιθανά conflicts σε κοινόχρηστες βάσεις.</p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p>Οι περισσότεροι υπολογιστές χρησιμοποιούν 'localhost' για τοπικές βάσεις δεδομένων. Επικοινωνήστε με τον διαχειριστή σας, εάν το localhost αποτυγχάνει. </p> <p>Υποτίθεται ότι η προεπιλεγμένη θύρα ρυθμίζετε μέσα στο php.ini. Ένας μη-τυπικός  αριθμός θύρα μπορεί να οριστεί ως <code>hostname:port</code></p>
+db_schema:
+  title: βάση δεδομένων MySQL
+  content: |
+    <p>Όνομα της βάσης δεδομένων που θα χρησιμοποιήσει το osTicket.</p>
+db_user:
+  title: Όνομα χρήστη MySQL
+  content: |
+    <p>Ο Χρήστης MySQL πρέπει να έχει πλήρη δικαιώματα στη βάση δεδομένων.</p>
+db_password:
+  title: κωδικός MySQL
+  content: |
+    <p>Ο κωδικό πρόσβασης της MySQL συνδέεται με τον παραπάνω χρήστη.</p>

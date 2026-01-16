@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: 預設電子郵件範本集
+  content: >
+    選擇 <span class="doc-desc-title"> 電子郵件範本設置</span> 用於發送 <span class="doc-desc-title"> 警報</span> 和 <span class="doc-desc-title"> 自動回應</span> 可以在一張票的保留期間進行各種操作。<br><br>各部門可以被分配一個特定的電子郵件範本集。
+  links:
+    - 
+      title: 管理電子郵件範本集
+      href: /scp/templates.php
+default_system_email:
+  title: 預設寄件者電子郵件
+  content: >
+    選擇寄件者的電子郵件地址。<br><br><span class="doc-desc-title"> 部門</span> 可以在這裡設定自己的 <span class="doc-desc-title"> 電子郵件地址</span> 以覆寫目前的電子郵件地址。
+  links:
+    - 
+      title: 管理電子信箱地址
+      href: /scp/emails.php
+default_alert_email:
+  title: 預設通知電子郵件
+  content: >
+    選擇從哪個 <span class="doc-desc-title"> 警報&amp; 通知</span> 的電子郵件地址發送到代理商。
+  links:
+    - 
+      title: 管理電子信箱地址
+      href: /scp/emails.php
+admins_email_address:
+  title: 管理員的電子郵件地址
+  content: >
+    輸入管理員的電子郵件地址發送到 <span class="doc-desc-title"> 系統錯誤</span> 和 <span class="doc-desc-title"> 新Ticket警報</span> （如果啟用）。
+  links:
+    - 
+      title: 管理警報 & 通知
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: 電子郵件提取
+  content: >
+    允許 IMAP/流行輪詢配置並啟用 <span class="doc-desc-title"> 郵件箱</span>。
+  links:
+    - 
+      title: 管理信箱
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: 使用自動 cron 讀取電子郵件
+  content: >
+    啟用內部任務管理器中，專員活動觸發的定期電子郵件擷取。<br><br>如果未登入工作人員控制面板，則無法擷取電子郵件。強烈建議使用外部任務排成器。
+  links:
+    - 
+      title: 使用外部任務計畫
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: 刪除引用回复
+  content: >
+    如果啟用此功能，將會移除之前的對話紀錄。<br><br>此功能取決於於下面的<span class="doc-desc-title">分隔符號標記</span>。
+reply_separator_tag:
+  title: 分隔符號標記
+  content: >
+    此令牌用來讓使用者回覆上述線上項目。 <br><br> <strong>注意:</strong> 此功能只有在啟用 <span class="doc-desc-title">刪除引用回覆</span>時才有作用。
+emailed_tickets_priority:
+  title: 電子郵件發送Tickets的優先順序
+  content: >
+    選擇用戶電子郵件（例如，Outlook）的優先等級/重要性以決定新案件的優先等級。<br><br>此設定可從<span class="doc-desc-title">案件篩選</span>進行設定。
+  links:
+    - 
+      title: 建立&amp; 管理 Ticket 過濾器
+      href: /scp/filters.php
+accept_all_emails:
+  title: 接受所有的電子郵件
+  content: >
+    接受未知用戶的電子郵件。 <br><br>取消勾選此設置將導致tickets被拒絕。
+accept_email_collaborators:
+  title: 接受電子郵件的合作者
+  content: >
+    加入包含<code><strong>收件人</strong></code>和<code><strong>副本</strong></code>中的電子郵件，做為諮詢的合作夥伴。<br /><br /> <em>查看諮詢時，專員可以手動增加合作夥伴。</em>
+default_mta:
+  title: 預設 MTA
+  content: >
+    <span class="doc-desc-title">Default MTA</span>主要負責電子郵件傳送，無須SMTP設定。
+ticket_response_files:
+  title: 案件回覆資料
+  content: >
+    如果啟用此功能，專員回覆中夾帶的附加檔會包含在回覆電子郵件中發送給使用者。
+verify_email_addrs:
+  title: Verify Email Addresses
+  content: >
+    Enable this option to check if the email address has a mail exchanger (MX) in the domain's DNS. This is useful to detect incorrectly typed email addresses. This is perfomed in addition to checking the email address wellformedness.

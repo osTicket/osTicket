@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Opozorila in Zaznamki
+  content: >
+    Opozorila in zaznamki so samodejna poštna sporočila, ki se pošljejo agentom ob sprožitvi raznih dogodkih.
+ticket_alert:
+  title: Prispel je nov zahtevek
+  content: >
+    <p>Opozorilo se pošlje agentu, ko je kreiran nov zahtevek.<p class="info-banner"><i class="icon-info-sign">To opozorilo se ne odpošlje, če je zaznamek kreiran samodejno s pomočjo filtra ali pomoči.</p>
+  links:
+    - 
+      title: Privzeto predloga za Novo Opozorilo Zahtevka
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Opozorilo na novo sporočilo
+  content: >
+    Opozorila poslana agentom, kadar je novo sporočilo dodano k obstoječemu zahtevku.
+  links:
+    - 
+      title: Privzeta predloga za opozorilo na nov zahtevek
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Opozorilo o novi interni aktivnosti
+  content: >
+    Opozorilu agentu ob interni aktivnosti kot je interna opomba ali odgovor agenta na zahtevek.
+  links:
+    - 
+      title: Privzeta predloga za aktivnost zahtevka
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Opozorilo dodeljenega zahtevka
+  content: >
+    Opozorilo poslano agentom ob dodelitvi zahtevka.
+  links:
+    - 
+      title: Privzeta predloga za dodelitev zahtevka
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Opozorilo za prenos zahtevka
+  content: >
+    Opozorilo poslano agentom ob prenosu zahtevka med oddelki.
+  links:
+    - 
+      title: Privzeta predloga za prenos zahtevka
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Opozorilo zapadlosti zahtevka
+  content: >
+    Opozorilo poslano agentu, kadar zahtevek zapade, zaradi SLA ali Določenega datuma.
+  links:
+    - 
+      title: Privzeta predloga za skoraj zapadlo opozorilo zahtevka
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Upravljanje SLA-jev
+      href: /scp/slas.php
+system_alerts:
+  title: Sistemska opozorila
+  content: >
+    Sistemske dogodki, ki so poslani administratorju (%{config.admin_email}). Glede na nastavljeno <span class="doc-desc-title">Stopnja log</span>, dogodki so tudi dosegljivi v <span class="doc-desc-title">Sistemskih logih</span>
+  links:
+    - 
+      title: Pregled sistemskih dogodkov
+      href: /scp/logs.php
+    - 
+      title: Spremeni Admin Email
+      href: /scp/settings.php?t=emails

@@ -201,9 +201,9 @@ function db_query($query, $logError=true, $buffered=true) {
     $tries = 3;
     do {
         try {
-            $res = $__db->query($query,
-                $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
-	} catch (mysqli_sql_exception $e) {}
+        $res = $__db->query($query,
+            $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
+        } catch (mysqli_sql_exception $e) {}
 
         // Attempt reconnect?
         if ($__db->errno == 2006) {
@@ -339,7 +339,7 @@ function db_prepare($stmt) {
 
     $tries = 2;
     while ($tries--) {
-        $res = $__db->prepare($stmt);
+    $res = $__db->prepare($stmt);
 
         if ($res !== false)
             // Query was successful

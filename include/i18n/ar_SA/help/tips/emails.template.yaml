@@ -1,0 +1,21 @@
+---
+email_templates:
+  title: قوالب البريد الإلكتروني
+  content: >
+    مجموعة قوالب البريد الإلكتروني تستخدم في إرسال ردود تلقائية وتنبيهات لمختلف الإجراءات التي يمكن أن تحدث خلال عمر التذكرة.
+template_to_clone:
+  title: القالب المراد نسخه
+  content: >
+    اختر مجموعة قوالب لعمل نسخة مطابقة أو ابدأ ببساطة مع مخزون قوالب البريد الإلكتروني.
+language:
+  title: اللّغة
+  content: >
+    حدد اللغة المرغوبة لـ <span class="doc-desc-opt"> مخزون</span> <span class="doc-desc-title"> مجموعة قوالب البريد الإلكتروني</span>. تتوفر حزم اللغات على osTicket.com.
+  links:
+    - 
+      title: حزم لغات الـ osTicket
+      href: 'http://osticket.com/download'
+status:
+  title: الحالة
+  content: >
+    مجموعة القوالب <span class="doc-desc-opt">المفعلة</span> متوفرة لتكون مترابطة مع الأقسام  ومحددة بالإعدادات الافتراضية  للنظام. مجموعة القوائم المستخدمة لا يمكن أن يتم <span class="doc-desc-opt">تعطيلها</span>.

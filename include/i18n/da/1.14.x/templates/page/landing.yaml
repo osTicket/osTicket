@@ -1,0 +1,15 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Destinations siden henviser til indholdet af Kundeportalens oprindelige visning. Skabelonen ændrer indhold set over de to links <strong>åben en ny sag</strong> og <strong>Kontrollere sagens Status</strong>.
+name: Landing
+body: >
+  <h1>Velkommen til vores helpdesk!</h1>
+  <p>
+  For at yde bedre support har vi lavet et sagsbehandlingssystem.
+  Hver sag bliver tildelt et unikt nummer så du kan følge med i sagen og svare online.
+  For din reference findes der et komplet arkiv over alle dine sager.
+  En gyldig emailadresse er nødvendigt for at oprette en sag</p>

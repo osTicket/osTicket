@@ -1,0 +1,28 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  נשלח למשתמש בעת פתיחת קריאה חדשה 
+subject: |
+  נפתח כרטיס תמיכה [#%{ticket.number}]
+body: |
+  <h3><strong>היקר %{recipient.name.first},</strong></h3>
+  <p>
+  נוצרה קריאה חדשה #%{ticket.number}.
+  איש תמיכה יצור איתך קשר בהקדם האפשרח. אתה יכול לצפות
+  <a href="%{recipient.ticket_link}">בתהליך הטיפול בקריאה
+  באתרנו</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  בברכה %{company.name} Team,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>If you
+  אם יש לך משהו להוסיף אנא השב למייל זה או
+   <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >התחבר למשתמש שלך באתרינו</span></a> for
+  על מנת לראות את הארכיון במלא של הקריאה</em></div>

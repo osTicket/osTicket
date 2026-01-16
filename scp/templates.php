@@ -124,7 +124,7 @@ if($_POST){
                             if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->disable()) {
                                 $templates[] = $t;
                                 $i++;
-                            }
+                        }
                         }
                         if($i && $i==$count) {
                             $msg = sprintf(__('Successfully disabled %s'),

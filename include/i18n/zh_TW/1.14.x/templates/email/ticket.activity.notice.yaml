@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  發送通知給案件的合作者，觸發原因為案件有新的回覆或訊息。
+subject: |
+  回覆： %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>親愛的 %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> 您所參與的案件已經有新的進展。
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>您會收到此通知因為您是此案件的合作者 <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  想要繼續參與請回覆本信件或 <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >點我</a>可閱覽案件詳細完整內容。</em>
+  </div>

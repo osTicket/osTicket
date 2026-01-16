@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: 工作人员
+  content: >
+    列表为筛选的结果。如果取消筛选，会将 <span class="doc-desc-title"> 显示全部工作人员</span>分页显示，具体请见页面菜单。
+apply_filtering_criteria:
+  title: 应用筛选标准
+  content: >
+    选择一个<span class="doc-desc-title">部门</span>，你也可以寻找一个特定的代理。

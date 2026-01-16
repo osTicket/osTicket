@@ -1,0 +1,122 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: 帮助中心状态
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: 帮助中心URL地址
+  content: >
+    这个URL是你安装osTicket的时候必须要用的。它能够在与客户邮件沟通的时候，把终端客户带到你的帮助中心来。
+helpdesk_name_title:
+  title: 帮助中心名称/标题
+  content: >
+    此项属于标题，一般出现在浏览器选项卡中。如果您的帮助页面已加入书签，此项即为网站页面的标题/名称。
+default_department:
+  title: 默认部门
+  content: >
+    选择默认<span class="doc-desc-title">部门</span>，用于未自动发送至部门的咨询。<br/><br/>根据帮助主题、接收电子邮件和咨询筛选设置发送咨询。
+default_schedule:
+  title: 默认计划
+  content: >
+    选择当工单过期时，SLA 使用默认计划
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: 默认页面大小
+  content: >
+    选择在工作人员面板中的咨询队列里显示的每页项目数。每个代理还可在<span class="doc-desc-title">我的偏好</span>下自定义自身账户的此数字。
+default_log_level:
+  title: 默认日志级别
+  content: >
+    确定在<span class="doc-desc-title">系统日志</span>中记录的问题最低等级。<span class="doc-desc-opt">调试</span>表示最严重程度，且<span class="doc-desc-opt">错误</span>表示最大严重性。例如，如果要查看<span class="doc-desc-title">系统日志</span>中的所有问题，选择<span class="doc-desc-opt">调试</span>。
+purge_logs:
+  title: 清除日志
+  content: >
+    决定<span class="doc-desc-title">系统日志</span>删除前的保存时间。
+enable_richtext:
+  title: Enable Rich Text
+  content: >
+    启用此功能，将允许在客户和代理间使用富文本格式。
+enable_avatars:
+  title: 允许在跟贴里显示头像
+  content: >
+    Text for Translation
+    允许会话中显示 <span class="doc-desc-title">头像</span> 。 <br><br> <span class="doc-desc-title">头像图片</span> 可在客服或用户的设置页面中设置。
+  links:
+    - 
+      title: 代理设定
+      href: /scp/settings.php?t=agents
+    - 
+      title: Users Settings
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: 代理防冲突
+  content: >
+    输入允许客服在没有任何活动的情况下锁定某个工单或任务的最大时长<br><br> 输入<span class="doc-desc-opt">0</span>禁用锁定功能。
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: 日期、&amp;时间选项
+  content: >
+    在下面设置日期与时间的默认格式 &amp;。为帮助台设置时间。您可以选择使用所选语言的默认格式，也可以自定义设置以满足您的要求。自定义设置请参考ICU日期规范表。下面显示的日期只是说明所选格式显示的效果。
+  links:
+    - 
+      title: 参见ICU日期规范表
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: System Languages
+  content: >
+    选择系统主语言和可选的系统第二语言，将提供更友好的用户界面。
+primary_language:
+  title: 系统主语言
+  content: >
+    如果没有设置相应的语言，则会向代理和用户显示默认语言。包括界面内容、感谢页面和电子邮件等自定义内容。<br/><br/>这是需您自行编辑的未翻译语言。
+secondary_language:
+  title: Secondary Languages
+  content: >
+    请选择您的代理和最终用户的偏好语言选项。该界面将用于下列语言，定制内容，比如致谢页和帮助主题名等，将被翻译成下列语言。
+#Attachments
+attachments:
+  title: 附件设置及存储
+  content: >
+    设置附件如何保存
+default_storage_bk:
+  title: 后端文件存储
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: 最大文件尺寸
+  content: >
+    选择客服可以上传的最大附件尺寸。该容量包含已取消的附件、知识库文章、工单相关附件及任务回复，该数据的上限由PHP的<code>upload_max_filesize</code>参数决定。
+  links:
+    - 
+      title: PHP ini设置
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Require Login
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

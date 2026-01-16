@@ -1,0 +1,10 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Sendes til en bruger, når der oprettes en ny bestilling
+subject: |
+  Support bestilling åbnet [#%{ticket.number}]
+body: |
+  <h3><strong>Kære %{recipient.name.first},</strong></h3> <p>En anmodning om support er oprettet og tildelt #%{ticket.number}. En repræsentant vil følge op på det så hurtig som muligt. Du kan <a href="%{recipient.ticket_link}"> Se denne bestillings fremskridt online</a>. </p> <br><div style="color: rgb(127, 127, 127)"> dit %{company.name} hold, <br>%{signature}</div> <hr><div style="color: rgb(127, 127, 127); font-size: small;"> <em>Hvis du ønsker at give yderligere bemærkninger eller oplysninger, bedes du besvare denne e-mail eller <a href="%{recipient.ticket_link}"> <span style="color: rgb(84, 141, 212);" > logge ind på din konto</span></a> for en komplet oversigt af dine supportanmodninger.</em></div>

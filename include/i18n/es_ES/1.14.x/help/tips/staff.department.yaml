@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Estado
+  content: >
+    Si está deshabilitado o archivado, este <span class = "doc-desc-title"> Department </span> no estará disponible.
+type:
+  title: Tipo
+  content: >
+    Selecciona <span class="doc-desc-opt">privado</span> si desea que se asignen máscaras a este departamento en el portal del cliente. Además, cuando se etiquete como <span class="doc-desc-opt">privado</span>,la<span class="doc-desc-title">firma de departamento</span>no será mostrado en las respuestas de Email.<br/><br/>Por lo menos un departamento debe ser <span class="doc-desc-opt">público</span>
+email:
+  title: Email
+  content: >
+    Dirección de correo electrónico utilizada cuando las respuestas se envían a los usuarios cuando los Agentes envían respuestas a los Tickets.
+template:
+  title: Conjunto de plantillas
+  content: >
+    Correo electrónico <span class="doc-desc-title"> Pantilla</span> utilizado para Auto-respuestas y alertas &amp;avisos para Tickets enviados a este departamento.
+  links:
+    - 
+      title: Administrar plantillas
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Service Level Agreement para Tickets envíados a este departamento.
+  links:
+    - 
+      title: Gestionar planes de SLA
+      href: /scp/slas.php
+schedule:
+  title: Programar
+  content: >
+    Programación usada por ANS cuando se procesan tickets, dirigidos a este Departamento, Anulados. <br> <br> Esta configuración toma presidencia sobre las configuraciones de programación del Sistema y ANS.
+  links:
+    - 
+      title: Administrar Programaciones
+      href: /scp/schedules.php
+manager:
+  title: Gerente del Departamento
+  content: >
+    Seleccione un <span class="doc-desc-title"> Gerente</span> para este departamento. <br/> <br/> Los gerentes pueden configurarse para recibir alertas especiales y también tienen el derecho de cancelar la asignación de Tickets.
+  links:
+    - 
+      title: Administrar alertas &amp; avisos
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Alertas &amp; avisos de destinatarios
+  content: >
+    Seleccione a los destinatarios de las <span class="doc-desc-title"> alertas &amp;avisos</span>configurados.
+  links:
+    - 
+      title: Configurar alertas &amp; avisos
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Restricciones de Asignación de Tickets
+  content: >
+    Determine si los Boletos pueden asignarse a todos los agentes, a los agentes con acceso al Departamento principal o ampliado, o solo a los agentes con acceso al Departamento primario.
+disable_auto_claim:
+  title: Desactivada Auto Demanda
+  content: >
+    Marca aquí a <strong>desactivada</strong> la Auto Demanda en respuestas para este departamento. <br><br> Agentes aún pueden demandar manualmente tickets no asignados
+disable_reopen_auto_assign:
+  title: Desactivar Asignación Automática al Reabrir
+  content: >
+    Active para <strong>desactivar</strong> la asignación automática de los tickets reabiertos para este departamento. <br><br> De lo contrario, el ticket se asignará automáticamente al último agente que respondió
+auto_response_settings:
+  title: Configuración de autoresponder
+  content: >
+    Esto le permite anular la configuración global de Autoresponder para este departamento.
+new_ticket:
+  title: Auto-Respuesta de Nuevo Ticket
+  content: >
+    Puede desactivar la respuesta automática enviada al usuario cuando un ticket nuevo es creado y enroutado a este departamento.
+new_message:
+  title: Nuevo mensaje de respuesta automática
+  content: >
+    Puede desactivar la respuesta automática enviada al usuario para confirmar un nuevo mensaje publicado por Tickets en este Departamento.
+auto_response_email:
+  title: Correo electrónico de respuesta automática
+  content: >
+    Seleccione una dirección de correo electrónico desde donde se envían Auto-respuestas para este departamento.
+department_access:
+  title: Acceso de grupo
+  content: >
+    Permitir que agentes de otro de departamentos accedan a los Tickets de este Departamento.
+department_signature:
+  title: Firma del departamento
+  content: >
+    La Firma se pone a disposición, como una opción para departamentos <span class="doc-desc-opt"> Públicos</span>, en las respuestas de Agente.

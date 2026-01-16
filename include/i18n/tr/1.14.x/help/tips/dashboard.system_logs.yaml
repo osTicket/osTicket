@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Sistem Günlükleri
+  content: >
+    Burada tüm sorun giderme ile ilgili aktivitelerin günlük kayıtlarını bulabilirsiniz (Örn. Hatalar, Uyarılar veya Sistem hataları).
+  links:
+    - 
+      title: <span class="doc-desc-title">Varsayılan Günlük Seviyesi</span>ni değiştirerek <br/>hangi tür aktivitelerin günlüğe kaydedileceğini belirleyin.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Tarih Aralığı
+  content: >
+    <span class="doc-desc-title">Sistem Günlükleri</span> içerisinde görüntülemek istediğini tarih aralığını belirleyiniz.
+type:
+  title: Tür
+  content: >
+    Belirli bir etkinliğe odaklanmak için seçenekleri kullanabilirsiniz. <span class="doc-desc-opt">Ayıklama</span> en az ağırlığı, <span class="doc-desc-opt">Hata</span> en fazla ağırlığı temsil eder.
+showing_logs:
+  title: Gösterilen&hellip;Günlükler
+  content: >
+    Sistem kayıtlarında görülecek daha fazla sayfa olup olmadığından emin olmak için, aşağıdaki <span class="doc-desc-title">Sayfa</span> bölümünü kontrol ettiğinizden emin olunuz.
+log_title:
+  title: Günlük Başlığı
+  content: >
+    Eğer sonuçları <span class="doc-desc-title">Günlük Başlığına</span> göre sıralamak istiyorsanız, tablo başlıındaki <span class="doc-desc-title">Günlük Başlığına</span> tıklayınız.
+log_type:
+  title: Günlük Türü
+  content: >
+    Eğer sonuçları <span class="doc-desc-title">Günlük Tipine</span> göre sıralamak istiyorsanız, tablo başlığındaki <span class="doc-desc-title">Günlük Tipine</span> tıklayınız.
+log_date:
+  title: Günlük Tarihi
+  content: >
+    Yazılım tarafından üretilen günlüğün oluşturulduğu tarihtir. Eğer sonuçları  <span class="doc-desc-title">Günlük Tarihi</span>ne göre sıralamak isterseniz,  Tablo başığındaki <span class="doc-desc-title">Günlük Tarihi</span> sütun ismine tıklamanız yeterli.  (<span class="doc-desc-title">Tarih Aralığı</span>nı kullanarak günlüklerin takvim aralığını berlirleyebilirsiniz.)
+ip_address:
+  title: IP Adresi
+  content: >
+    Günlük kaydının oluşturulduğu zaman kullanıcının ya da temsilcinin osTicket sistemini kullandığı <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Adresi</span>ni gösterir.

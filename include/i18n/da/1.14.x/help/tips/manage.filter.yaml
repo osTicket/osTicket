@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Udførelses rækkefølge
+  content: >
+    Angiv et tal, der styrer prioriteten for filteret. Jo lavere tallet er, desto højere er prioriteten dette filter vil have i at blive udført over for et andet filter, der kan have højere orden af udførelse. <br><br>Hvis du ønsker dette filter til at være det sidste filter anvendt på en match, aktiver <span class="doc-desc-title"> Stop behandling yderligere på Match</span>.
+target_channel:
+  title: Kanal
+  content: >
+    Vælg mål <span class="doc-desc-title"> kanal</span> for din <span class="doc-desc-title">Sags Filter</span>. <span class="doc-desc-title"> kanal</span> er den kilde, hvorigennem sager ankommet i systemet. <br><br>For eksempel, hvis du vælger <span class="doc-desc-opt"> Web-formularer</span>, du siger at du ønsker at anvende <span class="doc-desc-title">sags Filter</span> til disse sager, der stammer fra klient portalens webformular.
+rules_matching_criteria:
+  title: Reglerne matcher kriterierne
+  content: >
+    Vælg, hvor elastisk kampe af din <span class="doc-desc-title">sags Filter</span> til at være. Hvis du vil have <span class="doc-desc-title">sags Filter</span> til at matche nogle af reglerne, og derefter stoppe, vælg <span class="doc-desc-opt">Match nogen</span>. Hvis du ønsker <em><strong>alle regler</strong></em> af <span class="doc-desc-title">sags Filter</span> at blive matchet, vælge <span class="doc-desc-opt">Match alle</span>.
+reject_ticket:
+  title: Afvis Sag
+  content: >
+    Hvis dette er aktiveret, videreforarbejdning stoppes, og alle andre valg af handling nedenfor vil blive ignoreret på match.
+reply_to_email:
+  title: Svar til Email
+  content: >
+    Aktiver dette hvis du ønsker din Help Desk til at ære en brugers e-postprogram <span class="doc-desc-title"> Svar til</span> header. Dette felt er kun relevant, hvis den <span class="doc-desc-title"> kanal</span> ovenfor omfatter <span class="doc-desc-opt"> Email</span>.
+ticket_auto_response:
+  title: Deaktiver Sag Autosvar
+  content: >
+    <em>Note: Dette vil tilsidesætte enhver <span class="doc-desc-title">Afdeling</span> eller <span class="doc-desc-title">Autosvar indstillinger</span>.</em>
+canned_response:
+  title: Standard Autosvar
+  content: >
+    Vælg et <span class="doc-desc-title">Standardsvar</span> som vil blive sendt til brugeren på <span class="doc-desc-title">Sags Filter</span> match.  Det <span class="doc-desc-title">Nye sags autosvar -</span> skabelon, der anvendes afhænger af, hvad <span class="doc-desc-title">skabelon angive</span>tildeles som standard, eller en tilsvarende sager<span class="doc-desc-title">Afdeling</span>.
+  links:
+    - 
+      title: Administrere Standardsvar
+      href: /scp/canned.php
+    - 
+      title: Administrere skabelon sæt
+      href: /scp/templates.php
+    - 
+      title: Ny Sags Autosvar Skabelon
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Afdeling
+  content: >
+    Vælg hvilken <span class="doc-desc-title">Afdeling</span> du ønsker matches af <span class="doc-desc-title">Sags Filter</span> som tildeles til.
+  links:
+    - 
+      title: Administrere Afdelinger
+      href: /scp/departments.php
+priority:
+  title: Prioritet
+  content: >
+    Vælg <span class="doc-desc-title">Prioritet</span>, der skal anvendes på de som matcher <span class="doc-desc-title">Sags Filter</span>.<br/> <br/> <em>Note: Dette vil tilsidesætte indstillinger for <span class="doc-desc-title">Afdeling</span> eller <span class="doc-desc-title">Hjælpe Emne</span></em>
+sla_plan:
+  title: SLA Plan
+  content: >
+    Vælg den <span class="doc-desc-title">SLA Plan</span> der skal anvendes på matchene <span class="doc-desc-title">Sags Filter</span>.
+  links:
+    - 
+      title: Administrere SLA planer
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-Tildel
+  content: >
+    Vælg en Agent eller et hold, som du vil matche <span class="doc-desc-title">Sags Filter</span> tildeles til.
+  links:
+    - 
+      title: Administrere Agenter
+      href: /scp/staff.php
+    - 
+      title: Administrere Hold
+      href: /scp/teams.php
+help_topic:
+  title: Hjælpe Emne
+  content: >
+    Vælg det <span class="doc-desc-title">Hjælpe Emne</span> der skal anvendes på matchene af <span class="doc-desc-title">Sags Filter</span>.
+  links:
+    - 
+      title: Administrere Hjælpe Emner
+      href: /scp/helptopics.php
+admin_notes:
+  title: Admin noter
+  content: >
+    Disse noter er kun synlige for dem, hvis kontotype er "<span class="doc-desc-title">Admin</span>."

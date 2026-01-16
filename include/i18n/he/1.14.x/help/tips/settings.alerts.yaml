@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: התראות והודעות
+  content: >
+    בעת פתיחת קריאת שירות התראות ועדכונים ישלחו אוטומטית למייל של הצוות המטפל.
+ticket_alert:
+  title: התראת כרטיס חדש
+  content: >
+    <p> התראה נשלחה לסוכנים המטפלים בעת פתיחת הקריאה. </p><p class="info-banner"> <i class="icon-info-sign"></i>הקריאה קושרה אוטמטית לסוכנים מהמטפלים על ידי בחירת נושא הפנייה </p>
+  links:
+    - 
+      title: תבנית התראת ברירת מחדל בעת פתיחת קריאה
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: התראה על הודעה חדשה
+  content: >
+    התראה נשלחה לסוכן המטפל כאשר הלקוח השיב לקריאה.
+  links:
+    - 
+      title: תבנית התראת ברירת מחדל בעת הודעה מלקוח
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: התראה על פעולה פנימית חדשה
+  content: >
+    ההתראה שנשלחה לסוכנים, כאשר פעילות פנימית כגון הודעה פנימי או תשובת סוכן מצורפת לפניה.
+  links:
+    - 
+      title: תבנית ברירת מחדל של תהליך הטיפול בקריאה
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: התראת "\קישור הקריאה לסוכן המטפל"\
+  content: >
+    התראה נשלחה לסוכנים המטפלים.
+  links:
+    - 
+      title: תבנית התראת ברירת מחדל בעת קישור לסוכן מטפל.
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: התראת "העברת קריאה"
+  content: >
+    ההתראה נשלחה לסוכנים בהעברת כרטיס בין המחלקות.
+  links:
+    - 
+      title: תבנית התראת ברירת מחדל כאשר מעבירים קריאה לגורם מטפל אחר.
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: התראת "/זמן הטיפול חרג מהמוגדר"/
+  content: >
+    התראה נשלחת לסוכנים כאשר קריאה עוברת את תאריך תפוגתה בהתאם למה שהוגדר ב"אמנת לקוח" וב"תאריך התפוגה" של הקריאה.
+  links:
+    - 
+      title: תבנית ברירת מחדל לקריאה שלא בתוקף
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: ניהול "אמנות שירות"
+      href: /scp/slas.php
+system_alerts:
+  title: התראות מערכת
+  content: >
+    התראות מערכת משמעותיות ישלחו למנהל המערכת (%{config.admin_email}). בהתאם למה שהוגדר <span class="doc-desc-title">ברמת הלוגים</span>, בנוסף ניתן לראות את ההתראות  <span class="doc-desc-title">במערכת בלוגים</span>
+  links:
+    - 
+      title: הכנס ללוגים של המערכת
+      href: /scp/logs.php
+    - 
+      title: שינוי הסיסמה של מנהל המערכת
+      href: /scp/settings.php?t=emails

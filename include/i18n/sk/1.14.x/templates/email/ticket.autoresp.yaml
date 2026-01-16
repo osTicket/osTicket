@@ -1,0 +1,26 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Pošle sa užívateľovi po vytvorení nového tiketu
+subject: |
+  Tiket podpory otvorený [#%{ticket.number}]
+body: |
+  <h3><strong>Vážený/á %{recipient.name.first},</strong></h3>
+  <p>
+  Vaša požiadavka na podporu bola vytvorena a pridelená  #%{ticket.number}.
+  Zodpovedná osoba sa s Vami spojí hneď ako to bude možné. Môžete
+  <a href="%{recipient.ticket_link}">online sledovať postup riešenia požadavky</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Vás Tým %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Ak si želáte 
+  poskytnúť dodatočné pripomienky alebo informácie, prosím, odpovedzte na tento e-mail 
+  alebo <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >sa prihláste do svojho účtu</span></a> kde nájdete kompletnú históriu Vašich požiadaviek.</em></div>

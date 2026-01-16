@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Имэйлийн загварууд
+  content: >
+    Хүсэлт шийдвэрлэх явцад хийгдэж болох үйлдлүүдийн хувьд Автомат-Хариу болон Мэдэгдэл илгээхэд ашиглах имэйл загварууд.
+template_to_clone:
+  title: Хуулах загвар
+  content: >
+    Бүлэг загварыг сонгож хуулбарлах эсвэл үндсэн имэйл загваруудтай эхлэх.
+language:
+  title: Хэл
+  content: >
+    Хүссэн хэлээ сонгохдоо <span class="doc-desc-opt">үндсэн</span> <span class="doc-desc-title">Имэйл загваруудын багц</span>-аас сонгох боломжтой. Хэлний багцуудыг osTicket.com сайтаас авах боломжтой.
+  links:
+    - 
+      title: osTicket хэлний файлууд
+      href: https://osticket.com/download
+status:
+  title: Төлөв
+  content: >
+    <span class="doc-desc-opt">Идэвхжүүлсэн</span> багц загварыг Албуудтай холбож өгөх эсвэл системийн үндсэн загвар болгож тохируулж болно. Ашиглаж байгаа загварыг <span class="doc-desc-opt">Идэвхигүй</span> болгох боломжгүй.

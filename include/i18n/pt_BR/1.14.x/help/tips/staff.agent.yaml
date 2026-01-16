@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nome de usuário
+  content: >
+    Por favor, escolha um <span class="doc-desc-title"> username</span> para o Agente que é exclusivo para seu <span class="doc-desc-title"> Help Desk</span>.
+email_address:
+  title: Endereço de e-mail
+  content: >
+    Digite o e-mail do agente que receberá <span class="doc-desc-title"> alertas e avisos</span> do <span class="doc-desc-title"> Help Desk</span>.
+  0: <br><br>
+  1: Pessoal pode entrar em painel de controle de pessoal com endereço ou nome de usuário ou e-mail.
+welcome_email:
+  title: Email de Boas Vindas
+  content: >
+    Envie o novo agente um link de acesso da conta do qual o agente será capaz de definir sua própria senha. Caso contrário, você precisará definir senha e comunicar as informações de login para os novos funcionários.
+account_password:
+  title: Senha da conta
+  content: >
+    Como <span class="doc-desc-title"> administrador</span>, você poderá alterar a senha de um agente.
+forced_password_change:
+  title: Forçar alteração de senha
+  content: >
+    Habilite isso se você quiser forçar o novo agente para alterar sua própria senha no momento seguinte log-in.
+agents_signature:
+  title: Assinatura do agente
+  content: >
+    Crie uma assinatura para o agente que pode ser selecionado ao responder a um bilhete.
+account_status:
+  title: Status da Conta
+  content: >
+    Se o status do agente é <span class="doc-desc-opt"> bloqueado</span>, não será capazes de login para o help desk.
+assigned_group:
+  title: Grupo atribuído
+  content: >
+    O <span class="doc-desc-title"> grupo</span> que você escolher para esse agente pertencer irá determinar quais permissões o agente tem dentro o <span class="doc-desc-title"> Help Desk</span>.
+  links:
+    - 
+      title: Gerenciar Grupos
+      href: /scp/groups.php
+primary_department:
+  title: Departamento Principal
+  content: >
+    Escolha o <span class="doc-desc-title">departamento</span>principal a que este Agente pertence e a sua <span class="doc-desc-title">Função</span>.
+  links:
+    - 
+      title: Gerenciar departamentos
+      href: /scp/departments.php
+primary_role:
+  title: Regra primária
+  content: >
+    Escolha a principal <span class="doc-desc-title">função</span> a que o agente pertence.
+primary_role_on_assign:
+  title: Escolha a Principal Função para as respetivas atribuições
+  content: >
+    Ative esta opção para recuar a <span class="doc-desc-title">função primária</span>, quando este agente é atribuído um ticket e tarefas fora do seu<span class="doc-desc-title"> departamento primário</span> e <span class="doc-desc-title"> aos departamentos</span> de acesso ampliado. Caso contrário, o agente vai visualizar apenas o acesso.
+daylight_saving:
+  title: Horário de Verão
+  content: >
+    Ativar esse recurso se você gostaria que o horário de verão Salvando automaticamente entram em jogo para o zona de tempo do agente.
+limited_access:
+  title: Acesso Limitado
+  content: >
+    Se habilitada, o agente só terá acesso aos bilhetes atribuídos diretamente ou através da equipe.
+directory_listing:
+  title: Listagem de diretório
+  content: >
+    Habilite isso, se você gostaria de listar este agente no <span class="doc-desc-title"> Diretório pessoal</span>.
+  links:
+    - 
+      title: Visite o diretório pessoal
+      href: /scp/directory.php
+vacation_mode:
+  title: Modo de férias
+  content: >
+    Se você alterar o status do agente para o <span class="doc-desc-opt"> Modo de férias</span>, o agente não receber todos os <span class="doc-desc-title"> alertas e avisos</span> nem estar disponível para atribuição de bilhetes.
+

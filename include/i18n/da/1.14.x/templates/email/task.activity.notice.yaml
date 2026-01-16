@@ -1,0 +1,22 @@
+---
+#Email template: task.activity.notice.yaml
+#Notice sent to collaborators on task activity e.g reply or message
+#---
+notes: |
+  Bemærkning sendt til samarbejdspartnere om opgave aktivitet fx svar eller meddelelse.
+subject: |
+  Sv: %{task.title} [#%{task.number}]
+body: |
+  <h3><strong>Kære %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> har lagt en besked i en opgave som du deltager i.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Du modtager denne email fordi du er samarbejdspartner på opgave
+  #%{task.number}. For at deltage skal du blot svare på denne email</em>
+  </div>

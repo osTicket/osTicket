@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Tiket aktiviti
+  content: >
+    Pilih julat tarikh untuk menyebabkan kedua-dua graf dan jadual (cf. <span class="doc-desc-title">Statistics</span>)  di bawah untuk memberi tumpuan kepada apa-apa data yang sama untuk tarikh tersebut. Graf di bawah akan sentiasa mencerminkan pandangan umum tentang data bagi keseluruhan sistem (iaitu, penduduk). Walau bagaimanapun, anda boleh menavigasi melalui <span class="doc-desc-title">Statistics </span> Jadual di bawah untuk memberi tumpuan kepada subjek menarik yang lebih sempit (contohnya, Jabatan, Topik, atau kakitangan). Tambahan, anda boleh mengeksport apa-apa data yang sedang dipaparkan dalam <span class="doc-desc-title">Statistics </span> jadual.
+report_timeframe:
+  title: Laporan tempoh masa
+  content: >
+    Pilih tarikh mula bagi sampel data yang dikehendaki menggunakan pemilih tarikh. Kemudian, pilih tempoh masa dari tarikh itu untuk menentukan tarikh akhir bagi sampel data anda.
+statistics:
+  title: Statistik
+  content: >
+    Navigasi ke subjekyand diminat dengan mengklik pada tab yang sesuai untuk melihat sampel data tertentu. Dalam jadual, bulatan mewakili saiz data nominal. Oleh itu, semakin besar jumlah dalam sel tertentu, semakin besar bulatan bersebelahan.
+opened:
+  title: Dibuka
+  content: >
+    Tiket yang dibuka pada awalnya mempunyai Topik Jabatan atau Bantuan pada tiket, atau bilangan tiket yang telah dibuka oleh Agen bagi pihak Pengguna.
+assigned:
+  title: Ditugaskan
+  content: >
+    Tiket yang telah diberikan kepada mana-mana Agen atau Pasukan. Nombor itu mencerminkan tiket yang secara manual diberikan kepada agen atau pasukan, menuntut tiket, dan tiket yang diberikan dari penapis tiket / aturan auto-penugasan lain.
+overdue:
+  title: Tertunggak
+  content: >
+    Tiket-tiket yang telah ditandakan 'Tertunggak' oleh sistem. Tiket-tiket ditandakan Tertunggak apabila mereka telah melanggar Pelan SLA yang dimiliki oleh mereka, menyebabkan mereka mempunyai status 'Buka' melepasi Tarikh tamat tempoh mereka.
+closed:
+  title: Ditutup
+  content: >
+    Bilangan Tiket yang terkini berada dalam status Tertutup.
+reopened:
+  title: Dibuka semula
+  content: >
+    Jumlah bilangan tiket yang dibuka semula. Tiket akan dibuka semula apabila status mereka ditukarkan dari Tertutup kepada Buka.
+deleted:
+  title: Dihapuskan
+  content: >
+    Jumlah tiket yang telah dipadamkan.
+service_time:
+  title: Masa perkhidmatan
+  content: >
+    Merujuk kepada tempoh masa yang bermula pada pembukaan tiket dan berakhir apabila tiket ditutup. Lajur Masa Perkhidmatan mengukur purata Waktu Perkhidmatan setiap tiket, dalam jam.
+response_time:
+  title: Masa Tindak Balas
+  content: >
+    Menunjukkan masa purata tindak balas oleh Ejen, dalam jam, ke surat-menyurat tiket.

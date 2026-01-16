@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Campo de pesquisa
+  0: >
+
+advanced:
+  title: Avançado
+  content: >
+    Reduza seus parâmetros de pesquisa. Um vez que você selecionou e executou seus critérios de busca avançada, você pode <span class="doc-desc-title">Exportar </span> os dados na parte inferior da página de tickets.
+open_tickets_table:
+  title: Tabela de tickets aberta
+  content: >
+    Tickets atualmente abertos e que requerem atenção
+ticket:
+  title: Ticket
+  0: >
+
+date:
+  title: Data
+  0: >
+
+subject:
+  title: Assunto
+  0: >
+
+from:
+  title: De
+  0: >
+
+priority:
+  title: Prioridade
+  0: >
+
+assigned_to:
+  title: Atribuído a
+  0: >
+
+export:
+  title: Exportar
+  content: >
+    Exporte seus dados atualmente no modo de exibição em um arquivo CSV. Arquivos CSV podem ser abertos com qualquer software de planilha eletrônica (ou seja, Microsoft Excel, páginas da Apple, OpenOffice, etc.).
+advanced_search_dialog:
+  title: Busca Avançada
+  0: >
+
+adv_keyword:
+  title: Pesquisar palavra-chave
+  content: >
+    Encontre soluções baseadas no assunto ou corpo da mensagem do ticket, bem como todo o conteúdo textual associado aos campos personalizados para os usuários e tickets.
+adv_date_range:
+  title: Pesquisar por intervalo de datas
+  content: >
+    Definição aqui
+merge_types:
+  title: Tipos de Combinação
+  content: >
+    <b> Combinar Tópicos: </b>Tópicos de todos os tickets serão exibidos cronologicamente. </br> <b> Tópicos Separados: </b> Tópicos dos tickets serão exibidos separadamente, um ticket por vez.</b>.
+reply_types:
+  title: Tipos de Respostas
+  content: >
+    <b>Responder à Todos:</b> Esta resposta será enviada ao Usuário e aos Colaboradores que você desejar incluir.</br> <b>Responder ao Usuário:</b> Esta resposta será enviada ao Usuário apenas.</br> <b>Não Enviar E-mail de Resposta:</b> Nenhum email de alerta será enviado, no entanto, a resposta do Agente estará visível para <b>TODOS</b> os Usuários que visualizarem o Ticket.

@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: اولویت اجرا
+  content: >
+    عددی را برای کنترل الویت فیلتر وارد کنید. عدد هر چه کوچکتر باشد الویت بیشتری به این فیلتر نسبت به بقیه فیلترها می دهد. <br><br>اگر می خواهید این فیلتر آخرین فیلتر اعمال شده باشد <span class="doc-desc-title">Stop Processing Further On Match </span> را فعال کنید.
+target_channel:
+  title: کانال
+  content: >
+    <span class="doc-desc-title">کانال</span> هدف <span class="doc-desc-title">فیلتردرخواست</span> را انخاب کنید. <span class="doc-desc-title">کانال</span> راه و مسیری است که درخواست از آن طریق وارد سیستم می شود. <br><br>برای مثال اگر <span class="doc-desc-opt">صفحات وب</span> را انتخاب کنید در واقع به سیستم می گویید این<span class="doc-desc-title"> فیلتر </span>را به درخواست هایی اعمال کن که از طریق صفحات وب ارسال شدند.
+rules_matching_criteria:
+  title: قوانین مطابق با معیار
+  content: >
+    Choose how elastic you want the matches of your <span class="doc-desc-title">ticket Filter</span> to be. If you would like the <span class="doc-desc-title">ticket Filter</span> to match any of the rules, and then stop, choose <span class="doc-desc-opt">Match Any</span>. If you would like <em><strong>all rules</strong></em> of the <span class="doc-desc-title">ticket Filter</span> to be matched, choose <span class="doc-desc-opt">Match All</span>.
+reject_ticket:
+  title: رد درخواست
+  content: >
+    If this is enabled, further processing is stopped and all other choices of action below will be ignored on match.
+reply_to_email:
+  title: پاسخ به ایمیل
+  content: >
+    Enable this if you want your Help Desk to honor a User's email application's <span class="doc-desc-title">Reply To</span> header. This field is only relevant if the <span class="doc-desc-title">Channel</span> above includes <span class="doc-desc-opt">Email</span>.
+ticket_auto_response:
+  title: غیر فعال کردن  خودکار پاسخ درخواست
+  content: >
+    <em>نکته: این تنظیم هرگونه تنظیمات <span class="doc-desc-title">واحد سازمانی</span> و <span class="doc-desc-title">پاسخ دهنده خودکار</span> را بازنویسی خواهد کرد.</em>
+canned_response:
+  title: پاسخ خودکار آماده
+  content: >
+    Choose a <span class="doc-desc-title">Canned Response</span> you want to be emailed to the user on <span class="doc-desc-title">Ticket Filter</span> match.  The <span class="doc-desc-title">New Ticket Auto-Reply</span> template used depends on what <span class="doc-desc-title">template set</span> is assigned as default, or to a matching ticket's <span class="doc-desc-title">Department</span>.
+  links:
+    - 
+      title: مدیریت پاسخ آماده
+      href: /scp/canned.php
+    - 
+      title: مدیریت مجموعه قالب
+      href: /scp/templates.php
+    - 
+      title: قالب پاسخ خودکار درخواست جدید
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: واحد سازمانی
+  content: >
+    Choose what <span class="doc-desc-title">Department</span> you want the matches of the <span class="doc-desc-title">Ticket Filter</span> to be assigned.
+  links:
+    - 
+      title: مدیریت واحد های سازمانی
+      href: /scp/departments.php
+priority:
+  title: اولویت
+  content: >
+    Choose the <span class="doc-desc-title">Priority</span> level you want to be applied to the matches of the <span class="doc-desc-title">Ticket Filter</span>.<br /> <br /> <em>Note: This will override <span class="doc-desc-title">Department</span> or <span class="doc-desc-title"> Help Topic</span> settings.</em>
+sla_plan:
+  title: طرح SLA
+  content: >
+    Choose the <span class="doc-desc-title">SLA Plan</span> you want to be applied to the matches of the <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: مدیریت طرح SLA
+      href: /scp/slas.php
+auto_assign:
+  title: ' اختصاص خودکار'
+  content: >
+    Choose an Agent or a Team to whom you want the matches of the <span class="doc-desc-title">Ticket Filter</span> to be assigned.
+  links:
+    - 
+      title: مدیریت نمایندگی
+      href: /scp/staff.php
+    - 
+      title: مدیریت تیم
+      href: /scp/teams.php
+help_topic:
+  title: موضوع راهنما
+  content: >
+    Choose the <span class="doc-desc-title">Help Topic</span> you want to be applied to the matches of the <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: مدیریت درخواست ها
+      href: /scp/helptopics.php
+admin_notes:
+  title: یادداشت های مدیر
+  content: >
+    این یاداشتهای فقط برای کاربرانی که نوع آنها از نوع <span class="doc-desc-title"> مدیر </span> هستند قابل مشاهده می باشد .

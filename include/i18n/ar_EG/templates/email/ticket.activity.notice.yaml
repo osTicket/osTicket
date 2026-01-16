@@ -1,0 +1,21 @@
+---
+notes: |
+  إشعار يتم إرساله إلى المتعاونين عن نشاط التذكرة (مثال رد أو رسالة).
+subject: |
+  إعادة إرسال: %{ticket.subject} [#%{ticket.number}]
+body: |2
+  <h3><strong>عزيزي %{recipient.name.first},</strong></h3>
+  <div>
+  <em>قام %{poster.name}</em> بتسجيل رسالة إلى تذكرة قمت بالمشاركة بها. participate.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>قمت بإستلام هذه الرسالة لأنك مشارك في التذكرة
+   <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"<br>
+  >#%{ticket.number}</a>. للمشاركة فقط قم بالرد على هذا البريد أو <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"<br>
+  >اضغط هنا</a> لتصفح الأرشيف الكامل للتذاكر</em>
+  </div>

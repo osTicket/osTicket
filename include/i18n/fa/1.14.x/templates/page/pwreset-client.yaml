@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  این قالب، ایمیل‌های ارسال شده به مشتریانی را که گزینه <strong> فراموشی رمز </strong>در صفحه ورود مشتری  انتخاب کرده‌اند، تعریف می کند.
+name: "دسترسی به میز خدمت %{company.name}"
+body: >
+  <h3><strong>سلام%{user.name.first}،</strong></h3><div>یک درخواست تغییر رمز عبور از طرف شما به سامانه در آدرس%{url} ارسال شده است.<br /><br />اگر احساس می‌کنید اشتباهی صورت گرفته، لطفا این ایمیل را پاک کنید. حساب کاربری شما محفوظ است و کسی به آن دسترسی ندارد. هنوز رمز عبور شما تغییر نکرده است. ممکن است شخصی اشتباها آدرس ایمیل شما را وارد کرده باشد.<br /><br />برای ورود به سامانه و تغییر رمز عبور خود از آدرس زیر استفاده کنید.<br /><br /><a href="%{link}">%{link}</a><br /><br /><em style="font-size: small">سامانه پشتیبانی <br />%{company.name}</em></div>

@@ -1,0 +1,124 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Estado del Sistema de Soporte
+  content: >
+    Si el estado cambia a <span class = "doc-desc-opt"> Offline </span>, la interfaz del cliente se desactivará. Solo los administradores podrán acceder al sistema.
+helpdesk_url:
+  title: URL del Sistema de Soporte
+  content: >
+    Esta dirección URL es la base de su instalación de osTicket. Se utiliza en las comunicaciones de correo electrónico para dirigir a los usuarios finales a su sistema de soporte.
+helpdesk_name_title:
+  title: Nombre o título del sistema de soporte
+  content: >
+    Este es el título que aparece en la pestaña del navegador. Si tu página de ayuda del escritorio está marcada, este será el título o el nombre de la página principal.
+default_department:
+  title: Departamento por defecto
+  content: >
+    Elija un  <span class="doc-desc-title"> Departamento</span>por defecto para los Tickets que no se enrutan automáticamente a un departamento. <br/> <br/> El Ticket puede ser enrutado  sobre el tema de ayuda,correo entrante y ajustes de filtro de Ticket.
+default_schedule:
+  title: Programación Predeterminada
+  content: >
+    Elige la Programación Predeterminada a ser usado por el ANS cuando encuentren tickets Anulados.
+  links:
+    - 
+      title: Administrar Programaciones
+      href: /scp/schedules.php
+default_page_size:
+  title: Tamaño de página por defecto
+  content: >
+    Elija el número de artículos mostrados por página en las colas de Ticket en el Panel de personal. Cada agente también puede personalizar este número por cuenta propia bajo <span class="doc-desc-title"> My preferences</span>.
+default_log_level:
+  title: Nivel de registro predeterminado
+  content: >
+    Determinar el nivel mínimo de problemas que se registrarán en el <span class="doc-desc-title"> registro del sistema</span>. <span class="doc-desc-opt"> depurar</span> representa la menor gravedad y <span class="doc-desc-opt"> Error</span> representa la mayor severidad. Por ejemplo, si quieres ver todos los problemas en los <span class="doc-desc-title"> Registros del sistema</span>, elija <span class="doc-desc-opt"> Debug</span>.
+purge_logs:
+  title: Purgar registros
+  content: >
+    Determinar cuánto le gustaría mantener <span class="doc-desc-title"> Registros del sistema</span> antes de que se eliminen.
+enable_richtext:
+  title: Activar Texto Enriquecido
+  content: >
+    Si está habilitado, esto permitirá el uso de texto enriquecido de formato entre los clientes y agentes.
+enable_avatars:
+  title: Habilitar Avatares en la Vista de discusiones
+  content: >
+    Habilita esto para mostrar<span class="doc-desc-title">Avatares</span> en la correspondencia del hilo. <br><br> El <span class="doc-desc-title">Avatar Source</span> puede ajustarse en la página de configuración de Agentes y Usuarios.
+  links:
+    - 
+      title: Configuración de los moderadores
+      href: /scp/settings.php?t=agents
+    - 
+      title: Opciones de usuario
+      href: /scp/opciones.php?t=usuarios
+collision_avoidance:
+  title: Evitar que a dos agentes se les asignen el mismo Ticket
+  content: >
+    Introduzca la duración máxima que un agente tiene permitido para bloquear un Ticket sin ninguna actividad. <br><br>Introduce <span class="doc-desc-opt"> 0</span> para desactivar la función de bloqueo.
+allow_iframes:
+  title: Permitir iFrames
+  content: >
+    Introduzca una lista de dominios separados por comas para el sistema en el que se va a enmarcar. Si se deja vacío, el sistema se establecerá por defecto en 'self'. Esto acepta comodines de dominio, esquema de URL HTTP/HTTPS y números de puerto. <br><br> <b>Ejemplo:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Información de sintaxis (host de origen)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Listas de control de acceso)
+  content: >
+    Ingrese una lista de direcciones IP separadas por comas para permitir el acceso al sistema. Hay cuatro opciones para elegir a qué panel (s) aplicar la ACL. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Aplicar a</th><th>Descripción</th></tr> <tr><td>Deshabilitado</td> <td>Deshabilitar ACL por completo.</td></tr> <tr><td>Todo</td> <td>Aplica ACL a todos los paneles. (p.e. Portal de Cliente, Portal de Agente, Panel de Administrador)</td></tr> <tr><td>Portal de Cliente</td> <td>Aplica ACL solo al portal del cliente.</td></tr> <tr><td>Panel de Agente</td> <td>Aplica ACL solo al Panel de Agentes y al Panel de Administrador.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Fecha &amp; opciones de hora
+  content: >
+    Las siguientes configuraciones definen las opciones de Fecha y Hora para el centro de ayuda. Puedes escoger entre la configuración regional por defecto para la zona seleccionada o personalizar el formato para cumplir tus requisitos. Utiliza el formato ICU como referencia. Las fechas mostradas debajo simplemente muestran el resultado de los valores correspondientes.
+  links:
+    - 
+      title: Consulta la tabla de Formatos de Fecha ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Idiomas del sistema
+  content: >
+    Escoge el idioma principal del sistema y de forma opcional escoge idiomas secundarios para hacer tu interfaz esté adaptada a tus agentes y usuarios finales.
+primary_language:
+  title: Idioma Principal del Sistema
+  content: >
+    El contenido de este idioma es mostrado a agentes y usuarios finales si su idioma correspondiente no está disponible. Esto incluye el contenido de la interfaz, así como, contenido personalizado como las páginas de agradecimiento y mensajes de correo. <br/><br/> Este es el idioma que debe ser mostrado para contenidos sin traducir.
+secondary_language:
+  title: Idiomas secundarios
+  content: >
+    Selecciona la preferencia de idioma para tus agentes y usuarios finales. La interfaz estará disponible en estos idiomas, y el contenido personalizado como las páginas de agradecimiento y los temas ayuda serán traducibles a estos idiomas.
+#Attachments
+attachments:
+  title: Opciones de Adjuntos y Almacenamiento
+  content: >
+    Configura como los adjuntos son almacenados.
+default_storage_bk:
+  title: Almacenamiento de archivos
+  content: >
+    Elija cómo se almacenan los archivos adjuntos.
+    Se pueden agregar backends de almacenamiento adicionales instalando complementos de almacenamiento
+max_file_size:
+  title: Tamaño máximo de archivo
+  content: >
+    Selecciona el tamaño máximo por archivo adjunto que pueden subir los agentes. Esto incluye adjuntos comprimidos, artículos de conocimiento y adjuntos a tickets o respuestas. El límite máximo controlado por PHP es <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: configuraciones del PHP.ini
+      href: "http://php.net/manual/es/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Requiere iniciar sesión
+  content: >
+    Habilite esta configuración para prohibir la publicación de archivos adjuntos a usuarios no autenticados. 
+    Es decir, los usuarios deben iniciar sesión en el sistema (tanto los usuarios finales como los agentes) para poder ver los archivos adjuntos.
+    Desde una perspectiva de seguridad, tenga en cuenta que el navegador del usuario puede conservar los archivos vistos anteriormente en su caché. Además, todos los enlaces de archivos en su servicio de asistencia caducan automáticamente después de aproximadamente 24 horas.

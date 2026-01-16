@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Este modelo define o conteúdo exibido depois de os Clientes efetuarem o registo com sucesso, ao confirmarem a sua conta. Esta página deverá informar o utilizador que o registo está completo e que o Cliente pode agora submeter um pedido de assistência ou aceder aos pedidos existentes.
+name: "Conta confirmada!"
+body: >
+  <div> <strong>Obrigado por registar uma conta.</strong><br /> <br /> Confirmou o seu email e ativou a sua conta com sucesso. Pode agora criar um novo pedido ou gerir os pedidos existentes.<br /> <br /> <em>O seu serviço de suporte</em><br /> %{company.name} </div>

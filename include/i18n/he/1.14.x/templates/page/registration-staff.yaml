@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  זוהי התבנית שמגדירה את הדוא"ל(אופציונלי) שנשלח לכל סוכן כאשר נוצר עבורו חשבון.
+name: "ברוכים הבאים"
+body: >
+  <h3><strong>שלום %{recipient.name.first},</strong></h3> <div> נוצר עבורך חשבון בפורטל התמיכה שלנו בכתובת %{url}.<br /> <br /> אנא הכנס ללינק המצורף על מנת לקבל גישה לפניות שלך.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">בברכה, צוות התמיכה <br /> %{company.name}</em> </div>

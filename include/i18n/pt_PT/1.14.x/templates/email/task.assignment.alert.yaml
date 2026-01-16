@@ -1,0 +1,29 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Enviado aos agentes quando um pedido lhes é atribuído ou à equipa
+  a que pertencem. Utilizar %{assigner} para distinguir quem efectuou a atribuição.
+subject: |
+  Tarefa atribuída a si
+body: |
+  <h3><strong>Olá %{assignee.name.first},</strong></h3>
+  A tarefa <a href="%{task.staff_link}">#%{task.number}</a> foi
+  atribuída a si por %{assigner.name.short}
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Para visualizar/responder a esta tarefa, por favor efectue o <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> no sistema de suporte</div>
+  <em style="font-size: small; ">Atentamente, Sistema de Suporte a
+  Utilizadores</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

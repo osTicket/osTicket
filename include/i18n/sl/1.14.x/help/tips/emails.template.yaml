@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Predloge e-sporočila
+  content: >
+    Kompleti predlog e-sporočil se uporabljajo za pošiljanje samodejnih odgovorov in opozoril za različne aktivnosti, ki lahko potekajo v življenskem obdobju zahtevka.
+template_to_clone:
+  title: Kloniranje predloge
+  content: >
+    Izberi zbirko predlog za kloniranje ali preprosto začni z vnaprej pripravljenimi predlogami e-sporočil.
+language:
+  title: Jezik
+  content: >
+    Izberi željeni jezik za <span class="doc-desc-opt">obstoječe</span> <span class="doc-desc-title">komplete predlog e-sporočil</span>. Jezikovni paketi so na voljo na spletni strani osTicket.com.
+  links:
+    - 
+      title: osTicket jezikovni paketi
+      href: https://osticket.com/download
+status:
+  title: Status
+  content: >
+    <span class="doc-desc-opt">Omogočeno</span> Kompleti predlog so na voljo za povezavo z oddelki in so privzeti v sistemu. Kompleti predlog trenutno v uporabi ne morejo biti <span class="doc-desc-opt">Onemogočeni</span>.

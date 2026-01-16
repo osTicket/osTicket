@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: Mã API
+  content: >
+    Mã API được sử dụng để xác thực khách hàng đã ra lệnh mới thông qua Giao diện quản lý ứng dụng (API). Mã API được sử dụng thay thế cho mật khẩu. Vì khóa API có thể được gửi mà không được mã hóa nên chúng có thể kết nối với địa chỉ IP của mỗi khách hàng. 
+  links:
+    - 
+      title: Tài liệu API của osTicket
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: Địa chỉ IP
+  content: >
+    Địa chỉ IP của khách hàng, Địa chỉ IP của mỗi khách hàng sẽ yêu cầu một mã API khác nhau

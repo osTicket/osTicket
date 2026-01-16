@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: 說明主題的資訊
+  content: >
+    <span class="doc-desc-title"> 說明主題</span> 指導使用者如和收集哪些資訊與如何進行票券傳送路徑或分配。
+topic:
+  title: 主題名稱
+  content: >
+    特殊說明主題名稱
+status:
+  title: 狀態
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: 類型 
+  content: >
+    如果一個 <span class="doc-desc-title"> 說明主題</span> 被標記為私有、將限用於代理商來選擇在工作小組名單中的代理人開出新 Ticket 。
+parent_topic:
+  title: 家長主題
+  content: >
+    選擇於 <span class="doc-desc-title"> 說明主題</span> 的家長主題。家長主題會首先出現在 <span class="doc-desc-title"> 說明主題</span>名單上。
+custom_form:
+  title: 自訂表單
+  content: >
+    自訂表單將會協助您獲得更相關具體的資訊 <span class="doc-desc-title"> 說明主題</span> 。
+  links:
+    - 
+      title: 管理自訂表單
+      href: /scp/forms.php
+priority:
+  title: 優先順序
+  content: >
+    選擇分配給新tickets 與此 <span class="doc-desc-title"> 說明主題</span> 相關的優先順序。<br><br>票券篩選器可以重寫新票的優先順序。
+department:
+  title: 部門
+  content: >
+    根據說明主題來選擇新tickets的部門。
+  links:
+    - 
+      title: 管理部門
+      href: /scp/departments.php
+sla_plan:
+  title: SLA計畫
+  content: >
+    選擇 SLA 計畫與此 <span class="doc-desc-title"> 說明主題</span> 相關的計畫。<br><br>選擇此選項將會覆蓋任何選定部門的 SLA 計畫
+  links:
+    - 
+      title: 管理 SLA 計畫
+      href: /scp/slas.php
+thank_you_page:
+  title: 感謝頁面
+  content: >
+    選擇一個使用者打開本 <span class="doc-desc-title"> 說明主題</span> 下的一張Ticket後轉到的感謝信頁面。
+  links:
+    - 
+      title: 管理感謝頁面
+      href: /scp/pages.php
+auto_assign_to:
+  title: 自動分配新Tickets
+  content: >
+    打開（可選） 選擇代理者或團隊來自動分配用這<span class="doc-desc-title"> 說明主題</span>所開的 tickets<br><br>Tickets 篩檢程式可以重寫工作分配。
+  links:
+    - 
+      title: 管理人員和團隊
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Ticket 自動回應
+  content: >
+    如果選中此選項，該設置將禁用新票的自動反應的 <span class="doc-desc-title"> 說明主題</span>。<br><br>，這將覆蓋的 <span class="doc-desc-title"> 部門</span>，以及全球 <span class="doc-desc-title"> 的自動回復設置</span> 內的自動回復設置。
+  links:
+    - 
+      title: 自動回復設置
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: 自訂Ticket號碼
+  content: >
+    在此選擇”自定“以編輯tickets在這說明主題開啟的系統默認tickets編號格式。參見設置/Tickets頁面上的幫助提示以獲取更多設置詳細信息。

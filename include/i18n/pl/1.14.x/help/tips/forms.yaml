@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Nagłówek formularza
+  content: >
+    Ten tytuł/tekst jest wyświetlany w szarym polu powyżej pola formularza
+form_instructions:
+  title: Formularz instrukcji
+  content: >
+    Możesz dodać kilka wskazówek, które pojawią się jako pomoc kontekstowa pól formularza i ewentualnie podświetlić wymagane dane.
+field_sort:
+  title: Pole wyświetlania pozycji
+  content: >
+    Kliknij na ikonę strzałki i przeciągnij pola do posortowania w tym formularzu. Preferencje sortowania nie zostaną uwzględnione, dopóki formularz nie zostanie zapisany.
+field_label:
+  title: Etykieta Pole
+  content: >
+    Ta etykieta pokazywana jest jako podpowiedź do tego pola. Zazwyczaj, pole krótkiej odpowiedzi jest pokazywane tak:<br> <strong>Etykieta:</strong>&nbsp; <input type="text">
+field_type:
+  title: Pole typ zawartości
+  content: >
+    To służy do określenia typu danych oczekiwanych od użytkownika. Możesz wybrać z krótkiej i długiej odpowiedzi, numer telefonu, data i czas, pola wyboru, listy rozwijanej, lub wybór listy niestandardowej.
+  links:
+    - 
+      title: Listy niestandardowe
+      href: /scp/lists.php
+field_visibility:
+  title: Widoczność pola
+  content: >
+    Wybierz widoczność i wymagane opcje dla tego pola. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Ustawienia</th> <th>Wynik</th></tr> <tr><td>Opcjonalnie</td> <td>Przedstawiciele i użytkownicy końcowi mogą widzieć pole, ale nie są zobowiązani do udzielenia odpowiedzi.</td></tr> <tr><td>Wymagane</td> <td>Agenci i użytkownicy końcowi mogą widzieć pole i są zobowiązani do udzielenia odpowiedzi.</td></tr> <tr><td>Wymagane dla użytkownika końcowego</td> <td>Przedstawiciele i użytkownicy końcowi mogą widzieć pole, ale tylko użytkownicy końcowi są zobowiązani do udzielenia odpowiedzi</td></tr> <tr><td>Wymagane dla Przedstawicieli</td> <td>Przedstawiciele i użytkownicy końcowi mogą widzieć pole, ale tylko agenci są zobowiązani do udzielenia odpowiedzi.</td></tr> <tr><td>Wewnętrzne, opcjonalne</td> <td>Tylko przedstawicile mogą widzieć pole, ale odpowiedź nie jest wymagana.</td></tr> <tr><td>Wewnętrzne, wymagane</td> <td>Tylko przedstawiciele mogą widzieć pole, odpowiedź wymagana.</td></tr> <tr><td>Tylko dla użytkownika końcowego</td> <td>Tylko użytkownicy końcowi mogą widzieć pole, odpowiedź jest wymagana.</td></tr> </tbody></table>
+field_variable:
+  title: Pole automatyczne
+  content: >
+    Dane pól będą dostępne w e-mailach oraz szablonach stron poprzez nazwy użyte w tej kolumnie. Na przykład pola dla wspólnych formularzy zgłoszeń są dostępne poprzez <code>%{ticket.variable}</code>, gdzie <strong>zmienna</strong> to nazwa użyta w tej kolumnie.<br> <br> <em>Informacje o firmie dostępne są poprzez <code>%{</code><code>company.variable}</code> a informacje użytkownika poprzez <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Usuń to pole
+  content: >
+    Sprawdź i zapisz formularz, aby usunąć z niego pole.<br> <br> <em>Usunięcie pola nie usuwa wprowadzonych wcześniej w formularzach danych. Na przykład, jeżeli poprzednio utworzone zgłoszenie ma wprowadzone dane w polu, to skasowanie go z formularza, nie usunie ich ze zgłoszenia.</em>

@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: Resposta predefinida
+  content: >
+    Crear una <span class="doc-desc-title">Resposta predefinida</span> que es pot incloure en una resposta de Ticket. També es pot usar en un <span class="doc-desc-title">Ticket de resposta automàtica</span> mitjançant un <span class="doc-desc-title">Filtre de Ticket</span>.
+  links:
+    - 
+      title: Organitza un Filtre de Ticket
+      href: /scp/filters.php
+canned_attachments:
+  title: Adjunts predefinits
+  content: >
+    Adjuntar un arxiu que li agradaria que s'incloga automàticament en la resposta de Ticket que utilitza la nova <span class="doc-desc-title"> Resposta predefinida</span>.

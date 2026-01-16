@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formato Nome Agente
+  content: >
+    Scegliere un formato per i nomi Operatore per tutto il sistema. I modelli email useranno tale formato per i nomi se nessun altro formato è stato specificato.
+staff_identity_masking:
+  title: Mascheramento dell'identità dello staff
+  content: >
+    Se abilitato, questo nasconde il nome dell'agente al cliente durante una qualsiasi comunicazione.
+#Authentication settings
+password_reset:
+  title: Criteri di scadenza delle password
+  content: >
+    Imposta la frequenza (in mesi) oltre la quale gli Operatori saranno tenuti a modificare la propria password. Se disabilitata (impostato su: "Nessuna Scadenza"), la password non scadrà.
+password_expiration_policy:
+  title: Criteri di scadenza delle password
+  content: >
+    Scegliere la frequenza con cui gli operatori devono cambiare la propria password. Se disabilitata (cioè, <span class="doc-desc-opt"> Nessuna scadenza</span>), le password non scadranno mai.
+allow_password_resets:
+  title: Permetti reset password
+  content: >
+    Abilitare questa funzionalità se si desidera visualizzare il link <span class="doc-desc-title">Password Dimenticata</span> sul <span class="doc-desc-title">Pannello di Log In dello Staff</span> dopo un tentativo di log in non riuscito.
+reset_token_expiration:
+  title: Finestra per il Ripristino della Password
+  content: >
+    Scegliere la durata (in minuti) di validità dei <span class="doc-desc-title">Token di Ripristino della Password</span>. Quando un Operatore richiede il <span class="doc-desc-title"> Ripristino della Password</span>, riceve un token via email che consente di eseguire il ripristino.
+staff_session_timeout:
+  title: Timeout Sessione Operatore
+  content: >
+    Scegliere il tempo massimo di inattività (in minuti) prima che un Operatore debba nuovamente effettuare il log in. <br><br>Se si desidera disabilitare il <span class="doc-desc-title">Timeout della Sessione Operatore</span>, immettere 0.
+bind_staff_session_to_ip:
+  title: Associare la Sessione Operatore a IP
+  content: >
+    Abilitare se si vuole che l'Operatore venga riconosciuto tramite il suo attuale IP durante il Log in. <br><br>Questa impostazione non è consigliata per gli utenti i cui IP sono assegnati dinamicamente.

@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Podaci o temama pomoći
+  content: >
+    <span class="doc-desc-title">Teme pomoći</span> obaveštavaju korisnike o tome koje se informacije prikupljaju od korisnika, te  kako i kome se dodeljuju novootvoreni tiketi za podršku.
+topic:
+  title: Naziv teme
+  content: >
+    Jedinstveno ime teme pomoći.
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Help Topic</span> will not be available.
+type:
+  title: Tip
+  content: >
+    Ukoliko su <span class="doc-desc-title">Teme pomoći</span> označene kao privatne, biće dostupne samo zaposlenima kada otvore novi tiket pod upravljačkim panelom zaposlenog.
+parent_topic:
+  title: Osnovna tema
+  content: >
+    Odaberite osnovnu kategoriju kojoj će ova <span class="doc-desc-title">Tema pomoći</span> pripasti. Osnovna tema će biti prikazana prva u listi, a ova <span class="doc-desc-title">Tema pomoći</span> biće prikazana odmah nakon osnovne.
+custom_form:
+  title: Prilagođeni obrazac
+  content: >
+    Prilagođeni obrasci će Vam pomoći da sakupite specifične podatke od strane korisnika, a relevantni su za <span class="doc-desc-title">Temu podrške</span>.
+  links:
+    - 
+      title: Upravljanje prilagođenim obrascima
+      href: /scp/forms.php
+priority:
+  title: Prioritet
+  content: >
+    Odredite prioritet novootvorenih tiketa povezanih sa ovom <span class="doc-desc-title">Temom pomoći</span>. <br><br> Filteri tiketa mogu nadjačati prioritet novootvorenih tiketa.
+department:
+  title: Odsek
+  content: >
+    Odaberite odsek pod koji će spadati novootvoreni tiketi napravljeni pod ovom temom za podršku.
+  links:
+    - 
+      title: Upravljanje odsecima
+      href: /scp/departments.php
+sla_plan:
+  title: Ugovor o nivou usluge
+  content: >
+    Odaberite Ugovor o nivou usluge koji se odnosi na ovu <span class="doc-desc-title">Temu podrške</span>. <br><br>Ovaj odabir nadjačaće osnovni ugovor o nivou usluge
+  links:
+    - 
+      title: Upravljanje ugovorima o nivou usluge
+      href: /scp/slas.php
+thank_you_page:
+  title: Stranica zahvalnosti
+  content: >
+    Odaberite stranicu zahvalnosti gde je korisnik usmeren nakon otvaranja tiketa u <span class="doc-desc-title">Temi podrške</span>.
+  links:
+    - 
+      title: Upravljanje stranicama zahvalnosti
+      href: /scp/pages.php
+auto_assign_to:
+  title: Automatski dodeli novootvorene tikete
+  content: >
+    Odaberite zaposlenog ili tim koji će primati novootvorene tikete pod <span class="doc-desc-title">Temom podrške</span> <br><br> Filteri tiketa mogu nadjačati ovaj odabir.
+  links:
+    - 
+      title: Upravljanje zaposlenima i timovima
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Automatizovani odgovori na tikete
+  content: >
+    Ukoliko je odabrano, ovo podešavanje će onemogućiti automatske odgovore za ovu <span class="doc-desc-title">Temu podrške</span>. <br><br>Ovo podešavanje nadjačava postavke automatskih odgovora za ovaj <span class="doc-desc-title">Odsek</span> kao i globalna <span class="doc-desc-title">Podešavanja automatskih odgovora</span>.
+  links:
+    - 
+      title: Podešavanje automatskih odgovora
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Prilagođeni brojevi tiketa
+  content: >
+    Odaberite "Prilagođeno" ovde kako biste promenili osnovni format označavanja tiketa u ovoj temi podrške. Pogledajte pomoćne savete na podešavanjima ili na stranici tiketa za više detalja o podešavanjima.

@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Gửi tới hỗ trợ viên khi có tin nhắn/ghi chú đăng trong nhiệm vụ. Có thể gặp sự số khi cộng tác viên hoặc hỗ trợ viên phản hồi email từ hệ thống hoặc truy cập trang hỗ trợ rồi gửi tin nhắn tại đó.
+subject: |
+  Nhật ký công việc [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Chào %{recipient.name},</strong></h3>
+  Thẻ <a href="%{task.staff_link}">#%{task.number}</a> được cập nhật: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Để xem hoặc phản hồi thẻ, vui lòng <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >đăng nhập</span></a> vào hệ thống hỗ trợ</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Hệ thống hỗ trợ khách hàng thân thiện</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Thiết kế bởi osTicket" width="126" height="19" style="width: 126px;">

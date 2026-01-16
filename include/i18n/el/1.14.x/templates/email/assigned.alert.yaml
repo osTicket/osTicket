@@ -1,0 +1,17 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Αποστέλλεται στα μέλη του προσωπικού όταν ένα δελτίο ανατίθεται σε αυτά. Τα δελτία μπορούν να ανατεθούν αυτόματα από το σύστημα ή με μη αυτόματο τρόπο από ένα άλλο μέλος του προσωπικού. Χρησιμοποιήστε την μεταβλητή %{assigner} για να διακρίνετε ποιος έκανε την ανάθεση.
+subject: |
+  Σας ανατέθηκε Αίτημα Υποστήριξης
+body: |
+  <h3><strong>Αγαπητέ/ή %{assignee.name.first},</strong></h3>
+   Ο %{assigner.name.short} σας ανέθεσε το αίτημα<a href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br><br><table><tbody><tr><td><strong>Από</strong>:</td><td>%{ticket.name}&lt;%{ticket.email}&gt;</td></tr><tr><td><strong>Θέμα</strong>:</td><td>%{ticket.subject}</td></tr></tbody></table><br>%{comments}<br><br><hr><div>Για να δείτε το αίτημα ή να προσθέσετε απάντηση, παρακαλούμε<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  > συνδεθείτε</span></a> στο σύστημα υποστήριξης</div><em style="font-size: small; ">Κέντρο Υποστήριξης </em><br><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

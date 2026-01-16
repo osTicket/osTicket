@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: کارشناسان
+  content: >
+    جدول زیر نتایج فیلترهای بالایی را نشان می دهد، اگر هیچ فیلتری انتخاب نشود،  تمامی <span class="doc-desc-title">کارشناسان سیستم</span> نمایش داده خواهند شد .
+apply_filtering_criteria:
+  title: تعیین محدوده فیلتر
+  content: >
+    یک <span class="doc-desc-title">واحد سازمانی</span> که متناسب با خواست فعلی شما است را انتخاب نمایید. همچنین شما می توانید از این طریق به دنبال یک کارشناس مشخص بگردید.

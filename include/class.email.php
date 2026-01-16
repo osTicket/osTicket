@@ -17,7 +17,6 @@ include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.mail.php');
 include_once(INCLUDE_DIR.'class.mailer.php');
 include_once(INCLUDE_DIR.'class.oauth2.php');
-include_once(INCLUDE_DIR.'class.mime.php');
 include_once(INCLUDE_DIR.'class.mailfetch.php');
 include_once(INCLUDE_DIR.'class.mailparse.php');
 include_once(INCLUDE_DIR.'api.tickets.php');
@@ -927,20 +926,13 @@ class EmailAccount extends VerySimpleModel {
     }
 
     private function updateOAuth2AuthCredentials($provider, $vars, &$errors) {
-        $err = sprintf('%s_auth_bk', $this->getType());
         if (!$vars['access_token']) {
-            $errors[$err] = __('Access Token Required');
+            $errors['access_token'] = __('Access Token Required');
         } elseif (!$vars['resource_owner_email']
                 || !Validator::is_email($vars['resource_owner_email'])) {
-            $errors[$err] = __('Resource Owner Required');
-        } elseif ($this->isStrict()
-            // When in Strict mode Account Email must match resource owner's
-            // email. Strict mode can be disabled for a global admin to
-            // authorized onbehalf of other user accounts or shared mailboxes.
-            && strcasecmp($this->getEmail()->getEmail(), $vars['resource_owner_email'])) {
-            $errors[$err] = sprintf(__('Strict Mode: Expecting Authorization for %s not %s'),
-                        $this->getEmail()->getEmail(),
-                        $vars['resource_owner_email']);
+            $errors['resource_owner_email'] =
+                __('Resource Owner Required');
+
         } elseif (!$errors) {
             // Encrypt Access Token
             $vars['access_token'] = Crypto::encrypt(
@@ -1112,7 +1104,7 @@ class MailBoxAccount extends EmailAccount {
         return $this->getMailBox($creds);
     }
 
-    public function getMailBox(?osTicket\Mail\AuthCredentials $cred=null) {
+    public function getMailBox(osTicket\Mail\AuthCredentials $cred=null) {
         if (!isset($this->mailbox) || $cred) {
             $this->cred = $cred ?: $this->getFreshCredentials();
             $setting = $this->getAccountSetting();
@@ -1317,18 +1309,18 @@ class SmtpAccount extends EmailAccount {
         return $this->smtp;
     }
 
-    public function getSmtp(?osTicket\Mail\AuthCredentials $cred=null) {
+    public function getSmtp(osTicket\Mail\AuthCredentials $cred=null) {
         if (!isset($this->smtp) || $cred) {
             $this->cred = $cred ?: $this->getFreshCredentials();
             if ($this->cred) {
-                $setting = $this->getAccountSetting();
-                $setting->setCredentials($this->cred);
-                $smtpOptions = new osTicket\Mail\SmtpOptions($setting);
-                $smtp = new osTicket\Mail\Smtp($smtpOptions);
+            $setting = $this->getAccountSetting();
+            $setting->setCredentials($this->cred);
+            $smtpOptions = new osTicket\Mail\SmtpOptions($setting);
+            $smtp = new osTicket\Mail\Smtp($smtpOptions);
                 // Attempt to connect now if credentials are sent in
-                if ($cred) $smtp->connect();
-                $this->smtp = $smtp;
-            }
+            if ($cred) $smtp->connect();
+            $this->smtp = $smtp;
+        }
         }
         return $this->smtp;
     }
@@ -1358,7 +1350,7 @@ class SmtpAccount extends EmailAccount {
         // matching.
         if ($vars['smtp_active'] == 1
                 && ($vars['smtp_auth_bk'] === 'mailbox')
-                && (strpos($vars['mailbox_auth_bk'], 'oauth2') === 0)
+                && (strpos($vars['auth_bk'], 'oauth2') === 0)
                 && !$this->checkStrictMatching())
             $_errors['smtp_auth_bk'] = sprintf('%s and %s', __('Resource Owner'), __('Email Mismatch'));
 

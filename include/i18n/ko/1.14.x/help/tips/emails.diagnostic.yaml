@@ -1,0 +1,36 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Diagnostics
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+test_outgoing_email:
+  title: 외부 송출 이메일 테스트
+  content: >
+    이메일 전달은 서버 설정 (php.ini) 및 SMTP 설정에 영향을 받습니다.
+  links:
+    - 
+      title: 이메일을 선택하여 SMTP (발송) 설정을 변경합니다.
+      href: /scp/emails.php
+from:
+  title: 발신자
+  0: >
+
+to:
+  title: 수신자
+  0: >
+
+subject:
+  title: 제목
+  0: >
+
+message:
+  title: 메세지
+  0: >
+

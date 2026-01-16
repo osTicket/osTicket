@@ -1,0 +1,65 @@
+---
+contact_information:
+  title: بيانات الإتصال
+  content: >
+    
+username:
+  title: إسم المستخدم
+  content: >
+    فقط الوكلاء الذين يحملون صلاحية المدير بإمكانهم تغيير اسم المستخدم. إذا كنت وكيلاً بصلاحيات مدير، بإمكانك إنجاز ذلك عن طريق تحديد وكيل لتعديله من جدول <span class="doc-desc-title"> الموظفين</span>.
+  links:
+    - 
+      title: تغيير اسم مستخدم كمدير
+      href: /scp/staff.php
+time_zone:
+  title: المنطقة الزمنية
+  content: >
+    
+daylight_saving:
+  title: توقيت صيفي
+  content: >
+    
+maximum_page_size:
+  title: الحد الأقصى لحجم الصفحة
+  content: >
+    
+auto_refresh_rate:
+  title: معدل التحديث التلقائي
+  content: >
+    
+default_signature:
+  title: التوقيع الإفتراضي
+  content: >
+    
+default_paper_size:
+  title: الحجم الافتراضي للورق
+  content: >
+    
+show_assigned_tickets:
+  title: إظهار التذاكر المخصصة
+  content: >
+    قم بتفعيل هذا لإخفاء اسمك من قائمة انتظار <span class="doc-desc-title"> التذاكر مفتوحة</span> التي تم إسنادها لك. عند الإخفاء، سيستبدل اسم <span class="doc-desc-title"> القسم</span> الذي تنتمي إليه مكان عرض اسمك المعتاد.
+password:
+  title: كلمة المرور
+  content: >
+    
+current_password:
+  title: كلمة المرور الحالية
+  content: >
+    
+new_password:
+  title: كلمة مرور جديدة
+  content: >
+    
+confirm_new_password:
+  title: تأكيد كلمة المرور الجديدة
+  content: >
+    
+signature:
+  title: التوقيع
+  content: >
+    أنشئ <span class="doc-desc-title"> توقيعاً</span> اختيارياً والذي بالطبع سيظهر في نهاية كل ردودك في التذكرة. يعتمد ظهور <span class="doc-desc-title"> التوقيع</span> من عدمه على <span class="doc-desc-title"> قالب البريد الإلكتروني</span> المستخدم في ردود التذكرة.
+  links:
+    - 
+      title: إنشاء قوالب رسائل البريد الإلكتروني في لوحة تحكم المدير
+      href: /scp/templates.php

@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  このテンプレートは、メールアドレスにアクセスリンクが送信されたクライアントへの通知を定義します。チケット番号とメールアドレスがアクセスリンクをトリガーします。
+name: "チケット [#%{ticket.number}] アクセスリンク"
+body: >
+  <h3><strong>%{recipient.name.first}様</strong></h3> <div> お客様の代理でチケット #%{ticket.number} へのアクセスリンクの要請がヘルプデスク %{url} に送信されました。<br /> <br /> 以下のリンクにアクセスしてチケット #%{ticket.number} の対応状況をご確認ください。<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> お客様がこの要請を<strong>行わなかった場合</strong>は、このメールを削除して無視してください。お客様のアカウントはセキュアで、アクセスを与えられたものはいません。他の者があなたのメールアドレスを誤って入力したこともありえます。<br /> <br /> --<br /> %{company.name} </div>

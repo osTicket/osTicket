@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  Dette komponerer i headeren på siden klient Login. Det kan være nyttigt at informere dine kunder om din login og registrering politikker.
+name: "Log på %{company.name}"
+body: >
+  for at kunne tjene dig bedre, opfordrer vi vores kunder til at registrere en konto.

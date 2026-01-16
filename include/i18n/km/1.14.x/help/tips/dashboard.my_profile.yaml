@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: ទំនាក់ទំនង ពត៌មាន
+  0: >
+
+username:
+  title: Username
+  content: >
+    មានតែភ្នាក់ងារដែលមានឋានៈជាអ្នកគ្រប់គ្រងអាចធ្វើការផ្លាស់ប្តូរអ្នកប្រើប្រាស់។ ប្រសិនប្រើភ្នាក់ងារមានសិទ្ធិជាអ្នកគ្រប់គ្រង អ្នកអាចធ្វើការផ្លាស់ប្តូរនេះដោយជ្រើសរើសភា្នក់ងារដែលយើងចង់ផ្លាស់ប្តូរចេញពីតារាង<span class="doc-desc-title">សមាជិកបុគ្គលិក</span>
+  links:
+    - 
+      title: កែប្រែឈ្មោះអ្នកប្រើប្រាស់ជាអ្នកគ្រប់គ្រង
+      href: /scp/staff.php
+time_zone:
+  title: ល្វែងម៉ោង
+  0: >
+
+daylight_saving:
+  title: Daylight Saving
+  0: >
+
+maximum_page_size:
+  title: ចំនួនទំព័រអតិបរមា
+  0: >
+
+auto_refresh_rate:
+  title: អត្រាដំណើរការឡើងវិញស្វ័យប្រវត្តិ
+  0: >
+
+default_signature:
+  title: ហត្ថលេខាលំនាំដើម
+  0: >
+
+default_paper_size:
+  title: ទំហំទំព័រលំនាំដើម
+  0: >
+
+show_assigned_tickets:
+  title: បង្ហាញលិខិតដែលចាត់តាំងអោយ
+  content: >
+    <p> Enabling this option will override the global setting to hide assigned tickets from the open queues. </p> <p class="info-banner"> <i class="icon-info-sign"></i> This setting is only available when assigned tickets are excluded globally. </p>
+password:
+  title: ពាក្យសម្ងាត់
+  0: >
+
+current_password:
+  title: លេខសំងាត់បច្ចុប្បន្ន
+  0: >
+
+new_password:
+  title: លេខសំងាត់ថ្មី
+  0: >
+
+confirm_new_password:
+  title: បញ្ជាក់លេខសំងាត់ថ្មី
+  0: >
+
+signature:
+  title: ហត្ថលេខា
+  content: >
+    បង្កើត<span class="doc-desc-title">Signature</span>ជា​ជម្រើសដែលប្រហែលជាបង្ហាញឡើងនៅចុងបញ្ចប់នៃការឆ្លើយតបលិខិតរបស់អ្នក។ ថាតើ <span class="doc-desc-title">ហត្ថលេខា</span>នេះត្រូវបង្ហាញ រឺក៏អត់ អាស្រ័យលើ <span class="doc-desc-title">គំរូពុម្ពសារអេឡិចត្រូនិច</span> ដែលនឹងត្រូវបានប្រើនៅក្នុងការ ឆ្លើយតបលិខិត។
+  links:
+    - 
+      title: បង្កើតគំរូពុម្ពសារអេឡិចត្រូនិចនៅក្នុងផ្ទាំងអ្នកគ្រប់គ្រង
+      href: /scp/templates.php

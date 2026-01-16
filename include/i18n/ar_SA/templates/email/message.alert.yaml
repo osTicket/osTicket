@@ -1,0 +1,37 @@
+---
+notes: |
+  ترسل إلى الموظفين الأعضاء في حال إضافة رد جديد من قبل المستخدم للتذكرة. هذا يمكن أن يحدث إذا قام المستخدمين بالرد على البريد الإلكتروني من خلال النظام أو عبر زيارة صفحة العملاء و إضافة رسالة جديدة هناك.
+subject: |
+  إشعار برسالة جديدة
+body: |
+  <h3><strong>مرحباً %{recipient.name}، </strong></h3> تم إضافة رسالة جديدة للتذكرة <a
+  href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table><tbody>
+  <tr>
+  <td>
+  <strong>من:</strong>
+  </td>
+  <td>
+  %{ticket.name} &lt;%{ticket.email}&gt;
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <strong>قسم:</strong>
+  </td>
+  <td>
+  %{ticket.dept.name}
+  </td>
+  </tr>
+  </tbody></table>
+  <br>
+  %{message}
+  <br><br><hr>
+  <div>لعرض أو الاستجابة للتذكرة، أرجو <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  > تسجيل الدخول </span></a> إلى نظام دعم التذاكر </div>
+  <em style="color: rgb(127,127,127); font-size: small; "> نظام دعم العملاء </em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

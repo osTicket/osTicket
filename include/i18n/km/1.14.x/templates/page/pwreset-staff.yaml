@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  ពុម្ពនេះកំណត់អ៊ីម៉ែលដែលបានផ្ញើទៅបុគ្គលិកដែលបានជ្រើស <strong> ភ្លេចពាក្យសម្ងាត់របស់ខ្ញុំ </ strong> តំណនៅលើផ្ទាំងការត្រួតពិនិត្យបុគ្គលិកចូលនៅក្នុងទំព័រ។
+name: "osTicket ពាក្យសម្ងាត់កំណត់ឡើងវិញបុគ្គលិក"
+body: >
+  <h3><strong>សួស្តី %{staff.name.first},</strong></h3> <div> សំណើកំណត់ពាក្យសម្ងាត់ឡើងវិញត្រូវបានដាក់ស្នើនាមរបស់អ្នកសម្រាប់ Helpdesk នៅ %{url}.<br /> <br />ប្រសិនបើអ្នកមានអារម្មណ៍ថា នេះត្រូវបានធ្វើដោយចៃដន្យ, សូមលុប ឬមិនអើពើ អ៊ីម៉ែលនេះ។ គណនីរបស់អ្នកគឺនៅតែមានសុវត្ថិភាពនិងគ្មាននរណាម្នាក់ត្រូវបានផ្តល់សិទ្ធិចូលដំណើរការវា។ វាមិនត្រូវបានចាក់សោ not locked និងពាក្យសម្ងាត់របស់អ្នកមិនទាន់បានកំណត់ឡើងវិញនៅឡើយទេ not reset yet។ អ្នកណាម្នាក់អាចបានបញ្ចូលច្រឡំ អាសយដ្ឋានអ៊ីមែលរបស់អ្នក។<br /> <br /> ប្រសិនបើអ្នកបានស្នើរសុំឱ្យកំណត់ពាក្យសម្ងាត់សូមចុចតំណរភ្ជាប់ខាងក្រោមដើម្បីចូលទៅក្នុង helpdesk និងផ្លាស់ប្តូរពាក្យសម្ងាត់របស់អ្នក។<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Your friendly Customer Support System</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

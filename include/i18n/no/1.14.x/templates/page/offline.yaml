@@ -1,0 +1,10 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  Siden frakoblet vises i Bruker Portalen når Saks Systemet er frakoblet.
+name: Frakoblet
+body: |
+  <div><h1> <span style="font-size: medium"> Støtte-systemet er ikke tilgjengelig</span></h1> <p>takk for din interesse i å kontakte oss.</p> <p>Vår støtte-system er ikke tilgjengelig for øyeblikket, vennligst sjekk tilbake på et senere tidspunkt.</p> </div>

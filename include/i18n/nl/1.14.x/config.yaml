@@ -1,0 +1,82 @@
+---
+#Default configuration. The format is key: value and the data will be
+#inserted into the %config table at install time
+#---
+core:
+  time_format: 'HH:mm'
+  date_format: 'dd/MM/yyyy'
+  datetime_format: 'MM/dd/y h:mm a'
+  daydatetime_format: 'EEE, d MMM y H:mm'
+  default_priority_id: 2
+  enable_daylight_saving: 1
+  reply_separator: '--antwoord boven deze regel--'
+  #Do not translate below here
+  isonline: 1
+  staff_ip_binding: 1
+  staff_max_logins: 4
+  staff_login_timeout: 2
+  staff_session_timeout: 30
+  passwd_reset_period: 1
+  client_max_logins: 4
+  client_login_timeout: 2
+  client_session_timeout: 30
+  max_page_size: 25
+  max_open_tickets: 1
+  autolock_minutes: 3
+  default_smtp_id: 1
+  use_email_priority: 1
+  enable_kb: 1
+  enable_premade: 1
+  enable_captcha: 1
+  enable_auto_cron: 1
+  enable_mail_polling: 1
+  send_sys_errors: 1
+  send_sql_errors: 1
+  send_login_errors: 1
+  save_email_headers: 1
+  strip_quoted_reply: 1
+  ticket_autoresponder: 1
+  message_autoresponder: 1
+  ticket_notice_active: 1
+  ticket_alert_active: 1
+  ticket_alert_admin: 1
+  ticket_alert_dept_manager: 1
+  ticket_alert_dept_members: 1
+  message_alert_active: 1
+  message_alert_laststaff: 1
+  message_alert_assigned: 1
+  message_alert_dept_manager: 1
+  note_alert_active: 1
+  note_alert_laststaff: 1
+  note_alert_assigned: 1
+  note_alert_dept_manager: 1
+  transfer_alert_active: 1
+  transfer_alert_assigned: 1
+  transfer_alert_dept_manager: 1
+  transfer_alert_dept_members: 1
+  overdue_alert_active: 1
+  overdue_alert_assigned: 1
+  overdue_alert_dept_manager: 1
+  overdue_alert_dept_members: 1
+  assigned_alert_active: 1
+  assigned_alert_staff: 1
+  assigned_alert_team_lead: 1
+  assigned_alert_team_members: 1
+  auto_claim_tickets: 1
+  collaborator_ticket_visibility: 1
+  require_topic_to_close: 1
+  show_related_tickets: 1
+  show_assigned_tickets: 1
+  show_answered_tickets: 1
+  hide_staff_name: 1
+  overlimit_notice_active: 1
+  email_attachments: 1
+  ticket_number_format: '######'
+  ticket_sequence_id: 1
+  queue_bucket_counts: 1
+  task_number_format: '#'
+  task_sequence_id: 2
+  log_level: 2
+  log_graceperiod: 12
+  client_registration: 'public'
+  default_ticket_queue: 1

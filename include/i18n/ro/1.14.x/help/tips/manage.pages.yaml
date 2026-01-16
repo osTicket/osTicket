@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Paginile site-ului
+  content: >
+    Paginile site-ului pot servi ca un mini-CMS (Content Management System - Sistem de Administrare de Conținut). Poți defini multiple pagini de întâmpinare, de gratificare și pentru situațiile când sistemul este offline - și le poți configura prin setările pentru Companie și pentru Subiectele de ajutor.
+  links:
+    - 
+      title: Setări Companie
+      href: /scp/settings.php?t=pages
+type:
+  title: Tip
+  content: >
+    Paginile <span class="doc-desc-opt">Offline</span> sunt afișate în portalul clienților dacă helpdesk-ul este oprit. Paginile <span class="doc-desc-opt">de întâmpinare</span> sunt afișate pe pagina "Acasă" a portalului pentru clienți. Paginile <span class="doc-desc-opt">de gratificare</span> sunt afișate după ce un utilizator introduce un tichet. <span class="doc-desc-opt">Alte</span> pagini pot fi utilizate ca o modalitate de implementare a unui sistem de administrare de conținut simplu (CMS).

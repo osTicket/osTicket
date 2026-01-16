@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  ពុម្ពនេះកំណត់មាតិកាដែលត្រូវបានបង្ហាញបន្ទាប់ពីការចុះឈ្មោះដោយជោគជ័យដោយអតិថិជនបញ្ជាក់ពីគណនីរបស់ពួកគេ។ទំព័រនេះគួរតែជូនដំណឹងដល់អ្នកប្រើដែលការចុះឈ្មោះត្រូវបានបញ្ចប់ហើយថាឥឡូវនេះអតិថិជនអាចដាក់សំបុត្រឬចូលដំណើរការសំបុត្រដែលមានស្រាប់។
+name: "គណនីបានបញ្ជាក់!"
+body: >
+  <div> <strong>សូមអរគុណសម្រាប់ការចុះឈ្មោះសម្រាប់គណនី។</strong><br /> <br /> អ្នកបានបញ្ជាក់អាសយដ្ឋានអ៊ីមែលរបស់អ្នកហើយធ្វើឱ្យសកម្មគណនីរបស់អ្នកដោយជោគជ័យ។ អ្នកអាចបន្តបើកសំបុត្រថ្មីឬគ្រប់គ្រងការលក់សំបុត្រដែលមានស្រាប់។<br /> <br /> <em>ប្រព័ន្ធផ្តល់ជំនួយដល់អតិថិជនដែលងាយស្រួលរបស់អ្នក</em><br /> %{company.name} </div>

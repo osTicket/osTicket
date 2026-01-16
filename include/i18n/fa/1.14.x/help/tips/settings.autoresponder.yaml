@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: درخواست جدید
+  content: >
+    این قسمت را فعال کنید تا پاسخ خودکار برای درخواست های جدید به کاربران فرستاده شود.
+  links:
+    - 
+      title: قالب پاسخ خودکار به درخواست جدید
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: درخواست  جدید توسط کارکنان
+  content: >
+    وقتی کارمندی بجای کاربر درخواست ایجاد کند اطلاع برای کاربر فرستاده می شود. <em>این تنظیم را کارمندان نمی توانند بازنویسی کنند.</em>
+  links:
+    - 
+      title: قالب اطلاع رسانی درخواست جدید
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: تأیید پیام جدید
+  content: >
+    اطلاعیه تائید که به هنگام اضافه شدن پیامی جدید بر روی یک درخواست موجود ارسال می شود.
+  links:
+    - 
+      title: قالب تایید پیام جدید
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: هشدار پیام جدید
+  content: >
+    پیام های ارسال انبوه فرستاده شده توسط تمام شرکت کنندگان در پاسخ گویی درخواست دریافت شود.
+  links:
+    - 
+      title: قالب اطلاع رسانی فعالیت جدید برو روی یک درخواست
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: اطلاع سر رسیدن محدودیت
+  content: >
+    اطلاع رد درخواست به خاطر نقض محدودیت <span class="doc-desc-title">حداکثر درخواست های باز</span> به کاربر فرستاده شود.
+  links:
+    - 
+      title: قالب اطلاع رسانی پر شدن محدودیت ایجاد درخواست جدید
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: تنظیم <em>حداکثردرخواست های باز</em>
+      href: /scp/settings.php?t=tickets

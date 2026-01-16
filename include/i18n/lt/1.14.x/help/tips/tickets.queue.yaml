@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Paieškos laukelis
+  0: >
+
+advanced:
+  title: Pažangus
+  content: >
+    Susiaurinti paieškos parametrus. Kuomet pasirinkote  papildomus paieškos kriterijus ir paleidote paiešką, galite<span class="doc-desc-title">Išeksportuoti</span>užklausos duomenis puslapio apačioje.
+open_tickets_table:
+  title: Atidarytų užklausų lentelė
+  content: >
+    Visos šiuo metu atidarytos ir reikalaujančios dėmesio užklausos
+ticket:
+  title: Užklausa
+  0: >
+
+date:
+  title: Data
+  0: >
+
+subject:
+  title: Tema
+  0: >
+
+from:
+  title: Nuo
+  0: >
+
+priority:
+  title: Prioritetas
+  0: >
+
+assigned_to:
+  title: Priskirta
+  0: >
+
+export:
+  title: Eksportas
+  content: >
+    Eksportuokite duomenis šiuo metu žiūrėjimui CSV falie. CSV failai gali būti atidaromi  su bet kokia skaičiuoklės programine įranga (t.y., Microsoft Excel, Apple Pages, OpenOffice, etc.).
+advanced_search_dialog:
+  title: Išplėstinė paieška
+  0: >
+
+adv_keyword:
+  title: Raktažodžio paieška
+  content: >
+    Raskite peržiūras, susietuas su užklausos tema ir pranešimo turiniu, taip pat su visu tekstiniu turiniu susietu su pasirinktiniais laukais vartotojams ir užklausoms.
+adv_date_range:
+  title: Paieška pagal datos intervalą
+  content: >
+    Apibrėžimas čia
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Atsakymo tipai
+  content: >
+    <b>Reply All:</b> This reply is sent to the User and the Collaborators you choose to include.</br> <b>Reply to User:</b> This reply is sent to the User only, no Collaborators.</br> <b>Do Not Email Reply:</b> No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.

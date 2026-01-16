@@ -1,0 +1,28 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Lähetetään käsittelijöille, kun tehtävä osoitetaan heille tai ryhmälle, johon he kuuluvat. Käytä %{assigner} erottaaksesi, kuka teki osoituksen.
+subject: |
+  Tehtävä pyyntö sinulle
+body: |
+  <h3><strong>Hei %{assignee.name.first},</strong></h3>
+  Tehtävä <a href="%{task.staff_link}">#%{task.number}</a> on
+  osoitettu sinulle henkilöltä %{assigner.name.short}
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Jos haluat katsoa/vastata viestiin, <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >kirjaudu</span></a> tukijärjestelmään.</div>
+  <em style="font-size: small; ">Sinun ystävällinen tuki
+  Järjestelmä</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Toimii järjestelmällä osTicket" width="126" height="19" style="width: 126px;">

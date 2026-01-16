@@ -1,0 +1,9 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  זהו המסר הראשוני והבנאר המוצג בדף כניסת הצוות. שדה הקלט הראשון המסומן באדום מתייחס לטקסט שמופיע בחלק העליון.
+  תיבת הטקסט האחרונה הוא לתוכן הבאנר שאמורה לשמש כהסרת אחריות.
+name: "אימות נדרש"
+body: ""

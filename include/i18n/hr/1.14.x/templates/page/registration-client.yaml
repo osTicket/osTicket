@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Ovaj predložak definira email poslan klijentima kada im se izradi korisnički račun na stranici za klijente ili od  strane djelatnika. Ovaj email služi za potvrđivanje korisnikove email adrese. Molimo Vas da koristite %{link} negdje u sadržaju.
+name: "Dobro došli na %{company.name}"
+body: >
+  <h3><strong>Pozdrav %{recipient.name.first},</strong></h3> <div> Izradili svo Vam korisnički račun u našoj tehničkoj podršci na %{url}.<br /> <br /> Molimo vas da kliknete na link kako biste potvrdili svoj račun i dobili pristup svojim karticama.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška <br /> %{company.name}</em> </div>

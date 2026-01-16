@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Хүсэлттэй холбоотой үйл явдалын тухай (хариу өгөх, нэмэлт мэдээлэл оруулах зэрэгт) хамтрагч нарт илгээх мэдэгдэл.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3><strong>%{recipient.name.first},</strong></h3>
+  <div>
+      Таны оролцож буй Хүсэлт дээр дөнгөж сая <em>%{poster.name}</em> мэдээлэл оруулсан байна.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Та <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a> дугаартай хүсэлтийн хамтрагч тул энэ имэйлийг хүлээн авч байна.  Оролцохын тулд, энэ имэйлд хариу өгнө үү. Эсвэл <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >энд дарж</a> Хүсэлтийн дэлгэрэнгүй түүхийг үзнэ үү.</em>
+  </div>

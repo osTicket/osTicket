@@ -1,0 +1,69 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Tukitiimin nimi
+  content: |
+    <p>Tukijärjestelmänne nimi, esim. [Yrityksen nimi] tuki</p>
+system_email:
+  title: Järjestelmän oletus sähköposti-osoite
+  content: |
+    <p>Oletus sähköposti-osoite, esim tuki@yrityksesi.com - voit lisätä muita myöhemmin!</p>
+default_lang:
+  title: Järjestelmän oletuskieli
+  content: |
+    <p>Valitun kielen perustiedot asennetaan tietokantaan. Esimerkiksi sähköpostipohjat ja vakiosivut asennetaan tälle kielelle.</p>
+  links:
+    - 
+      title: osTicket kielipaketit
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Etunimi
+  content: |
+    <p>Järjestelmänvalvojan etunimi</p>
+last_name:
+  title: Sukunimi
+  content: |
+    <p>Järjestelmänvalvojan sukunimi</p>
+email:
+  title: Sähköpostiosoite
+  content: |
+    <p>Järjestelmänvalvojan henkilökohtainen sähköpostiosoite. Tulee olla muu kuin järjestelmän oletussähköpostiosoite</p>
+username:
+  title: Käyttäjätunnus
+  content: |
+    <p>Järjestelmänvalvojan käyttäjätunnus. Vähintään kolme (3) merkkiä</p>
+password:
+  title: Salasana
+  content: |
+    <p>Järjestelmänvalvojan salasana. Vähintään viisi (5) merkkiä.</p>
+password2:
+  title: Vahvista salasana
+  content: |
+    <p>Kirjoita uudelleen järjestelmänvalvojan salasana.</p>
+db_prefix:
+  title: MySQL taulun etuliite
+  content: |
+    <p>osTicket vaatii taulun etuliitteen välttääkseen konflikteja jaetussa tietokannassa.</p>
+db_host:
+  title: MySQL-koneen isäntänimi
+  content: |
+    <p>Useimmiten paikallista tietokantaa käyttävän isäntäkoneen nimi on 'localhost'. Jos tämä ei toimi, tarkista isäntäkoneen nimi.</p>
+    <p>Oletusportti on määritetty php.ini:ssä. Tästä poikkeava portti voidaan määritellä lisäämällä sinne rivi <code>isäntänimi:portti</code></p>
+db_schema:
+  title: MySQL tietokanta
+  content: |
+    <p>Tietokannan nimi, jota osTicket tulee käyttämään.</p>
+db_user:
+  title: MySQL Käyttäjätunnus
+  content: |
+    <p>MySQL käyttäjällä tulee olla täydet oikeudet tietokantaan.</p>
+db_password:
+  title: MySQL salasana
+  content: |
+    <p>MySQL salasanan tulee kuulua aiemmin mainitulle käyttäjälle.</p>

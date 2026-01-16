@@ -1,0 +1,30 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Envoyé à un utilisateur lorsqu'une réponse automatique en conserve est affichée sur un ticket .
+
+  D'autres choix disponibles pour le remplacement:%{ticket.*}, %{response}
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Cher-ère %{recipient.name.first},</strong></h3>
+  Une demande de support vient d'être faite et le ticket numéro <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> a été créé. La réponse automatique suivante a été envoyée : 
+  <br>
+  <br>
+  Rubrique : <strong>%{ticket.topic.name}</strong>
+  <br>
+  Sujet : <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">Votre équipe %{company.name},<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Nous espérons que cet email a pu répondre à vos questions de manière satisfaisante.  Dans le cas où vous désireriez apporter des précisions à cette demande, veuillez, svp, répondre à cet email ou vous <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >connecter</span></a> à votre compte pour une avoir une vue d'ensemble de toutes vos demandes de support.</em></div>

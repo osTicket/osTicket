@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Ажилтны гарын үсэг
+  content: |
+    Хүсэлтэд хариу өгөх ажилтны имэйл дээрх гарын үсэг үүсгэнэ үү. Энэхүү гарын үсэг нь хүсэлтийн хариу имэйлийн хөл хэсэгт дагалдаж явах болно
+type:
+  title: Хэрэглэгчийн бүртгэлийн төрөл
+  content: |
+    Админууд нь Админы самбарт хандах онцгой эрхтэй. Ажилтнууд бол зөвхөн хүсэлтүүд болон мэдлэгийн санг зохицуулах эрхтэй
+group:
+  title: Харъяалагдах групп
+  content: |
+    Группын гишүүнчлэл нь ажилтны систем дах үүрэг ролийг тодорхойлно. Тусламжийн системд ажилтан нь ямар эрхтэй хандахыг тодорхойлохын тулд групп зохицуулах хуудсанд зочилно уу
+notes:
+  title: Тусгай тэмдэглэл
+  content: |
+    Ажилтнуудад хамааралтай тусгай тэмдэглэлүүдийг оруулна. Тэмдэглэлүүд нь зөвхөн Админ эрхтэй ажилтнуудад харагдана

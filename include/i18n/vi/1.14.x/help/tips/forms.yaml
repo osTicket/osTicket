@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Mẫu đề mục
+  content: >
+    Đề mục này sẽ nằm trong khung màu xám trên trường mẫu
+form_instructions:
+  title: Hướng dẫn sử dụng
+  content: >
+    Bạn có thể thêm hướng dẫn trợ giúp người dùng tùy theo các trường mẫu và nhấn mạnh dữ liệu yêu cầu
+field_sort:
+  title: Trường hiển thị
+  content: >
+    Nhấn vào biểu tượng mũi tên lên xuống và kéo đến hàng trường để phân loại. Quyền phân loại ưu tiên không có hiệu lực cho tới khi được lưu.
+field_label:
+  title: Trường kí hiệu
+  content: >
+    Kí hiệu này được dùng như lời nhắc cho trường tương ứng. Chẳng hạn, một trường trả lời ngắn sẽ được diễn tả là<br><strong>Kí hiệu</strong>&nbsp;<input type="text">
+field_type:
+  title: Trường nội dung
+  content: >
+    Sử dụng để xác định loại input từ người dùng. Bạn có thể chọn câu trả lời ngắn hoặc dài, số điện thoại, ngày giờ, hộp đánh dấu, danh sách thả xuống hoặc chọn danh sách tùy thích.
+  links:
+    - 
+      title: Danh sách tùy thích
+      href: /scp/lists.php
+field_visibility:
+  title: Trường hiển thị
+  content: >
+    Chọn trường hiển thị và yêu cầu cho trường này.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"><tr><th>Cài đặt</th><th>Kết quả</th></tr><tr><td>Không bắt buộc</td><td>Nhân viên và người dùng có thể nhìn thấy trường này, nhưng không ai có quyền trả lời.</td></tr><tr><td>Yêu cầu</td><td>Nhân viên và người dùng có thể nhìn thấy trường này và cả 2 đều có thể trả lời</td></tr><tr><td>Yêu cầu cho người dùng</td><td>Nhân viên và người dùng có thể nhìn thấy trường này nhưng chỉ người dùng được trả lời</td></tr><tr><td>Yêu cầu cho nhân viên</td><td>Nhân viên và người dùng có thể nhìn thấy trường này nhưng chỉ nhân viên được trả lời</td></tr><tr><td>Nội bộ, không bắt buộc</td><td>Chỉ nhân viên có thể nhìn thấy trường nhưng không được trả lời</td></tr><tr><td>Nội bộ, yêu cầu</td><td>Chỉ nhân viên nhìn thấy trường và phải trả lời</td></tr><tr><td>Chỉ cho người dùng</td><td>Chỉ người dùng nhìn thấy trường và được trả lời.</td></tr></tbody></table>
+field_variable:
+  title: Trường tự động
+  content: >
+    Dữ liệu trường này có sẵn trên email và khung trang mẫu thông qua tên được sử dụng trong cột này. Ví dụ, trường lệnh chung có trên<code>%{ticket.variable}</code>, khi<strong>biến số</strong> là tên được sử dụng trong cột này. Thông tin về công ty sẽ có trên<code>%</code><code>biến công ty</code>và thông tin người dùng có trên<code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Xóa trường
+  content: >
+    Kiểm tra và lưu hình thức xóa trường từ biểu mẫu.<br><br><em>Việc xóa trường sẽ không xóa các dữ liệu đã nhập trước đó cho trường này. Ví dụ, nếu một lệnh được trình trước đó có dữ liệu cho một trường, việc xóa trường từ biểu mẫu này sẽ không xóa dữ liệu trong lệnh đó.</em>

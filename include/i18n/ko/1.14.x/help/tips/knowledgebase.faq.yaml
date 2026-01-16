@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: 목록 유형
+  content: >
+    상위 분류가 공개 상태라면 이 <span class="doc-desc-title">FAQ</span>를 <span class="doc-desc-opt">공개 (게재)</span>하여 공개 지식 저장소에 게시할 수 있습니다.
+  links:
+    - 
+      title: 유저 포털의 공개 지식 저장소 활성화
+      href: /scp/settings.php?t=kb

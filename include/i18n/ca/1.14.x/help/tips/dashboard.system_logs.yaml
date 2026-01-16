@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Registres del sistema
+  content: >
+    Ací és on trobareu qualsevol depuració relacionada amb el registre d'activitat (per exemple, Errors, advertiments o falls).
+  links:
+    - 
+      title: Personalitze quin tipus d'activitat es registra canviant el < br / > <span class="doc-desc-title"> Nivell de registre per defecte</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Període de temps
+  content: >
+    Trie l'interval del calendari que li agradaria vore en els <span class="doc-desc-title"> Registres del sistema</span>.
+type:
+  title: Tipus
+  content: >
+    Seleccione una opció per aproximar el seu enfocament sobre un determinat tipus d'activitat. <span class="doc-desc-opt"> depurar</span> representa la menor gravetat i <span class="doc-desc-opt"> Error</span> representa la major gravetat.
+showing_logs:
+  title: Mostrant&hellip; registres
+  content: >
+    Estiga segur de comprovar la secció de la <span class="doc-desc-title"> pàgina</span> següent per assegurar-se que no hi ha més pàgines que mostren els registres del sistema disponibles.
+log_title:
+  title: Títol de registre
+  content: >
+    Fes clic a la capçalera de la taula <span class="doc-desc-title"> Registre títol</span> si vol ordenar els resultats segons el <span class="doc-desc-title"> Títol de registre</span>.
+log_type:
+  title: Tipus de registre
+  content: >
+    Fes clic a la capçalera de la taula <span class="doc-desc-title"> Tipus de Registre</span> si vol ordenar els resultats segons el <span class="doc-desc-title"> Títol de registre</span>.
+log_date:
+  title: Data de registre
+  content: >
+    Aquesta és la data que del registre que s'ha generat pel software. Si voleu ordenar els resultats segons la <span class="doc-desc-title"> Data de registre</span>, simplement feu clic a la <span class="doc-desc-title"> Data de registre </span>de la capçalera de la taula. (Utilitza el mòdul <span class="doc-desc-title"> Abasten data</span> citada per estrènyer la seva durada calendari de registres.)
+ip_address:
+  title: Adreça IP
+  content: >
+    Això es refereix a <span class="doc-desc-title"> la IP</span> <span class="doc-desc-title"> adreça</span> de l'agent o client que estava utilitzant osTicket en el moment que es va generar el registre.

@@ -1,0 +1,49 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: 表單標題
+  content: >
+    在表單欄位上方的標題文字將顯示灰色框
+form_instructions:
+  title: 表單的說明
+  content: >
+    您可以增加額外的指令，這將有助於引導使用者到上下文中的表單欄位和可能加強說明所需的資料。
+field_sort:
+  title: 欄位的顯示位置
+  content: >
+    上下箭頭圖示上按一下並拖動欄位行進行表單排序。首選排序不會造成變化、除非您儲存表單。
+field_label:
+  title: 欄位標籤
+  content: >
+    此標籤顯示為提示輸入此欄位。通常情況下，一個簡易的回覆欄位會呈現如： <br><strong>標籤：</strong>&nbsp; <input type="text">
+field_type:
+  title: 欄位內容類型
+  content: >
+    使用者用來定義期望輸入的類型。您可以選擇短或長的答案、 電話號碼、 日期和時間、 勾選方塊、 下拉清單或選擇自訂清單。
+  links:
+    - 
+      title: 自訂清單
+      href: /scp/lists.php
+field_visibility:
+  title: 欄位可見度
+  content: >
+    選擇該字段的可見性和要求選項。<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>設置</th> <th>
+    結果</th></tr> <tr><td>可選項</td> <td>代理者和終端用戶可查看該字段，但均無需回答。</td></tr> <tr><td>必選項</td> <td>代理者和終端用戶可查看該字段，也均需回答。</td></tr> <tr><td>终端用户必選項</td> <td>代理者和終端用戶可查看該字段，但僅終端用戶需回答</td></tr> <tr><td>代理者必選項</td> <td>代理者和終端用戶可查看該字段，但僅代理需回答</td></tr> <tr><td>內部，可選項</td> <td>僅代理者可查看該字段，但無需回答。</td></tr> <tr><td>內部，必選項</td> <td>僅代理者可查看該字段，且需回答。</td></tr> <tr><td>僅適用於終端用戶</td> <td>僅終端用戶可查看該字段，且需回答。</td></tr> </tbody></table>
+field_variable:
+  title: 欄位自動化
+  content: >
+    電子郵件可以傳送此欄位名稱資料與頁數範本。舉例而言：一般票券欄位上透過 <code>%{ticket.variable}</code>, 在哪裡 <strong> 變數  </strong> 欄位上已用的名稱傳送。<br> <br> <em>可透過公司名稱傳送<code>%{</code><code>company.variable}</code> 可透過使用者名稱傳送 <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: 移除此欄位
+  content: >
+    移除此表單上的欄位、請檢查並儲存表單。<br><br><em>刪除一個欄位不會刪除之前輸入的資料。例如，如果之前已送交票券上的欄位資料，從此表單中刪除該欄位仍不會移除票券上的資料。</em>

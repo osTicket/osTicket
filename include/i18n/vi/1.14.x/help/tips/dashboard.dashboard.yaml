@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Hành động yêu cầu
+  content: >
+    Chọn một khoảng thời gian trên biểu đồ và bảng bên dưới (cf. <span class="doc-desc-title">Statistics</span>) để tập trung vào những dữ liệu tương ứng. Bảng biểu này sẽ phán ánh tổng quát về dữ liệu của cả hệ thống. Tuy nhiên, bạn có thể chuyến sang bảng bên dưới (<span class="doc-desc-title">Statistics </span>) để tập trung vào những chủ đề nhỏ liên quan. Ngoài ra, bạn có thể xuất dữ liệu hiện tài đang có trên bảng này (<span class="doc-desc-title">Statistics </span>).
+report_timeframe:
+  title: Khung thời gian báo cáo
+  content: >
+    Chọn ngày bắt đầu chuỗi dữ liệu, sau đó chọn ngày kết thúc chuỗi dữ liệu đó
+statistics:
+  title: Thống kê
+  content: >
+    Điều hướng đến chủ đề đang quan tâm bằng cách click vào tab thích hợp để xem dữ liệu cụ thể. Trong bảng dữ liệu, vòng tròn đại diện cho kích thước dữ liệu trên danh nghĩa. Do đó, số lượng dữ liệu càng lớn thì vòng tròn tương ứng cũng càng lớn.
+opened:
+  title: Được khởi tạo
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Chỉ định
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Quá hạn
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Đã đóng
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Tái khởi tạo
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Đã xóa
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Thời gian sử dụng dịch vụ
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Thời gian phản hồi
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

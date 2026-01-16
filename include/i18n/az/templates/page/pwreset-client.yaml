@@ -1,0 +1,9 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+notes: >
+  Bu şablon müştəri girişi səhifəsində <strong>şifrəmi unutmuşam</strong> linkini seçən müştərilərə göndərilən e-poçtu müəyyən edir.
+name: "%{company.name} Help desk girişi"
+body: >
+  <h3><strong>Salam %{user.name.first},</strong></h3> <div> Şifrə sıfırlama təklifi helpdesk üçün sizin adınızdan %{url}da təqdim olunub.<br /> <br /> Əgər siz burada xəta olduğunu düşünürsünüzsə, bu e-poçta əhəmiyyət verməyin və silin. Sizin hesabınız hələ də təhlükəsizdir və sizdən başqa heç kimə giriş verilməyib. Kilidli deyil və sizin şifrəniz sıfırlanmayıb. Kimsə səhvən sizin e-poçtu daxil edib.<br /> <br /> Help deskə daxil olmaq və şifrəni dəyişmək üçün aşağıdakı linkə daxil olun.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Sizin dost müştəri dəstək sisteminiz <br /> %{company.name}</em> </div>

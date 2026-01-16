@@ -1,0 +1,12 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Envoyé aux membres du personnel lorsqu'un ticket passe en retard. Les tickets en retard sont basés sur la date d'échéance du billet ainsi que la SLA définis pour le ticket.
+subject: |
+  Alerte : Ticket obsolètes
+body: |
+  <h3><strong>Bonjour %{recipient.name}</strong>,</h3> Un ticket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> est très en retard. <br><br>Nous devrions tous travailler dur pour garantir que tous les billets soient traité dans les délais. <br><br>Signé, <br>%{ticket.dept.manager.name} <hr><div>Pour visualiser ou réagir au ticket, <a href="%{ticket.staff_link}"> <span style="color: rgb(84, 141, 212);" > Connectez-vous</span></a> au système de support. Vous recevez cet avis parce que le ticket vous est personnellement affecté, à une équipe ou à un service dont vous êtes membre.</div> <em style="font-size: small">Cordialement, <span style="font-size: smaller" >(même si notre patience a une limite)</span>  le support client</em><br><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19" alt="Powered by osTicket" width="126" style="width: 126px;">

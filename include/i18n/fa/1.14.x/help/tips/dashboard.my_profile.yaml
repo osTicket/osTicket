@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: اطلاعات تماس
+  0: >
+
+username:
+  title: نام کاربری
+  content: >
+    تنها کارشناسانی با نوع کاربری مدیر می توانند نام کاربری را تغییر دهند.
+  links:
+    - 
+      title: تغییر نام کاربری به عنوان ادمین
+      href: /scp/staff.php
+time_zone:
+  title: منطقه زمانی
+  0: >
+
+daylight_saving:
+  title: Daylight Saving
+  0: >
+
+maximum_page_size:
+  title: حداکثر اندازه صفحه
+  0: >
+
+auto_refresh_rate:
+  title: میزان تازه کردن خودکار
+  0: >
+
+default_signature:
+  title: امضای پیش فرض
+  0: >
+
+default_paper_size:
+  title: اندازه کاغذ پیش فرض 
+  0: >
+
+show_assigned_tickets:
+  title: نمایش تیکت های واگذار شده
+  content: >
+    <p> فعال کردن این گزینه بر تنظیمات سراسری override شده تا تیکت‌های اختصاص‌ داده‌شده از صف تیکت‌های باز مخفی شود. </p> <p class="info-banner"> <i class="icon-info-sign"> </i> این تنظیمات تنها زمانی در دسترس است که تیکٰت‌های اختصاص داده‌شده به صورت سراسری مستثنی شده باشند. </p>
+password:
+  title: کلمه عبور
+  0: >
+
+current_password:
+  title: کلمه عبور کنونی
+  0: >
+
+new_password:
+  title: کلمه عبور جدید
+  0: >
+
+confirm_new_password:
+  title: تائید کلمه عبور
+  0: >
+
+signature:
+  title: امضا
+  content: >
+    می‌توانید یک <span class="doc-desc-title">امضای</span> اختیاری ایجاد کنید که احتمالا در پایان تیکت‌های پاسخ شما ظاهر شود. نمایش یا عدم نمایش این <span class="doc-desc-title">امضا</span> به <span class="doc-desc-title">قالب ایمیلی</span> که برای پاسخگویی استفاده می‌شود، بستگی دارد.
+  links:
+    - 
+      title: ایجاد ایمیل های پیش فرض در پنل مدیریت
+      href: /scp/templates.php

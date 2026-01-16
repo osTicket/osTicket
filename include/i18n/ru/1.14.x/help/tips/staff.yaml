@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Строка подписи сотрудников
+  content: |
+    Создание подписи персоанала для ответов на Заявки. Эта подпись будет отображаться как вариант в нижней части ответа на Заявку
+type:
+  title: Тип Учетной Записи
+  content: |
+    Администраторы имеют право доступа к панели администратора. Сотрудники имеют доступ только к управлению заявками и базе знаний
+group:
+  title: Назначенные группы
+  content: |
+    Членство в группе определяет роль сотрудника в системе. Воспользуйтесь страницей управления группами чтобы определить уровни доступа сотрудника в системе поддержки
+notes:
+  title: Внутренние Заметки
+  content: |
+    Пишите внутренние заметки без учёта персонала; заметки видны только сотрудникам с типом аккаунта Администратор

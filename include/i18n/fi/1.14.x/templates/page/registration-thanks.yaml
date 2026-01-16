@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Pohja määrittää sisällön asiakkaan käyttäjätilin rekisteröinnin jälkeiseen vahvistusviestiin. Sivulla olisi hyvä ilmoittaa, että käyttäjätili on aktivoitu ja käyttäjä voi luoda uusia tikettejä sekä hallita olemassa olevia.
+name: "Tilisi on vahvistettu!"
+body: >
+  <div><strong>Kiitos, että rekisteröit käyttäjätilin.</strong>< br / > < br / > Olet vahvistanut sähköpostiosoitteesi ja olemme aktivoineet käyttäjätilisi. Voit siirtyä avaamaan uuden tiketin tai muokkaamaan olemassa olevia tikettejä. < br / > < br / > <em>Ystävällisin terveisin</em> < br / >%{company.name}</div>

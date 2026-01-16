@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: 그룹
+  content: >
+    그룹은 헬프데스크에서 에이전트의 권한을 정의하기 위해 사용됩니다. 또한 그룹은 에이전트의 주 부서 외에 다른 부서에 접근할 수 있는 권한을 줄 수 있습니다.
+status:
+  title: 상태
+  content: >
+    옵션을 <span class="doc-desc-opt">끄면</span>, 이 그룹에 속한 에이전트는 로그인할 수 없으며 부서 경보 및 노트를 받을 수 없습니다.
+department_access:
+  title: 부서 접근
+  content: >
+    어떤 그룹의 멤버가 접근할 수 있는지 확인하기 위해 모든 부서를 검사하기

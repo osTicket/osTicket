@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Тусламжийн Албаны нэр
+  content: |
+    <p>Танай тусламжийн системийн нэр, жишээ нь, [Байгууллагын нэр] Хэрэглэгчдэд Үйлчлэх Төв г.м.</p>
+system_email:
+  title: Системийн имэйл хаяг
+  content: |
+    <p>Үндсэн имэйл хаяг: support@yourcompany.com г.м. - Та дараа өөр хаяг нэмэх боломжтой!</p>
+default_lang:
+  title: Системийн стандарт хэл
+  content: |
+    <p>Сонгосон хэлний анхны өгөгдлийг бааз уруу суулгах болно. Жишээлбэл сонгосон хэл дээрх имэйлийн загварууд, системийн стандарт хуудсуудыг суулгана.</p>
+  links:
+    - 
+      title: osTicket хэлний файлууд
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Нэр
+  content: |
+    <p>Админы нэр</p>
+last_name:
+  title: Овог
+  content: |
+    <p>Админы овог</p>
+email:
+  title: Имэйл хаяг
+  content: |
+    <p>Админы хувийн имэйл хаяг. Системийн имэйл хаягнаас ялгаатай байх ёстой.</p>
+username:
+  title: Хэрэглэгчийн нэр
+  content: |
+    <p>Админы нэвтрэх нэр. Дор хаяж гурван (3) тэмдэгт.</p>
+password:
+  title: Нууц үг
+  content: |
+    <p>Админы нууц үг.  Дор хаяж тав (5) буюу түүнээс олон тэмдэгт.</p>
+password2:
+  title: Нууц үгээ давтан оруул
+  content: |
+    <p>Админы нууц үгээ дахин оруул. Ижил байх ёстой.</p>
+db_prefix:
+  title: MySQL тэйблийн нэрийн угтвар буюу prefix
+  content: |
+    <p>Дундын өгөгдлийн сан ашиглаж буй үед нэр давхцахаас сэргийлж osTicket нь тэйблийн нэрийн урд угтвар буюу prefix ашиглахыг шаарддаг.</p>
+db_host:
+  title: MySQL серверийн нэр
+  content: |
+    <p>
+    Ихэнх сервер дээр локал өгөгдлийн сангийн серверийн нэр болгож 'localhost' -ийг ашигладаг. Сервер байршуулах үйлчилгээ үзүүлэгчээсээ localhost ашиглаж болох эсэхийг тодруулна уу.
+    </p>
+    <p>
+    Php.ini -д заасан default портын дугаар. Стандарт бус портын дугаарыг <code>hostname:port</code> гэж зааж өгч болно.
+    </p>
+db_schema:
+  title: MySQL өгөгдлийн сан
+  content: |
+    <p>osTicket -д ашиглах өгөгдлийн сангийн нэр.</p>
+db_user:
+  title: MySQL хэрэглэгчийн нэр
+  content: |
+    <p>Энэ MySQL хэрэглэгч өгөгдлийн сан уруу хандах бүх эрхтэй байх хэрэгтэй.</p>
+db_password:
+  title: MySQL нууц үг
+  content: |
+    <p>Дээрх хэрэглэгчийн MySQL нууц үг.</p>

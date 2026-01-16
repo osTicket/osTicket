@@ -1,0 +1,17 @@
+---
+notes: |
+  ترسل إلى المستخدم في حال إضافة رسالة جديدة من قبل المستخدم إلى التذكرة. هذا يمكن أن يحدث إذا قام المستخدم بالرد على البريد الإلكتروني من خلال النظام أو زيارة صفحة العملاء و إضافة رسالة جديدة هناك.
+subject: |
+  رسالة التأكيد
+body: |
+  <h3><strong>عزيزي %{recipient.name.first}، </strong></h3> تم ملاحظة طلب الدعم الخاص بك <a<br>
+  href="%{recipient.ticket_link}">#%{ticket.number}</a>
+  <br><br>
+  <div style="color: rgb(127, 127, 127); "> فريق %{company.name}،<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:<br>
+  center"><em>بإمكانك إستعراض سير عمل طلب الدعم الخاص بك <a<br>
+  href="%{recipient.ticket_link}">هنـــا</a></em>
+  </div>

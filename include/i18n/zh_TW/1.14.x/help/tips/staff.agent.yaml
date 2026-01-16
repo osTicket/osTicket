@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: 帳號
+  content: >
+    請選擇一個員工<span class="doc-desc-title">使用者名稱</span>這是唯一<span class="doc-desc-title">服務中心</span>
+email_address:
+  title: 電子信箱
+  content: >
+    輸入一個回覆員工的電子郵件地址<span class="doc-desc-title">警告&amp;通知</span>從<span class="doc-desc-title">服務中心</span>
+  0: <br><br>
+  1: 員工能夠使用使用者名稱或是電子郵件地址登入到員工控制頻道
+welcome_email:
+  title: 歡迎郵件
+  content: >
+    寄送帳戶存取聯結給新專員，並由專員自行設定密碼。如果沒有勾選這個選項，你必須先設定密碼並且通通知新工作成員登入相關資訊。
+account_password:
+  title: 帳號密碼
+  content: >
+    <span class="doc-desc-title">管理者</span>,你可以更改密碼
+forced_password_change:
+  title: 強制更改密碼
+  content: >
+    如果你要啟用新員工於下一次登入時強制修改密碼
+agents_signature:
+  title: 員工簽名
+  content: >
+    設定簽名檔，讓專員在回覆案件時可以選擇使用。
+account_status:
+  title: 帳號狀態
+  content: >
+    如果狀態<span class="doc-desc-opt">鎖定</span>將無法登入到支援系統
+assigned_group:
+  title: 分配群組
+  content: >
+    選擇專員的所屬的<span class="doc-desc-title">群組</span>，這會決定專員在<span class="doc-desc-title">支援中心</span>中所擁有的權限。
+  links:
+    - 
+      title: 管理群組 
+      href: /scp/groups.php
+primary_department:
+  title: 主要部門
+  content: >
+    Choose the primary <span class="doc-desc-title">department</span> to which this Agent belongs and an effective <span class="doc-desc-title">Role</span>.
+  links:
+    - 
+      title: 管理部門
+      href: /scp/departments.php
+primary_role:
+  title: Primary Role
+  content: >
+    Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
+primary_role_on_assign:
+  title: Use Primary Role For Assignments
+  content: >
+    Enable this to fallback to the <span class="doc-desc-title">primary role</span>  when this agent is assigned tickets and tasks outside of the <span class="doc-desc-title">primary department</span> and <span class="doc-desc-title">extended access</span> departments. Otherwise the agent will have view only access.
+daylight_saving:
+  title: 冬令時光節約
+  content: >
+    啟用這個功能，如果你想夏令時間自動發揮作用在這個員工的時區。
+limited_access:
+  title: 限制權限
+  content: >
+    假如啟用此功能，專員只有直接分配或通過團隊分配案件的權限。
+directory_listing:
+  title: 目錄顯示
+  content: >
+    若要將專員列入 <span class="doc-desc-title">員工目錄</span>，請啟用此功能。
+  links:
+    - 
+      title: 員工目錄訪問
+      href: /scp/directory.php
+vacation_mode:
+  title: 休假模式
+  content: >
+    如果你要修改員工狀態到<span class="doc-desc-opt">休假模式</span>,這個員工不能接受任何<span class="doc-desc-title">警告&amp;通知</span>以及不能被指定任何的事件
+

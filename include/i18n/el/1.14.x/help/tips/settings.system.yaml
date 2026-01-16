@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Κατάσταση Κέντρου Υποστήριξης
+  content: >
+    Αν η κατάσταση μεταβληθεί σε <span class="doc-desc-opt">Διακοπή Λειτουργίας</span>, ο ιστοχώρος των πελατών θα απενεργοποιηθεί. Μόνο Διαχειριστές θα έχουν πρόσβαση στο σύστημα.
+helpdesk_url:
+  title: Διεύθυνση Κέντρου Υποστήριξης
+  content: >
+    Αυτό το URL (διεύθυνση ιστοσελίδας) είναι η βάση της εγκατάστασης του osTicket. Χρησιμοποιείται κατά τις επικοινωνίες με ηλ. μηνύματα για να κατευθύνει τους τελικούς χρήστες πίσω στο Κέντρο Υποστήριξης.
+helpdesk_name_title:
+  title: Όνομα/Τίτλος Κέντρου Υποστήριξης
+  content: >
+    Αυτός είναι ο τίτλος που εμφανίζεται στην καρτέλα του προγράμματος περιήγησης. Αν η σελίδα του κέντρου υποστήριξης έχει προστεθεί σε σελιδοδείκτη, αυτός θα είναι ο τίτλος/όνομα της ιστοσελίδας.
+default_department:
+  title: Προεπιλεγμένο Τμήμα
+  content: >
+    Επιλέξτε ένα προεπιλεγμένο <span class="doc-desc-title">τμήμα</span> για αιτήματα που δεν δρομολογούνται αυτόματα σε ένα τμήμα. <br/><br/> Τα αιτήματα μπορούν να δρομολογηθούν με βάση τον Τομέα βοήθειας, το εισερχόμενο email και τις ρυθμίσεις φίλτρων δελτίων.
+default_schedule:
+  title: Προκαθορισμένο Πρόγραμμα
+  content: >
+    Επιλέξτε το προκαθορισμένο Πρόγραμμα για χρήση από το SLA όταν εμφανίζονται τα αιτήματα που έχουν καθυστερήσει.
+  links:
+    - 
+      title: Διαχείριση Προγραμμάτων
+      href: /scp/schedules.php
+default_page_size:
+  title: Προεπιλεγμένο Μέγεθος Σελίδας
+  content: >
+    Επιλέξτε τον αριθμό των στοιχείων που θα εμφανίζονται ανά σελίδα στις Ουρές Αιτημάτων στον Πίνακα Προσωπικού. Κάθε Εκπρόσωπος μπορεί επίσης να προσαρμόσει αυτόν τον αριθμό για τον δικό του λογαριασμό στη σελίδα <span class="doc-desc-title">Οι Προτιμήσεις Μου</span>.
+default_log_level:
+  title: Προεπιλεγμένο Επίπεδο Καταγραφής
+  content: >
+    Καθορισμός του ελάχιστου επιπέδου προβλημάτων που θα καταγράφονται στο <span class="doc-desc-title">Αρχείο Καταγραφής Συστήματος</span>. Το <span class="doc-desc-opt">Debug</span> αντιπροσωπεύει την ελάχιστη σοβαρότητα, και το <span class="doc-desc-opt">Σφάλμα</span> αντιπροσωπεύει τη μέγιστη σοβαρότητα. Για παράδειγμα, αν θέλετε να δείτε όλα τα προβλήματα που υπάρχουν στο <span class="doc-desc-title">Αρχείο Καταγραφής Συστήματος</span>, επιλέξτε <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: Εκκαθάριση Αρχείων Καταγραφής
+  content: >
+    Καθορισμός χρονικού διαστήματος διατήρησης των <span class="doc-desc-title">Αρχείων Καταγραφής Συστήματος</span> πριν αυτά διαγραφούν.
+enable_richtext:
+  title: Enable Rich Text
+  content: >
+    Εάν ενεργοποιηθεί, αυτή η επιλογή θα επιτρέψει την χρήση μορφοποίησης εμπλουτισμένου κειμένου μεταξύ Πελατών και Εκπροσώπων.
+enable_avatars:
+  title: Ενεργοποίηση Εικόνας στην Εμφάνιση Θεμάτων
+  content: >
+    Ενεργοποίηση αυτού για την εμφάνιση <span class="doc-desc-title">Avatars</span> στο νήμα αλληλογραφίας. <br><br> Η<span class="doc-desc-title">Πηγή Avatar</span> μπορεί να ρυθμιστεί στις σελίδες ρυθμίσεων των Πρακτόρων και Χρηστών.
+  links:
+    - 
+      title: Ρυθμίσεις Εκπροσώπου
+      href: /scp/settings.php?t=agents
+    - 
+      title: Users Settings
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Αποφυγή Διένεξης Εκπροσώπων
+  content: >
+    Πληκτρολογήστε το μέγιστο χρονικό διάστημα κατά το οποίο ένας Εκπρόσωπος επιτρέπεται να κρατά κλειδωμένο ένα δελτίο χωρίς να έχει δραστηριότητα. <br><br> Πληκτρολογήστε <span class="doc-desc-opt">0</span> για να απενεργοποιήσετε τη λειτουργία κλειδώματος.
+allow_iframes:
+  title: Να επιτρέπονται τα iFrame
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Επιλογές Ημερομηνίας &amp; Ώρας
+  content: >
+    Οι παρακάτω ρυθμίσεις ορίζουν τις προκαθορισμένες ρυθμίσεις για την Ημερομηνία &amp; Ώρα. Μπορείτε να επιλέξετε τις προκαθορισμένες ρυθμίσεις τοπικοποίησης για την επιλεγμένη γλώσσα ή να χρησιμοποιήσετε προσαρμοσμένες μορφοποιήσεις για να τις δικές σας ανάγκες. Κάντε παραπομπή στις μορφοποιήσεις συμβολοσειρών ICU ως αναφορά για προσαρμογή. Οι ημερομηνίες που εμφανίζονται παρακάτω δείχνουν τα αποτελέσματα των αντίστοιχων τιμών.
+  links:
+    - 
+      title: Δείτε τον Πίνακα Μορφών Ημερομηνίας της PHP
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: System Languages
+  content: >
+    Επιλέξτε την προεπιλεγμένη γλώσσα συστήματος και προαιρετικά δευτερεύουσες γλώσσες ώστε να είναι φιλικό το περιβάλλον στους τελικούς χρήστες.
+primary_language:
+  title: Πρωτεύον Γλώσσα Συστήματος
+  content: >
+    Το περιεχόμενο της γλώσσας αυτής εμφανίζεται σε εκπροσώπους και τελικούς χρήστες αν η δική τους γλωσσική προτίμηση δεν είναι διαθέσιμη τη δεδομένη στιγμή. Αυτό περιλαμβάνει το περιεχόμενο της διεπαφής, όπως επίσης και προσαρμοσμένο περιεχόμενο όπως σελίδες ευχαριστίας και μηνυμάτων e-mail. <br/><br/>Αυτή είναι η γλώσσα στην οποία αμετάφραστες εκδόσεις του περιεχομένου σας θα πρέπει να γράφονται.
+secondary_language:
+  title: Secondary Languages
+  content: >
+    Επιλέξτε τη γλώσσα προτίμησης για τους εκπροσώπους και τους τελικού σας χρήστες. Η διεπαφή θα είναι διαθέσιμη σε αυτές τις γλώσσες και προσαρμοσμένο περιεχόμενο όπως σελίδες ευχαριστίας και ονόματα θεμάτων βοήθειας θα είναι μεταφράσιμα σε αυτές τις γλώσσες.
+#Attachments
+attachments:
+  title: Ρυθμίσεις Επισυναπτόμενων και Αποθηκευτικού Χώρου
+  content: >
+    Ρυθμίστε το πως αποθηκεύονται τα συνημμένα.
+default_storage_bk:
+  title: Αρχείο Αποθήκευσης Διαχείρισης
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: Μέγιστο Μέγεθος Αρχείου
+  content: >
+    Επιλέξτε ένα μέγιστο μέγεθος αρχείου για συνημμένα που θα ανεβάζουν οι εκπρόσωποι. Αυτό περιλαμβάνει συνημμένα, άρθρα γνωσιακής βάσης και συνημμένα σε απαντήσεις δελτίων και εργασιών. Το επάνω όριο καθορίζεται από τη ρύθμιση <code>upload_max_filesize</code> της PHP.
+  links:
+    - 
+      title: PHP ini ρυθμίσεις
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Είναι απαραίτητη η σύνδεση
+  content: >
+    Enable this setting to forbid serving attachments to unauthenticated users. That is, users must sign into the system (both end users and agents), in order to view attachments. <br><br> From a security perspective, be aware that the user's browser may retain previously-viewed files in its cache. Furthermore, all file links on your helpdesk automatically expire after about 24 hours.

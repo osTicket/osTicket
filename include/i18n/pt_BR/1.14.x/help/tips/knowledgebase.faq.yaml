@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: Tipo de listagem
+  content: >
+    Escolha <span class="doc-desc-opt"> pública (publicar)</span> se quiser que este <span class="doc-desc-title"> FAQ</span>, que serão publicados na base de conhecimento público, se a categoria-mãe é pública.
+  links:
+    - 
+      title: Habilitar a base de conhecimento ao público para o Portal do cliente
+      href: /scp/settings.php?t=kb

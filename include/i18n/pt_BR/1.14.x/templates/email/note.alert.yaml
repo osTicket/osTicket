@@ -1,0 +1,48 @@
+---
+#Email template: note.alert.yaml
+#Sent to staff members when a new internal note is appended to a ticket.
+#Internal notes can only be added by staff members.
+#---
+notes: |
+  Alerta enviado aos Agentes quando há atividade interna, tais como uma nota interna ou uma resposta de um agente é adicionada a um chamado.
+subject: |
+  Novo alerta interno de atividade
+body: |
+  <h3><strong>Hi %{recipient.name},</strong></h3>
+  Um agente registrou atividade no ticket <a
+  href="%{ticket.staff_link}">#%{ticket.number}</a>
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+          <strong>De</strong>:
+      </td>
+      <td>
+          %{note.poster}
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <strong>Título</strong>:
+      </td>
+      <td>
+          %{note.title}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{note.message}
+  <br>
+  <br>
+  <hr>
+  Para ver/responder ao ticket, favor <a
+  href="%{ticket.staff_link}">logar-se</a> no sistema de suporte
+  <br>
+  <br>
+  <em style="font-size: small; ">Seu Sistema de Suporte ao Cliente Amigável</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Movido a osTicket" width="126" height="19" style="width: 126px;">

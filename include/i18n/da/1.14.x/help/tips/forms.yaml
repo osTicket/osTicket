@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Form overskrift
+  content: >
+    Denne titeltekst er vist i en grå boks over formularfelterne
+form_instructions:
+  title: Form instruktioner
+  content: >
+    Du kan tilføje ekstra instruktioner, som vil hjælpe samt guide brugeren ind i forbindelse med formularfelterne og eventuelt fremhæve krævede data.
+field_sort:
+  title: Felt Display Position
+  content: >
+    Klik på op og ned pilkonet for at trække række feltet til at sorteres i denne form. Sortering præference tager ikke effekt, indtil formularen gemmes.
+field_label:
+  title: Feltetiket
+  content: >
+    Denne etiket er vist som prompten for dette felt. Typisk, en kort-svaret felt ville gengives som denne: <br><strong>etiket:</strong>&nbsp; <input type="text">
+field_type:
+  title: Feltet indholdstype
+  content: >
+    Dette bruges til at definere typens input forventet fra brugeren. Du kan vælge mellem korte og lange svar, telefonnummer, dato og klokkeslæt, tjekboks, drop-down listen eller en brugerdefineret liste udvælgelse.
+  links:
+    - 
+      title: Brugerdefinerede lister
+      href: /scp/lists.php
+field_visibility:
+  title: Feltet synlighed
+  content: >
+    Vælg synlighed og alternative krav til dette område. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Indstillinger</th> <th>Resultat</th></tr> <tr><td>Optional</td> <td>Agenter og Slutbrugere kan se på området, men ingen grund til at besvare.</td></tr> <tr><td>Påkrævet</td> <td>Agenter og Slutbrugere kan se på området, og begge skal besvare</td></tr> <tr><td>Påkrævet af slutbruger</td> <td>Agenter og Slutbrugere kan se på området, vil kun Slutbrugeren nødt til at svare</td></tr> <tr><td>Påkrævet af Agenter</td> <td>Agenter og Slutbrugere kan se området, er det kun Agenter som er nødt til at svare på</td></tr> <tr><td>Intern, Valgfri</td> <td>Kun Agenter kan se på området, men intet svar er nødvendig.</td></tr> <tr><td>Intern , Obligatorisk</td> <td>Kun Agenter kan se området, og et svar er påkrævet.</td></tr> <tr><td>kun for Slutbruger</td> <td>Kun Slutbrugeren kan se feltet og et svar er påkrævet.</td></tr> </tbody></table>
+field_variable:
+  title: Felt automatisering
+  content: >
+    Felt dataene vil være tilgængeligt for email og side skabeloner via navnet der er brugt i denne kolonne. For eksempel er felter på formen fælles sags formular er tilgængelig via <code>%{ticket.variable}</code>, hvor <strong>variablen</strong> er navnet for denne kolonne.<br><br><em>Firmaoplysninger er tilgængelig via <code>%{</code> <code>company.variable}</code> og brugeroplysninger er tilgængelig via <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Fjern dette felt
+  content: >
+    Kontroller og gem formularen for at fjerne et felt i denne form.<br><br><em>Sletter man et felt fjerner det ikke tidligere indtastede data til feltet på udfyldte formularer. For eksempel, hvis en tidligere indsendt sag har data for et felt, slet feltet fra denne form vil ikke fjerne data på sagen.</em>

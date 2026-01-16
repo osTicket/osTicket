@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: وضعیت سیستم پشتیبانی
+  content: >
+    If the status is changed to <span class="doc-desc-opt">Offline</span>, the client interface will be disabled.  Only Admins will be able to access the system.
+helpdesk_url:
+  title: آدرس اینترنتی سامانه پشتیبانی
+  content: >
+    این آدرس پایه نصب osTicket می باشد. از این آدرس در مکاتبات صورت گرفته از طریق ایمیل برای برگرداندن کاربران به سامانه پشتیبانی استفاده می شود.
+helpdesk_name_title:
+  title: نام/عنوان سامانه پشتیبانی
+  content: >
+     عنوانی که در زبانه مرورگر ظاهر می شود . اگر سیستم پشتیبانی شما bookmarked شده باشد، تحت این عنوان نامگذاری می شود.
+default_department:
+  title: واحد سازمانی پیش فرض
+  content: >
+    یک <span class="doc-desc-title">واحد سازمانی</span> پیش فرض انتخاب کنید تا وقتی درخواستی به طور اتوماتیک به واحدسازمانی خاصی هدایت نشد به این واحد هدایت شود. <br/><br/>درخواست ها می توانند بر اساس موضوع کمک ، ایمیل و فیلتر درخواست هدایت شوند.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: اندازه صفحه پیش فرض
+  content: >
+    تعداد درخواست های نمایش داده شده در صفحه کارمندان را مشخص کنید. هر کارمند نیز می تواند این تعداد را برای حساب خودش در قسمت <span class="doc-desc-title">تنظیمات من</span> تنظیم کند.
+default_log_level:
+  title: سطح پیش فرض ثبت وقایع در سیستم
+  content: >
+    Determine the minimum level of issues which will be recorded in the <span class="doc-desc-title">system log</span>. <span class="doc-desc-opt">Debug</span> represents the least severity, and <span class="doc-desc-opt">Error</span> represents the greatest severity. For example, if you want to see all issues in the <span class="doc-desc-title">System Logs</span>, choose <span class="doc-desc-opt">Debug</span>.
+purge_logs:
+  title: پاکسازی ثبت وقایع
+  content: >
+    مشخص کنید تا چه مدتی قصد نگه داری<span class="doc-desc-title"> وقایع سیستم</span> را قبل از حذف شدن دارید.
+enable_richtext:
+  title: فعال کردن متن کمکی
+  content: >
+    اگر فعال باشد ، اجازه ی استفاده از قالب بندی متن (HTML) را به کاربر و کارمند می دهد.
+enable_avatars:
+  title: فعال کردن آواتار ها در نمایش موضوع
+  content: >
+    با فعال کردن این گزینه <span class="doc-desc-title"> آواتار</span> در مکاتبات موضوع نمایش داده می شود.<br><br><span class="doc-desc-title"> منبع آواتار</span>می تواند در صفحه تنظیمات کاربر و کارشناس تنظیم شود.
+  links:
+    - 
+      title: تنظیمات کارشناس
+      href: /scp/settings.php?t=agents
+    - 
+      title: تنظیمات کاربران
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: اجتناب از تضاد کاربران
+  content: >
+    حداکثر زمانی که یک کارشناس اجازه دارد تا یک درخواست را بدون اینکه روی آن کار کند در انحصار خود نگه دارد را وارد کنید. <br><br>اگر می خواهید قابلیت قفل گذاری را غیر فعال کنید<span class="doc-desc-opt"> 0 </span> را وارد کنید.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: تنظیمات تاریخ و زمان
+  content: >
+    تنظیمات زیر مقادیر پیش‌فرض را برای تنظیم تاریخ و ساعت پنل کارشناس مشخص می نماید. شما میتوانید مقادیر پیش‌فرض موقعیت زمانی را برای این تنظیمات استفاده و یا در موارد بخصوص فرمت دلخواه خود را پیاده سازی نمایید. از قسمت ICU Format Strings به عنوان راهنما و مرجع برای سفارشی سازی استفاده نمایید. تاریخ نمایش داده شده در زیر بیانگر نتیجه تغیرات حاصله در مقادیر مرتبط با آن می باشد.
+  links:
+    - 
+      title: مشاهده جدول قالب تاریخ ICU
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: زبان سیستم
+  content: >
+    الزاما یک زبان را به عنوان زبان اصلی سیستم و همچنین در صورت تمایل یک زبان را به عنوان زبان دوم سیستم برگزینید تا رابط کاربری را برای کارشناسان و کاربران خود بومی سازی کرده باشید.
+primary_language:
+  title: زبان اصلی سیستم
+  content: >
+    محتوای این زبان نمایش داده می شود به کارشناسان و کاربران نهایی اگر زبان مورد نظر انها اماده نباشد. این شامل محتوای رابط کاربری نیز میشود به خوبی محتوای دلخواه مانند صفحات سپاس گزاری و پیام های ایمیل. <br/><br/> این زبانی است که محتوای ترجمه نشده ی شما باید در آن نوشته شود.
+secondary_language:
+  title: زبان دوم
+  content: >
+    انتخاب گزینه های تنظیمات زبان برای کارشناسان و کاربران نهایی خود. رابط کاربری اماده خواهد بود برای این زبان ها و محتوای دلخواه مانند صفحات سپاس گزاری و موضوعات کمکی قابل ترجمه خواهند بود به این زبان ها.
+#Attachments
+attachments:
+  title: تنظیمات پیوست و ذخیزه سازی
+  content: >
+    تنطیمات ذخیره سازی پیوست ها.
+default_storage_bk:
+  title: سیستم ذخیره سازی فایل
+  content: >
+    Choose how attachments are stored. <br><br> Additional storage backends can be added by installing storage plugins
+max_file_size:
+  title: حداکثر حجم فایل
+  content: >
+    انتخاب کنید یک سایز حداکثر فایل برای پیوست ها ی اپلود شده به وسیله ی کارشناسان. این شامل پاسخ های آماده, مقالات پایگاه دانش, و پیوست های نامه و پاسخ به درخواست است. محدودیت بالا کنترل می شود به وسیله ی تنظیمات کد پی اچ پی <code>upload_max_filesize</code>.
+  links:
+    - 
+      title: تنظیمات PHP. ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: نیاز به ورود
+  content: >
+    به کار انداختن این تنظیمات برای جلوگیری از خدمات‌رسانی به کاربران احراز هویت نشده. به این معنا که کاربران باید در سیستم (هر دو کاربر و عوامل)، به منظور مشاهده پیوست‌ها، وارد سیستم شوند. <br><br> از دید امنیتی، آگاه باشید که مرورگر کاربر ممکن است فایل‌های موجود در حافظه نهان خود را حفظ کند. علاوه بر این، همه پیوندهای موجود در helpdesk به طور خودکار بعد از ۲۴ ساعت باطل می‌شوند.

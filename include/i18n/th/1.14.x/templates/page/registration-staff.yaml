@@ -1,0 +1,18 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  เทมเพลตนี้สำหรับกำหนด email เริ่มต้น (optional) ที่ส่งไปยัง Staff เมื่อถูกสร้างบัญชีครั้งแรก
+name: "ยินดีต้อนรับสู่ osTicket"
+body: >
+  <h3><strong>สวัสดี %{recipient.name.first},</strong></h3> 
+  <div> เราได้สร้าง Id เพื่อเข้าสู่ระบบ Ticket Support สำหรับคุณที่ %{url}
+  <br /> 
+  <br />
+  คุณสามารถคลิกที่ Link ด้านล่างนี้เพื่อยืนยันการเข้าใช้งานระบบ 
+  <br /> 
+  <br /> <a href="%{link}">%{link}</a>
+  <br /> 
+  <br /> <em style="font-size: small">Support System<br /> %{company.name}</em> </div>

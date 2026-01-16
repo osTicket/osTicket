@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Цей шаблон визначає сторінку, яка буде показана клієнтам по завершенні реєстрації. Бажано, щоб в шаблоні було зазначено, що система відправляє посилання підтвердження в листі і який наступний крок процесу.
+name: "Реєстрація облікового запису"
+body: >
+  <div> <strong> Дякуємо за реєстрацію! </strong> <br/> <br /> Ми щойно відправили вам лист на адресу, яку ви вказали. Будь ласка, перейдіть за посиланням у листі, щоб активувати свій обліковий запис і отримати доступ до заявок. </div>

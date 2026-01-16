@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: مجموعه قالب ایمیل پیش فرض
+  content: >
+    انتخاب<span class="doc-desc-title"> قالب ایمیل</span> برای ارسال<span class="doc-desc-title">پاسخ خودکار</span>و<span class="doc-desc-title"> اعلان</span>برای عملکردهای مختلف یک درخواست<br><br> واحد های سازمانی می توانند یک قالب ایمیل مخصوص به خود داشته باشند.
+  links:
+    - 
+      title: مدیریت  مجموعه قالب ایمیل
+      href: /scp/templates.php
+default_system_email:
+  title: پیش فرض ایمیل خروجی
+  content: >
+    آدرس ایمیل که از آن ایمیل های ارسالی فرستاده می شود را انتخاب کنید. <br><br><span class="doc-desc-title"> واحد سازمانی</span> میتوانید تنظیم کنید<span class="doc-desc-title"> آدرس ایمیل</span> آنچه که در اینجا تنظیم کنید لغو خواهد شد.
+  links:
+    - 
+      title: مدیریت آدرس های ایمیل
+      href: /scp/emails.php
+default_alert_email:
+  title: ایمیل پیشفرض هشدار
+  content: >
+    آدرس ایمیل را انتخاب کنید که از آن <span class="doc-desc-title">هشدارها&amp; اعلامیه ها</span> به نمایندگی فرستاده می شود.
+  links:
+    - 
+      title: مدیریت آدرس های ایمیل
+      href: /scp/emails.php
+admins_email_address:
+  title: ' ایمیل مدیر'
+  content: >
+    آدرس ایمیل مدیر را وارد کنید که <span class="doc-desc-title">خطاهای سیستم</span> و <span class="doc-desc-title">هشدارها جدید بلیط </span>(اگر فعال باشد) ارسال می شوند.
+  links:
+    - 
+      title: مدیریت هشدار  و اعلامیه
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: واکشی ایمیل
+  content: >
+    اجازه فعال کردن و تنظیم کردن IMAP/POP برای <span class="doc-desc-title">صندوق پستی</span>.
+  links:
+    - 
+      title: مدیریت صندوق های پستی
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: واکشی ایمیل ها توسط Auto-cron
+  content: >
+    Enables periodic email fetching using an internal task manager triggered by Agents' activity.  <br><br> Please note that emails will not be fetched if no one is logged in to Staff Control Panel. External task scheduler is highly recommended for predictable fetch intervals.
+  links:
+    - 
+      title: با استفاده از زمانبند وظایف خارجی
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: نوار  نقل قول
+  content: >
+    If enabled, this will remove preceding correspondence between email communications. <br><br> This feature is relationally dependent on the <span class="doc-desc-title">Reply Separator Tag</span> below.
+reply_separator_tag:
+  title: تگ جدا کننده ی پاسخ
+  content: >
+    This is a token indicating to the User to reply above the line. <br><br> <strong>Note:</strong> this is only relevant if <span class="doc-desc-title">Strip Quoted Reply</span> is enabled above.
+emailed_tickets_priority:
+  title: اولویت ایمیل درخواست
+  content: >
+    Choose whether you would like the priority/importance option of the User's email (e.g. OutLook) to dictate the new ticket’s priority. <br><br> This setting can be overridden by a <span class="doc-desc-title">Ticket Filter</span>.
+  links:
+    - 
+      title: ایجاد و مدیریت  فیلتر درخواست
+      href: /scp/filters.php
+accept_all_emails:
+  title: قبول تمام ایمیل ها
+  content: >
+    دریافت ایمیل از کاربران ناشناس.<br><br> در صورت عدم انتخاب این گزینه تیکتهای ناشناس برگشت می خورد.
+accept_email_collaborators:
+  title: قبول ایمیل همکاران
+  content: >
+    Add email participants included in the <code><strong>To</strong></code> and <code><strong>CC</strong></code> fields as ticket collaborators. <br /><br /> <em>Collaborators can always be added manually by Agents when viewing a ticket.</em>
+default_mta:
+  title: عامل ارسال و دریافت ایمیل  پیش فرض
+  content: >
+    <span class="doc-desc-title">Default MTA</span> takes care of email delivery process for outgoing emails without SMTP setting.
+ticket_response_files:
+  title: فایلهای ضمیمه شده در پاسخ درخواستها
+  content: >
+    اگر فعال شود هر فایل ضمیمه ای که یک کاربر شاید به پاسخ یک درخواست ضمیمه نماید در ایمیلی که به کاربر فرستاده می شود نیز لحاظ می گردد .
+verify_email_addrs:
+  title: تایید آدرس های ایمیل
+  content: >
+    فعال کردن این گزینه برای بررسی آدرس ایمیلی که به یک سرور ایمیل (MX) در DNS دامنه قرار دارد. این مورد برای تشخیص آدرس ایمیل اشتباه مفید است. که در علاوه بر این به چک کردن برجستگی نشانی ایمیل نیز انجام شده است.

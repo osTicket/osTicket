@@ -1,0 +1,27 @@
+---
+notes: |
+  ترسل إلى الموظفين الأعضاء في حال تغير حالة التذكرة في النظام إلى متأخرة.
+  التذاكر المتأخرة تحدث بناءً على تاريخ الاستحقاق للتذكرة إضافة إلى اتفاقية مستوى الخدمة المعرفة للتذكرة.
+subject: |
+  تنبيه بالتذاكر القديمة
+body: |
+  <h3><strong>مرحباً %{recipient.name}</strong>,</h3>
+  التذكرة, <a href="%{ticket.staff_link}">#%{ticket.number}</a> is
+  متاخرة جداً.
+  <br>
+  <br>
+  جيب علينا جميعاً الاجتهاد في العمل لنظمن أن كل التذاكر ملباه في الوقت المحدد.
+  <br>
+  <br>
+  الموقع,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>لإظهار أو الاستجابة للتذكرة، الرجاء <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >تسجيل الدخول</span></a> إلى نظام دعم التذاكر. أنت تتلقى هذا التنبيه لأن التذكرة معيّنة مباشرة إليك أو إلى فريق أو القسم الذي أنت عضو فيه.
+  </div>
+  <em style="font-size: small">نظام فريق الدعم <span style="font-size: smaller"
+  ></span>
+  System</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Powered by osTicket" width="126" style="width: 126px;">

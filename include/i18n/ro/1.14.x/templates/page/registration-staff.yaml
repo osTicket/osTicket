@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Acest template defineste emailul initial (optional) trimis catre Agenti cand un cont este creat in numele lor.
+name: "Bine ati venit la osTicket"
+body: >
+  <h3><strong>Buna %{recipient.name.first},</strong></h3> <div> Ti-am creat un cont pentru platforma noastra de help desk disponibila la adresa %{url}.<br /> <br /> Te rugam sa accesezi link-ul de mai jos pentru a confirma contul tau si pentru a obtine drepturile de acces la tichetele tale.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Cu drag echipa de suport<br /> %{company.name}</em> </div>

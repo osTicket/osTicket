@@ -1,0 +1,26 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  새 메시지/노트가 작업에 게시될 때 담당자에게 전송됩니다. 이것은 공동작업자 또는 담당자가 시스템의 메일에 응답하거나 웹 포털을 방문하여 새 메시지를 게시하는 경우에 발생할 수 있습니다.
+subject: |
+  작업 활동 [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hi %{recipient.name},</strong></h3>
+  Task <a href="%{task.staff_link}">#%{task.number}</a> updated: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>To view or respond to the task, please <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> to the support system</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Your friendly
+  Customer Support System</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

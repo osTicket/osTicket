@@ -1,0 +1,71 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: ہیلپ ڈیسک کا نام
+  content: |
+    <p> آپ کے سپورٹ سسٹم کا نام. [کمپنی کا نام] سپورٹ </p>
+system_email:
+  title: پہلے سے طے شدہ سسٹم ای میل
+  content: |
+    <p> پہلے سے طے شدہ ای میل پتہ. support@yourcompany.com - آپ اور شامل کرسکتے ہیں بعد میں! </p>
+default_lang:
+  title: پہلے سے طے شدہ سسٹم زبان
+  content: |
+    <p> اس زبان کے ابتدائی ڈیٹا کو ڈیٹا بیس میں انسٹال کیا جائے گا۔ مثال کے طور پر ای میل ٹیمپلیٹس اور پہلے سے طے شدہ سسٹم کے صفحات اس زبان کے لئے انسٹال کیے جائیں گے. </p>
+  links:
+    - 
+      title: osTicket زبان پیک
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: پہلا نام
+  content: |
+    <p> منتظم کا پہلا نام </p>
+last_name:
+  title: آخری نام
+  content: |
+    <p> منتظم کا آخری نام </p>
+email:
+  title: ای میل ایڈریس
+  content: |
+    <p> منتظم کا ذاتی ای میل ایڈریس. نظام کے پہلے سے طے شدہ ای میل سے مختلف ہونا ضروری ہے. </p>
+username:
+  title: صارف کا نام
+  content: |
+    <p> منظم کا لاگ ان کا نام. کم سے کم تین (3) حروف ہونا لازمی ہیں. </p>
+password:
+  title: پاس ورڈ
+  content: |
+    <p> منظم کا پاسورڈ. پانچ (5) حروف یا زیادہ ہونا ضروری ہیں. </p>
+password2:
+  title: پاس ورڈ کی توثیق کریں
+  content: |
+    <p> منظم کا پاس ورڈ دوبارہ ٹائپ کریں. میچ ہونا ضروری ہے. </p>
+db_prefix:
+  title: MySQL ٹیبل اختصار
+  content: |
+    <p> osTicket  کو ٹیبل اختصارکی ضرورت ہوتی ہےتاکہ مشترکہ ڈیٹا بیس میں ٹیبل کے تنازعات سے بچا جا سکے. </ p>
+db_host:
+  title: MySQL Hostname
+  content: |
+    <p> زیادہ سے زیادہ ہوسٹ مقامی ڈیٹا بیس ہوسٹ نام کے لئے 'localhost' کا استعمال کرتے ہیں. 'localhost' ناکام ہونے کی صورت میں اپنے ہوسٹ کے ساتھ کوشش کریں.
+    </p> 
+    <p> php.ini میں ڈیفالٹ پورٹ سیٹ فرض کیا جاتا ہے. غیر معیاری پورٹ نمبر<code>hostname:port</code> کے طور پر متعین کیا جا سکتا ہے
+     </p>
+db_schema:
+  title: MySQL ڈیٹا بیس
+  content: |
+    <p> ڈیٹا بیس کا نام جو osTicket استعمال کرے گا. </p>
+db_user:
+  title: MySQL صارف نام
+  content: |
+    <p> MySQL صارف کو ڈیٹا بیس کے مکمل حقوق ہونا چاہئے. </p>
+db_password:
+  title: MySQL پاس ورڈ
+  content: |
+    <p> اوپر صارف کے ساتھ منسلک MySQL پاس ورڈ. </p>

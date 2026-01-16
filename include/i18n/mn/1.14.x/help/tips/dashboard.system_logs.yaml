@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Системийн лог
+  content: >
+    Системийн журналд бичигдсэн бүх мэдээллийг эндээс олж үзэж болно (жишээ нь: Алдаа, Анхааруулга гэх мэт).
+  links:
+    - 
+      title: <br /><span class="doc-desc-title">Стандарт логийн түвшин</span> -г өөрчилж ямар төрлийн үйлдлийн тухай логийг журнал уруу бичихийг тохируулж болно.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Огнооны интервал
+  content: >
+    Та <span class="doc-desc-title">Системийн лог</span> хэсэгт харуулах мэдээллийн хугацааг сонгоно уу.
+type:
+  title: Төрөл
+  content: >
+    Төрлөөс нь хамааруулж мэдээллийг илүү нарийвчлан харах боломжтой. <span class="doc-desc-opt">Debug</span> нь мэдээллийн, харин <span class="doc-desc-opt">Алдаа</span> нь анхааруулгын төрөл юм.
+showing_logs:
+  title: Лог&hellip;харуулж байна
+  content: >
+    Олон мэдээлэл харуулж байгаа үед доорх <span class="doc-desc-title">Хуудас</span> хэсгээс дараагийн хуудсыг сонгоорой.
+log_title:
+  title: Логийн гарчиг
+  content: >
+    Хэрвээ та <span class="doc-desc-title">Логийн гарчиг</span> дээр дарвал доорх мэдээллийг нь <span class="doc-desc-title">Логийн гарчиг</span> баганаар эрэмбэлж харуулна.
+log_type:
+  title: Логийн төрөл
+  content: >
+    Хэрвээ та <span class="doc-desc-title">Логийн төрөл</span> дээр дарвал доорх мэдээллийг нь <span class="doc-desc-title">Логийн төрөл</span> баганаар эрэмбэлж харуулна.
+log_date:
+  title: Лог бичсэн огноо
+  content: >
+    Системээс лог үүсгэсэн огноог энд харуулна. Хэрвээ та <span class="doc-desc-title">Лог бичсэн огноо</span> баганаар эрэмбэлэх бол хүснэгтийн <span class="doc-desc-title">Лог бичсэн огноо</span> хэсгийг дараарай. (Мөн <span class="doc-desc-title">Огнооны интервал</span> хэсгийг ашиглан илүү нарийвчлан хайх боломжтой.)
+ip_address:
+  title: IP хаяг
+  content: >
+    Энэ хэсэг нь системийг ашигласан хүний болон бусад програмын <span class="doc-desc-title">IP</span><span class="doc-desc-title"> Хаяг</span> мэдээллийг харуулна.

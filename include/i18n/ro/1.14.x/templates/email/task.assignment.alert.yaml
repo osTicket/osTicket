@@ -1,0 +1,28 @@
+---
+#Email template: task.assignment.alert.yaml
+#Sent to agents when a task is assigned to them or the team to which
+#they belong.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Sent to agents when a task is assigned to them or the team to which
+  they belong. Use %{assigner} to distinguish who made the assignment.
+subject: |
+  Sarcina de lucru asignata tie
+body: |
+  <h3><strong>Buna %{assignee.name.first},</strong></h3>
+  Sarcina de lucru <a href="%{task.staff_link}">#%{task.number}</a> ti-a fost asignata tie de catre %{assigner.name.short}
+  <br>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Pentru a vedea/raspunde la aceasta sarcina de lucru, va rugam <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> in sistemul suport</div>
+  <em style="font-size: small; ">Cu prietenie Customer Support
+  System</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Produs de osTicket" width="126" height="19" style="width: 126px;">

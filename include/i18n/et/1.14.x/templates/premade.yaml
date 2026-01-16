@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Mis asi on osTicket (näidis)?
+  response: |
+    osTicket on laialt kasutusel olev avatud lähtekoodiga piletite süsteem, atraktiivne alternatiiv kallitele ja kompleksetele kasutajatoe süsteemidele - lihtne, arusaadav, usaldusväärne, avatud lähtekoodiga, veebipõhine ning lihtne rakendada ja
+     kasutada.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Etteantud manused rokivad!
+- 
+  isenabled: 1
+  title: Näidis (muutujatega)
+  response: |
+    Tere %{ticket.name.first},
+    <br>
+    <br>
+    Sinu %{ticket.create_date} loodud pilet numbriga #%{ticket.number} on saadetud %{ticket.dept.name} osakonda.
+  0: |
+

@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Aquesta plantilla defineix l'e-mail enviat als Clients quan el seu compte ha estat creat al Portal del Client o per un Agent en nom seu. Aquest email serveix com una verificació d'adreça de emial. Si us plau, utilitze %{link} algun lloc del cos.
+name: "Benvinguts a %{company.name}"
+body: >
+  <h3><strong>Benvolgut/da %{recipient.name.first},</strong></h3> <div> Hem creat un compte per a vosaltres al nostre centre de suport a %{url}.<br /> <br /> Si us plau cliqueu el següent enllaç per tal de confirmar el compte i accedir als vostres Tickets.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">El vostre estimat sistema de suport<br /> %{company.name}</em> </div>

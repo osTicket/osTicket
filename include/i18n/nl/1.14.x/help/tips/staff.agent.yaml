@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Gebruikersnaam
+  content: >
+    Kies een Medewerker <span class="doc-desc-title">gebruikersnaam</span> die uniek is voor uw <span class="doc-desc-title">Help Desk</span>.
+email_address:
+  title: E-mailadres
+  content: >
+    Voer de Medewerker zijn  e-mailadres in dat de <span class="doc-desc-title">Waarschuwingen &amp; Aankondigingen</span> van de <span class="doc-desc-title">Help Desk</span> zal ontvangen.
+  0: <br><br>
+  1: Personeel kan inloggen in het deelvenster Beheer Personeel met ofwel zijn gebruikersnaam of e-mailadres.
+welcome_email:
+  title: Welkoms e-mail
+  content: >
+    Stuur de nieuwe Verantwoordelijke een link met toegang tot het account waarmee de Verantwoordelijke in staat is om zijn eigen wachtwoord in te stellen. Als het selectievakje uitgeschakeld is, zal je het wachtwoord en gebruikersnaam handmatig moeten doorgeven aan de nieuwe medewerker. 
+account_password:
+  title: Account wachtwoord
+  content: >
+    Als een <span class="doc-desc-title">beheerder</span> kan je een wachtwoord van een Verantwoordelijke wijzigen.
+forced_password_change:
+  title: Forceer wachtwoord te wijzigen
+  content: >
+    Schakel dit in als je de Verantwoordelijke wilt dwingen zijn wachtwoord te wijzigen bij zijn volgende login.
+agents_signature:
+  title: Handtekening van de verantwoordelijke
+  content: >
+    Maak een handtekening voor de verantwoordelijke die geselecteerd kan worden bij het antwoorden van een ticket.
+account_status:
+  title: Account status
+  content: >
+    Als de status van de Verantwoordelijke <span class="doc-desc-opt">Gelocked</span> staat, zullen ze niet kunnen aanmelden op de helpdesk.
+assigned_group:
+  title: Toegewezen groep
+  content: >
+    De <span class="doc-desc-title">Groep</span> waar Verantwoordelijke tot behoord, bepaald welke rechten de Verantwoordelijke binnen de <span class="doc-desc-title">helpdesk</span> heeft.
+  links:
+    - 
+      title: Beheer groepen
+      href: /scp/groups.php
+primary_department:
+  title: Standaard afdeling
+  content: >
+    Kies de primaire <span class="doc-desc-title">afdeling</span> waar deze agent toe behoord en een actieve <span class="doc-desc-title">rol</span> in heeft.
+  links:
+    - 
+      title: Afdelingen beheren
+      href: /scp/departments.php
+primary_role:
+  title: Primaire rol
+  content: >
+    Kies de primaire <span class="doc-desc-title">rol</span> van deze agent.
+primary_role_on_assign:
+  title: Gebruik de primaire rol voor het toekennen van tickets
+  content: >
+    Stel dit in om terug te vallen op de  <span class="doc-desc-title">primaire rol</span>  als een agent tickets en taken heeft toegekend buiten de <span class="doc-desc-title">primaire afdeling</span> en <span class="doc-desc-title">uitgebreide toegang</span> afdelingen. 
+    Anders hebben agenten alleen leestoegang.
+daylight_saving:
+  title: Zomertijd
+  content: >
+    Schakel deze functie is als u wil dat de zomertijd automatisch aangepast wordt voor deze Verantwoordelijke.
+limited_access:
+  title: Beperkte toegang
+  content: >
+    Als dit ingeschakeld is zal de Verantwoordelijke enkel toegang hebben tot de tickets die via het Team of rechtstreeks toegewezen zijn.
+directory_listing:
+  title: Directory Listing
+  content: >
+    Schakel dit in als u de Verantwoordelijke wil oplijsten in de <span class="doc-desc-title">Personeelslijst</span>.
+  links:
+    - 
+      title: Bezoek de Personeelslijst
+      href: /scp/directory.php
+vacation_mode:
+  title: Vakantiemodus
+  content: >
+    Als u de verantwoordelijke zijn status naar <span class="doc-desc-opt">Vakantiemodus</span> zet, zal de verantwoordelijke geen <span class="doc-desc-title">Waarschuwingen&amp;Mededelingen</span> ontvangen. Ook zal hij niet beschikbaar zijn voor het toewijzen van tickets.
+

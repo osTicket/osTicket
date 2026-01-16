@@ -1,0 +1,13 @@
+---
+canned_response:
+  title: استجابة مسبقة
+  content: >
+    إنشاء <span class="doc-desc-title"> استجابة مسبقة</span> التي يمكن تضمينها في استجابة التذاكر. يمكن أيضا استخدامها <span class="doc-desc-title">كإستجابة تلقائية للتذاكر</span> مؤسسة عن طريق <span class="doc-desc-title"> مرشح التذاكر</span>.
+  links:
+    - 
+      title: إعداد عامل ترشيح التذاكر
+      href: /scp/filters.php
+canned_attachments:
+  title: المرفقات المسبقة
+  content: >
+    أرفق الملف الذي ترغب بإدراجه تلقائياً في استجابة التذاكر الجديدة التي تستخدم <span class="doc-desc-title"> الاستجابة المسبقة</span>.

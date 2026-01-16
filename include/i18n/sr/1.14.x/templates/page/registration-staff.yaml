@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Овај шаблон дефинише иницијалину емаил поруку (опционо) која се шаље Запосленим када је налог креиран у њихово име.
+name: "Добро дошли на osTicket"
+body: >
+  <h3><strong>Здраво %{recipient.name.first},</strong></h3> <div> Ми смо за Вас креирали налог за наш систем за пружање помоћи %{url}.<br /> <br /> Молимо Вас пратите линк испод за потврду Вашег налога и омогућавање приступа Вашим тикетима.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ваш систем за подршку корисницима<br /> %{company.name}</em> </div>

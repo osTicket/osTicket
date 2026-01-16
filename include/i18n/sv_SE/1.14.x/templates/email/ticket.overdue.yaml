@@ -1,0 +1,27 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Skickas till handläggare när ett ärende övergår till förfallet i systemet. Förfallna ärenden uppstår baserat på ärendets förfallodatum, samt vilken SLA som definierats för ärendet.
+subject: |
+  Förfallet ärende
+body: |
+  <h3><strong>Hej %{recipient}</strong>,</h3>
+  Ett ärende, <a href="%{ticket.staff_link}">#%{ticket.number}</a> har förfallit.
+  <br>
+  <br>
+  Vi borde alla arbeta hårt för att garantera att alla ärenden är åtgärdas i tid.
+  <br>
+  <br>
+  Signerad,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>För att visa eller besvara ärendet, vänligen <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logga in</span></a> i ärendehanteringssystemet. Du får detta meddelande då ärendet är tilldelat dig eller ellet team som du ingår i.</div>
+  <em style="font-size: small">Med vänliga hälsningar</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

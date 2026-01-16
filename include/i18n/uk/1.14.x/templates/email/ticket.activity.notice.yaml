@@ -1,0 +1,21 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Повідомлення для співавторів про активність заявки - наприклад, про відповідь або повідомленні.
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3> <strong>Доброго дня, %{recipient.name.first}! </strong> </h3> 
+  <div> 
+      Користувач з іменем <em> %{poster.name} </em> щойно додав повідомлення до заявки, в якій Ви берете участь. 
+  </div> 
+  <br> 
+  %{message} 
+  <br> 
+  <br> 
+  <hr> 
+  <div style = "color: rgb (127, 127, 127); font-size: small; text-align: center;"> 
+  <em> Ви отримуєте цей лист, оскільки Ви є співавтором в заявці <a href = "%{recipient.ticket_link}" style = "color: rgb (84, 141, 212);"> #%{ticket.number} </a>. Для участі, просто дайте відповідь на цей лист, або <a href = "%{recipient.ticket_link}" style = "color: rgb (84, 141, 212);"> натисніть тут </a> для переходу до повного архіву гілки Заявки. </em> 
+  </div>

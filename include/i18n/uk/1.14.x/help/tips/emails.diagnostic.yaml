@@ -1,0 +1,36 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Diagnostics
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+test_outgoing_email:
+  title: Тестувати вихідної пошти
+  content: >
+    Доставка пошти залежить від настроювань сервера (php.ini) та / або конфігурації SMTP.
+  links:
+    - 
+      title: Виберіть адресу електронної пошти, щоб налаштувати параметри SMTP (Вихідні)
+      href: /scp/emails.php
+from:
+  title: Від
+  0: >
+
+to:
+  title: Кому
+  0: >
+
+subject:
+  title: Тема
+  0: >
+
+message:
+  title: Повідомлення
+  0: >
+

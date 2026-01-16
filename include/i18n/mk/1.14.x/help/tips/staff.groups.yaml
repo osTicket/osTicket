@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Групи
+  content: >
+    Групите се користат за дефинираат пермисии за Агентот кај техничката поддршка. Групите исто така овозможуваат пристап до Одделот за разлика од првичните пермисии на Агентот.
+status:
+  title: Статус
+  content: >
+    Ако е <span class="doc-desc-opt">оневозможено</span>, Агентите доделени на оваа Група нема да можат да се логираат и нема да можат да примаат известувања од Одделот.
+department_access:
+  title: Присап за Одделот
+  content: >
+    Провери ги сите Оддели за која Група членовите се во можност да пристапат.

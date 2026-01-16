@@ -1,0 +1,12 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Sendes til brukere når de har overskredet maksimalt antall åpne samtidige saker. Grensen kan konfigureres i Admin-panelet, og er definert av saker åpnet av en bestemt e-postadresse.
+subject: |
+  Åpne saker grense nådd
+body: |
+  <h3><strong>Kjære %{ticket.name.first},</strong></h3> Du har nådd maksimalt antall åpne saker som tillates. Hvis du vil åpne en annen sak, må en av ventende sakene lukkes. For å oppdatere eller legge til kommentarer til en åpen sak bare <a href="%{url}/tickets.php?e=%{ticket.email}"> Logg inn på vårt sakssystem</a>. <br><br>Takk, <br/>

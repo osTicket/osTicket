@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Group  -> User Group Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+groups:
+  title: Grupės
+  content: >
+    Grupės yra naudojamos nustatant agento teises pagalbos sistemoje. Grupės taip pat gali suteikti prieigą prie kitų padalinių negu agento pirminis padalinys.
+status:
+  title: Būsena
+  content: >
+    Jeigu<span class="doc-desc-opt">išjungta</span>,Agentai priskirti šiai grupei negali prisijungti ir negaus  padalinio įspėjimų&amp; pranešimų.
+department_access:
+  title: Padalinio prieiga
+  content: >
+    Patikrinkite visu padalinius prie kurių grupės nariai turi prieigą.

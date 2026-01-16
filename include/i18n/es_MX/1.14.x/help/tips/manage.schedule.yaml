@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Definición de horario
+  content: >
+    <b>Name</b>: Nombre único para el horario <hr> <b>Type</b>: Elija el tipo de horario. <span class="doc-desc-title">Horario comercial</span> define las horas que se incluyen al calcular las horas de SLA, donde <span class="doc-desc-title">Holiday Hours</span> define horas que están excluidas. <hr> <b> Zona horaria </b>: Elija la zona horaria para el horario. Se recomienda que lo deje vacío durante una zona horaria <span class="doc-desc-title">Flotante</span> Zona horaria. <br><br> Una zona horaria flotante permite que las horas sean relativas a la zona horaria efectiva en el momento del uso.
+

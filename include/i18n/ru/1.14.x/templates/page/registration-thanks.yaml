@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  Этот шаблон определяет содержимое, которое отображается после того, как клиенты успешно зарегистрировались и подтвердили свою учётную запись. Эта страница должна проинформировать клиента, что регистрация закончена и что он может теперь создать заявку или получить доступ к существующим.
+name: "Учетная запись активирована!"
+body: >
+  <div><strong>Спасибо за регистрацию учетной записи.</strong>< br />< br /> Вы подтвердили свой адрес электронной почты и успешно активировали свой аккаунт. Теперь вы можете открыть новую заявку или управлять существующими. < br />< br /><em>Ваш центр поддержки.</em> < br />%{company.name}</div>

@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Hvad er osTicket (eksempel)?
+  response: |
+    osTicket er et udbredt open source support bestilling system, et attraktivt alternativ til mere komplekse support systemer med højere omkostninger - enkel, let, pålidelig, open source, web-baseret og let at installere og bruge.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Vedhæftede filer rykker!!!
+- 
+  isenabled: 1
+  title: Prøve (med variabler)
+  response: |
+    Hej %{ticket.name.first},
+    <br>
+    <br>
+    Din sag #%{ticket.number} oprettet d. %{ticket.create_date} er i
+    %{ticket.dept.name} afdeling.
+  0: |
+

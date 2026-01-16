@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: מידע בנושא עזרה
+  content: >
+    <span class="doc-desc-title">נושאי עזרה</span> מדריכים איזו אינפורמציה נאספה ממשתמשים ואיך קריאות ממוסללות או מוקצות.
+topic:
+  title: שם הנושא
+  content: >
+    שם נושא עזרה ייחודי.
+status:
+  title: מצב
+  content: >
+    אם כבוי או מאוחסן בארכיון, <span class="doc-desc-title">נושא עזרה</span> זה לא יהיה נגיש.
+type:
+  title: סוג
+  content: >
+    אם <span class="doc-desc-title">נושא עזרה</span> מתויג כפרטי, הוא יהיה נגיש רק לסוכנים לבחירה בזמן שסוכן  פותח קריאה חדשה בפאנל הסגל.
+parent_topic:
+  title: נושא אב
+  content: >
+    בחר את נושא האב שאליו <span class="doc-desc-title">נושא עזרה</span> זה ישתייך. נושא האב יוצג לראשונה ברשימה עם <span class="doc-desc-title">נושא העזרה</span> הזה רשום מאחורי נושא האב.
+custom_form:
+  title: טופס מותאם אישית
+  content: >
+    טפסים מותאמים אישית יעזרו לך לאסוף מידע ספציפי יותר מהמשתמשים שרלוונטים ל<span class="doc-desc-title">נושא עזרה</span> זה.
+  links:
+    - 
+      title: ניהול טפסים מותאמים אישית
+      href: /scp/forms.php
+priority:
+  title: עדיפות
+  content: >
+    בחר את העדיפות שיש להקצות לקריאות חדשות הקשורות ל<span class="doc-desc-title">נושא עזרה</span> זה.<br><br>מסנני קריאות יכולים לעקוף עדיפויות של קריאות חדשות.
+department:
+  title: מחלקה
+  content: >
+    בחר מחלקה שאליו קריאות חדשות תחת נושא עזרה זה ימוסללו.
+  links:
+    - 
+      title: ניהול מחלקות
+      href: /scp/departments.php
+sla_plan:
+  title: תוכנית שירות
+  content: >
+    בחר תוכנית SLA הקשור ל<span class="doc-desc-title">נושא עזרה</span> זה.<br><br> בחירה זו תעקוף כל בחירת תוכנית SLA של מחלקה
+  links:
+    - 
+      title: נהל תוכניות שירות
+      href: /scp/slas.php
+thank_you_page:
+  title: דף "תודה"
+  content: >
+    בחרת את דף ה"תודה" שאליו משתמשים ינותבו לאחר פתיחת קריאה תחת <span class="doc-desc-title">נושא עזרה</span> זה.
+  links:
+    - 
+      title: נהל דפי "תודה"
+      href: /scp/pages.php
+auto_assign_to:
+  title: הקצה קריאות חדשות אוטומטית
+  content: >
+    בחר אופציונלית סוכן או צוות להקצות אוטומטית לקריאות שנפתחו עם <span class="doc-desc-title">נושא עזרה</span> זה.<br><br>מסנני קריאות יכולים לעקוף הקצאה.
+  links:
+    - 
+      title: נהל סגל וצוותים
+      href: /scp/staff.php
+ticket_auto_response:
+  title: תגובה אוטומטית לקריאה
+  content: >
+    אם מסומן, ההגדרה תבטל תגובות אוטומטיות חדשות לקריאות עבור <span class="doc-desc-title">נושא עזרה</span> זה.<br><br>פעולה זו עוקפת את הגדרות המגיב האוטומטי עבור ה<span class="doc-desc-title">מחלקה</span> וכמו כן, את <span class="doc-desc-title">הגדרות המגיב האוטומטי</span> הגלובלי.
+  links:
+    - 
+      title: הגדרות המגיב האוטומטי
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: מספרי קריאות מוגדרים אישית
+  content: >
+    בחר "מותאם אישית" פה כדי לעקוף את ברירת מחדל המערכת עבור קריאות שנוצרו בנושא עזרה זה. ראה את טיפי העזרה בעמוש ההגדרות/קריאות עבור פרטים נוספים לגבי ההגדרות.

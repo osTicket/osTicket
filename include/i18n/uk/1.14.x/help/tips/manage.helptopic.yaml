@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Інформаційна довідка
+  content: >
+    <span class = "doc-desc-title"> Інформаційні довідки </span> вказують на те, яка інформація збирається від користувачів і як заявки направляються або призначаються.
+topic:
+  title: Назва теми
+  content: >
+    Унікальне ім'я розділу довідки.
+status:
+  title: Статус
+  content: >
+    Якщо вимкнуто або архівовано то, цей <span class="doc-desc-title"> розділ довідки </span> буде не доступний.
+type:
+  title: Тип
+  content: >
+    Якщо <span class="doc-desc-title"> розділ довідки</span>, позначений як приватний, то йго будуть бачити тільки співробітники, які створюють нову заявку в панелі співробітника.
+parent_topic:
+  title: Батьківська тема
+  content: >
+    Виберіть батьківську категорію, якій ця <span class = "doc-desc-title"> категорія </span> належатиме. Батьківська категорія буде показуватися першою в списку, з цією <span class = "doc-desc-title"> категорією </span> після батьківської.
+custom_form:
+  title: Користувацька форма
+  content: >
+    Користувальницькі форми допоможуть Вам отримати більше конкретної інформації від користувачів, що відноситься до цього <span class = "doc-desc-title"> розділу довідки </span>.
+  links:
+    - 
+      title: Керування користувацькими формами
+      href: /scp/forms.php
+priority:
+  title: Пріоритет
+  content: >
+    Виберіть пріоритет, який призначається новим заявкам, які належать до цього <span class = "doc-desc-title"> розділу довідки </span>. <br> <br> Фільтри заявок можуть перевизначати пріоритет нових заявок.
+department:
+  title: Відділ
+  content: >
+    Оберіть відділ, до якого будуть належати нові заявки.
+  links:
+    - 
+      title: Управління відділами
+      href: /scp/departments.php
+sla_plan:
+  title: SLA план
+  content: >
+    Виберіть план SLA, асоційований з цією <span class = "doc-desc-title"> категорією заявок </span>. <br> <br> Цей вибір перевизначить будь-який обраний план SLA відділу
+  links:
+    - 
+      title: Керування SLA планами
+      href: /scp/slas.php
+thank_you_page:
+  title: Сторінка "Дякуємо"
+  content: >
+    Виберіть сторінку подяки, на яку користувач спрямовуватиметься після відкриття заявки під цією <span class = "doc-desc-title"> категорією заявок </span>.
+  links:
+    - 
+      title: Керування сторінкою подяки
+      href: /scp/pages.php
+auto_assign_to:
+  title: Автоматично призначати нові заявки
+  content: >
+    При необхідності, виберіть співробітника або команду для автопризначення заявок, відкритих з цієї <span class = "doc-desc-title"> категорії заявок </span> <br> <br> Фільтр заявок може перевизначити призначення.
+  links:
+    - 
+      title: Керування персоналом і командами
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Автоматична відповідь на заявку
+  content: >
+    Якщо відзначене, установка відключить автовідповіді на нові заявки для цієї <span class = "doc-desc-title"> категорії заявок </span>. <br> <br> Це перевизначає настройку автовідповідача для <span class = "doc-desc-title"> відділу </span>, а також глобальні настройки <span class = "doc-desc-title"> автовідповідача </span>.
+  links:
+    - 
+      title: Налаштування автовідповідача
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Користувальницька нумерація заявок
+  content: >
+    Виберіть інший формат нумерації заявок, створених у цьому розділі. Подивіться підказки на сторінці Налаштування/Заявки для більш докладної інформації про налаштування.

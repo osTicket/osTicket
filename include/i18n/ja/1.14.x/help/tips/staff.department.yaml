@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: ステータス
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: タイプ
+  content: >
+    クライアントポータルでこの部門へのアサインを隠すには、 <span class="doc-desc-opt">プライベート</span>を選択します。また、<span class="doc-desc-opt">プライベート</span>のラベルが付けられた場合、<span class="doc-desc-title">部門の署名</span>は返信メールに表示されません。<br/><br/> 少なくとも1つの部門が <span class="doc-desc-opt">パブリック</span>になっていなければなりません。
+email:
+  title: Email
+  content: >
+    エージェントがチケットに返信を投稿するときにユーザーに返信するのに使用されるメールアドレス。
+template:
+  title: テンプレートセット
+  content: >
+    この部門にルーティングされるチケットの自動返信とアラートと通知に使用されるメール<span class="doc-desc-title">テンプレートセット</span>。
+  links:
+    - 
+      title: テンプレートの管理
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    この部門にルーティンングされるチケットのサービスレベル合意書。
+  links:
+    - 
+      title: SLAプランの管理
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: 部門管理者
+  content: >
+    この部門の<span class="doc-desc-title">管理者</span>を選択します。<br/><br/> 管理者は、特別なアラートを受け取るように設定でき、また、チケットのアサインを解除する権利を有します。
+  links:
+    - 
+      title: アラートと通知の管理
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: アラートと通知受信者
+  content: >
+    設定された<span class="doc-desc-title">アラートと通知</span>の受信者を選択します。
+  links:
+    - 
+      title: アラートと通知の設定
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: チケットアサイン制限
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: 自動請求無効化
+  content: >
+    この<strong>無効化</strong>をクリックするとこの部署の回答／返信の自動請求を無効化します。 <br><br> エージェントは手動で、チケットのアサイン解除を請求できます
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: 自動返信設定
+  content: >
+    これは、この部門のグローバル自動返信設定を上書きできるようにします。
+new_ticket:
+  title: 新着チケット自動返信
+  content: >
+    新しいチケットが作成され、この部門にルーティングされるときにユーザーに送信される自動返信を無効にできます。
+new_message:
+  title: 新着メッセージ自動返信
+  content: >
+    この部門でチケットに新しく投稿されたメッセージを確認するためにユーザーに送信される自動返信を無効にできます。
+auto_response_email:
+  title: 自動返信メール
+  content: >
+    この部門に自動返信を送信するメールアドレスを選択します。
+department_access:
+  title: グループアクセス
+  content: >
+    この部門のチケットに他の部門のエージェントがアクセスすることを許可します。
+department_signature:
+  title: 部門の署名
+  content: >
+    署名は、エージェントの返信で<span class="doc-desc-opt">パブリック</span>部門への選択肢として使用できます。

@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Sablon email implicit
+  content: >
+    Selectează <span class="doc-desc-title">setul de șabloane de e-mail</span> utilizate la trimiterea <span class="doc-desc-title">răspunsurilor automate</span> și <span class="doc-desc-title">alertelor</span> pentru diverse acțiuni ce pot avea loc pe toata durata unui tichet.<br><br>Departamentelor li se poate aloca un set de șabloane de e-mail specific.
+  links:
+    - 
+      title: Administreaza seturi de sabloane email
+      href: /scp/templates.php
+default_system_email:
+  title: Email implicit de trimitere
+  content: >
+    Selecteaza o adresa de email de pe care se vor trimite emailurile. <br><br> <span class="doc-desc-title">Departmentul</span> poate seta proproa <span class="doc-desc-title">adresa de email</span> care o va suprapune pe aceasta unde este setata.
+  links:
+    - 
+      title: Administrare adrese de email
+      href: /scp/emails.php
+default_alert_email:
+  title: E-mail implicit pentru alerte
+  content: >
+    Alege adresa de email de pe care se vor trimite <span class="doc-desc-title">Alertele &amp; Notificarile</span> catre Agenti.
+  links:
+    - 
+      title: Administrare adrese de email
+      href: /scp/emails.php
+admins_email_address:
+  title: Adresa de email administrator
+  content: >
+    Introdu adresa de e-mail a unui administrator căruia i se vor trimite <span class="doc-desc-title">erorile de sistem</span> și <span class="doc-desc-title">alertele de tichet nou</span> (dacă acestea sunt activate).
+  links:
+    - 
+      title: Administreaza Alerte si Notificari
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Preluare emailuri
+  content: >
+    Permite preluare IMAP/POP pentru <span class="doc-desc-title">Casute de email</span> configurate si activate.
+  links:
+    - 
+      title: Administreaza casute email
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Preia emailuri folosind cron automat
+  content: >
+    Activeaza prealuarea periodica de email-uri folosing un sistem intern de management al sarcinilor ce este declansat de activitatea agentilor. <br><br> Mentionam ca email-urile nu vor fi preluate daca nimeni nu este logat in Staff Control Panel. Folosirea unui program extern de programare a sarcinilor este recomandata pentru garantarea preluarii de email-uri la intervale regulate de timp.
+  links:
+    - 
+      title: Foloseste Task Scheduler extern
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Sterge Citat Raspuns
+  content: >
+    Daca este activata, aceasta va sterge orice corespondenta anterioara intre comunicatiile prin email. <br><br> Aceasta optiune este relational dependenta de <span class="doc-desc-title">Tag-ul de separator pentru Reply</span> de mai jos.
+reply_separator_tag:
+  title: Tag separator la raspuns
+  content: >
+    Acesta este un simbol ce indica utilizatorului sa isi scrie raspunsul deasupra liniei. <br><br> <strong>Atentie:</strong> acesta este relevant doar daca <span class="doc-desc-title">Strip Quoted Reply</span> este activat mai sus.
+emailed_tickets_priority:
+  title: Prioritate Tichete din Emailuri
+  content: >
+    Alege daca doresti ca optiunea de prioritate/importanta a clientului de email (ex. Outlook) sa dicteze prioritatea tichetelor noi. <br><br>Aceasta setare poate fi suprascrisa de un <span class="doc-desc-title">Filtru de tichete</span>.
+  links:
+    - 
+      title: Creaza &amp; Administreaza Filtre Tichet
+      href: /scp/filters.php
+accept_all_emails:
+  title: Accepta toate emailurile
+  content: >
+    Accepta emailuri de la utilizatori necunoscuti.<br><br> Debifand aceasta optiune va rezulta in respingerea tichetelor din partea lor.
+accept_email_collaborators:
+  title: Accepta Colaboratori Email
+  content: >
+    Adaugă adresele de email care să fie incluse in câmpurile  <code><strong>To</strong></code> și <code><strong>CC</strong></code> ca și colaboratori la tichet. <br /><br /> <em>Colaboratorii pot fi adaugați și manual, de catre Agent, la vizualizarea tichetului.</em>
+default_mta:
+  title: MTA Implicit
+  content: >
+    <span class="doc-desc-title">MTA-ul Implicit</span> va fi folosit pentru trimiterea emailurilor care nu au setari SMTP.
+ticket_response_files:
+  title: Fisiere Raspuns Tichet
+  content: >
+    Daca este activat, orice atasament pe care un Agent il poate atasa unui raspuns la un tichet, va fi de asemenea inclus in emailul catre Utilizator.
+verify_email_addrs:
+  title: Verifică adresa de email
+  content: >
+    Activați această opțiune pentru a verifica dacă adresa de email are un schimbător de mail-uri (MX) în DNS-ul domeniului. Acest lucru este util pentru a detecta adresele de email introduse greșit.

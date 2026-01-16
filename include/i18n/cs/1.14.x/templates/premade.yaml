@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Co je osTicket (příklad)?
+  response: |
+    osTicket je široce rozšířený open source systém pro správu zákaznických požadavků, zajímavá alternativa k placeným a komplexním službám zákaznické podpory - jednoduchý, nenáročný, spolehlivý, open source, přístupný na internetu, snadno nastavitelný a uživatelsky příjemný na užívání.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Předefinované přílohy
+- 
+  isenabled: 1
+  title: Příklad (s proměnnými)
+  response: |
+    Dobrý den, %{ticket.name.first},
+    <br>
+    <br>
+    Váš požadavek č. %{ticket.number} vytvořený dne %{ticket.create_date} je v
+    oddělení %{ticket.dept.name}.
+  0: |
+

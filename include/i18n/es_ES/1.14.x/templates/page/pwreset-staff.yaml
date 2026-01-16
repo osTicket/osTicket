@@ -1,0 +1,26 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Esta plantilla define el correo electrónico enviado al personal que seleccione el vínculo<strong>Olvidé mi contraseña</strong> en la página del control de acceso del personal.
+name: "Reinicio de contraseña del Personal de osTicket"
+body: >
+  <h3><strong>Hola %{staff.name.first},</strong></h3>
+  Se ha enviado una solicitud de restauración de la contraseña en su nombre en %{url}.
+  <br>
+  <br>
+  si cree que ha sido enviada por error, simplemente borre este correo. Su cuenta sigue siendo segura y nadie ha accedido a ella. No está bloqueada, y su contraseña no ha sido restaurada. Alguien ha podido introducir su dirección de correo por error.
+  <br>
+  <br>
+  Pulse el enlace siguiente para identificarse en el sistema y cambiar su contraseña.
+  <br>
+  <br>
+  <a href="%{reset_link}">%{reset_link}</a>
+  <br>
+  <br>
+  <em style="font-size: small">El equipo de soporte técnico</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
+  width="126" height="19" style="width: 126px;">

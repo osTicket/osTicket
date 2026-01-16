@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Jelzések és riasztások
+  content: >
+    A riasztások és értesítések automatizált e-mail figyelmeztetések, amiket a munkatársak kapnak különböző hibajegy események bekövetkezésekor.
+ticket_alert:
+  title: Új hibajegy riasztás
+  content: >
+    <p> A kezelő riasztást kap amikor új hibajegy keletkezik. </p><p class="info-banner"> <i class="icon-info-sign"></i> Ez a riasztás nem kerül kiküldésre, ha a hibajegy automata besorolásra van állítva a Hibajegy keresőben vagy a súgó címben</p>
+  links:
+    - 
+      title: Alapértelmezett Új hibajegy riasztási sablon
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Új üzenet riasztás
+  content: >
+    Riasztás kerül kiküldésre a kezelőnek, ha új üzenetet csatolnak a már meglévő hibajegyhez.
+  links:
+    - 
+      title: Alap Új üzenet figyelmeztetés sablon
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Új belső aktivitás riasztás
+  content: >
+    Riasztást küld a munkatársnak ha belső aktivitás, mint például belső feljegyzés, vagy munkatárs által írt válasz csatolódik a hibajegyhez.
+  links:
+    - 
+      title: Alap hibajegy tevékenység sablon
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Hibajegy Besorolás Figyelmeztetés
+  content: >
+    Figyelmeztetés kiküldve a kezelőnek a hibajegy besorolásáról.
+  links:
+    - 
+      title: Alapérték Hibajegy Besorolás Figyelmeztetés Sablon
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Értesítés átadáskor
+  content: >
+    Kezelőknek figyelmeztetés megy a részlegek között áthelyezett hibajegyekről.
+  links:
+    - 
+      title: Alapértelmezett bejegyzés átruházás riasztás sablon
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Lejárat Hibajegy Figyelmeztetés
+  content: >
+    Figyelmeztetést küld az kezelőnek, amikor a jegy a megegyezett keretszerződés szerint vagy a határideje szerint lejár.
+  links:
+    - 
+      title: Alapérték Elavult Hibajegy Figyelmeztetés Sablon
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Rendelkezésre állások kezelése
+      href: /scp/slas.php
+system_alerts:
+  title: Rendszer riasztások
+  content: >
+    Meghatározó rendszer események, amelyek elküldésre kerülnek az Adminisztrátornak(%{config.admin_email}). A beállított <span class="doc-desc-title">Naplózási szint</span>függvényében az események rögzítésre kerülnek a <span class="doc-desc-title">Rendszer Naplófájlban</span> is.
+  links:
+    - 
+      title: Naplók megtekintése
+      href: /scp/logs.php
+    - 
+      title: Admin email megváltoztatása
+      href: /scp/settings.php?t=emails

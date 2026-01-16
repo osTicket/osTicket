@@ -138,20 +138,21 @@ $tickets->values(
 
 ?>
 <div class="search well">
+<!--osta-->
 <div class="flush-left">
 <form action="tickets.php" method="get" id="ticketSearchForm">
-    <input type="hidden" name="a"  value="search">
-    <input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
-    <input type="submit" value="<?php echo __('Search');?>">
-<div class="pull-right">
-    <?php echo __('Help Topic'); ?>:
-    <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
-        <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
+<div id="search-container">
+	<input type="hidden" name="a" value="search">
+	<input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>" placeholder="<?php echo __('Search'); ?>"/><button type="submit" class="button ticket-search"><i class="icon-search"></i></button> 
+		</div>
+		<div class="pull-right">
+		<select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
+		<option value=""><!--osta--><?php echo __('All Help Topics');?></option>
 <?php
 foreach (Topic::getHelpTopics(true) as $id=>$name) {
-        $count = $thisclient->getNumTopicTickets($id, $org_tickets);
-        if ($count == 0)
-            continue;
+	$count = $thisclient->getNumTopicTickets($id, $org_tickets);
+	if ($count == 0)
+	    continue;
 ?>
         <option value="<?php echo $id; ?>"i
             <?php if ($settings['topic_id'] == $id) echo 'selected="selected"'; ?>
@@ -159,19 +160,23 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
                 $thisclient->getNumTopicTickets($id)); ?></option>
 <?php } ?>
     </select>
+<!--osta-->
+<div id="help-topic"><?php echo __('Help Topic'); ?>:</div>
 </div>
 </form>
 </div>
 
 <?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
-<div style="margin-top:10px"><strong><a href="?clear" style="color:#777"><i class="icon-remove-circle"></i> <?php echo __('Clear all filters and sort'); ?></a></strong></div>
+<!--osta-->
+<div id="clear-filters" style="margin-top:10px"><strong><a href="?clear" style="color:#777"><i class="icon-remove-circle"></i> <?php echo __('Clear all filters and sort'); ?></a></strong></div>
 <?php } ?>
 
 </div>
 
 
-<h1 style="margin:10px 0">
-    <a href="<?php echo Http::refresh_url(); ?>"
+<!--osta-->
+<h1 id="tickets-title"><!--osta-->
+    <a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
         ><i class="refresh icon-refresh"></i>
     <?php echo __('Tickets'); ?>
     </a>
@@ -182,8 +187,8 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
     <i class="icon-file-alt"></i>
     <a class="state <?php if ($status == 'open') echo 'active'; ?>"
         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-    <?php echo __('Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
-    </a>
+    <?php echo __('Open'); if ($openTickets > 0) echo sprintf(' <span class="number">(%d)</span>', $openTickets); ?>
+    </a><!--osta-->
     <?php if ($closedTickets) { ?>
     &nbsp;
     <span style="color:lightgray">|</span>
@@ -194,14 +199,16 @@ if ($closedTickets) {?>
     <i class="icon-file-text"></i>
     <a class="state <?php if ($status == 'closed') echo 'active'; ?>"
         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
-    <?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' (%d)', $closedTickets); ?>
+    <!--osta-->
+    <?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' <span class="number">(%d)</span>', $closedTickets); ?>
     </a>
 <?php } ?>
     </small>
 </div>
 </h1>
+<!--osta-->
+<caption><?php echo $showing; ?></caption><br /><br /><!--osta-->
 <table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th nowrap>
@@ -244,21 +251,22 @@ if ($closedTickets) {?>
             }
             $thisclient->getId() != $T['user_id'] ? $isCollab = true : $isCollab = false;
             ?>
-            <tr id="<?php echo $T['ticket_id']; ?>">
-                <td>
+            <tr class="<?php echo $T['ticket_id']; ?>">
+            <!--osta-->
+                <td class="ticket-number"><div id="new-reply-icon"><span class="dot"></span></div>
                 <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
-                <td><?php echo Format::date($T['created']); ?></td>
-                <td><?php echo $status; ?></td>
-                <td>
+                <td class="ticket-updated"><?php echo Format::date($T['created']); ?></td>
+                <td class="ticket-status"><span class="dot"></span><?php echo $status; ?></td>
+                <td class="ticket-subject">
                   <?php if ($isCollab) {?>
                     <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><i class="icon-group"></i> <?php echo $subject; ?></div>
                   <?php } else {?>
                     <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
                     <?php } ?>
                 </td>
-                <td><span class="truncate"><?php echo $dept; ?></span></td>
+                <td class="ticket-department"><span class="truncate"><?php echo $dept; ?></span></td>
             </tr>
         <?php
         }
@@ -266,11 +274,23 @@ if ($closedTickets) {?>
      } else {
          echo '<tr><td colspan="5">'.__('Your query did not match any records').'</td></tr>';
      }
-    ?>
-    </tbody>
+    ?>    
+  </tbody>
 </table>
+<!--osta-->
+<script>
+	$('b').closest('td').addClass("new-reply-waiting");
+	$('.new-reply-waiting').closest('tr').addClass("new");
+	jQuery(".truncate").each(function(i, value) {
+	   var $link = jQuery(value);
+	   var text = $link.text();
+	   if(text.length > 55) {
+		  $link.text(text.substring(0, 55) + "...");
+	   }
+	});
+</script>
 <?php
 if ($total) {
-    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div id="table-foot-options">&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 }
 ?>

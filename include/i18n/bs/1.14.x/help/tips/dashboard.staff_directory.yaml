@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Djelatnici
+  content: >
+    Tablica prikazuje rezultate odabranog fitriranja iznad. Ukoliko nije odabrano filtriranje, tada su svi <span class="doc-desc-title">Djelatnici </span> prikazani, kao i stranice. Pogledajte odjeljak sa stranicama kako biste pregledali više rezultata.
+apply_filtering_criteria:
+  title: Primjeni odabrane filtere
+  content: >
+    Odaberite <span class="doc-desc-title">Odjel</span> ovisno o vašim potrebama. Možete potražiti i određenog djelatnika.

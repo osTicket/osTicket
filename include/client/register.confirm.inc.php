@@ -8,7 +8,8 @@ echo Format::display($body); ?>
 <?php } else { ?>
 <h1><?php echo __('Account Registration'); ?></h1>
 <p>
-<strong><?php echo __('Thanks for registering for an account.'); ?></strong>
+<!--osta-->
+<h2><?php echo __('Thanks for registering for an account.'); ?></h2>
 </p>
 <p><?php echo __(
 "We've just sent you an email to the address you entered. Please follow the link in the email to confirm your account and gain access to your tickets."

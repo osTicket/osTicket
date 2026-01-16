@@ -34,8 +34,9 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             <i class="icon-sort" title="Drag to Sort"></i>
         </div>
 <?php } ?>
-        <strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
-        <div><?php echo Format::display($form->getInstructions()); ?></div>
+	<!--osta-->
+        <strong><?php echo Format::htmlchars($form->getTitle()); ?></strong><br />
+        <span class="form-instructions"><?php echo Format::display($form->getInstructions()); ?></span>
         </em>
         <?php
         if ($form->getNotice())
@@ -67,41 +68,41 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             }
 
             if ($field->isEditableToStaff() || $isCreate) {
-                $field->render($options); ?>
-                <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
-                    <span class="error">*</span>
-                <?php
-                }
-                if ($field->isStorable() && ($a = $field->getAnswer()) && $a->isDeleted()) {
-                    ?><a class="action-button float-right danger overlay" title="Delete this data"
-                        href="#delete-answer"
-                        onclick="javascript:if (confirm('<?php echo __('You sure?'); ?>'))
-                            $.ajax({
-                                url: 'ajax.php/form/answer/'
-                                    +$(this).data('entryId') + '/' + $(this).data('fieldId'),
-                                type: 'delete',
-                                success: $.proxy(function() {
-                                    $(this).closest('tr').fadeOut();
-                                }, this)
+            $field->render($options); ?>
+            <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
+                <span class="error">*</span>
+            <?php
+            }
+            if ($field->isStorable() && ($a = $field->getAnswer()) && $a->isDeleted()) {
+                ?><a class="action-button float-right danger overlay" title="Delete this data"
+                    href="#delete-answer"
+                    onclick="javascript:if (confirm('<?php echo __('You sure?'); ?>'))
+                        $.ajax({
+                            url: 'ajax.php/form/answer/'
+                                +$(this).data('entryId') + '/' + $(this).data('fieldId'),
+                            type: 'delete',
+                            success: $.proxy(function() {
+                                $(this).closest('tr').fadeOut();
+                            }, this)
                             });
                         return false;"
-                        data-field-id="<?php echo $field->getAnswer()->get('field_id');
-                    ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
-                    ?>"> <i class="icon-trash"></i> </a></div><?php
-                }
+                    data-field-id="<?php echo $field->getAnswer()->get('field_id');
+                ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
+                ?>"> <i class="icon-trash"></i> </a></div><?php
+            }
                 if ($a && !$a->getValue() && $field->isRequiredForClose() && get_class($field) != 'BooleanField') {
     ?><i class="icon-warning-sign help-tip warning"
-        data-title="<?php echo __('Required to close ticket'); ?>"
-        data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
+    data-title="<?php echo __('Required to close ticket'); ?>"
+    data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
     /></i><?php
-                }
-                if ($field->get('hint') && !$field->isBlockLevel()) { ?>
-                    <br /><em style="color:gray;display:inline-block"><?php
-                        echo Format::viewableImages($field->getLocal('hint')); ?></em>
-                <?php
-                }
-                foreach ($field->errors() as $e) { ?>
-                    <div class="error"><?php echo Format::htmlchars($e); ?></div>
+            }
+            if ($field->get('hint') && !$field->isBlockLevel()) { ?>
+                <br /><em style="color:gray;display:inline-block"><?php
+                    echo Format::viewableImages($field->getLocal('hint')); ?></em>
+            <?php
+            }
+            foreach ($field->errors() as $e) { ?>
+                <div class="error"><?php echo Format::htmlchars($e); ?></div>
                 <?php }
             } else {
                 $val = '';

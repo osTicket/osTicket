@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: vytvořen
+  description:
+- 
+  id: 2
+  name: closed
+  description:
+- 
+  id: 3
+  name: znovu otevřeno
+  description:
+- 
+  id: 4
+  name: přiřazené
+  description:
+- 
+  id: 5
+  name: uvolněn
+  description:
+- 
+  id: 6
+  name: předán
+  description:
+- 
+  id: 7
+  name: uvedeno
+  description:
+- 
+  id: 15
+  name: zpožděn
+  description:
+- 
+  id: 9
+  name: editováno
+  description:
+- 
+  id: 10
+  name: zobrazeno
+  description:
+- 
+  id: 11
+  name: chyba
+  description:
+- 
+  id: 12
+  name: spoluautor
+  description:
+- 
+  id: 13
+  name: přeposlán
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: sloučeny
+  description:
+- 
+  id: 16
+  name: nespojené
+  description:
+- 
+  id: 17
+  name: spojené
+  description:

@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Inatumwa kwa wafanyikazi wakati tiketi inabadilika kuwa muafaka katika mfumo. Tiketi muafaka hutokea kutokana na tarehe tiketi inatarajiwa pamoja na SLA ambayo imeelezwa kwa tiketi.
+subject: |
+  Tahadari Tiketi mzee
+body: |
+  <h3><strong>Hi %{recipient}</strong>,</h3>
+  Tiketi, <a href="%{ticket.staff_link}">#%{ticket.number}</a> ni muafaka kabisa.
+  <br>
+  <br>
+  Sisi wote tunapaswa kufanya kazi kwa bidii kuhakikisha kwamba tiketi zinashughulikiwa katika wakati inafaa. 
+  <br>
+  <br>
+  Signed,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Kuangalia au kujibu tiketi, tafadhali<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >ingia</span></a> kwa mfumo wa msaada wa tiketi. Unapokea hii taarifa kwasababu tiketi imepewa kwako moja kwa moja au na timu au idara ambayo wewe ni mwanachama.</div>
+  <em style="font-size: small">wako wa kirafiki <span style="font-size: smaller"
+  >(ingawa na uvumillivu mdogo)</span> mfumo wa kusaidia wateja</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

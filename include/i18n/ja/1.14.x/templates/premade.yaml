@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: osTikectとは？
+  response: |
+    osTicketは多く使用されているオープンソースのサポートチケットシステムです。高コストで複雑な顧客サポートシステムの代替となる、シンプルで軽くて信頼性の高い、Webベースでセットアップも簡単な使いやすいシステムです。
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: 添付ファイルをロックすることができます
+- 
+  isenabled: 1
+  title: 変数ありのサンプル
+  response: |
+    こんにちは %{ticket.name.first}さん
+    <br>
+    <br>
+    チケット番号 #%{ticket.number}が%{ticket.dept.name}部門により%{ticket.create_date}に作成されました。
+  0: |
+

@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Brugernavn
+  content: >
+    Vælg venligst et Agent <span class="doc-desc-title"> brugernavn</span>, der er unik for din <span class="doc-desc-title"> Help Desk</span>.
+email_address:
+  title: Mailadresse
+  content: >
+    Indtast Medarbejders Email, der skal modtage <span class="doc-desc-title">Påmindelser &amp; Meddelelser</span> fra <span class="doc-desc-title"> Help Desk</span>.
+  0: <br><br>
+  1: Personalet kan logge ind i personale Kontrolpanel med enten Brugernavn eller email adresse.
+welcome_email:
+  title: Velkomst Email
+  content: >
+    Send den nye Agent en konto adgangs link som agenten vil være i stand til at indstille deres egen adgangskode. Hvis markeringen er fjernet, skal du angive adgangskoden og kommunikere log-in informationer til de nye medarbejdere.
+account_password:
+  title: Konto adgangskode
+  content: >
+    Som <span class="doc-desc-title">administrator</span> kan du ændre en Medarbejders adgangskode.
+forced_password_change:
+  title: Tvungen Password ændringer
+  content: >
+    Aktiver dette hvis du ønsker at tvinge den nye Agent til at ændre deres egen adgangskode ved næste log-in.
+agents_signature:
+  title: Agentens Signatur
+  content: >
+    Opret en signatur for den Agent, som kan vælges, når du besvarer en sag.
+account_status:
+  title: Konto status
+  content: >
+    Hvis Agent statusen er <span class="doc-desc-opt"> låst</span>, vil de ikke kunne logge på HelpDesk.
+assigned_group:
+  title: Tildelt gruppe
+  content: >
+    Den <span class="doc-desc-title"> gruppe</span>, du vælger til denne Agent vil tilhøre vil angive hvilke tilladelser agenten har inden for <span class="doc-desc-title"> Help Desk</span>.
+  links:
+    - 
+      title: Administrer grupper
+      href: /scp/groups.php
+primary_department:
+  title: Primære afdeling
+  content: >
+    Vælg den primære <span class="doc-desc-title">afdeling</span> som denne agent tilhører og en <span class="doc-desc-title">rolle</span>.
+  links:
+    - 
+      title: Administrere Afdelinger
+      href: /scp/departments.php
+primary_role:
+  title: Primær rolle
+  content: >
+    Vælg den primære <span class = "doc-desc-title">rolle</span> som denne agent tilhører.
+primary_role_on_assign:
+  title: Brug primær rolle til opgaver
+  content: >
+    Aktivér dette for at komme tilbage til den <span class="doc-desc-title">primære rolle</span> når denne agent er tildelt sager og opgaver uden for den <span class="doc-desc-title">primære afdeling</span> og <span class="doc-desc-title"> udvidet adgang </span> afdelinger. Ellers vil agenten kunne have læse rettigheder.
+daylight_saving:
+  title: Sommertid
+  content: >
+    Aktiver denne funktion, hvis du gerne vil have dagslys gemmer automatisk spiller ind for denne Medarbejders tidszone.
+limited_access:
+  title: Begrænset adgang
+  content: >
+    Hvis aktiveret, har agenten kun adgang til tildelte sager direkte eller via holdet.
+directory_listing:
+  title: Bibliotek katalogiserer
+  content: >
+    Aktiver dette hvis du ønsker at liste denne Medarbejder i <span class="doc-desc-title">Personale register</span>.
+  links:
+    - 
+      title: Besøg personale Register
+      href: /scp/directory.php
+vacation_mode:
+  title: Ferie tilstand
+  content: >
+    Hvis du ændrer den Agent status til <span class="doc-desc-opt"> Ferie-Mode</span>, vil agenten ikke modtage nogen <span class="doc-desc-title"> advarsler &amp; meddelelser</span> eller være tilgængelige for bestillings tildeling.
+

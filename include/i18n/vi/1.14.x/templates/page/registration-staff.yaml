@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Khung mẫu này là mẫu email ban đầu (tùy chọn) được gửi đến nhân viên khi họ tạo một tài khoản .
+name: "Chào mừng tới osTicket"
+body: >
+  <h3><strong>Xin chào %{recipient.name.first},</strong></h3> <div>Chúng tôi đã tạo cho bạn một tài khoản tại %{url}.<br/> < br > Vui lòng truy cập link bên dưới để xác nhận tài khoản của và truy cập vào ticket của bạn. <br/> <br/> <a href="%{link}"> %{link}</a>< br/> < br/> <em style="font-size: small"> Hệ thống hỗ trợ <br/> %{company.name}</em></div>

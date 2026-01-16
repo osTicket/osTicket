@@ -1,0 +1,24 @@
+---
+#Upgrade completed ticket
+#This ticket is added to the system after the completion of an upgrade. It
+#might include information specific to the release, perhaps with some new
+#feature highlights, etc.
+#---
+source: Web #notrans
+name: osTicket Support
+email: support@osticket.com
+subject: osTicket aktualisiert!
+message: |
+  <p>
+  osTicket erfolgreich aktualisiert! Bitte lesen Sie die Release Notes (https://docs.osticket.com/en/latest/Developer%20Documentation/Changelog.html?highlight=notes) für mehr Informationen über Änderungen und neue Features.
+  </p><p>
+  Bitte stellen Sie sicher, dass Sie den <a href="https://forum.osticket.com">osTicket Foren</a> beitreten und sich in unsere <a href="https://osticket.com">Mailingliste</a> eintragen, um stets über die neuesten Nachrichten, Sicherheitswarnungen und Updates informiert zu sein. Wir freuen uns über Ihren Beitrag zur osTicket Gemeinschaft!
+  </p><p>
+  Das osTicket Team ist engagiert alle Benutzer über unsere freien online Ressourcen zu unterstützen. Außerdem steht Ihnen auch eine vollständige Palette an kommerziellen Support-Paketen und Dienstleistungen zur Verfügung. Kontaktieren Sie uns noch heute unter https://osticket.com/support/ für mehr Informationen und um ihre Anforderungen zu besprechen. Wir freuen uns auf Ihre Rückmeldungen.
+  </p><p>
+  Wenn die Verwaltung und Aktualisierung dieser osTicket-Installation für Sie zu aufwendig ist, nutzen Sie osTicket als gehosteten Dienst auf <a href="https://www.supportsystem.com">https://www.supportsystem.com/</a> -- es ist keine Installation erforderlich und wir können Ihre Daten importieren! Mit "SupportSystem" erhalten sie eine fertige osTicket-Infrastruktur, so dass Sie sich auf Ihre Kunden konzentrieren können, mit der Sicherheit, dass die Anwendung stabil, gepflegt und sicher ist. 
+  </p><p>
+  -<br/>
+  Ihr osTicket Team<br/>
+  https://osticket.com/
+  </p>

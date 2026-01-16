@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Landing Page odkazuje na obsah prvej web stránky portálu pre zákazníkov. Šablóna mení obsah zobrazený nad dvoma odkazmi <strong>Vytvoriť nový tiket</strong> a <strong>Kontrola stavu tiketu</strong>.
+name: Vstupný
+body: >
+  <h1>Vitajte v centre podpory</h1> <p>S cieľom zefektívniť podporu pre užívateľov a lepšie vyhovieť Vašim požiadavkám, Vám zabezpečujeme evidenčný systém podpory. Každá požiadavka je evidovaná na tikete, ktorému je pridelené jedinečné číslo. Číslo tiketu slúži na monitorovanie pokroku a odpovede online. Aby ste mali prehľad, poskytujeme Vám kompletný archív a históriu všetkých vašich požiadaviek. Pre vytváranie požiadaviek je potrebný platný e-mail. </p>

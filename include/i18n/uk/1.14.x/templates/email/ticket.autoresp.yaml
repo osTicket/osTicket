@@ -1,0 +1,22 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Відправляється користувачеві, коли створена нова заявка
+subject: |
+  Заявка [#%{ticket.number}] відкрита
+body: |
+  <h3> <strong>Доброго дня, %{recipient.name.first}! </strong> </h3> 
+  <p> 
+  Запит був створений і прив'язаний до заявки #%{ticket.number}. Представник зв'яжеться з Вами найближчим часом. Ви можете <a href="%{recipient.ticket_link}"> подивитися прогрес цієї заявки онлайн </a>. 
+  </p> 
+  <br> 
+  <div style = "color: rgb (127, 127, 127)"> 
+  Ваша команда: %{company.name}, 
+  <br> 
+  %{signature} 
+  </div> 
+  <hr> 
+  <div style = "color:rgb(127, 127, 127); font-size: small;"> <em> Якщо ви хочете залишити додаткові коментарі або інформацію з цієї проблеми, будь ласка, дайте відповідь на цей лист, або <a href = "%{recipient.ticket_link}"> <span 
+  style = "color: rgb (84, 141, 212);" > увійдіть в свій обліковий запис </span> </a> для перегляду повного архіву Ваших запитів підтримки. </em> </div>

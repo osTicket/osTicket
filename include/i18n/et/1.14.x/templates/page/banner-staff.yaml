@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  See on esimene sõnum ja bänner, mis kuvatakse töötajate sisse logimise lehel. Esimene sisestusväli viitab punaseks vormindatud tekstile, mis ilmub ülaosas. Viimane tekstiväli on bänneri sisu, mis peaks olema hoiatus.
+name: "Autentimine on kohustuslik"
+body: ""

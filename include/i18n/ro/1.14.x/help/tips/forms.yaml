@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Titlul formularului
+  content: >
+    Acest text apare într-un cadru gri deasupra câmpurilor formularului
+form_instructions:
+  title: Instructiuni pentru formular
+  content: >
+    Poți adăuga instrucțiuni suplimentare care să-l ajute pe utilizator în contextul câmpurilor formularului și, eventual, să evidențieze câmpurile obligatorii.
+field_sort:
+  title: Poziția de afișare a câmpului
+  content: >
+    Apasă săgețile sus-jos și trage rândurile câmpurilor din acest formular pentru a le sorta. Preferințele de sortare nu au efect decât după salvarea formularului.
+field_label:
+  title: Eticheta Camp
+  content: >
+    Această etichetă este afișată ca prompter pentru acest câmp. Uzual, un câmp cu răspuns scurt va fi afișat așa:<br> <strong>Etichetă:</strong>&nbsp; <input type="text">
+field_type:
+  title: Tipul conținutului câmpului
+  content: >
+    Definește tipul datelor așteptate de la utilizator.  Poți alege între răspuns scurt sau lung, număr de telefon, dată și oră, căsuță de selecție, listă drop-down sau listă de selecție personalizată.
+  links:
+    - 
+      title: Liste personalizate
+      href: /scp/lists.php
+field_visibility:
+  title: Vizibilitate camp
+  content: >
+    Alege opțiunile de vizibilitate și obligativitate pentru acest câmp.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;">
+    <tr><th>Setare</th> <th>Rezultat</th></tr>
+    <tr><td>Opțional</td> <td>Agenții și utilizatorii finali pot vedea câmpul dar nici unul nu e obligat să-l completeze.</td></tr>
+    <tr><td>Obligatoriu</td> <td>Agenții și utilizatorii finali pot vedea câmpul și ambii sunt obligați să-l completeze.</td></tr>
+    <tr><td>Obligatoriu pentru utilizatori</td> <td>Agenții și utilizatorii finali pot vedea câmpul, doar utilizatorii sunt obligați să-l completeze.</td></tr>
+    <tr><td>Obligatoriu pentru agenți</td> <td>Agenții și utilizatorii finali pot vedea câmpul, doar agenții sunt obligați să-l completeze.</td></tr>
+    <tr><td>Intern, opțional</td> <td>Doar agenții pot vedea câmpul dar răspunsul nu e obligatoriu.</td></tr>
+    <tr><td>Intern, obligatoriu</td> <td>Doar agenții pot vedea câmpul iar răspunsul este obligatoriu.</td></tr>
+    <tr><td>Doar pentru utilizatori</td> <td>Doar utilizatorii pot vedea câmpul iar răspunsul este obligatoriu.</td></tr> </tbody></table>
+field_variable:
+  title: Automatizare
+  content: >
+    Datele din acest câmp vor fi disponibile șabloanelor de pagină și de e-mail prin intermediul numelui utilizat în această coloană. E exemplu, câmpurile din formularul obișnuit de tichet sunt disponibile prin intermediul <code>%{ticket.variable}</code>, unde <strong>variable</strong> este numele utilizat în această coloană.<br><br><em>Informațiile despre companie sunt disponibile prin intermediul <code>%{</code><code>company.variable}</code> iar Informațiile despre utilizator sunt disponibile prin intermediul <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Sterge Câmpul
+  content: >
+    Bifează pentru a șterge câmpul corespunzător din formular.<br><br><em>Ștergerea unui câmp nu șterge și informațiile introduse prin intermediul acestui câmp în formularele completate anterior. De exemplu, dacă un tichet introdus anterior conține informații pentru un câmp, ștergerea acestui câmp din formular nu va șterge informațiile respective din acel tichet.</em>

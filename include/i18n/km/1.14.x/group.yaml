@@ -1,0 +1,47 @@
+---
+- 
+  #Default groups defined for the system
+  #Fields:
+  #id - Primary id for the group
+  #role_id - (int)  default role for the group
+  #flags - (bit mask) group flags
+  #name - (string) descriptive name for the group
+  #notes - (string) administrative notes (viewable internally only)
+  #depts: (list<Department<id>>) id's of the departments to which the group
+  #should initially have access
+  #NOTE: ------------------------------------
+  #The very first group listed in this document will be the primary group of
+  #the initial staff member -- the administrator.
+  #---
+  id: 1
+  role_id: 1
+  flags: 1
+  name: Lion Tamers
+  notes: |
+    អធិរាជប្រព័ន្ធ។ មនុស្សទាំងនេះមានការត្រួតពិនិត្យពេញលេញទៅគ្រប់ផ្នែកទាំងអស់ដែលពួកគេមានការចូលដំណើរការ (Access) ទៅ។
+  depts:
+    - 1
+    - 2
+    - 3
+- 
+  id: 2
+  role_id: 2
+  flags: 1
+  name: Elephant Walkers
+  notes: |
+    Inhabitants of the ivory tower
+  depts:
+    - 1
+    - 2
+    - 3
+- 
+  id: 3
+  role_id: 2
+  flags: 1
+  name: Flea Trainers
+  notes: |
+    បុគ្គលិកកម្រិតទាប
+  depts:
+    - 1
+    - 2
+    - 3

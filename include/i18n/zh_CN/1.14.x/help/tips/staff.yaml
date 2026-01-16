@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: 工作人员签名行
+  content: |
+    创建工作人员签名，用于回复咨询。此签名作为可选项将显示在咨询回复的底部
+type:
+  title: 账户类型
+  content: |
+    管理员拥有访问管理员面板的权限。工作人员仅可访问管理咨询和知识库。
+group:
+  title: 已分配组
+  content: |
+    组成员定义了系统中工作人员的作用。访问组管理页面，定义此工作人员访问帮助中心的权限。
+notes:
+  title: 内部通知
+  content: |
+    发布工作人员相关内部通知；这些通知仅对拥有管理员账户的工作人员可见。

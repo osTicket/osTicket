@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Шинэ хүсэлт
+  content: >
+    Шинэ хүсэлт үүсэхэд хэрэглэгч уруу автомат хариу явуулахыг хүсвэл энийг идэвхжүүлнэ үү.
+  links:
+    - 
+      title: Шинэ хүсэлтийн автомат хариуны загвар
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Ажилтны үүсгэсэн хүсэлт
+  content: >
+    Хэрэглэгчийн өмнөөс Ажилтан хүсэлт үүсгэх үед илгээх мэдэгдэл. <em>Шинээр хүсэлт гаргах үедээ Ажилтан өөрөө үүнийг өөрчилж болно.</em>
+  links:
+    - 
+      title: Шинэ хүсэлтийн тухай мэдэгдлийн загвар
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Шинэ мессежийг баталгаажуулах
+  content: >
+    Өмнө нь байсан Хүсэлтэд шинэ мессеж нэмж оруулах үед илгээгддэг баталгаажуулах мэдэгдэл.
+  links:
+    - 
+      title: Шинэ мессеж баталгаажуулах загвар
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Шинэ мессежийн тэмдэглэл
+  content: >
+    Ирсэн мессежийг тухайн хүсэлтэд хамааралтай бүх оролцогч уруу илгээх.
+  links:
+    - 
+      title: Шинэ үйл явдлын мэдэгдлийн загвар
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Лимит хэтрүүлсэн тухай мэдэгдэл
+  content: >
+    <span class="doc-desc-title">Нээлттэй хүсэлтийн тоо</span> гүйцэхэд хэрэглэгч уруу илгээх мэдэгдэл.
+  links:
+    - 
+      title: Лимит хэтэрсэн тухай мэдэгдлийн загвар
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: <em>Нээлттэй хүсэлтийн тоо</em> тохируулах
+      href: /scp/settings.php?t=tickets

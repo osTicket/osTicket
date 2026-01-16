@@ -1,0 +1,35 @@
+---
+#Email template: ticket.notice.yaml
+#Sent to a user when a staff member creates a ticket on the user's behalf.
+#This is most commonly performed when user's call in on the phone.
+#---
+notes: |
+  Lähetetään asiakkaalle, kun henkilöstön jäsen luo tiketin asiakkaan puolesta.
+  Tämä tehdään yleensä silloin, kun asiakas soittaa asiakaspalveluun.
+subject: |
+  %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Hyvä %{recipient.name.first},</strong></h3>
+  Asiakaspalvelumme on luonut puolestanne tiketin <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> seuraavin tiedoin:
+  <br>
+  <br>
+  Otsikko: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Aihe: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  %{response}
+  <br>
+  <br>
+  Jos viesti vaatii meiltä toimenpiteitä, käsittelijä ottaa teihin yhteyttä mahdollisimman pian. Voit myös seurata tiketin tilaa verkossa <a href="%{recipient.ticket_link}">tästä</a>.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">
+  Terveisin, %{company.name} Tiimi,<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small;"><em>Jos haluat antaa lisätietoja tähän liittyen, vastaa tähän viestiin tai <a href="%{recipient.ticket_link}"><span style="color: rgb(84, 141, 212);" >kirjaudu asiakastilillesi</span></a>, josta löydät täydellisen arkiston viesteistäsi.</em></div>

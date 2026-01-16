@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Línea de Firma del Personal
+  content: |
+    Crear firma del Personal para dar respuesta a los Tickets. Esta firma aparecerá como una opción en la parte inferior de la respuesta a un Ticket
+type:
+  title: Tipo de Cuenta
+  content: |
+    Los administradores tienen el privilegio de acceso al Panel de administración. Sólo Miembros del Personal tienen acceso para administrar los Tickets y la base de conocimientos
+group:
+  title: Grupo asignado
+  content: |
+    La pertenencia a un grupo define el papel del personal en el sistema. Visita la página de administración de grupos para definir que acceso tiene este miembro del personal al sistema de soporte
+notes:
+  title: Notas internas
+  content: |
+    Colocar notas internas solo para miembros del personal; las notas sólo son visibles al personal cuyo tipo de cuenta es Admin

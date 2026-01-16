@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Yardım Konusu Bilgisi
+  content: >
+    <span class="doc-desc-title">Yardım Konuları</span> Kullanıcılarda hangi bilgilerin toplandığını ve taleplerin hangi yolu izlediğini veya kime görevlendirdiğini gösterir.
+topic:
+  title: Konu Adı
+  content: >
+    Benzersiz Yardım Konusu adı.
+status:
+  title: Durum
+  content: >
+    Devre dışı bırakılmış veya arşivlenmişse, bu <span class = "doc-desc-title"> Yardım Konusu </span> kullanılamaz.
+type:
+  title: Tür
+  content: >
+    Eğer <span class="doc-desc-title">Yardım Başlığı</span> gizli olarak etiketlenmişse; bu sadece Temsiciler Göreviler Panelinden yenı bir Talep açtığında Temsilcilere kullanılabilir olacaktır.
+parent_topic:
+  title: Ana Konu
+  content: >
+    Bu  <span class="doc-desc-title">Yardım Konusu</span> Ana Başlığını seçin. Bu Ana Konu  <span class="doc-desc-title">Yardım Konusu</span> ile beraber ana konun altında beraber yer alacaktır.
+custom_form:
+  title: Özel Form
+  content: >
+    Özel Formlar bu <span class="doc-desc-title">Yardım Konusu</span> ile ilgili Kullanıcılardan daha detaylı bilgi almanıza yardımcı olacaktır .
+  links:
+    - 
+      title: Özel Formları Yönet
+      href: /scp/forms.php
+priority:
+  title: Öncelik
+  content: >
+    Bu  <span class="doc-desc-title">Yardım Konusu</span> ile ilgili öncelik seviyesini seçin. <br><br> Talep Filtreleri yeni taleplerin önceliğini değiştirebilir.
+department:
+  title: Bölüm
+  content: >
+    Bu Yardım Konusu için yeni taleplerin yönlendirileceği Departmanı seçin.
+  links:
+    - 
+      title: Bölüm Yönetimi
+      href: /scp/departments.php
+sla_plan:
+  title: SLA planı
+  content: >
+    Bu <span class="doc-desc-title">Yardım Konusu</span> ile ilgili SLA planını seçin. <br><br> Bu seçim seçili Bölümlerin SLA planını değiştirecktir
+  links:
+    - 
+      title: SLA Planları Yönet
+      href: /scp/slas.php
+thank_you_page:
+  title: Teşekkürler Sayfası
+  content: >
+    Kullancı bu  <span class="doc-desc-title">Yardım Konusu</span> hakkında talep açtığı zaman yönlendirileceği Teşekkür Sayfasını seçin.
+  links:
+    - 
+      title: Teşekkürler Sayfalarını Yönet
+      href: /scp/pages.php
+auto_assign_to:
+  title: Yeni Kayıtları Otomatik Olarak Ata
+  content: >
+    İsterseniz bu <span class="doc-desc-title">Yardım Konusu</span> otomatık bır Temsilci veya Takım seçebilirsiniz<br><br> İstek filtreleri bu görevlendirmeleri değiştirebilir.
+  links:
+    - 
+      title: Personel ve Ekip Yönetimi
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Talep Otomatik Yanıtlama
+  content: >
+    Seçildiğinde,  bu <span class="doc-desc-title">Yardım Konusu</span> için otomatik cevapları kapatır . <br><br> Bu <span class="doc-desc-title">Bölüm</span> ve genel  <span class="doc-desc-title">Otomatik cevap ayarlarını</span> değiştirecektir.
+  links:
+    - 
+      title: Otomatik Yanıtlayıcı Ayarları
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Özel Kayıt Numaraları
+  content: >
+    "Özel" seçeneğini seçerek bu yardım konusu için varsayılan istek numarası formatını değiştirebilirsiniz. Daha fazla bilgi için Ayarlar / İstekler sayfasına bakabilirsiniz.

@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: ข้อมูลสำหรับติดต่อกลับ
+  0: >
+
+username:
+  title: ชื่อผู้ใช้
+  content: >
+    เฉพาะเจ้าหน้าที่ที่มีสถานะเป็นผู้ดูแลระบบสามารถเปลี่ยนชื่อผู้ใช้ ถ้าคุณเข้าสู่ระบบด้วยสิทธิ์ผู้ดูแลระบบสามารถเลือกรายชื่อเจ้าหน้าที่แล้วแก้ไขจากตาราง <span class="doc-desc-title">กลุ่มเจ้าหน้าที่</span> 
+  links:
+    - 
+      title: เปลี่ยน "ชื่อผู้ใช้" ในฐานะผู้ดูแลระบบ
+      href: /scp/staff.php
+time_zone:
+  title: โซนเวลา
+  0: >
+
+daylight_saving:
+  title: ชดเชยเวลาตามฤดูกาล
+  0: >
+
+maximum_page_size:
+  title: ขนาดหน้าสูงสุด
+  0: >
+
+auto_refresh_rate:
+  title: อัตราการรีเฟรชอัตโนมัติ
+  0: >
+
+default_signature:
+  title: ลายเซ็นเริ่มต้น
+  0: >
+
+default_paper_size:
+  title: ขนาดกระดาษเริ่มต้น
+  0: >
+
+show_assigned_tickets:
+  title: แสดง Ticket ที่ถูกมอบหมาย
+  content: >
+    <p> การเปิดใช้งานตัวเลือกนี้จะแทนที่การตั้งค่าส่วนกลางเพื่อซ่อนตั๋วที่กำหนดจากคิวที่เปิด </p> <p class="info-banner"> <i class="icon-info-sign"></i> This setting is only available when assigned tickets are excluded globally. </p>
+password:
+  title: รหัสผ่าน
+  0: >
+
+current_password:
+  title: รหัสผ่านปัจจุบัน
+  0: >
+
+new_password:
+  title: รหัสผ่านใหม่
+  0: >
+
+confirm_new_password:
+  title: ยืนยันรหัสผ่านใหม่
+  0: >
+
+signature:
+  title: ลายเซ็น
+  content: >
+    สร้างตัวเลือก <span class="doc-desc-title">ลายเซ็น</span> ซึ่่งบางทีจะปรากฏขึ้นที่ในส่วนท้ายของการตอบกลับ Ticket ของคุณ ไม่ว่า <span class="doc-desc-title">ลายเซ็น</span> นี้แสดง หรือไม่แสดง, ขึ้นอยู่กับ <span class="doc-desc-title">แม่แบบอีเมล์</span> ที่จะถูกนำมาใช้ในการตอบกลับ Ticket
+  links:
+    - 
+      title: สร้างแม่แบบอีเมล์ในแผงหน้าปัดผู้ดูแลระบบ
+      href: /scp/templates.php

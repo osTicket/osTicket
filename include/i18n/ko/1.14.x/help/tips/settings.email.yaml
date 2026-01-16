@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: 기본 이메일 템플릿 집합
+  content: >
+    티켓 생성부터 종료까지 일어나는 다양한 작업에 대한 <span class="doc-desc-title">자동 응답</span>과 <span class="doc-desc-title">알림</span>를 전송하는 데 사용하는 <span class="doc-desc-title">이메일 템플릿 집합</span>을 선택하세요. <br> <br> 부서는 특정 이메일 템플릿 집합에 배정될 수 있습니다.
+  links:
+    - 
+      title: 이메일 템플릿 집합 관리
+      href: /scp/templates.php
+default_system_email:
+  title: 기본 발신 이메일
+  content: >
+    발신 메일에 사용할 이메일 주소를 선택하세요. <br> <br> <span class="doc-desc-title">부서는</span> 여기에 설정된 내용을 재정의 하는 고유한 <span class="doc-desc-title">이메일 주소</span>을 설정할 수 있습니다.
+  links:
+    - 
+      title: 이메일 주소 관리
+      href: /scp/emails.php
+default_alert_email:
+  title: 기본 알림 이메일
+  content: >
+    에이전트에게 발송되는 <span class="doc-desc-title">알림 &amp; 통보</span>에 사용할 메일 주소를 선택하세요.
+  links:
+    - 
+      title: 이메일 주소 관리
+      href: /scp/emails.php
+admins_email_address:
+  title: 관리자 이메일
+  content: >
+    <span class="doc-desc-title">시스템 오류</span>및 <span class="doc-desc-title">새 티켓 알림</span>발송(활성화된 경우)에 사용될 관리자 메일 주소를 입력하세요.
+  links:
+    - 
+      title: 알림 & 통보 관리
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: 메일 가져오기
+  content: >
+     <span class="doc-desc-title">메일 박스</span>에서 IMAP/POP 폴링을 구성 및 사용하도록 허용합니다.
+  links:
+    - 
+      title: 메일 박스 관리
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: 자동Cron 사용하여 이메일 가져오기
+  content: >
+    에이전트 작업에 의해 트리거된 내부 작업 관리자를 사용하여 주기적인 이메일 가져오기를 사용하도록 설정합니다.<br> <br> 스태프 제어판에 아무도 로그인하지 않으면 이메일을 가져오지 않습니다. 예측 가능한 가져오기 간격에는 외부 작업 스케줄러를 사용하는 것이 좋습니다
+  links:
+    - 
+      title: 외부 작업 스케쥴러 사용
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: 인용된 답변 제거
+  content: >
+    이 옵션을 선택하면 이메일 통신간의 이전 서신이 제거됩니다.<br> <br>이 기능은 다음의 <span class = "doc-desc-title">회신 선별 태그</span>에 의존합니다.
+reply_separator_tag:
+  title: 회신 선별 태그
+  content: >
+    이 토큰은 사용자가 줄 위에 회신할 것을 나타내는 토큰입니다. <br> <br> <strong> 노트: </strong> 위 <span class = "doc-desc-title">인용된 답글 삭제</span>가 활성화되어 있는 경우에만 해당합니다.
+emailed_tickets_priority:
+  title: 이메일로 전송된 티켓 우선 순위
+  content: >
+    사용자 이메일(예: OutLook)의 우선 순위/중요도를 새로운 티켓의 우선 순위에 지정할지 여부를 선택합니다. <br> <br>이 설정은 <span class="doc-desc-title">티켓 필터</span>에 의해 무시될 수 있습니다.
+  links:
+    - 
+      title: 생성&amp; 티켓 필터 관리
+      href: /scp/filters.php
+accept_all_emails:
+  title: 모든 메일 허용
+  content: >
+    모르는 사용자의 메일을 수신합니다. <br> <br>이 설정을 선택 해제하면 티켓이 거부됩니다.
+accept_email_collaborators:
+  title: 공동작업자 메일 허용
+  content: >
+    <code><strong>수신</strong></code>과 <code><strong>참조</strong></code> 필드에 티켓의 공동작업자로 이메일 참여자를 추가합니다. <br/> <br/> <em>에이전트는 티켓을 조회할 때 공동작업자를 수동으로 추가할 수 있습니다.</em>
+default_mta:
+  title: 기본 MTA
+  content: >
+    <span class="doc-desc-title">디폴트 MTA</span>는 SMTP 설정없이 이메일을 전송합니다.
+ticket_response_files:
+  title: 티켓 답변 파일
+  content: >
+    활성화하면 담당자가 티켓 답변에 붙이는 첨부 파일이 사용자의 메일에도 첨부됩니다.
+verify_email_addrs:
+  title: 메일 주소 확인
+  content: >
+    메일 주소 도메인의 DNS에 MX 값이 있는지 확인하려면 이 옵션을 실행하십시오. 이것은 잘못 입력된 메일 주소를 감지하는 데 유용합니다. 메일 주소 형식이 올바른지 확인하는 것을 수행합니다.

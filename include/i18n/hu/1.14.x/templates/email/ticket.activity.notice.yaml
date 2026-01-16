@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  A rendszer értesítést küldött a közreműködőknek a hibajegy tevékenységről pl. válasz vagy üzenet.
+subject: |
+  Re: [#%{ticket.number}] %{ticket.subject}
+body: |
+  <h3><strong>Kedves %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> küldött egy üzenetet egy hibajegyhez, melynek feldolgozásában részt vesz.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Ezt az üzenetet azért kapta, mert a <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a> számú hibajegy megoldásában közreműködik. A további közreműködéshez egyszerűen válaszoljon erre az emailre vagy <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >kattintson ide</a> a hibajegy archívumának megtekintéséhez.</em>
+  </div>

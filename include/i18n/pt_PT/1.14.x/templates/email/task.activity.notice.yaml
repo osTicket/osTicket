@@ -1,0 +1,22 @@
+---
+#Email template: task.activity.notice.yaml
+#Notice sent to collaborators on task activity e.g reply or message
+#---
+notes: |
+  Notificação enviada aos colaboradores sobre alterações na tarefa, por exemplo responder ou adicionar uma mensagem.
+subject: |
+  Re:%{task.title} [#%{task.number}]
+body: |
+  <h3><strong>Caro %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> acabou de registrar uma mensagem para uma tarefa na qual você participa.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Você está a receber este e-mail porque você é um colaborador na tarefa
+  #%{task.number}. Para participar, basta responder a este e-mail.</em>
+  </div>

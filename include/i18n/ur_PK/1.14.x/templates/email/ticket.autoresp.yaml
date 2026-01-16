@@ -1,0 +1,25 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  ایک نیا ٹکٹ تخلیق ہونے پر صارف کو بھیجا جاتا ہے
+subject: |
+  سپورٹ ٹکٹ [#%{ticket.number}] کھول دیا گیا ہے
+body: |
+  <h3><strong> عزیز %{recipient.name.first},</strong></h3>
+  <p>
+  ایک مدد کی درخواست بنا دی گئی ہے اور اسے ٹکٹ نمبر #%{ticket.number} تفویخ کر دیا گیا ہے.
+  ایک نمائندہ جلد از جلد آپ سے رابطے میں آجائے گا. آپ اس ٹکٹ پر ہونے والا
+  <a href="%{recipient.ticket_link}">کام آن لائن دیکھ سکتے ہیں</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  آپ کی %{company.name} ٹیم,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>اگر آپ اس مسئلے کے بارے میں تبصرہ یا مزید معلومات فراہم کرنا چاہتے ہیں تو براہ کرم اس ای-میل کا جواب دیں یا پھر or <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >اپنے اکاونٹ میں لاگ ان کریں </span></a> for
+  تاکہ آپ مدد کی تمام ضبط شدہ درخواستون کو دیکھ سکیں.</em></div>

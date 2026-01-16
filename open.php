@@ -35,7 +35,7 @@ if ($_POST) {
     if (!$errors) {
         $vars['message'] = $messageField->getClean();
         if ($messageField->isAttachmentsEnabled())
-            $vars['files'] = $attachments->getFiles();
+        $vars['files'] = $attachments->getFiles();
     }
 
     // Drop the draft.. If there are validation errors, the content

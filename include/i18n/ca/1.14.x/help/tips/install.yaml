@@ -1,0 +1,69 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Nom per a l'entorn de suport
+  content: |
+    <p>El nom visible del sistema de suport p.e. [Nom d'Empresa] Suport tècnic</p>
+system_email:
+  title: Adreça electrònica predeterminada
+  content: |
+    <p>Adreça electrònica del sistema per defecte p.e. suport@latevaempresa.com - en podreu afegir de noves després!</p>
+default_lang:
+  title: Idioma per defecte del sistema
+  content: |
+    <p>Dades inicials d'aquesta llengua s'instal·laran a la base de dades. Plantilles de correu electrònic com per exemple  pagines del sistema i per defecte s'instal·laran per a aquest llenguatge.</p>
+  links:
+    - 
+      title: Packs d'idioma de osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Nom
+  content: |
+    <p>Nom de l'administrador</p>
+last_name:
+  title: Cognom
+  content: |
+    <p>Cognom de l'Administrador</p>
+email:
+  title: Adreça electrònica
+  content: |
+    <p>Adreça personal de l'administrador. Ha de ser diferent de l'adreça predeterminada del sistema.</p>
+username:
+  title: Nom d'usuari
+  content: |
+    <p>Identificador de l'administrador. Ha de tenir com a mínim tres (3) caràcters.</p>
+password:
+  title: Contrasenya
+  content: |
+    <p>Contrasenya de l'administrador. Ha de tenir com a mínim cinc (5) caràcters.</p>
+password2:
+  title: Confirmeu contrasenya
+  content: |
+    <p>Torneu a escriure la contrasenya d'administrador. Han de coincidir.</p>
+db_prefix:
+  title: Prefix de taules MySQL
+  content: |
+    <p>osTicket requereix un prefix de taula per evitar possibles conflictes en una base de dades compartida.</p>
+db_host:
+  title: Servidor MySQL
+  content: |
+    <p>La majoria de servidors usen 'localhost' per al servidor local de bbdd. Proveu amb el vostre servidor si 'localhost' dóna problemes.</p>
+    <p>S'agafarà el port per defecte del php.ini. Si el port té un núm. no estàndard cal especificar-lo com a <code>servidor:port</code></p>
+db_schema:
+  title: Base de dades MySQL
+  content: |
+    <p>Nom de la  base de dades que utilitzareu amb osTicket.</p>
+db_user:
+  title: Usuari de la bbdd MySQL
+  content: |
+    <p>L'usuari de MySQL ha de tenir tots els drets sobre la base de dades.</p>
+db_password:
+  title: Contrasenya de l'usuari MySQL
+  content: |
+    <p>Contrasenya associada amb l'usuari MySQL.</p>

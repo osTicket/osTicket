@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Тусламжийн төвийн ажилтныг шинээр бүртгэхэд түүнд илгээх анхны имэйлийн (тохируулсан бол) загвар.
+name: "osTicket -д тавтай морилно уу"
+body: >
+  <h3><strong>Сайн байна уу, %{recipient.name.first}?</strong></h3> <div> Тусламжийн системийн %{url} дээр танд зориулж хэрэглэгчийн бүртгэл үүсгэсэн байна.<br /> <br /> Дараах холбоосоор зочилж бүртгэлээ баталгаажуулна уу.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Тусламж үйлчилгээний систем<br /> %{company.name}</em> </div>

@@ -1,0 +1,31 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  チケットの対応期限が過ぎた時にスタッフメンバー宛に送信されます。
+  チケット内で設定された対応期限だけでなくSLAとして設定した期限にもとづき期限切れ制御が行われます。
+subject: |
+  期限切れのチケット
+body: |
+  <h3><strong>%{recipient}</strong>様</h3>
+  <a href="%{ticket.staff_link}">#%{ticket.number}</a>のチケットの対応期限が過ぎました。
+  <br>
+  <br>
+  スケジュール通りに進むようチケットの対応期限を守って作業をするようにしましょう。
+  <br>
+  <br>
+  <br>
+  担当部門管理者：%{ticket.dept.manager.name}
+  <hr>
+  <div>このチケットに返信する場合は、サポートシステムへ<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >ログイン</span></a>してください。
+  このメールはあなた、もしくは担当チーム、部門にアサインされたチケットの対応期限を過ぎたため送信されております。
+  </div>
+  <em style="font-size: small">カスタマーサポートシステム<span style="font-size: smaller"
+  >(although with limited patience)</span></em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Powered by osTicket" width="126" style="width: 126px;">

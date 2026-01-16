@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: テンプレート
+  content: >
+    返信チケットに含むことができる<span class="doc-desc-title">テンプレート</span>を作成します。 <span class="doc-desc-title">チケットフィルター</span>により<span class="doc-desc-title">チケットの自動返信</span>セットアップとして使用することもできます。
+  links:
+    - 
+      title: チケットフィルターの設定
+      href: /scp/filters.php
+canned_attachments:
+  title: テンプレートの添付ファイル
+  content: >
+    新しい<span class="doc-desc-title"> テンプレート</span>を使用するチケットの返信に自動的に含まれるファイルを添付します。

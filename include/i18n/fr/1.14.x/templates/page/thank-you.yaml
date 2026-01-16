@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  La page de remerciement est affichée sur le portail client quand un utilisateur crée un nouveau ticket via le portail client.
+name: Merci
+body: |
+  <div>%{ticket.name}, 
+  <br>
+  <br>
+  Merci de nous avoir contacté. 
+  <br>
+  <br>
+  Une demande de ticket de support a été créée. Un membre de l'équipe support 
+  vous contactera sous peu si nécessaire.
+  </p> 
+  <br><br>
+  L'équipe support </div>

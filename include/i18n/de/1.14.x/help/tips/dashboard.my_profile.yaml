@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Kontaktinformationen
+  0: >
+
+username:
+  title: Benutzername
+  content: >
+    Ausschließlich Agenten mit Admin-Status können einen Benutzernamen ändern. Wenn Sie ein Agent mit Admin-Rechten sind, können Sie diese Änderung durch Auswahl des zu bearbeitenden Agenten aus der <span class="doc-desc-title">Agenten</span>-Tabelle erreichen.
+  links:
+    - 
+      title: Als Administrator den Benutzernamen ändern
+      href: /scp/staff.php
+time_zone:
+  title: Zeitzone
+  0: >
+
+daylight_saving:
+  title: Sommerzeit
+  0: >
+
+maximum_page_size:
+  title: Maximale Seitengröße
+  0: >
+
+auto_refresh_rate:
+  title: Aktualisierungsrate
+  0: >
+
+default_signature:
+  title: Standard-Signatur
+  0: >
+
+default_paper_size:
+  title: Standard-Papierformat
+  0: >
+
+show_assigned_tickets:
+  title: Zugewiesene Tickets anzeigen
+  content: >
+    <p> Das Aktivieren dieser Option überschreibt die globale Einstellung "Zugewiesene Tickets nicht auf der Ticket-Übersichtsseite "Offene Tickets" anzeigen." </p> <p class="info-banner"> <i class="icon-info-sign"></i> Diese Einstellung ist nur verfügbar, wenn die globale Einstellung aktiviert wurde. </p>
+password:
+  title: Passwort
+  0: >
+
+current_password:
+  title: Aktuelles Passwort
+  0: >
+
+new_password:
+  title: Neues Passwort
+  0: >
+
+confirm_new_password:
+  title: Neues Passwort bestätigen
+  0: >
+
+signature:
+  title: Signatur
+  content: >
+    Erstellen Sie eine optionale <span class="doc-desc-title">Signatur</span>, die möglicherweise am Ende von Ihren Ticket-Antworten erscheint. Ob die <span class="doc-desc-title">Signatur</span> erscheint, oder nicht, hängt von der <span class="doc-desc-title">E-Mail-Vorlage</span> ab, die in der Ticket-Antwort verwendet wird.
+  links:
+    - 
+      title: E-Mail-Vorlagen im Admin-Bereich erstellen
+      href: /scp/templates.php

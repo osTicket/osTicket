@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Bővített
+  content: >
+    Szűkítse a keresési feltételeket. Miután kiválasztotta a bővített keresési feltételeket és futtatta a keresést, lehetősége lesz <span class="doc-desc-title">Exportálni </span> az adatait az oldal alján.
+export:
+  title: Export
+  content: >
+    Exportálja az adatokat, amiket jelenleg lát egy CSV fájlba. A CSV fájlokat meg lehet nyitni bármely táblázatkezelő szoftverrel (Microsoft Excel, Apple Pages, OpenOffice, stb.)

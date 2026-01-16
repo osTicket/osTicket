@@ -1,0 +1,13 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  The Landing Page refers to the content of the Customer Portal's initial view. The template modifies the content seen above the two links <strong>Open a New Ticket</strong> and <strong>Check Ticket Status</strong>.
+name: საწყისი
+body: >
+  <h1>მოგესალმებათ მხარდაჭერის ცენტრი</h1>
+  <p>
+  იმისათვის, რომ უკეთ გემსახუროთ, ჩვენ მხარდაჭერის ბილეთების სისტემას ვიყენებთ. ნებისმიერ თქვენ მოთხოვნას ან შეკითხვას უნიკალური ბილეთის ნომერი მიენიჭება, რაც საშუალებას მოგცემთ უკეთ ადევნოთ თვალი პროგრესს და მასზე პასუხებს. იმისათვის, რომ ნებისმიერ დროს შეძლოთ თვალი გადაავლოთ ადრინდელ მიმოწერას, ჩვენ ასევე ვინახავთ ძველი ბილეთების არქივსა და ისტორიას. მხარდაჭერის მოთხოვნის გადმოსაგზავნად ელფოსტის მოქმედი მისამართი დაგჭირდებათ. 
+  </p>

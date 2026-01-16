@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: חברי הצוות
+  content: >
+    הטבלה שלהלן מציגה את התוצאות של המסנן מעליו. אם הגדרות המסנן נבחרו, אז כל <span class="doc-desc-title"> חברי הצוות</span> מוצגים ומחולקים לעמודים. ראה את החלק בעמודלמטה לעוד תוצאות.
+apply_filtering_criteria:
+  title: החל קריטריונים לסינון
+  content: >
+    בחר את <span class="doc-desc-title"> המחלקה</span> הרלוונטית לתחומי העניין הנוכחי שלך. ניתן גם לבצע חיפוש סוכן ספציפי.

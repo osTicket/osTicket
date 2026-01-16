@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: 進階選項
+  content: >
+    請縮小您的查詢條件。一但您選用了進階搜尋條件進行查詢，您可以<span class="doc-desc-title">匯出 </span>查詢結果。
+export:
+  title: 匯出
+  content: >
+    你在視圖中在 CSV 檔中當前的資料匯出。CSV 檔可讀取在試算軟體內（即，Microsoft Excel、Apple Pages、OpenOffice等）。

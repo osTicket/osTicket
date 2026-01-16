@@ -1,0 +1,19 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  登録可能なチケット上限数を超えた場合に送信されます。
+  この設定は「Admin Panel」内でメールアドレス単位に設定を行うことが可能です。
+subject: |
+  登録可能なチケット上限数を超えました。
+body: |
+  <h3><strong>%{ticket.name.first}様</strong></h3>
+  登録可能なオープンチケット上限数に達しました。 追加でチケット登録を行う場合は進行中のチケットを終了してください。 既存のチケット情報を更新もしくはコメントを追加する場合は <a
+  href="%{url}/tickets.php?e=%{ticket.email}">ヘルプデスク画面へログインしてください</a>。
+  <br>
+  <br>
+  ありがとうございます。<br/>
+  サポートチケットシステム

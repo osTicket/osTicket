@@ -1,0 +1,78 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> Users
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+# General Settings
+client_name_format:
+    title: User Name Formatting
+    content: >
+        Choose a format for Users names throughout the system. Email templates
+        will use it for names if no other format is specified.
+
+# Authentication settings
+client_session_timeout:
+    title: User Session Timeout
+    content: >
+        Choose the maximum idle time (in minutes) before a User is required to
+        log in again.
+        <br><br>
+        If you would like to disable <span
+        class="doc-desc-title">User Session Timeouts,</span> enter 0.
+
+registration_method:
+    title: Registration Options
+    content: >
+        <span class="doc-desc-title">Registration Method</span> and <span
+        class="doc-desc-title">Registration Required</span> are used
+        together to configure how users register and access the web portal
+        of your help desk. The table below summarizes how the two settings
+        are interpreted by the system.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Registration Required</th>
+                <th>Registration Method</th>
+                <th>Result</th></tr>
+            <tr><td>No</td><td>Public</td>
+                <td>Registration encouraged but not required for new
+                    tickets.</td></tr>
+            <tr><td>Yes</td><td>Public</td>
+                <td>Registration and login are required for new tickets</td></tr>
+            <tr><td>No</td><td>Private</td>
+                <td>Anyone can create a ticket, but only agents
+                    can register accounts</td></tr>
+            <tr><td>Yes</td><td>Private</td>
+                <td>User access is by invitation only</td></tr>
+            <tr><td>No</td><td>Disabled</td>
+                <td>No one can register for an account, but anyone can
+                    create a ticket. <em>This was how osTicket functioned
+                    prior to 1.9</em></td></tr>
+            <tr><td>Yes</td><td>Disabled</td>
+                <td>Disable new tickets via web portal</td></tr>
+        </tbody></table>
+
+client_verify_email:
+    title: Require Email Verification
+    content: >
+        Disable this option to give your users immediate access to tickets
+        via the "Check Ticket Status" login page in the client portal. If
+        enabled, (which is the default), users will be required to receive
+        an email and follow a link in the email to view the ticket.
+        <br><br>
+        Disabling email verification might allow third-parties (e.g. ticket
+        collaborators) to impersonate the ticket owner.
+
+allow_auth_tokens:
+    title: Enable Authentication Tokens
+    content: >
+        Enable this option to allow use of authentication tokens to auto-login users on ticket link click.

@@ -75,23 +75,23 @@ if ($_POST)
     </thead>
     <tbody>
         <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('User and Collaborators'); ?></strong>: </em>
+            <th colspan="2"><!--osta-->
+                <em><strong><?php echo __('User and Collaborators'); ?></strong></em>
                 <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
               <?php
               if ($user) { ?>
-                  <tr><td><?php echo __('User'); ?>:</td><td>
-                    <div id="user-info">
+              <tr><td><?php echo __('User'); ?>:</td><td>
+                  <div id="user-info">
                       <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
                       <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                      <a href="#" onclick="javascript:
+                  <a href="#" onclick="javascript:
                       $.userLookup('ajax.php/users/<?php echo $user->getId(); ?>/edit',
-                      function (user) {
-                        $('#user-name').text(user.name);
-                        $('#user-email').text(user.email);
-                      });
+                              function (user) {
+                                  $('#user-name').text(user.name);
+                                  $('#user-email').text(user.email);
+                              });
                       return false;
                       ">
                       <?php } else { ?>
@@ -99,89 +99,86 @@ if ($_POST)
                       <?php } ?>
                       <i class="icon-user"></i>
                       <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
-                      &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
-                    </a>
-                    <a class="inline button" style="overflow:inherit" href="#"
-                    onclick="javascript:
-                    $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
-                    function(user) {
-                      $('input#uid').val(user.id);
-                      $('#user-name').text(user.name);
-                      $('#user-email').text('<'+user.email+'>');
-                    });
-                    return false;
-                    "><i class="icon-retweet"></i> <?php echo __('Change'); ?></a>
+                      &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;</a>
                   </div>
                 </td>
+				<td>
+					<a class="inline button" style="overflow:inherit" href="#"
+					  onclick="javascript:
+						  $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
+							  function(user) {
+								  $('input#uid').val(user.id);
+								  $('#user-name').text(user.name);
+								  $('#user-email').text('<'+user.email+'>');
+						  });
+						  return false;
+					  "><i class="icon-retweet"></i> <?php echo __('Change'); ?></a>
+				</td>
               </tr>
-              <?php
-            } else { //Fallback: Just ask for email and name
-              ?>
-              <tr id="userRow">
-                <td width="120"><?php echo __('User'); ?>:</td>
-                <td>
-                  <span>
-                    <select class="userSelection" name="name" id="user-name"
-                    data-placeholder="<?php echo __('Select User'); ?>">
-                  </select>
-                </span>
-
-                <a class="inline button" style="overflow:inherit" href="#"
-                onclick="javascript:
-                $.userLookup('ajax.php/users/lookup/form', function (user) {
-                  var newUser = new Option(user.email + ' - ' + user.name, user.id, true, true);
-                  return $(&quot;#user-name&quot;).append(newUser).trigger('change');
-                });
-                return false;
-                "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
-
-                <span class="error">*</span>
-                <br/><span class="error"><?php echo $errors['name']; ?></span>
-              </td>
-              <div>
-                <input type="hidden" size=45 name="email" id="user-email" class="attached"
-                placeholder="<?php echo __('User Email'); ?>"
-                autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" />
-              </div>
-            </tr>
-            <?php
-          } ?>
-          <tr id="ccRow">
-            <td width="160"><?php echo __('Cc'); ?>:</td>
-            <td>
-              <span>
-                <select class="collabSelections" name="ccs[]" id="cc_users_open" multiple="multiple"
-                ref="tags" data-placeholder="<?php echo __('Select Contacts'); ?>">
-              </select>
-            </span>
-
-            <a class="inline button" style="overflow:inherit" href="#"
-            onclick="javascript:
-            $.userLookup('ajax.php/users/lookup/form', function (user) {
-              var newUser = new Option(user.name, user.id, true, true);
-              return $(&quot;#cc_users_open&quot;).append(newUser).trigger('change');
-            });
-            return false;
-            "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
-
-            <br/><span class="error"><?php echo $errors['ccs']; ?></span>
-          </td>
-        </tr>
+        <?php
+        } else { //Fallback: Just ask for email and name
+            ?>
+		<!-- osta -->	
+		<tr id="userRow">
+			<td id="user" class="required" width="160"><?php echo __('User'); ?>:</td>
+			<td class="select"><select class="userSelection" name="name" id="user-name" data-placeholder="<?php echo __('Select User'); ?>"></select>
+				<a class="inline button" style="overflow:inherit" href="#"
+					onclick="javascript:
+					$.userLookup('ajax.php/users/lookup/form', function (user) {
+					var newUser = new Option(user.email + ' - ' + user.name, user.id, true, true);
+					return $(&quot;#user-name&quot;).append(newUser).trigger('change');
+					});
+					return false;
+					"><i class="icon-plus"></i> <?php echo __('Add New'); ?></a><span class="error"></span>
+				<br/><span class="error"><?php echo $errors['name']; ?></span>
+			</td>
+			<td class="userRow-button">
+				<!-- osta -->	
+			</td>
+			
+			<input type="hidden" size=45 name="email" id="user-email" class="attached"
+				placeholder="<?php echo __('User Email'); ?>"
+				autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" />
+		</tr>
+        <?php
+        } ?>
+		<tr id="ccRow">
+			<td id="ccuser" width="160"><?php echo __('Cc'); ?>:</td>
+			<td class="select">
+				<select class="collabSelections" name="ccs[]" id="cc_users_open" multiple="multiple"
+					ref="tags" data-placeholder="<?php echo __('Select Contacts'); ?>">
+				</select>
+				<!-- osta -->	
+				<a class="inline button" style="overflow:inherit" href="#"
+					onclick="javascript:
+					$.userLookup('ajax.php/users/lookup/form', function (user) {
+					var newUser = new Option(user.name, user.id, true, true);
+					return $(&quot;#cc_users_open&quot;).append(newUser).trigger('change');
+					});
+					return false;
+					"><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
+				<br/><span class="error"><?php echo $errors['ccs']; ?></span>
+			</td>
+			<td class="userRow-button">
+				<!-- osta -->	
+			</td>
+		</tr>
         <?php
         if ($cfg->notifyONNewStaffTicket()) {
          ?>
-        <tr class="no_border">
-          <td>
-            <?php echo __('Ticket Notice');?>:
-          </td>
-          <td>
-            <select id="reply-to" name="reply-to">
-              <option value="all"><?php echo __('Alert All'); ?></option>
-              <option value="user"><?php echo __('Alert to User'); ?></option>
-              <option value="none">&mdash; <?php echo __('Do Not Send Alert'); ?> &mdash;</option>
-            </select>
-          </td>
-        </tr>
+		<tr id="notice" class="no_border"><!--osta-->
+			<td id="label" width="160">
+				<?php echo __('Ticket Notice');?>:
+			</td>
+			<td>
+				<select id="reply-to" name="reply-to">
+					<option value="all"><?php echo __('Alert All'); ?></option>
+					<option value="user"><?php echo __('Alert to User'); ?></option>
+					<option value="none">&mdash; <?php echo __('Do Not Send Alert'); ?> &mdash;</option>
+				</select>
+			</td>
+			<td>&nbsp;</td><!--osta-->
+		</tr>
       <?php } ?>
     </tbody>
     <tbody>
@@ -299,16 +296,17 @@ if ($_POST)
             <td width="160">
                 <?php echo __('Due Date');?>:
             </td>
-            <td>
+            <td class="time-zone"><!--osta-->
                 <?php
                 $duedateField = Ticket::duedateField('duedate', $info['duedate']);
                 $duedateField->render();
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time
-                        zone');?>&nbsp;(<?php echo $cfg->getTimezone($thisstaff); ?>)</em>
+                <!--osta-->
+                <span class="time-zone-msg"><?php echo __('Time is based on your time
+                        zone');?>&nbsp;(<?php echo $cfg->getTimezone($thisstaff); ?>)</span>
             </td>
-        </tr>
+        </tr>		
 
         <?php
         if($thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)) { ?>
@@ -324,10 +322,10 @@ if ($_POST)
                                 ));
                     if ($users) {
                         echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
-                        foreach ($users as $id => $name) {
+                        foreach($users as $id => $name) {
                             $k="s$id";
                             echo sprintf('<option value="%s" %s>%s</option>',
-                                        $k, (($info['assignId']==$k) ? 'selected="selected"' : ''), $name);
+                                        $k,(($info['assignId']==$k)?'selected="selected"':''),$name);
                         }
                         echo '</OPTGROUP>';
                     }
@@ -362,7 +360,9 @@ if ($_POST)
         if ($thisstaff->getRole()->hasPerm(Ticket::PERM_REPLY)) { ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
+		<!--osta-->
+                <em><strong><?php echo __('Response');?></strong><br />
+				<span class="form-instructions"><?php echo __('Optional response to the above issue.');?></em></span>
             </th>
         </tr>
         <tr>
@@ -431,7 +431,7 @@ print $response_form->getField('attachments')->render();
             </tr>
              <tr>
                 <td width="100"><?php echo __('Signature');?>:</td>
-                <td>
+                <td id="signature"><!--osta-->
                     <?php
                     $info['signature']=$info['signature']?$info['signature']:$thisstaff->getDefaultSignatureType();
                     ?>
@@ -481,6 +481,12 @@ print $response_form->getField('attachments')->render();
         window.location.href='tickets.php'; " />
 </p>
 </form>
+<!--osta-->
+<script>
+$("form\[action=\"tickets.php?a=open\"\] tr td").html(function(i, html){
+    return html.replace("*", "");
+});
+</script>  
 <script type="text/javascript">
 $(function() {
     $('input#user-email').typeahead({

@@ -1,0 +1,27 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Gửi đến các nhân viên khi một lệnh bị quá hạn trong hệ thống. Những lệnh quá hạn này xảy ra dựa trên ngày hết hạn của lệnh cũng như SLA được xác định cho lệnh này.
+subject: |
+  Cảnh báo lệnh cũ
+body: |
+  <h3><strong>Chào%{recipient.name}</strong>,</h3>
+  Một lệnh,<a href="%{ticket.staff_link}">#%{ticket.number}</a>bị quá hạn một cách nghiêm trọng.
+  <br>
+  <br>
+  Tất cả chúng ta nên làm việc chăm chỉ để đảm bảo rằng tất cả các lệnh được giải quyết một cách kịp thời.
+  <br>
+  <br>
+  Đã kí,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Để xem hoặc phản hồi tới lệnh, hãy<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >đăng nhập </span></a>tới hệ thống lệnh hỗ trợ. Bạn sẽ nhận được chú thích vì lệnh được chỉ định trực tiếp tới bạn hoặc tới một nhóm hoặc một phòng ban mà bạn là thành viên.</div><em style="font-size: small">Đội hỗ trợ khách hàng<span style="font-size: smaller"
+  >(mặc dù với sức kiên nhẫn giới hạn)</span></em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

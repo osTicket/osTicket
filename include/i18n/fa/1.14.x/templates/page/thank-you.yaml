@@ -1,0 +1,19 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  صفحه قدر دانی زمانی به کاربر نمایش داده می شود که کاربر درخواست جدیدی را در سیستم پشتیبانی ثبت نماید.
+name: با تشکر از شما
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  با تشکر از تماس شما. <br>
+  <br>
+   درخواست شما در سیستم ثبت شد، در اسرع وقت مسئولین پشتیبانی موضوع را پیگیری و در صورت نیاز نتیجه را از طریق ایمیل به اطلاع شما خواهند رساند.</p>
+  <br>
+  <br>
+  تیم پشتیبانی
+  </div>

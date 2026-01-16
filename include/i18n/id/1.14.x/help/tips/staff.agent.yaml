@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Nama pengguna
+  content: >
+    Silahkan memilih agen<span class="doc-desc-title">Nama Pengguna</span>  yang  unik ke  <span class="doc-desc-title">Help Desk</span> Anda.
+email_address:
+  title: Alamat Email
+  content: >
+    Masukan email agen yang akan menerima <span class="doc-desc-title">Peringatan &amp; Pemberitahuan</span> dari <span class="doc-desc-title">Help Desk</span>.
+  0: <br><br>
+  1:
+welcome_email:
+  title: Email Selamat Datang
+  content: >
+    Kirim Agen baru sebuah akun mengakses tautan dari mana Agen akan dapat mengatur kata sandi mereka sendiri. Jika tidak dicentang, Anda perlu mengatur kata sandi dan mengkomunikasikan informasi log-in ke staf baru.
+account_password:
+  title: Kata Sandi Akun
+  content: >
+    Sebagai seorang <span class="doc-desc-title">administrator</span>, Anda dapat mengubah kata sandi Agen.
+forced_password_change:
+  title: Mengubah Kata Sandi dengan paksa
+  content: >
+    Aktifkan ini jika Anda ingin memaksa Agen baru untuk mengubah kata sandi mereka sendiri pada login berikutnya.
+agents_signature:
+  title: Signature Agen
+  content: >
+    Buat sebuah signature untuk Agen dimana dapat dipilih ketika membalas ke sebuah tiket.
+account_status:
+  title: Status Akun
+  content: >
+    Jika status Agen <span class="doc-desc-opt">Terkunci</span>, mereka tidak dapat masuk ke help desk.
+assigned_group:
+  title: Group Ditugaskan
+  content: >
+    <span class="doc-desc-title">Group</span> yang Anda pilih untuk Agen ini akan menentukan ijin yang  dimiliki Agen dalam <span class = "doc-desc-title"> Help Desk </span>.
+  links:
+    - 
+      title: Mengelola Grup
+      href: /scp/groups.php
+primary_department:
+  title: Departemen Utama
+  content: >
+    Pilih <span class="doc-desc-title">departemen</span> utama ke mana Agen berada dan sebuah <span class="doc-desc-title">Peran</span> yang efektif.
+  links:
+    - 
+      title: Mengelola Departemen
+      href: /scp/departments.php
+primary_role:
+  title: Peran Utama
+  content: >
+    Pilih <span class="doc-desc-title">peran</span> utama dimana Agen ini berada.
+primary_role_on_assign:
+  title: Gunakan Peran Utama untuk Penugasan
+  content: >
+    Aktifkan ini untuk mengembalikan <span class="doc-desc-title">peran utama</span> ketika Agen ini ditugaskan tiket dan pekerjaan di luar <span class="doc-desc-title">departemen utama</span> dan <span class="doc-desc-title">akses tambahan</span> departemen. Jika tidak, Agen akan memiliki akses untuk menampilkan data saja.
+daylight_saving:
+  title: Daylight Saving
+  content: >
+    Aktifkan fitur ini jika Anda ingin Daylight Saving secara otomatis berfungsi untuk zone waktu Agen.
+limited_access:
+  title: Akses Terbatas
+  content: >
+    Jika diaktifkan, Agen hanya akan memilik akses ke tiket yang ditugaskan secara langsung atau melalui Tim.
+directory_listing:
+  title: Daftar Direktori
+  content: >
+    Aktifkan ini jika Anda ingin daftar Agen ini pada <span class="doc-desc-title">Direktori Staff</span>.
+  links:
+    - 
+      title: Kunjungi Direktori Staf
+      href: /scp/directory.php
+vacation_mode:
+  title: Mode Liburan
+  content: >
+    Jika Anda mengubah status agen ke <span class="doc-desc-opt">Mode Liburan</span>, Agen tidak akan menerima <span class="doc-desc-title">Peringatan &amp; Pemberitahuan</span> begitu juga ketersediaan untuk penugasan tiket.
+

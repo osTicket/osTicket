@@ -1,0 +1,25 @@
+---
+#Email template: ticket.autoreply.yaml
+#Sent to a user when an automatic canned response is posted to a ticket
+#when it is created
+#---
+notes: |
+  Відправляється користувачеві, коли заготовлена відповідь автоматично відправлена у Заявку при її створенні. Змінні доступні для заміни: %{ticket. *}, %{response}
+subject: |
+  Re: %{ticket.subject}
+body: |
+  <h3> <strong>Доброго дня, %{recipient.name.first}! </strong> </h3> 
+  Запит був створений і прив'язаний до заявки <a href = "%{recipient.ticket_link}"> #%{ticket.number} </a> з наступною автовідповіддю <br> 
+  <br> 
+  Розділ: <strong>%{ticket.topic.name} </strong> 
+  <br> 
+  Тема: <strong>%{ticket.subject} </strong> 
+  <br> 
+  <br> 
+  %{response} 
+  <br> 
+  <br> 
+  <div style = "color: rgb (127, 127, 127);"> Ваша команда: %{company.name}, <br> 
+  %{signature} </div> 
+  <hr> 
+  <div style = "color: rgb (127, 127, 127); font-size: small;"> <em> Ми сподіваємося, що ми відповіли на Ваші запитання. Якщо Ви хочете надати додаткові коментарі або інформацію, будь ласка, дайте відповідь на цей лист, або <a href="%{recipient.ticket_link}"> <span style = "color: rgb (84, 141, 212);" > увійдіть в свій профіль </span> </a> для перегляду всього архіву Ваших запитів підтримки. </em> </div>

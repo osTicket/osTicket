@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Uusi Tiketin Ohjeotsikko
+  content: >
+    Valitse <span class="doc-desc-title">Ohjeotsikko</span>, joka liitetään automaattisesti tiketteihin, joka on luotu käyttäen tätä sähköpostiosoitetta <br/><br/>
+    Lomakkeet, jotka on liitetty tähän ohjeotsikkoon liitetään automaattisesti tikettiin, mutta ilman sisältöä.
+  links:
+    - 
+      title: Hallitse Ohjeotsikoita
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Uuden Tiketin prioriteetti
+  content: >
+    Valitse uusien Tikettien <span class="doc-desc-title">Prioritetti</span> jotka on luotu tästä sähköpostiosoitteesta.
+new_ticket_department:
+  title: Uuden Tiketin Osasto
+  content: >
+    Valitse <span class="doc-desc-title">Osasto</span> johon tästä sähköpostiosoitteesta luodut tiketit ohjataan.
+  links:
+    - 
+      title: Hallinnoi Osastoja
+      href: /scp/departments.php
+auto_response:
+  title: Uuden Tiketin Automaattinen vastaus
+  content: >
+    Voit poistaa Automaattisen vastauksen joka lähetetään Käyttäjälle kun uusi tiketti on luodaan tällä sähköpostiosoitteella.
+username:
+  title: Käyttäjätunnus
+  0: >
+
+password:
+  title: Salasana
+  0: >
+
+login_information:
+  title: Sähköpostin Kirjautumistiedot
+  content: >
+    <span class="doc-desc-title">Käyttäjätunnus</span> ja <span class="doc-desc-title">Salasana</span> tarvitaan, jotta sähköpostit voidaan hakea IMAP/POP-laatikoista sekä lähettää SMTP:n välityksellä.
+mail_account:
+  title: Hakee sähköposteja
+  content: >
+    Hae sähköpostit IMAP- tai POP- sähköpostilaatikosta ja luo niistä tiketit järjestelmään.
+  links:
+    - 
+      title: Hallinnoi <span class="doc-desc-title">Sähköpostin tarkastus</span> &amp; <span class="doc-desc-title">AutoCron</span> asetuksia.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Etäisäntä
+  content: >
+    Syötä <span class="doc-desc-title">isnäntänimi</span> ja <span class="doc-desc-title">portti</span> numero sähköpostipalvelimellesi. Tämä voi olla avoin documentti ylläpitokäyttäjälläsi tai sähköpostin järjestelmänvalvojalla.
+protocol:
+  title: Sähköpostilaatikon protokolla
+  content: >
+    Valitse sähköpostipalvelimesi muoto. Suositeltava muoto on IMAP. Käytä SSL-salausta, jos mahdollista.
+fetch_frequency:
+  title: Noudon tiheys
+  content: >
+    Anna aika minuuteissa kuinka usein järjestelmä hakee sähköposteja <br/><br/> Tämä aika myös määrittelee kuinka pitkä viive on asiakkaan antamassa vastauksen saapumisessa.
+emails_per_fetch:
+  title: Sähköpostien määrä/nouto
+  content: >
+    Samanaikaisesti käsiteltävien sähköpostien määrä.
+fetched_emails:
+  title: Noudetut sähköpostit
+  content: >
+    Päätä, mitä tehdään käsitellyille sähköposteille: <br/><br/> <span class="doc-desc-opt"><b>Siirrä kansioon</b></span>: Tämä varmuuskopioi saapuneet sähköpostisi määrittelemääsi kansioon. Jos kansiota ei ole olemassa, niin palvelin yrittää luoda sen automaattisesti. (<b>Suositeltu</b>) <hr> <span class="doc-desc-opt"><b>Poista sähköpostit</b></span>: Poistaa sähköpostit saapuneet kansiosta käsittelyn jälkeen. <hr> <span class="doc-desc-opt"><b>Älä tee mitään</b></span>:Sähköpostit jätetään saapuneet kansioon. Järjestelmä tallentaa viestien ID:t, jotta niitä ei haeta uudelleen. Tämä voi kuitenkin johtaa siihen, että syntyy päällekkäisiä tukipyyntöjä.
+    . (<em>Ei suositella</em>)
+smtp_settings:
+  title: SMTP-asetukset
+  content: >
+    Tukijärjestelmästä lähetetyt sähköpostit voidaan lähettää SMTP palvelimen kautta. Tämä on suositeltavaa, koska sähköpostit menevät varmemmin perille ja ne myös merkitään pienemmällä todennäköisyydellä roskapostiksi.
+header_spoofing:
+  title: Salli Otsikon väärennys
+  content: >
+    Aktivoi tämä salliaksesi postin lähettämisen tästä postilaatikosta muulla kuin <span class="doc-desc-title">Sähköpostiosoitteella</span> yllä olevan asetuksen mukaan. <br/><br/> Tätä ominaisuutta käytetään yleensä kun viestejä lähetetään sähköpostiosoitteen aliaksella.
+

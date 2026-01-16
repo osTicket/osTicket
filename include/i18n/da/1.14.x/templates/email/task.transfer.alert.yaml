@@ -1,0 +1,27 @@
+---
+#Email template: task.transfer.alert.yaml
+#Sent to agents when a task is transfered to their department.
+#---
+notes: |
+  Sendt til agenter, når en opgave overføres til en afdeling, hvor
+  de er medlem.
+subject: |
+  Opgave #%{task.number} overførsel - %{task.dept.name}
+body: |
+  <h3>Hej %{recipient.name},</h3>
+  Opgave <a href="%{task.staff_link}">#%{task.number}</a> er blevet overført til %{task.dept.name} afdeling af
+  <strong>%{staff.name.short}</strong>
+  <br>
+  <br>
+  <blockquote>
+      %{comments}
+  </blockquote>
+  <hr>
+  <div>For at se eller svare på sagen, <a
+  href="%{task.staff_link}">log venligst ind</a> på bestillingssystemet.
+  </div>
+  <em style="font-size: small; ">Din venlige kundesupport</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      alt="Powered By osTicket" style="width: 126px;"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

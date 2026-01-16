@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Ticket ใหม่
+  content: >
+    เปิดการใช้งานนี้ถ้าคุณต้องการตอบกลับอัตโนมัติไปยังผู้ใช้งานที่เปิด Ticket ใหม่
+  links:
+    - 
+      title: แม่แบบการตอบกลับ Ticket ใหม่อัตโนมัติ
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: สร้าง Ticket ใหม่โดยเจ้าหน้าที่
+  content: >
+    แจ้งเตือนเมื่อเจ้าหน้าที่สร้าง Ticket ในนามของผู้ใช้ <em>เจ้าหน้าที่สามารถแทนที่ค่านี้เมื่อสร้าง Ticket ใหม่ได้</em>
+  links:
+    - 
+      title: แม่แบบแจ้งเตือน Ticket ใหม่
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: ยืนยันข้อความใหม่
+  content: >
+    แจ้งยืนยันส่งข้อความใหม่จะถูกผนวกเข้ากับ Ticket ที่มีอยู่
+  links:
+    - 
+      title: แม่แบบยืนยันข้อความใหม่
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: แจ้งข้อความใหม่
+  content: >
+    เผยแพร่ข้อความที่ได้รับจากผู้เกี่ยวข้องทั้งหมดใน Ticket
+  links:
+    - 
+      title: แม่แบบแจ้งกิจกรรมใหม่
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: แจ้งเตือนเกินกำหนด
+  content: >
+    แจ้งเตือนถึงผู้ใช้เเรื่อง <span class="doc-desc-title">จำนวน Ticket เต็ม</span> 
+  links:
+    - 
+      title: แม่แบบแจ้งเตือนเกินกำหนด
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: ตั้งค่า<em>เปิด Ticket สูงสุด</em>
+      href: /scp/settings.php?t=tickets

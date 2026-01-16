@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Tip
+  content: >
+    Odaberite <span class="doc-desc-opt">Privatno</span> ako želite da maskirate dodelu ovom odeljenju u klijentskom portalu. Dodatno, kada je obeleženo kao <span class="doc-desc-opt">Privatno</span>, taj <span class="doc-desc-title"> Odeljenski potpis</span> neće biti prikazan u odgovorima elektronske pošte. <br/><br/> Najmanje jedno odeljenje mora biti <span class="doc-desc-opt">Javno</span>
+email:
+  title: Email
+  content: >
+    Imejl adrese korišćene kada se odogovori šalju korisnicima kada agenti odgovore na tikete.
+template:
+  title: Skup šablona
+  content: >
+    <span class="doc-desc-title">Skup šablona</span> imejla koji se koristi za automatske odgovore i za upozorenja i obaveštenja za tikete preusmeren na ovo odeljenje.
+  links:
+    - 
+      title: Rukovodi šablonima
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Sporazum nivoa servisa za tikete preusmerene na ovo odeljenje.
+  links:
+    - 
+      title: Upravljanje ugovorima o nivou usluge
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Rukovodilac odeljenja
+  content: >
+    Selektovati <span class="doc-desc-title">rukovodioca</span> ovog odeljenja. <br/><br/> Rukovodioci mogu biti podešeni tako da primaju posebna upozorenja i tako da imaju pravo da uklone dodelu tiketa.
+  links:
+    - 
+      title: Rukovodi upozorenjima i obaveštenjima
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Primaoci upozorenja i obaveštenja
+  content: >
+    Selektovati primaoce konfigurisanih <span class="doc-desc-title">upozorenja i obaveštenja</span>.
+  links:
+    - 
+      title: Konfigurisati upozorenja i obaveštenja
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Ograničenja dodeljivanja tiketa
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Onemogućiti Automatski Zahtev
+  content: >
+    Proveriti ovo da biste<strong>onemogućili</strong> automatske zahteve za odgovor za ovo odeljenje.<br><br>Agenti i dalje mogu ručno da zahtevaju tikete koji nisu dodeljeni
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Podešavanje automatskih odgovora
+  content: >
+    Ovo Vam omogućava da nadglasite globalna podešavanja za automatske odogovore za ovo odeljenje.
+new_ticket:
+  title: Automatski odgovor na nove tikete
+  content: >
+    Možete onemogućiti da se pošalje automatski odgovor korisniku kada se novi tiket kreira i preusmeri na ovo odeljenje.
+new_message:
+  title: Novi automatski odgovor
+  content: >
+    Možete onemogućiti da se pošalje automatski potvrda korisniku da je poslata poruka za neki od tiketa u ovom odeljenju.
+auto_response_email:
+  title: Automatski odogovor na imejl
+  content: >
+    Selektovati imejl adresu sa koje se šalju automatski odgovori za tikete ovog odeljenja.
+department_access:
+  title: Grupni pristup
+  content: >
+    Dozvoli agentima drugih odeljenja pristup odeljenju ovih tiketa.
+department_signature:
+  title: Potpis odeljenja
+  content: >
+    Potpis stoji na raspolaganju kao izbor, za <span class="doc-desc-opt"> Javna</span> odeljenja, na odgovore agenata.

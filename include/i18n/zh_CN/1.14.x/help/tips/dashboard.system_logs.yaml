@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: 系统日志
+  content: >
+    此处可以查找到任何与故障排除相关的日志活动记录（例如，错误，警告或错误）。
+  links:
+    - 
+      title: 改变<span class="doc-desc-title">默认日志级别</span><br />以自定义何种类型的活动将被记录。
+      href: /scp/settings.php?t=system
+date_span:
+  title: 数据范围
+  content: >
+    选择您想要在 <span class="doc-desc-title"> 系统日志</span> 中查看的日历范围。
+type:
+  title: 类型
+  content: >
+    选择一个选项来查看特定类型的活动。<span class="doc-desc-opt"> 调试</span> 表示最低的严重程度，而 <span class="doc-desc-opt"> 错误</span> 表示最高的严重程度。
+showing_logs:
+  title: 显示 &hellip; 日志
+  content: >
+    确保检查了以下的 <span class="doc-desc-title"> 页面 </span> 部分以保证没有更多可用于显示系统日志的页面。
+log_title:
+  title: 日志标题
+  content: >
+    如果需要基于<span class="doc-desc-title">日志标题</span>分类的结果，请点击表格头部的<span class="doc-desc-title">日志标题</span>。
+log_type:
+  title: 日志类型
+  content: >
+    如果需要基于<span class="doc-desc-title">日志类型</span>分类的结果，请点击表格头部的<span class="doc-desc-title">日志类型</span>。
+log_date:
+  title: 日志日期
+  content: >
+    这是日志被此软件创建的时间。如果你希望根据 <span class="doc-desc-title">日志时间</span>排序，点击表格头部的 <span class="doc-desc-title">日志时间</span>。（使用表单顶部的 <span class="doc-desc-title">日期范围</span>来缩小你的日志的时间范围）。
+ip_address:
+  title: IP 地址
+  content: >
+    此处指向客户端或代理使用 osTicket 时，在创建日志时使用的 <span class="doc-desc-title">IP</span> <span class="doc-desc-title">地址</span>。

@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Αυτό το πρότυπο ορίζει το αρχικό email (προαιρετικό) που αποστέλλεται στους Εκπροσώπους όταν δημιουργείται ένας λογαριασμός γι' αυτούς.
+name: "Καλώς ήλθατε στο osTicket"
+body: >
+  <h3><strong>Αγαπητέ/ή %{recipient.name.first}, </strong></h3> <div> Έχουμε δημιουργήσει ένα λογαριασμό για εσάς στο κέντρο εξυπηρέτησης, εδώ: %{url}.<br /> <br /> Παρακαλούμε ακολουθήστε τον παρακάτω σύνδεσμο για να επιβεβαιώσετε τον λογαριασμό σας και να αποκτήσετε πρόσβαση στα δελτία των αιτημάτων σας.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Το Kέντρο Υποστήριξης Πελατών<br /> %{company.name}</em> </div>

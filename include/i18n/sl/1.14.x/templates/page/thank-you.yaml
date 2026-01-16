@@ -1,0 +1,22 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Ta predloga definira vsebino, ki se prikaže na Hvala-vam strani, potem
+  ko stranka odda zahtevek na portalu za stranke.
+name: Hvala Vam
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Hvala ker ste stopili v stik z nami.
+  <br>
+  <br>
+  Podporni zahtevek je bil ustvarjen in podpornik vas bo kontaktiral 
+  v najkrajšem možnem času.</p>
+  <br>
+  <br>
+  Podporna ekipa
+  </div>

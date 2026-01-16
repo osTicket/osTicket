@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: API anahtarı
+  content: >
+    API anahtarları, kullanıcıların yeni çağrı bildirimlerini, Uygulama Programlama Arayüzleri (API) aracılığıyla açmalarını sağlarken sisteme giriş yapabilmek için kullanılırlar. API anahtarları şifreler yerine kullanılırlar. API anahtarları şifrelenmemiş olarak gönderildikleri için, kullanıcılarının network IP adresleri ile eşleştirilirler.
+  links:
+    - 
+      title: osTicket API Belgeleri
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: IP Adresi
+  content: >
+    İstemci ağ IP adresi. Her bir özgün istemci IP adresi için ayrı API anahtarı gerekmektedir

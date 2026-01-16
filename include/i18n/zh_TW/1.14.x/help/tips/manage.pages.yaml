@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: 主要網頁
+  content: >
+    網站頁面可以作為一個迷你的內容管理系統 (CMS)。您可以在公司設置和說明主題上定義多重登入，離線，和感謝信頁面和配置。
+  links:
+    - 
+      title: 公司設置
+      href: /scp/settings.php?t=pages
+type:
+  title: 類型 
+  content: >
+    <span class="doc-desc-opt">離線</span> 頁面顯示用戶端的入口網站禁用<span class="doc-desc-opt">。登入</span>頁面顯示您的用戶端入口網站的主頁上。 <span class="doc-desc-opt">感謝您</span> 頁面顯示在票券送出之後。 <span class="doc-desc-opt">其他</span> 頁面可以用作一個簡單的內容管理系統 (CMS)。

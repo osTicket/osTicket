@@ -90,9 +90,9 @@ $pageNav->paginate($categories);
                 $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$C->getId(),$C->faq_count);
             ?>
             <tr id="<?php echo $C->getId(); ?>">
-                <td align="center">
-                  <input type="checkbox" name="ids[]" value="<?php echo $C->getId(); ?>" class="ckb"
-                            <?php echo $sel?'checked="checked"':''; ?>>
+                <td align="center"><!--osta-->
+                  <p class="checkbox"><input type="checkbox" name="ids[]" value="<?php echo $C->getId(); ?>" class="ckb"
+                  <?php echo $sel?'checked="checked"':''; ?>><label></label></p>
                 </td>
                 <td><a class="truncate" style="width:500px" href="categories.php?id=<?php echo $C->getId(); ?>"><?php
                     echo Category::getNamebyId($C->getId()); ?></a></td>
@@ -116,6 +116,19 @@ $pageNav->paginate($categories);
      </tr>
     </tfoot>
 </table>
+<!--osta-->
+<script>
+	function myFunction(x) {
+	  if (x.matches) { // If media query matches
+		$( "tbody tr" ).wrapInner( "<label></label>");
+	  } else {
+	   ;
+	  }
+	}
+	var x = window.matchMedia("(max-width: 760px)")
+	myFunction(x) // Call listener function at run time
+	x.addListener(myFunction) // Attach listener function on state changes
+</script>
 <?php
 if ($total) {
     echo '<div>&nbsp;'.__('Page').': '.$pageNav->getPageLinks().'</div>';

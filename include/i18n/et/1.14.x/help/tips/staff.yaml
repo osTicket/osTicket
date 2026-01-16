@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Töötajate allkirjatekst
+  content: |
+    Koosta töötaja allkirjatekst piletite vastustele. Allkirja teksti kuvatakse pileti vastuse lõpus.
+type:
+  title: Konto tüüp
+  content: |
+    Administraatoritel on juurdepääs Admin menüüle. Töötajtel on õigus hallata pileteid ja teadmistebaasi.
+group:
+  title: Määratud grupp
+  content: |
+    Liikmelisus grupis määrab töötaja rolli süsteemis. Töötajate õiguste määramiseks, mine gruppide halduse lehele.
+notes:
+  title: Sisemised märkused
+  content: |
+    Sisemised märkused töötajate kohta; märkused on nähtavad ainult töötajatele, kelle konto tüübiks on administraator

@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> FAQ
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+listing_type:
+  title: Τύπος Λίστας
+  content: >
+    Επιλέξτε <span class="doc-desc-opt">Δημόσιο (δημοσίευση)</span>, αν επιθυμείτε αυτό το<span class="doc-desc-title">FAQ</span> (συχνές ερωτήσεις) να δημοσιευτεί στη δημόσια γνωσιακή βάση εάν η γονική κατηγορία είναι δημόσια.
+  links:
+    - 
+      title: Ενεργοποιήστε τη Δημόσια Γνωσιακή Βάση για τον Ιστοχώρο των Πελατών
+      href: /scp/settings.php?t=kb

@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Enviado aos usuários quando uma nova mensagem é enviada por um usuário para atualizar um chamado.  Isso pode ocorrer se o usuário responde a um e-mail do sistema ou visita ao portal do cliente e envia uma nova mensagem lá.
+subject: |
+  Confirmação de mensagem
+body: |
+  <h3><strong>Prezado(a) %{recipient.name.first},</strong></h3>
+  A sua resposta ao chamado <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> foi recebida
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Equipe %{company.name},<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Você pode acompanhar o progresso do chamado <a
+  href="%{recipient.ticket_link}">online aqui</a></em>
+  </div>

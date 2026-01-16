@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Sistēmas Žurnāli
+  content: >
+    Šeit Jūs atradīsiet jebkuru ar žurnalēšanu saistītu aktivitāti (piem. kļūdas, brīdinājumus, defektus).
+  links:
+    - 
+      title: Iestatiet kāda veida aktivitāte tiks ierakstīta žurnālā, nomainot<br /><span class="doc-desc-title">Noklusējuma Žurnāla Līmenis</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Datumu intervāls
+  content: >
+    Izvēlieties kalendāro diapazonu, kādā Jūs vēlaties redzēt <span class="doc-desc-title"> Sistēmas Žurnālus</span>.
+type:
+  title: Tips
+  content: >
+    Izvēlieties iestatījumus, lai atlasītu noteikta tipa aktivitātes. <span class="doc-desc-opt"> Atkļūdošana</span> piedāvā pašu zemāko līmeni un <span class="doc-desc-opt">Kļūda</span> piedāvā augstākā līmeņa aktivitātes.
+showing_logs:
+  title: Parāda&hellip;Žurnālus
+  content: >
+    Pārbaudiet sekciju <span class="doc-desc-title">Lapa</span> zemāk un pārliecinieties, ka nav vairāk kā viena lappuse, kas attēlo Sistēmas Žurnālus.
+log_title:
+  title: Žurnāla nosaukums
+  content: >
+    Uzklikšķiniet uz kolonnas <span class="doc-desc-title">Žurnāla Tips</span> galveni, ja Jūs vēlaties sakārtot rezultātus pēc <span class="doc-desc-title">Žurnāla Tipa</span>.
+log_type:
+  title: Žurnāla veids
+  content: >
+    Uzklikšķiniet uz kolonnas <span class="doc-desc-title">Žurnāla Tips</span> galveni, ja Jūs vēlaties sakārtot rezultātus pēc <span class="doc-desc-title">Žurnāla Tips</span>.
+log_date:
+  title: Žurnāla Datums
+  content: >
+    Šis ir programmas ģenerētā ieraksta datums. Ja Jūs vēlaties sagrupēt rezultātus pēc lauka <span class="doc-desc-title">Ieraksta Datums</span> vērtības, tad vienkārši noklikšķiniet uz <span class="doc-desc-title">Ieraksta Datums</span> tabulas aukšdaļā. (izmantojiet formu <span class="doc-desc-title">Datuma Diapazons</span> augstāk, lai ierobežotu ierakstu periodu.)
+ip_address:
+  title: IP adrese
+  content: >
+    Šis attiecas uz <span class="doc-desc-title"> IP </span><span class="doc-desc-title"> adresi </span> kura piemērojama vai nu lietotājam vai klientam, kas lietoja osTicket laikā, kad žurnāls tika izveidots.

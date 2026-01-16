@@ -1,0 +1,82 @@
+{
+  "name": "bootstrap-colorpicker",
+  "version": "3.0.0-wip",
+  "description": "Simple and customizable colorpicker component for Twitter Bootstrap.",
+  "main": "./dist/js/bootstrap-colorpicker.js",
+  "homepage": "https://farbelous.github.io/bootstrap-colorpicker/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farbelous/bootstrap-colorpicker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/farbelous/bootstrap-colorpicker/issues"
+  },
+  "keywords": [
+    "bootstrap",
+    "colorpicker"
+  ],
+  "author": "Javi Aguilar",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": ">=2.1.0",
+    "tinycolor2": "^1.4.1"
+  },
+  "scripts": {
+    "test": "npm run lint && ava --color --verbose",
+    "start": "node_modules/.bin/http-server ./build/docs",
+    "lint": "node_modules/.bin/eslint ./src/js ./*.js ./test",
+    "lint-fix": "node_modules/.bin/eslint --fix ./src/js ./*.js ./test",
+    "build": "gulp clean && gulp dist && gulp docs",
+    "build-dist": "gulp dist",
+    "build-docs": "gulp dist && gulp docs",
+    "build-npm": "npm run build && gulp npm-prepublish",
+    "publish-dist": "echo \"Publishing dist into the docs folder... \" && npm run build && npm run test && gulp docs:add-dist",
+    "publish-docs": "npm run build && npm run test && gulp docs:add-v2-docs && gulp publish-gh-pages",
+    "publish-npm": "npm run build-npm && npm run test && npm publish"
+  },
+  "devDependencies": {
+    "ava": "^0.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.0.2",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-env": "^1.6.1",
+    "del": "^3.0.0",
+    "eslint": "^4.11.0",
+    "eslint-loader": "^1.9.0",
+    "gh-pages": "^1.0.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-clean-css": "^3.9.0",
+    "gulp-compile-handlebars": "^0.6.1",
+    "gulp-header": "^1.8.9",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.2",
+    "gulp-shell": "^0.6.3",
+    "gulp-sourcemaps": "^2.6.1",
+    "handlebars-layouts": "^3.1.4",
+    "http-server": "^0.10.0",
+    "jsdoc": "^3.5.5",
+    "jsdom": "^11.3.0",
+    "uglifyjs-webpack-plugin": "^1.0.1",
+    "webpack": "^3.8.1",
+    "webpack-stream": "^4.0.0"
+  },
+  "ava": {
+    "files": [
+      "tests/**/*test.js"
+    ],
+    "source": [
+      "src/js/**/*.{js,jsx}"
+    ],
+    "concurrency": 5,
+    "failFast": true,
+    "failWithoutAssertions": false,
+    "tap": false,
+    "powerAssert": false,
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  }
+}

@@ -1,0 +1,22 @@
+---
+- 
+  id: 1
+  name: الدعم الفني
+  signature: قسم الدعم الفني
+  ispublic: 1
+  group_membership: 1
+- 
+  id: 2
+  name: المبيعات
+  signature: |
+    المبيعات و العناية بالعملاء
+  ispublic: 1
+  sla_id: 1
+  group_membership: 1
+- 
+  id: 3
+  name: الصيانة
+  signature: |
+    قسم الصيانة
+  ispublic: 0
+  group_membership: 0

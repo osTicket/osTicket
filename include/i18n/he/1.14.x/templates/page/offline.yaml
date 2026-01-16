@@ -1,0 +1,15 @@
+---
+#Page template: offline.yaml
+#The offline page is served to the customer portal when the help desk is
+#configured offline in the Admin Panel
+#---
+notes: |
+  עמוד זה יופיע בפורטל הלקוחות כאשר מערכת התמיכה אינה פעילה.
+name: לא פעילה
+body: |
+  <div><h1>
+  <span style="font-size: medium">מערכת התמיכה אינה פעילה כעת</span>
+  </h1>
+  <p>תודה לך על הרצון לפנות אלינו.</p>
+  <p>מערכת התמיכה אינה פעילה כרגע, אנא נסה שנית במועד מאוחר יותר.</p>
+  </div>

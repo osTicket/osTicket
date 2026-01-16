@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tickets
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: 티켓 번호 형식
+  content: >
+    이 설정은 티켓 번호를 생성하기 위해 사용됩니다. 정수가 위치할 곳을 해쉬 기호(`#`)를 사용해 표시하세요. 다른 어떤 숫자 형식의 문자열엔 영향을 끼치지 않습니다. <span class="doc-desc-title">질문 주제</span>는 임의의 숫자 형식을 설정할 수 있습니다. <br/><br/>예를 들어, 6자리의 숫자의 경우, <code>######</code>를 사용하십시요.
+sequence_id:
+  title: 티켓 넘버 순서
+  content: >
+    새로운 티켓 번호를 얻을 순서를 선택하세요. 시스템에서는 기본적으로 증분 시퀀스와 랜덤 시퀀스를 지원합니다. 원하는만큼의 시퀀스를 만들 수 있습니다. 도움말 항목의 <span class = "doc-desc-title">티켓 번호 형식</span> 설정에서 다양한 시퀀스를 사용하세요.
+queue_bucket_counts:
+  title: 최상위 티켓 수
+  content: >
+    이 설정은 기본 레벨 대기열의 티켓 수를 숨기거나 표시하는 데 사용됩니다. 예전 상태로 돌아가세요.
+default_ticket_status:
+  title: 새 티켓을 위한 기본 상태
+  content: >
+    새로운 티켓을 위한 기본 상태를 선택하세요. 필요한 경우 각 도움말 항목에 대한 기본상태를 정의할 수 있습니다. 이 설정은 티켓 필터에 의해 무시될 수 있습니다.
+  links:
+    - 
+      title: 티켓 상태 관리
+      href: /scp/lists.php?type=ticket-status
+default_sla:
+  title: 기본 SLA 정책
+  content: >
+    티켓이 만료 될 때까지 오픈 상태로 유지할 기간을 관리하는 기본 서비스 수준 합의(SLA)를 선택하세요.
+  links:
+    - 
+      title: 추가 SLA 계획 만들기
+      href: /scp/slas.php
+default_priority:
+  title: 디폴트 우선순위
+  content: >
+    자동으로 우선 순위가 할당되지 않은 티켓의 <span class = "doc-desc-title">우선 순위</span>를 선택하세요. <br/> <br/> 우선 순위는 도움말 항목, 배정된 부서 또는 티켓 필터 설정을 통해 할당될 수 있습니다.
+maximum_open_tickets:
+  title: 최대 오픈 티켓
+  content: >
+    헬프 데스크에서 한명의 사용자가 <strong>오픈</strong>할 수 있는 최대 티켓 <em>수</em>를 입력하세요. <br> <br>이러한 제한을 두지 않으려면 <span class = "doc-desc-opt">0</span>을 입력하세요.
+email_ticket_priority:
+  title: 이메일 티켓 우선순위
+  content: >
+    수신자 메일 서비스에 의해 할당된 이메일 우선 순위를 사용하세요.
+show_related_tickets:
+  title: 관련 티켓 보기
+  content: >
+    사용자가 로그인하면 모든 관련 티켓을 표시합니다 - 그렇지 않으면 로그인 할 때마다 하나의 티켓으로 제한됩니다.
+human_verification:
+  title: 육안 검사
+  content: >
+    클라이언트 포털에서 CAPTCHA를 사용하여 수신한 티켓이 사람에 의해 만들어진 것인지 확인합니다. <br> <br> GDLib 라이브러리가 필요합니다.
+claim_tickets:
+  title: 응답시 티켓이 자신의 것이라고 주장
+  content: >
+    Enable this to auto-assign unassigned tickets to the responding Agent. <br><br> Reopened tickets are always assigned to the last respondent unless auto assign on reopen is disabled on the Department level.
+collaborator_ticket_visibility:
+  title: 공동작업자 티켓 가시성 입니다.
+  content: >
+    사용 가능으로 설정하면 사용자는 웹 포털에 로그인할 때 참여하는 모든 티켓을 볼 수 있습니다. <br><br>비활성화된 경우, 웹포털에 로그인할 때 자신의 티켓만 볼 수 있습니다.
+require_topic_to_close:
+  title: 도움 주제를 닫아야 합니다.
+  content: >
+    활성화되어 있는 경우 담당자가 티켓을 닫으려면 도움 주제가 있어야 합니다.
+assigned_tickets:
+  title: 할당된 티켓
+  content: >
+    <span class="doc-desc-title">오픈 티켓 큐</span>에서 할당 된 티켓을 제외하려면이 기능을 활성화하세요.
+answered_tickets:
+  title: 답변된 티켓
+  content: >
+    <span class="doc-desc-title">답변된 티켓 큐</span>에 답변된 티켓을 표시하려면이 기능을 활성화하세요. 사용하지 않을 경우, 이 티켓은 <span class="doc-desc-title">오픈 티켓 큐</span>에 포함됩니다.
+ticket_attachment_settings:
+  title: 티켓 쓰레드 첨부파일
+  content: >
+    <span class="doc-desc-title">상세 이슈</span> 필드에 첨부할 파일을 설정하세요. 이 설정은 소스 채널 (web 포털, 메일, api 등)에 관계없이 모든 새로운 티켓과 새 메시지에 사용됩니다.

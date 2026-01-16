@@ -1,0 +1,33 @@
+---
+teams:
+  title: الفرق
+  content: >
+    الفرق عبارة عن وكيل أو عدة وكلاء مجتمعين معاً ليتم إسناد التذاكر إليهم. عضوية الفريق يمكنها تجاوز حدود القسم.
+status:
+  title: الحالة
+  content: >
+    إذا <span class="doc-desc-opt">تم التعطيل</span>، فإن هذا الفريق لن يكون متاحاً لإسناد التذكرة ولا لإستلام التنبيهات والإشعارات للإسنادات السابقة.
+lead:
+  title: قائد الفريق
+  content: >
+    يمكن <span class="doc-desc-title">للفريق</span> أن ينصب قائداً له يمكنه استلام <span class="doc-desc-title">التنبيهات والإشعارات</span> بشكل منفصل عن الأعضاء.
+  links:
+    - 
+      title: ضبط التنبيهات و الإشعارات
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: تنبيه الإسناد
+  content: >
+    بإمكانك تعطيل<span class="doc-desc-title"> تنبيه إسناد التذكرة</span> للتذاكر المسنده لهذا الفريق.
+  links:
+    - 
+      title: ضبط التنبيهات و الإشعارات
+      href: /scp/settings.php?t=alerts
+members:
+  title: أعضاء الفريق
+  content: >
+    عضوية الفريق يمكن ضبطها عبر الملف الشخصي للوكيل.
+  links:
+    - 
+      title: إدارة الفريق
+      href: /scp/staff.php

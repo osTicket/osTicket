@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Хэрэглэгчийн нэр
+  content: >
+    <span class="doc-desc-title">Тусламжийн системд</span> нэвтрэх ажилтны давтагдахгүй <span class="doc-desc-title">нэвтрэх нэрийг</span> сонгоно уу.
+email_address:
+  title: Имэйл хаяг
+  content: >
+    Ажилтны анхааруулга, мэдээлэл хүлээн авах мэйл хаягийг оруулна.
+  0: <br><br>
+  1: Ажилтан нь нэр, эсвэл мэйл хаягаараа системд нэвтрэнэ.
+welcome_email:
+  title: Мэндчилгээний имэйл
+  content: >
+    Шинэ ажилтан руу өөрийн нууц үгээ үүсгэх боломжийг мэйлээр илгээнэ. Хэрвээ чагтлаагүй бол та нууц үгийг тохируулаад шинэ ажилтанд өгнө.
+account_password:
+  title: Хэрэглэгчийн нууц үг
+  content: >
+    <span class="doc-desc-title">Админ</span> нь ажилтны нууц үгийг өөрчлөх боломжтой.
+forced_password_change:
+  title: Нууц үгийг хүчээр солих
+  content: >
+    Шинэ ажилтан нэвтэрч орсны дараа заавал нууц үгээ өөрчлөхийг шаардана.
+agents_signature:
+  title: Ажилтны гарын үсэг
+  content: >
+    Хүсэлтэд хариу өгөх үед ажилтны мэдээллийн доор харагдах гарын үсгийг үүсгэнэ.
+account_status:
+  title: Бүртгэлийн төлөв
+  content: >
+    Хэрвээ ажилтны төлөв нь <span class="doc-desc-opt">Түгжигдсэн</span> бол, системд нэвтрэх боломжгүй болно.
+assigned_group:
+  title: Харъяалагдах групп
+  content: >
+    Ажилтны хамаарах <span class="doc-desc-title">Бүлэг</span> нь тухайн ажилтны системд хийж чадах эрхүүдийг тодорхойлно.
+  links:
+    - 
+      title: Группуудыг удирдах
+      href: /scp/groups.php
+primary_department:
+  title: Харъяалагдах алба
+  content: >
+    Энэ ажилтны харъяалагдах үндсэн <span class="doc-desc-title">алба</span> ба <span class="doc-desc-title">эрхийн бүлэг</span>-ийг сонгоно уу.
+  links:
+    - 
+      title: Алба зохицуулах
+      href: /scp/departments.php
+primary_role:
+  title: Үндсэн эрхийн бүлэг
+  content: >
+    Ажилтны харъяалагдах үндсэн <span class="doc-desc-title">эрхийн бүлэг</span>-ийг сонгоно уу.
+primary_role_on_assign:
+  title: Хүсэлт хуваарилахдаа үндсэн эрхийн бүлгийг ашиглана
+  content: >
+    Ажилтанд түүний харъяалагдах <span class="doc-desc-title">үндсэн алба</span> ба <span class="doc-desc-title">нэмэлтээр хандах эрхтэй алба</span> -наас нь гадуур хүсэлт хариуцуулахад ашиглах <span class="doc-desc-title">үндсэн эрхийн бүлэг</span> -ийг сонгох бол үүнийг идэвхжүүлнэ үү.
+daylight_saving:
+  title: Зуны цагийн хуваарь
+  content: >
+    Ажилтны цагийн бүсээс хамааран автоматаар цаг ухраах/урагшлуулах бол энэ тохиргоог идэвхжүүлээрэй.
+limited_access:
+  title: Хязгаарлагдмал хандалт
+  content: >
+    Хэрэв идэвхжүүлсэн бол Ажилтан зөвхөн өөрт нь шууд эсвэл харъяалагдах багаар дамжуулан даалгасан хүсэлтүүдэд хандах эрхтэй.
+directory_listing:
+  title: Агентын лавлах
+  content: >
+    Үүнийг идэвхижүүлсэн бол тухайн ажилтан нь <span class="doc-desc-title">Ажилтнуудын жагсаалтад</span> харагдана.
+  links:
+    - 
+      title: Ажилтнуудын лавлагаа уруу очих
+      href: /scp/directory.php
+vacation_mode:
+  title: Амралттай
+  content: >
+    Хэрвээ ажилтны төлөвийг <span class="doc-desc-opt">Амралтын Горимд</span> шилжүүлвэл ажилтан руу <span class="doc-desc-title">Анхааруулга &amp; Мэдээлэл</span> илгээгдэхгүй, мөн хүсэлт хуваарилагдахгүй.
+

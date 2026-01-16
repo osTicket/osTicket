@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: E-posta Şablonları
+  content: >
+    E-posta şablon setleri, ceza'nın yaşamı boyunca gerçekleşebilecek çeşitli eylemler için otomatik yanıt ve uyarıları göndermek için kullanılır.
+template_to_clone:
+  title: Klon için şablon
+  content: >
+    Seçim clone ya da sade bir şekilde hisse senedi e-posta şablonları ile başlamak için bir şablon ayarlayın.
+language:
+  title: Lisan
+  content: >
+    <span class="doc-desc-opt"> hisse senedi</span> <span class="doc-desc-title"> E-posta şablonu ayarlamak</span> istediğiniz dili seçin. Dil paketleri, osTicket.com üzerinde kullanılabilir.
+  links:
+    - 
+      title: osTicket Lisan Paketleri
+      href: https://osticket.com/download
+status:
+  title: Durum
+  content: >
+    <span class="doc-desc-opt"> etkin</span> Şablon setleri departmanları ile ilişkili ve sistem varsayılanlarına ayarlamak kullanılabilir.  Şablon kümesi şu anda kullanımda <span class="doc-desc-opt"> Engelli</span> olamaz.

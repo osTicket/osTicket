@@ -1,0 +1,13 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Dit sjabloon definieert de pagina die aan klanten wordt weergegeven na het voltooien van het registratieformulier. Het sjabloon zou moeten vermelden dat het systeem een e-mail met bevestigingslink stuurt en wat de volgende stap in het registratieproces is.
+name: "Account registratie"
+body: >
+
+  <div><strong>Bedankt voor het registreren van een account.</strong><br/> <br /> We hebben een e-mail verzonden naar het e-mail adres dat u opgegeven hebt. Klik alstublieft op de link in de mail om uw account te bevestigen en toegang tot uw tickets te krijgen. </div>

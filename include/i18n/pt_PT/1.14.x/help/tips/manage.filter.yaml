@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ordem de Execução
+  content: >
+    Digite um número que controla a prioridade do filtro. Quanto menor o número, maior a prioridade que este filtro terá em ser executado sobre outro filtro que possa ter a maior ordem de execução. <br><br>Se deseja que este filtro seja o último filtro aplicado numa correspondência, ative <span class="doc-desc-title"> Parar Processamento Seguinte em Correspondência</span>.
+target_channel:
+  title: Canal
+  content: >
+    Escolha o destino de <span class="doc-desc-title"> Canal</span> para seu <span class="doc-desc-title"> Filtro de Ticket</span>. O <span class="doc-desc-title"> Canal</span> é a fonte através da qual o bilhete chegou ao sistema. <br><br>Por exemplo, se escolher <span class="doc-desc-opt"> Formulários da Web</span>, significa que deseja aplicar o <span class="doc-desc-title"> Filtro de Ticket</span> para os tickets que foram originados num formulário da Web do Portal de Cliente.
+rules_matching_criteria:
+  title: Critérios de Correspondência de Regras
+  content: >
+    Escolha quão estritas quer que as correspondências do seu <span class="doc-desc-title"> Filtro de Ticket</span> sejam. Se quiser que o <span class="doc-desc-title"> Filtro de Ticket</span> coincida com qualquer uma das regras e depois pare, escolha <span class="doc-desc-opt"> Coincidir com Qualquer Um</span>. Se quiser que <em><strong>todas as regras</strong></em> do <span class="doc-desc-title"> Filtro de Ticket</span> sejam correspondidas, escolha <span class="doc-desc-opt"> Corresponder a Todos</span>.
+reject_ticket:
+  title: Rejeitar Pedido
+  content: >
+    Se ativo, o processamento adicional é interrompido e todas as outras escolhas abaixo serão ignoradas na correspondência.
+reply_to_email:
+  title: Email de Resposta
+  content: >
+    Ative, se quiser que o seu Help Desk use o <span class="doc-desc-title"> Reply To</span> do e-mail do utilizador. Este campo só é relevante se o <span class="doc-desc-title"> Canal</span> acima inclui <span class="doc-desc-opt"> E-mail</span>.
+ticket_auto_response:
+  title: Desativar a Resposta Automática de Pedido
+  content: >
+    <em>Nota: Isto vai sobrepôr qualquer <span class="doc-desc-title">departamento</span>ou<span class="doc-desc-title">definição de resposta automática</span>.</em>
+canned_response:
+  title: Resposta Automática Predefinida
+  content: >
+    Escolha uma <span class="doc-desc-title"> Resposta Predefinida</span> para ser enviada por email ao utilizador numa correspondência a um <span class="doc-desc-title"> Filtro de Ticket</span>.  O modelo <span class="doc-desc-title"> Resposta Automática a Novo Ticket</span> usado depende de qual o <span class="doc-desc-title"> modelo definido</span> atribuído como padrão, ou para o<span class="doc-desc-title"> Departamento</span> do ticket de correspondência .
+  links:
+    - 
+      title: Gerir respostas pré-configuradas
+      href: /scp/canned.php
+    - 
+      title: Gerir conjuntos de templates
+      href: /scp/templates.php
+    - 
+      title: Novo Template de Resposta Automática a Ticket
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Departamento
+  content: >
+    Escolha qual o <span class="doc-desc-title"> Departamento</span> a ser atribuído no aquando de uma correspondência do <span class="doc-desc-title"> Filtro de Ticket</span>.
+  links:
+    - 
+      title: Gerir departamentos
+      href: /scp/departments.php
+priority:
+  title: Prioridade
+  content: >
+    Escolha o nível de <span class="doc-desc-title"> Prioridade</span> que quer ver aplicado às correspondências do <span class="doc-desc-title"> Filtro de Ticket</span>. <br /> <br /> <em>Nota: isto irá substituir as configurações de <span class="doc-desc-title"> Departamento</span> ou o <span class="doc-desc-title"> Tópico de Ajuda</span>.</em>
+sla_plan:
+  title: Plano de SLA
+  content: >
+    Escolha o <span class="doc-desc-title"> Plano de SLA</span> a ser aplicado às correspondências do <span class="doc-desc-title"> Filtro de Ticket</span>.
+  links:
+    - 
+      title: Gerir planos de SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Auto-atribuir
+  content: >
+    Escolha um Agente ou uma Equipa a quem atribuir as correspondências do <span class="doc-desc-title"> Filtro de Ticket</span>.
+  links:
+    - 
+      title: Gerir agentes
+      href: /scp/staff.php
+    - 
+      title: Gerir equipas
+      href: /scp/teams.php
+help_topic:
+  title: Tópico de Ajuda
+  content: >
+    Escolha o <span class="doc-desc-title"> Plano de SLA</span> a ser aplicado às correspondências do <span class="doc-desc-title"> Filtro de Ticket</span>.
+  links:
+    - 
+      title: Gerir tópicos da ajuda
+      href: /scp/helptopics.php
+admin_notes:
+  title: Notas do Admin
+  content: >
+    Estas notas estão visíveis  apenas para o tipo de conta ' <span class="doc-desc-title"> Admin'.</span>

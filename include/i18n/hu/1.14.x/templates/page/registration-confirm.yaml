@@ -1,0 +1,12 @@
+---
+#registration-confirm.yaml
+#Template of the page shown to the user after registering for an account.
+#The system will send the user an email with a link they should follow to
+#confirm the account. This page should inform them of the next step in
+#the process.
+#---
+notes: >
+  Ez a sablon határozza meg az oldalt, amit az ügyfelek a regisztrációs űrlap kitöltését követően látnak. A sablonban meg kell említeni, hogy a rendszer küld egy emailt egy megerősítő hivatkozással és a regisztrációs folyamat következő lépéseivel.
+name: "Felhasználói fiók regisztráció"
+body: >
+  <div><strong>Köszönjük, hogy regisztrálta felhasználói fiókját.</strong><br/> <br /> Küldtünk egy emailt a megadott címre. Kérjük, kövesse az emailben megadott linket a felhasználói fiók megerősítéséhez és a hibajegyek eléréséhez. </div>

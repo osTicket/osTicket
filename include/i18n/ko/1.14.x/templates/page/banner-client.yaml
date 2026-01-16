@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  클라이언트 로그인 페이지의 헤더를 구성합니다. 클라이언트에 로그인과 등록정책을 알리는데 유용합니다.
+name: "%{company.name} 에 로그인합니다."
+body: >
+  보다 좋은 서비스를 제공하기 위하여, 고객님의 계정을 등록하는 것을 권해드립니다.

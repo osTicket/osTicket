@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Tên bộ phận trợ giúp
+  content: |
+    <p>Tên của hệ thông hỗ trợ, ví dụ [Tên công ty] hỗ trợ</p>
+system_email:
+  title: Hệ thống Email mặc định
+  content: |
+    <p>Mặc định địa chỉ email, ví dụ support@yourcompany.com - bạn có thể thêm sau này!</p>
+default_lang:
+  title: Ngôn ngữ hệ thống mặc định
+  content: |
+    <p>Dữ liệu ban đầu của ngôn ngữ này sẽ được cài đặt vào cơ sở dữ liệu. Ví dụ: email mẫu và mặc định trang  hệ thống sẽ được cài đặt cho ngôn ngữ này.</p>
+  links:
+    - 
+      title: Các gói ngôn ngữ khác của os Ticket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Họ
+  content: |
+    Họ của admin
+last_name:
+  title: Tên
+  content: |
+    Tên của admin
+email:
+  title: Địa chỉ email
+  content: |
+    <p>Địa chỉ email cá nhân của admin. Phải khác địa chỉ email mặc định của hệ thống.</p>
+username:
+  title: Tên đăng nhập
+  content: |
+    <p>Tên đăng nhập của admin. Ít nhất 3 ký tự</p>
+password:
+  title: Mật khẩu
+  content: |
+    <p>Mật khẩu của admin. Phải ít nhất 5 ký tự</p>
+password2:
+  title: Xác nhận mật khẩu
+  content: |
+    <p>Nhập lại mật khẩu. Phải chính xác</p>
+db_prefix:
+  title: Tiền tố bảng của mysql
+  content: |
+    <p>osTicket yêu cầu phải có tiền tố cho bảng để tránh xung đột khi dùng chung CSDL</p>
+db_host:
+  title: Tên máy chủ MYSQL
+  content: |
+    <p>
+    Đa phần máy chủ sử dụng localhost làm tên cơ sở dữ liệu. Kiểm tra lại nếu máy chủ của bạn không phải là localhost.
+    </p>
+    <p>
+    Port mặc định thiết lập trong php.ini. Nếu có thay đổi sẽ được chỉ định dạng <code>hostname:port</code>
+    </p>
+db_schema:
+  title: Cơ sở dữ liệu MySQL
+  content: |
+    <p>Tên của cơ sở dữ liệu osTicket sẽ sử dụng.</p>
+db_user:
+  title: Tên người dùng MySQL
+  content: |
+    <p>Người dùng MySQL phải có đầy đủ các quyền đối với CSDL được chỉ định</p>
+db_password:
+  title: Mật khẩu MySQL 
+  content: |
+    <p>Mật khẩu MySQL liên kết với người sử dụng trên .</p>

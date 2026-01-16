@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Emaili mallide vaikekogum
+  content: >
+    Vali <span class="doc-desc-title">emaili mallide komplekt</span>, mida kasutatakse <span class="doc-desc-title">automaatvastuste</span> ja <span class="doc-desc-title">teavituste</span> saatmiseks erinevate toimingute puhul pileti eluea jooksul. <br><br> Osakondadele saab määrata spetsiifilisi emaili mallide kogumeid.
+  links:
+    - 
+      title: Halda emaili mallide kogumeid
+      href: /scp/templates.php
+default_system_email:
+  title: Väljamineva emaili vaikeaadress
+  content: >
+    Vali emaili aadress, millelt väljaminevad emailid saadetakse. <br><br><span class="doc-desc-title">Osakond</span> saab määrata oma <span class="doc-desc-title">emaili aadressi</span>, mis kirjutab siinoleva üle.
+  links:
+    - 
+      title: Halda emaili aadresse
+      href: /scp/emails.php
+default_alert_email:
+  title: Hoiatuse vaike-email
+  content: >
+    Vali emaili aadress, millelt agentidele <span class="doc-desc-title">hoiatusi ja teateid</span> saadetakse.
+  links:
+    - 
+      title: Halda emaili aadresse
+      href: /scp/emails.php
+admins_email_address:
+  title: Administraatori emaili aadress
+  content: >
+    Sisesta administraatori emaili aadress, millele <span class="doc-desc-title">süsteemi vigu</span> ja <span class="doc-desc-title">uue pileti teavitusi</span> (kui on lubatud) saadetakse.
+  links:
+    - 
+      title: Halda hoiatusi ja teateid
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Emaili allalaadimine
+  content: >
+    Luba IMAP/POP pollimine konfigureeritud ja lubatud <span class="doc-desc-title">postkastidele</span>.
+  links:
+    - 
+      title: Halda postkaste
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Tõmba emailid alla Auto-cron-ga
+  content: >
+    Võimaldab perioodilist eemailide allalaadimist kasutades sisemist ülesannete haldurit, mida aktiveerib agendi tegevus.<br><br> Tähelepanu! Kui keegi pole meeskonna menüüsse sisse loginud, siis emaile alla ei laeta. Soovitatav on kasutada välist ülesannete haldurit emailide allalaadimise intervalli määramiseks.
+  links:
+    - 
+      title: Kasuta välist ülesannete ajastajat
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Eemalda tsiteeritud vastus
+  content: >
+    Kui on lubatud, siis see eemaldab kirjavahetusest eelneva kirjavahetuse. <br><br> See seade sõltub <span class="doc-desc-title">vastuse eraldusmärgist</span> allpool.
+reply_separator_tag:
+  title: Vastuse eraldusmärk
+  content: >
+    See on märk, mis näitab kasutajale, et vastus tuleb kirjutada sellest ülespoole.<br><br><strong>Pea meeles:</strong> See kehtib vaid juhul, kui <span class="doc-desc-title">vastus esialgsele teatele</span> on lubatud allpool.
+emailed_tickets_priority:
+  title: Emailiga saadetud piletite prioriteet
+  content: >
+    Vali, kas soovid uue pileti prioriteedi/tähtsuse määrata sõltuvalt kasutaja emaili aadressist (nt OutLook). <br><br> Selle seade saab üle kirjutada <span class="doc-desc-title">piletite filtriga</span>.
+  links:
+    - 
+      title: Loo &amp; halda piletite filtreid
+      href: /scp/filters.php
+accept_all_emails:
+  title: Aktsepteeri kõiki emaile
+  content: >
+    Aktsepteeri emaile tundmatutelt kasutajatelt. <br><br> Kui see on märkimata, siis piletid lükatakse tagasi.
+accept_email_collaborators:
+  title: Aktsepteeri emailis kaastöötajaid
+  content: >
+    Lisa emaili saajaid väljadele <code> <strong>Kellele</strong></code> ja <code><strong>Koopia</strong></code> kui pileti kaastöötajad.<br /><br /><em>Agendid saavad kaastöötajaid saab alati lisada käsitsi, kui nad parasjagu vaatavad piletit.</em>
+default_mta:
+  title: Vaike-MTA
+  content: >
+    <span class="doc-desc-title">MTA vaikimisi</span> hoolitseb ilma SMTP seadeteta e-kirjade saatmise eest.
+ticket_response_files:
+  title: Pileti vastuste failid
+  content: >
+    Kui lubatud, siis kõik agendi poolt lisatud manused saadetakse piletile vastamisel emailiga kasutajale.
+verify_email_addrs:
+  title: Kontrolli e-posti aadresse
+  content: >
+    Lülita see valik sisse, kui domeeni nimesüsteemis on kirjeldatud e-posti vahetaja kirje (MX). See on kasulik valesti trükitud e-posti aadressid tuvastamiseks. Seda tehakse täiendavalt e-posti aadresside korrektse vormi kontrollimiseks.

@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  این قالب اطلاع‌رسانی برای مشتریانی که یک لینک دسترسی به ایمیلشان ارسال شده را تعریف می کند. تعداد تیکت و آدرس ایمیل لینک دسترسی را مشخص می‌کند.
+name: "لینک دسترسی به درخواست شماره [#%{ticket.number}]"
+body: >
+  <h3><strong>سلام%{recipient.name.first}</strong></h3><div>یک درخواست لینک دسترسی برای تیکت%{ticket.number} از طرف شما برای سامانه در%{url} ارسال شده است.<br /><br />از لینک زیر برای بررسی وضعیت تیکت%{ticket.number} استفاده کنید.<br /><br /><a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /><br /><strong>اگر شما درخواستی ایجاد نکرده‌اید</strong>، لطفا این ایمیل را پاک کنید و در نظر نگیرید. حساب کاربری شما ایمن است و هیچکس به تیکت شما دسترسی پیدا نکرده‌است. ممکن است شخصی به اشتباه آدرس ایمیل شما را وارد کرده باشد.<br /><br />--<br />%{company.name}</div>

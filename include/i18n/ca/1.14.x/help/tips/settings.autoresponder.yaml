@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nou Ticket
+  content: >
+    Active açò si vol que s'envie una repospta automàtica a l'usuari del nou Ticket.
+  links:
+    - 
+      title: Plantilla de resposta al Ticket nou
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nou Ticket pel personal
+  content: >
+    S'envia un avís quan un Agent crea un Ticket en nom de l'usuari. <em>L'agent pot invalidar açò quan crea nous Tickets.</em>
+  links:
+    - 
+      title: Plantilla d'avís de Ticket nou
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Confirmació de nou missatge
+  content: >
+    S'envia un avís de confirmació quan sáfegeix un nou missatge a un Ticket existent.
+  links:
+    - 
+      title: Nova plantilla de missatge de confirmació
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Avís de missatge nou
+  content: >
+    Difondre els missatges rebuts del remitent a tots els altres participants en el Ticket.
+  links:
+    - 
+      title: Nova plantilla d'avís d'activitat
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Avís de rebasament
+  content: >
+    S'ha enviat un avís de Ticket negat a l'usuari per una violació del<span class="doc-desc-title"> màxim de Tickets oberts </span>.
+  links:
+    - 
+      title: avisos de Rebasament de plantilles
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Ajustar el <em>màxim nombre de Tickets oberts</em>
+      href: /scp/settings.php?t=tickets

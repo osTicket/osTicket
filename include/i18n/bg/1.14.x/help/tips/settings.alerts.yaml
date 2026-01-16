@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Предупреждения и уведомления
+  content: >
+    Предупрежденията и уведомленията са автоматични съобщения по електронната поща, които се изпращат на сътрудниците, при възникване на различни събития, свързани с заявките.
+ticket_alert:
+  title: Предупреждение за нова заявка
+  content: >
+    <p> Предупреждението, което се изпраща на сътрудниците, когато се създаде нова заявка. </p><p class="info-banner"> <i class="icon-info-sign"></i> Това съобщение не се изпраща, ако заявката е възложен автоматично, въз основа на филтри или помощни теми. </p>
+  links:
+    - 
+      title: Шаблон по подразбиране за предупреждение за нова заявка
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Предупреждение за ново съобщение
+  content: >
+    Предупреждението, което се изпраща на сътрудниците, когато потребител публикува ново съобщение, към съществуваща заявка.
+  links:
+    - 
+      title: Шаблон по подразбиране за предупреждение за ново съобщение
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Ново вътрешно предупреждение за активност
+  content: >
+    Предупреждение, което се изпраща до сътрудниците при наличието на вътрешна активност, например вътрешна бележка или публикуване на отговор от сътрудник към заявка.
+  links:
+    - 
+      title: Шаблон по подразбиране за предупреждение за активност по заявка
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Предупреждение за възлагане на заявка
+  content: >
+    Предупреждението, което се изпраща на сътрудниците, при възлагане на заявка.
+  links:
+    - 
+      title: Шаблон по подразбиране за предупреждение за възлагане на заявка
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Предупреждение за прехвърляне на заявка
+  content: >
+    Предупреждението, което се изпраща на сътрудниците, при прехвърляне на заявка между отдели.
+  links:
+    - 
+      title: Шаблон по подразбиране за предупреждение за прехвърляне на заявка
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Предупреждение за просрочен заявка
+  content: >
+    Предупреждението, което се изпраща на сътрудниците, когато въз основа на SLA или датата за изпълнение заявка става просрочена.
+  links:
+    - 
+      title: Шаблон по подразбиране за предупреждение за остаряла заявка
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Управление на SLA
+      href: /scp/slas.php
+system_alerts:
+  title: Системни предупреждения
+  content: >
+    Важните системни събития се изпращат на имейла на администратора (%{config.admin_email}). В зависимост от избраното <span class="doc-desc-title">ниво на отчитане</span> на системните записи, събитията също се записват и в <span class="doc-desc-title">системните записи</span>
+  links:
+    - 
+      title: Преглед на системните записи
+      href: /scp/logs.php
+    - 
+      title: Промяна адреса за електронна поща на администратора
+      href: /scp/settings.php?t=emails

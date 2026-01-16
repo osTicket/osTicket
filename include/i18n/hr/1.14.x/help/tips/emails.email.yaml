@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Pomoć za novu karticu
+  content: >
+    Odaberite <span class="doc-desc-title">Temu pomoći</span> koja će automatski biti dodjeljena karticama kreiranim putem ove email adrese. <br/><br/> Obrasci povezani sa temom pomoći bit će dodani na novootvorenu karticu, ali neće imati unesenih podataka.
+  links:
+    - 
+      title: Upravljanje temama pomoći
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Prioritet novootvorene kartice
+  content: >
+    Odaberite<span class="doc-desc-title">prioritet</span> za novootvorene kartice putem ove email adrese.
+new_ticket_department:
+  title: Odjel za nove kartice
+  content: >
+    Odaberi <span class="doc-desc-title">Odjel</span> kojem će biti dodjeljene nove kartice otvorene putem ove email adrese.
+  links:
+    - 
+      title: Upravljanje odjelima
+      href: /scp/departments.php
+auto_response:
+  title: Automatski odgovor na novootvorene kartice
+  content: >
+    Možete isključti slanje automatiziranog odgovora korisniku kada otvori novu karticu putem ove email adrese.
+username:
+  title: Korisničko ime
+  0: >
+
+password:
+  title: Zaporka
+  0: >
+
+login_information:
+  title: Podaci za prijavu e-mailom
+  content: >
+    <span class="doc-desc-title">Korisničko ime</span> and <span class="doc-desc-title">Zaporka</span> potrebni su za dohvaćanje IMAP / POP mail sandučića kao i za slanje email poruka putem SMTP.
+mail_account:
+  title: Dohvaćanje emaila
+  content: >
+    Dohvati email poruke sa udaljenog IMAP ili POP mail box-a i pretvori ih u kartice u službi tehničke podrške.
+  links:
+    - 
+      title: Upravljanje <span class="doc-desc-title">Email Polling-om</span> &amp; <span class="doc-desc-title">AutoCron</span> Postavke.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Udaljeni host
+  content: >
+    Unesite <span class="doc-desc-title">hostname</span> i <span class="doc-desc-title">broj porta</span> za svoj mail server. Ovi podaci su Vam možda dostupni u dokumentaciji Vašeg hosting korisničkog računa ili kod Vašeg email administratora.
+protocol:
+  title: Mail Box protokol
+  content: >
+    Odaberite mail box protokol koji je podržan od strane vašeg udaljenog mail servera. IMAP je preporučljiv, a SSL je poželjan gdje got je to moguće.
+fetch_frequency:
+  title: Učestalost dohvata
+  content: >
+    Unesite koliko često(u minutama) želite da sistem dovaća mailove iz mail box-a. <br/><br/> Vaš izbor određuje prosječnu odgodu automatiziranog odgovora nakon što korisnik pošalje email na ovaj mail box.
+emails_per_fetch:
+  title: Broj email poruka po svakom dohvatu
+  content: >
+    Unesite broj email poruka koje se procesiraju u jednom trenutku.
+fetched_emails:
+  title: Dohvaćene email poruke
+  content: >
+    Što želite učiniti sa obrađenim email porukama: <br/><br/> <span class="doc-desc-opt"><b>Premjesti u folder</b></span>: Ova opcija će napraviti backup email poruka in Vašeg INBOX-a u folder po Vašem izboru. Ukoliko folder još ne postoi na Vašem serveru, sistem će ga pokušati kreirati. (<b>Preporučeno</b>) <hr> <span class="doc-desc-opt"><b>Obriši email</b></span>: Ova opcija će obrisati email poruku iz Vašeg INBOX-a nakon što je obrađena. <hr> <span class="doc-desc-opt"><b>Ne čini ništa</b></span>: Ova opcija će ostaviti email poruke u Vašem INBOX-u. Sistem će spremiti ID-ove Vaših email poruka i pokušati ih ne dohvaćati. Ipak, ova opcija može uzrokovati duplikate otvorenih kartica. (<em>Nije preporučljivo</em>)
+smtp_settings:
+  title: SMTP postavke
+  content: >
+    Email poruke poslane iz službe tehničke podrške mogu se slati kroz SMTP server. Ovo je preporučljiva opcija ukoliko je maoguća, jer se tako povećavaju šanse za uspješnu dostavu poruke, te se smanjuje šansa da će email biti oznaćen kao spam.
+header_spoofing:
+  title: Dopustite manipulaciju zaglavlja
+  content: >
+    Omogučite ovo kako biste dopustili slanje email poruka putem ovog mail box sa adrese koja nije navedena u  <span class="doc-desc-title">Email adrese</span> postavkama. <br/><br/> Ova napredna opcija se koristi za slanje email poruka putem pseudonima ovog mailbox-a.
+

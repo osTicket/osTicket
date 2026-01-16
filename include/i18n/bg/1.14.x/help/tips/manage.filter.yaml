@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Ред за изпълнение
+  content: >
+    Въведете число, което управлява приоритета на филтъра. Колкото е по-малко числото, толкова ще е по-висок приоритета за изпълнение на този филтър, в сравнение с други филтри, които може да имат по-висок ред за изпълнение. <br><br> Ако искате този филтър да стане последният филтър, който се прилага при съвпадение, тогава включете <span class="doc-desc-title">прекратяване на по-нататъшна обработка при съвпадение</span>.
+target_channel:
+  title: Канал
+  content: >
+    Изберете целевия <span class="doc-desc-title">канал</span> за Вашия <span class="doc-desc-title">филтър за заявки</span>. <span class="doc-desc-title">Каналът</span> - това е източникът, чрез който заявката е попаднала в системата. <br><br> Например, ако Вие изберете <span class="doc-desc-opt">уеб формуляр</span>, това ще означава, че Вие искате <span class="doc-desc-title">филтъра за заявки</span> да се приложи върху тези заявки, които са постъпили от уеб формуляра в клиентския портал.
+rules_matching_criteria:
+  title: Критерий за съответствие на правилата
+  content: >
+    Изберете до колко гъвкави трябва да бъдат съвпаденията с Вашия  <span class="doc-desc-title">филтър за заявки</span>. Ако искате,  <span class="doc-desc-title">филтърът за заявки</span> да удовлетворява всяко от правилата, тогава изберете <span class="doc-desc-opt">да съответства на всеки</span>. Ако искате <span class="doc-desc-title">филтърът за заявки</span> да удовлетворява <em><strong>всички правила</strong></em>, тогава изберете <span class="doc-desc-opt">да съответства на всички</span>.
+reject_ticket:
+  title: Отхвърляне на заявка
+  content: >
+    Ако тази опция е включена, по-нататъшната обработка се прекратява и всички други варианти за действие по-долу, ще бъдат игнорирани при съвпадение.
+reply_to_email:
+  title: Отговори на имейл
+  content: >
+    Включете тази опция, ако искате Вашата система да хосспъжща да се съобразява с полето <span class="doc-desc-title">адрес за отговор</span> на пощенското приложение на потребителя. Това поле има смисъл само, ако <span class="doc-desc-title">каналът</span> по-горе включва <span class="doc-desc-opt">електронна поща</span>.
+ticket_auto_response:
+  title: Изключване на автоматичните отговори на заявка
+  content: >
+    <em>Внимание: Това ще промени всички настройки на <span class="doc-desc-title">отдела</span> или <span class="doc-desc-title">автоматичните отговори</span>.</em>
+canned_response:
+  title: Готов автоматичен отговор
+  content: >
+    Изберете <span class="doc-desc-title">готов отговор</span>, ако искате да изпращате писмо на потребителя, при съвпадение на <span class="doc-desc-title">филтъра за заявки</span>.  Използваният шаблон за <span class="doc-desc-title">автоматичен отговор на нова заявка</span> зависи от това, какъв <span class="doc-desc-title">набор от шаблони</span> е настроен по подразбиране, или от съответствания на <span class="doc-desc-title">отдел</span>, към който е насочена заявката.
+  links:
+    - 
+      title: Управление на готовите отговори
+      href: /scp/canned.php
+    - 
+      title: Управление на наборите от шаблони
+      href: /scp/templates.php
+    - 
+      title: Шаблон за автоматичен отговор на нова заявка
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Отдел
+  content: >
+    Изберете, на кой <span class="doc-desc-title">отдел</span> трябва да бъдат възложени съвпаденията на <span class="doc-desc-title">филтъра за заявки</span>.
+  links:
+    - 
+      title: Управление на отделите
+      href: /scp/departments.php
+priority:
+  title: Приоритет
+  content: >
+    Изберете нивото на <span class="doc-desc-title">приоритет</span>, което трябва да бъде приложено на съвпаденията от <span class="doc-desc-title">филтъра за заявки</span>.<br /> <br /> <em>Внимание: Това ще замени настройките на <span class="doc-desc-title">отдела</span> или <span class="doc-desc-title">помощните теми</span>.</em>
+sla_plan:
+  title: SLA план
+  content: >
+    Изберете <span class="doc-desc-title">SLA план</span>, който трябва да се прилага за съвпаденията на <span class="doc-desc-title">филтъра за заявки</span>.
+  links:
+    - 
+      title: Управление на SLA плановете
+      href: /scp/slas.php
+auto_assign:
+  title: Автоматично възлагане
+  content: >
+    Изберете сътрудник или екип, на които трябва да бъдат възложени съвпаденията от <span class="doc-desc-title">филтъра за заявки</span>.
+  links:
+    - 
+      title: Управление на сътрудниците
+      href: /scp/staff.php
+    - 
+      title: Управление на екипите
+      href: /scp/teams.php
+help_topic:
+  title: Помощна тема
+  content: >
+    Изберете <span class="doc-desc-title">помощна тема</span>, която трябва да се прилага на съвпаденията от <span class="doc-desc-title">филтъра за заявки</span>.
+  links:
+    - 
+      title: Управление на помощните теми
+      href: /scp/helptopics.php
+admin_notes:
+  title: Бележки на администратора
+  content: >
+    Тези бележки се виждат само от тези, чийто тип акаунт е ‘<span class="doc-desc-title">администратор</span>.’

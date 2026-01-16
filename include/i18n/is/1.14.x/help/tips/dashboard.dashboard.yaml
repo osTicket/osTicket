@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Virkni Beiðnar
+  content: >
+    Veldu tímabil til að breyta bæði línurit og borði (sbr <span class="doc-desc-title">Tölfræði</span>) hér fyrir neðan sem samsvarar gögn á þeim dagsetningum. Grafið hér að neðan mun alltaf endurspegla víðtæka yfirsýn yfir gögn í öllu kerfinu (þ.e. almenning). Þú getur hinsvegar fært þig í gegnum <span class="doc-desc-title">Tölfræði</span> töflu hér að neðan til að leggja áherslu á nákvæmara efni (td Deild, Spjallþræðir, eða starfsfólk). Auk þess, getur þú flutt út þau göng sem eru birt <span class="doc-desc-title"></span> töflu.
+report_timeframe:
+  title: Gefðu upp tímabil
+  content: >
+    Veldu upphafsdag fyrir viðkomandi gögn með dagsetninga veljaranum. Eftir það veldu lengd tíma frá þeim degi til að skilgreina lokadagsetningu fyrir gögnin.
+statistics:
+  title: Tölfræði
+  content: >
+    Navigate to the subject of interest by clicking on the appropriate tab in order to view the specific sample of data. Within the table, the circles represent the size of the nominal data. Therefore, the larger the number in a particular cell, the larger the adjacent circle will be.
+opened:
+  title: Opnað
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Úthlutað
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: Fallið á tíma
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: Lokað
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: Enduropnað
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: Eytt
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Þjónustu Tími
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Viðbragðstími
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

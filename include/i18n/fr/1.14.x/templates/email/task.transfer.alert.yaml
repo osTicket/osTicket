@@ -1,0 +1,26 @@
+---
+#Email template: task.transfer.alert.yaml
+#Sent to agents when a task is transfered to their department.
+#---
+notes: |
+  Envoyés aux agents lorsqu'une tâche est transférée à un service auquel ils sont membres.
+subject: |
+  Transfert de ticket #%{task.number} - %{task.dept.name}
+body: |
+  <h3>Bonjour %{recipient.name},</h3>
+  La Tâche <a href="%{task.staff_link}">#%{task.number}</a> a été transférée au Service %{task.dept.name} par 
+  <strong>%{staff.name.short}</strong>
+  <br>
+  <br>
+  <blockquote>
+      %{comments}
+  </blockquote>
+  <hr>
+  <div>Pour afficher ou répondre à la tâche, veuillez vous <a
+  href="%{task.staff_link}">connecter</a> au système de Support Ticket.
+  </div>
+  <em style="font-size: small; ">Cordialement, le Support</em>
+  <br>
+  <a href="https://osticket.com/"><img width="126" height="19"
+      alt="Powered By osTicket" style="width: 126px;"
+      src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

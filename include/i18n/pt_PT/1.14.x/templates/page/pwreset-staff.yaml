@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Este modelo define o e-mail enviado aos funcionários que selecionem a ligação <strong>Esqueci a minha palavra-passe</strong> na página de autenticação de funcionários.
+name: "Recuperação de palavra-passe de funcionário osTicket"
+body: >
+  <h3><strong>Olá %{staff.name.first},</strong></h3> <div> Foi submetido um pedido de recuperação de palavra-passe para o sistema de suporte em %{url}.<br /> <br /> Caso ache que isto é um erro, apague e ignore este e-mail. A sua conta ainda é segura e ninguém teve acesso a ela. Ela não foi trancada e a sua palavra-passe não foi alterada. Alguém pode por engano ter colocado o seu endereço de e-mail.<br /> <br /> Siga a ligação abaixo para entrar no sistema de suporte e alterar a sua palavra-passe.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">O Sistema de Suporte ao Cliente</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

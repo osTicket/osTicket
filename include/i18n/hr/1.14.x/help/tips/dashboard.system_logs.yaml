@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Sistemski dnevnici
+  content: >
+    Ovdje ćete pronaći zapise dnevnika vezane uz rješavanje problema (npr. Greške, Upozorenja ili Bugovi).
+  links:
+    - 
+      title: Prilagodite koje vrste aktivnosti se zapisuju u dnevnik promjenom <br /><span class="doc-desc-title">Osnovnih postavki dnevnika</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Vremenski period
+  content: >
+    Odaberite kalendarski raspon za pregled <span class="doc-desc-title">Sistemskih dnevnika</span>.
+type:
+  title: Vrsta
+  content: >
+    Odaberite opcije kako biste suzili fokus na određeni tip aktivnosti. <span class="doc-desc-opt">Otklanjanje nepravilnosti</span> predstavlja nisku ozbiljnost, i <span class="doc-desc-opt">Greška</span> predstavlja naveću ozbiljnost.
+showing_logs:
+  title: Prikazuju se&hellip;dnevnici
+  content: >
+    Obavezno provjerite <span class="doc-desc-title">stranicu</span> odjela kako biste bili sigurni da nema više stranica koje pokazuju dostupne sistemske dnevnike.
+log_title:
+  title: Naslov dnevnika
+  content: >
+    Kliknite na <span class="doc-desc-title">Naslov dnevnika</span> u zaglavlju ukoliko želite sortirati rezultate prema <span class="doc-desc-title">Naslovu dnevnika</span>.
+log_type:
+  title: Vrsta dnevnika
+  content: >
+    Kliknite na <span class="doc-desc-title">Vrsta dnevnika</span> u zaglavlju ukoliko želite sortirati rezultate prema <span class="doc-desc-title">Vrste dnevnika</span>.
+log_date:
+  title: Datum dnevnika
+  content: >
+    Ovo je datum kreiranja dnevnika od strane sustava. Ukoliko želite sortirati rezultate prema datumu <span class="doc-desc-title">Datum dnevnika</span>, kliknite na <span class="doc-desc-title">Datum dnevnika</span> u zaglavlju. (Koristite <span class="doc-desc-title">Datum dnevnika</span> obrazac kako biste suzili raspon zapisa.)
+ip_address:
+  title: IP adresa
+  content: >
+    Ovo se odnosi na <span class="doc-desc-title">IP</span><span class="doc-desc-title"> adresu</span> djelatnika ili korisnika osTicket-a u trenutku generiranja dnevnika.

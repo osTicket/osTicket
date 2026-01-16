@@ -1,0 +1,26 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Se enviá al Agente cunado una nuevo mensaje/nota is asignado como una tarea. Esto puede ocurrir si un colaborador o agente responde por medio de un correo electrónico desde el sistema o un visitante del portal web publica un nuevo mensaje.
+subject: |
+  Actividad de Tarea [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hola %{recipient.name},</strong></h3>
+  Tarea <a href="%{task.staff_link}">#%{task.number}</a> actualizada: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Para ver o responder a este ticket, por favor <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >autentícate</span></a> en el sistema de tickets.</div>
+  <em style="font-size: small; ">Tu amistoso Centro de Soporte</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: 工作人員
+  content: >
+    下列列表的顯示是以經透過篩選功能所執行的結果 。如果取消篩選項目，將會 <span class="doc-desc-title"> 出現全體工作人員</span>，已分頁顯示。請參考頁面選項、產生更多瀏覽訊息。
+apply_filtering_criteria:
+  title: 篩選標準應用
+  content: >
+    選擇 <span class="doc-desc-title">部門</span> 是與您目前運作上的關聯性。或是您可以找尋特定代理商。

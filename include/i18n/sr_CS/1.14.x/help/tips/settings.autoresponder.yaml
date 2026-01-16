@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Novi tiket
+  content: >
+    Osposobite ovu opciju ako želite da se automatski odgovor šalje korisniku prilikom otvaranja novog tiketa.
+  links:
+    - 
+      title: Šablon za automatski odgovor na novi tiket
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Novi tiket od strane osoblja
+  content: >
+    Obaveštenje poslato kada agent kreira tiket na zahtev korisnika. <em>Agent može nadjačati ovu opciju prilikom otvaranja novih tiketa.</em>
+  links:
+    - 
+      title: Šablon obaveštenja o novom tiketu
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Potvrda o novoj poruci
+  content: >
+    Potvrda koja se šalje pri dodavanju nove poruke na postojeći tiket.
+  links:
+    - 
+      title: Šablon potvrde o novoj poruci
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Obaveštenje o novoj poruci
+  content: >
+    Pošalji poruke primljene od kreatora poruke svim učesnicima u tiketu.
+  links:
+    - 
+      title: Šablon obaveštenja o novoj aktivnosti
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Obaveštenje o prekoračenom ograničenju
+  content: >
+    Obaveštenje o odbijanju tiketa poslato korisniku na osnovu prekoračenja <span class="doc-desc-title">maskimalnog broja otvorenih tiketa</span>.
+  links:
+    - 
+      title: Šablon obaveštenja o prevelikom broju tiketa
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Podesi <em>maksimalan broj otvorenih tiketa</em>
+      href: /scp/podešavanja.php?t=tiketi

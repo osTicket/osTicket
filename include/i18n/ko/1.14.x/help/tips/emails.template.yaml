@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: 이메일 양식
+  content: >
+    이메일 양식은 자동 응답, 혹은 티켓 처리와 관련된 다양한 알림을 보내는 용도에 사용됩니다.
+template_to_clone:
+  title: 양식 복제
+  content: >
+    복제할 양식을 선택하거나 혹은 기본 이메일 양식을 사용하여 시작하세요.
+language:
+  title: 언어
+  content: >
+    <span class="doc-desc-opt">기본</span> <span class="doc-desc-title">이메일 양식</span>의 언어를 선택하세요. 다양한 언어 팩을 osTicket.com에서 받으실 수 있습니다.
+  links:
+    - 
+      title: osTicket 언어 팩
+      href: https://osticket.com/download
+status:
+  title: 상태
+  content: >
+    <span class="doc-desc-opt">활성</span> 양식은 특정 부서에서 사용중이며 시스템의 기본값으로 설정되어 있습니다. 사용중인 양식은 <span class="doc-desc-opt">비활성화</span> 할 수 없습니다.

@@ -1,0 +1,33 @@
+				<div class="sidr-inner">
+
+					<ul id="nav-mobile" class="flush-left">
+						<li>
+
+<?php 
+
+	include STAFFINC_DIR . "templates/mobile-queue-navigation.tmpl.php";
+	include STAFFINC_DIR . "templates/mobile-navigation.tmpl.php"; 
+
+?>	
+<li id="welcome"><a href="#" class="submenu-button"><?php echo sprintf(__('Welcome, %s'), '<strong>'.$thisstaff->getFirstName().'</strong>'); ?></a>
+	<ul class="submenu">
+		<li><a href="profile.php"><?php echo __('Your Profile') ?></a>
+		</li>
+		<li>
+			<a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax">
+				<?php echo __( 'Log Out'); ?>
+			</a>
+		</li>
+	</ul>
+</li>				
+<li id="contact-id">
+	<a href="
+		<?php echo $custom["mobile-link"]; ?>
+	">
+		<?php echo $custom["mobile-text"]; ?>   
+	</a>
+</li>
+					
+						</li>
+					</ul>
+				</div>

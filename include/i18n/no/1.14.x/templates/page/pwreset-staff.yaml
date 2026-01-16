@@ -1,0 +1,27 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Denne malen definerer epost sendt til ansatte som velger lenken <strong>Glemt mitt passord</strong> på personalets Kontrollpanel Logg på-siden.
+name: "osTicket ansatte tilbakestilling av passord"
+body: >
+  <h3><strong>Hei %{staff.name.first},</strong></h3>
+  En tilbakestillings forespørsel for passordet ditt er sendt fra %{url}.
+  <br/>
+  <br/>
+  Hvis du mener dette er feil, slett og se vekk fra denne
+  e-posten. Din konto er fortsatt sikker, og ingen har fått adgang til den. 
+  Den er ikke låst, og passordet har ikke blitt endret. Noen kan ha
+  skrevet din e-post addresse ved en feil.
+  <br/>
+  <br/>
+  Følg linken under for å endre ditt passord.
+  <br/>
+  <br/>
+  <a href="%{link}">%{link}</a>
+  <br/>
+  <br/>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
+  width="126" height="19" style="width: 126px;"></div>

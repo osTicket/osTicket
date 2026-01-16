@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Šablon definiše imejl koji će biti poslat klijentu kada klikne na <strong>Zaboravljena lozinka</strong> link na stranici za klijente.
+name: "%{company.name} pristup centru za podršku"
+body: >
+  <h3><strong>Pozdrav %{user.name.first},</strong></h3> <div> Zahtev za poništavanje lozinke podnet je u Vaše ime u centru za tehničku podršku na %{url}.<br /> <br /> > Ukoliko niste poslali ovaj zahtev, molimo Vas da obrišete i zanemarite ovu imejl poruku. Vaš korisnički nalog je još uvek siguran i niko nema pristup Vašem nalogu osim Vas. Neko je možda greškom uneo Vašu imejl adresu.<br /> <br /> Pratite link ispod kako biste se prijavili na centar za tehničku podršku i promenili svoju lozinku.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška <br /> %{company.name}</em> </div>

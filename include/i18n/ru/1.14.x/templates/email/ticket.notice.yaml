@@ -1,0 +1,35 @@
+---
+#Email template: ticket.notice.yaml
+#Sent to a user when a staff member creates a ticket on the user's behalf.
+#This is most commonly performed when user's call in on the phone.
+#---
+notes: |
+  Отправляется пользователю в том случае, если заявка создана сотрудником от имени пользователя. Часто используется при поступлении заявки от пользователя по телефону.
+subject: |
+  %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Уважаемый(ая), %{recipient.name.first},</strong></h3>
+  Наша команда создала заявку <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> от вашего имени, со следующими деталями:
+  <br>
+  <br>
+  Раздел: <strong>%{ticket.topic.name}</strong>
+  <br>
+  Тема: <strong>%{ticket.subject}</strong>
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+   %{response}
+  <br>
+  <br>
+  Если потребуется, представитель свяжется с вами в ближайшее время. Вы можете также <a href="%{recipient.ticket_link}">посмотреть прогресс этой заявки онлайн</a>.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">
+  Ваша команда %{company.name},<br>
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Если вы хотите оставить дополнительные комментарии или информацию по этой проблеме, пожалуйста, ответьте на это письмо или <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >войдите в свою учетную запись</span></a> для просмотра полного архива ваших запросов на поддержку.</em></div>

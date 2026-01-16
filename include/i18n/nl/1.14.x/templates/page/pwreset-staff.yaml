@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Deze template definieert de email die naar medewerkers verzonden wordt die de <strong>Mijn Wachtwoord Vergeten</strong> link gebruikt hebben, op de login pagina van het medewerkers controle paneel.
+name: "osTicket medewerker wachtwoord reset"
+body: >
+  <h3><strong>Beste %{staff.name.first},</strong></h3> <div> Een wachtwoord reset verzoek is namens u aangevraagd voor de helpdesk op %{url}.<br /> <br />Als u denkt dat dit foutief gedaan is, verwijder en negeer dan deze email. Uw account is nog steeds veilig en niemand heeft er toegang toe gekregen. Het is niet geblokkeerd en uw wachtwoord is niet gereset. Iemand kan per ongeluk uw email adres ingevoerd hebben.<br /> <br />Volg de link hieronder om in te loggin op de helpdesk en uw wachtwoord te wijzigen.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">uw vriendelijke Helpdesk Systeem</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

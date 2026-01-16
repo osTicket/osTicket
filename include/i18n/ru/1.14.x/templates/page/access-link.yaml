@@ -1,0 +1,11 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Этот шаблон описывает уведомления для пользователей, обратившихся в поддержу по ссылке, отправленной на адрес электронной почты.
+  Номер заявки и адрес электронной почты являются активными ссылками.
+name: "Ссылка для доступа к заявке [#%{ticket.number}]"
+body: >
+  <h3><strong>Здравствуйте, %{recipient.name.first},</strong></h3> <div> Ссылка для доступа к заявке #%{ticket.number} была создана от вашего имени для системы поддержки по адресу %{url}.<br /> <br /> Используйте ссылку ниже для проверки статуса заявки #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Если вы <strong>не</strong> делали запрос - пожалуйста, удалите и проигнорируйте это письмо. Ваша учетная запись все ещё в безопасности и никому не был дан доступ к заявке. Кто-то мог по ошибке указать ваш адрес электронной почты.<br /> <br /> --<br /> %{company.name} </div>

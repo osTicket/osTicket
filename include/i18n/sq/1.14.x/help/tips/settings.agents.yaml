@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Formati i emrit te agjentit
+  content: >
+    Zgjidh formatin per emrin e agjentit permes sistemit. Modele te emailit do ta shfrytezojne ate per emra nesa nuk eshte specifikuar nje format tjeter.
+staff_identity_masking:
+  title: Staff Identity Masking
+  content: >
+    If enabled, this will hide the Agent’s name from the Client during any communication.
+#Authentication settings
+password_reset:
+  title: Password Expiration Policy
+  content: >
+    Vendoset sa shpesh (ne muaj) agjentet do te duhet te ndryshojne fjalekalimet. Nese eshte joaktive (vendos "Nuk skadon") fjalekalimet nuk do te skadojne.
+password_expiration_policy:
+  title: Password Expiration Policy
+  content: >
+    Choose how often Agents will be required to change their password. If disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords will not expire.
+allow_password_resets:
+  title: Allow Password Resets
+  content: >
+    Mundesoje kete opcion nese deshironi qe te tregohet <span class="doc-desc-title">Kam harruar fjalekalimin</span> vegeza ne <span class="doc-desc-title">Fasja per log-in te stafit</span> pas deshtimit te logimit.
+reset_token_expiration:
+  title: Password Reset Window
+  content: >
+    Choose the duration (in minutes) for which the <span class="doc-desc-title"> Password Reset Tokens</span> will be valid. When an Agent requests a <span class="doc-desc-title">Password Reset</span>, they are emailed a token that will permit the reset to take place.
+staff_session_timeout:
+  title: Agent Session Timeout
+  content: >
+    Caktoni kohen maksimale te duhur (ne minuta) para se nje agjent do te duhet perseri te logohet,<br><br>Nese deshironi ta deaktivizoni<span class="doc-desc-title">Kufizimi i Kohes se Agjentit</span>, vendosni 0.
+bind_staff_session_to_ip:
+  title: Bind Agent Session to IP
+  content: >
+    Aktivizoni kete nese deshironi qe Agjenti te ruhet sipas IP aktuale pas logimit te tij.<br><br> Ky opcion nuk rekomandohet per shfrytezuesit te cilet kane IP adresa dinamike.

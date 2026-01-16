@@ -1,0 +1,73 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: 帮助中心名称
+  content: |
+    <p>支援系统名字 比如 [某某公司] 支援中心</p>
+system_email:
+  title: 默认系统电子邮件
+  content: |
+    <p>默认的电子邮件地址例如： support@yourcompany.com - 你以后可以添加更多!</p>
+default_lang:
+  title: 标题
+  content: |
+    <p>这种语言的初始数据将会被安装到数据库中。例如该语言的邮件模板和默认页面将会被安装。</p>
+  links:
+    - 
+      title: osTicket 语言包
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: 名字
+  content: |
+    <p>管理员名字</p>
+last_name:
+  title: 姓氏
+  content: |
+    <p>管理员姓氏</p>
+email:
+  title: 电子邮件地址
+  content: |
+    <p>管理员私人电子邮件地址，必须和系统默认电子邮件地址不同。.</p>
+username:
+  title: 用户名
+  content: |
+    <p>管理员登录名，最少3个字符.</p>
+password:
+  title: 密码
+  content: |
+    <p>管理员密码，不少于5个字符.</p>
+password2:
+  title: 确认密码
+  content: |
+    <p>再次输入相同密码</p>
+db_prefix:
+  title: MySQL表前缀
+  content: |
+    <p>为了避免与数据库中的其他数据表可能发生的冲突，osTicket规定数据表都要有前缀.</p>
+db_host:
+  title: MySQL 主机名
+  content: |
+    <p>
+    大部分主机使用 'localhost' 作为本地数据库主机名. 若localhost无效，请与主机商联系。
+    </p>
+    <p>
+    假定默认端口已经在php.ini设定. 非标准端口号可以以<code>hostname:port</code>的形式设定
+    </p>
+db_schema:
+  title: MySQL 数据库
+  content: |
+    <p>osTicket将使用的数据库名.</p>
+db_user:
+  title: MySQL 用户名
+  content: |
+    <p>MySQL用户必须拥有数据库的所有权限.</p>
+db_password:
+  title: MySQL 密码
+  content: |
+    <p>以上用户的MySQL 密码</p>

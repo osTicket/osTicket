@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Тусгай жагсаалт
+  content: >
+    Таны урьдчилан оруулсан сонголт бүхий <span class="doc-desc-title">тусгай жагсаалтаас</span> хэрэглэгч <span class="doc-desc-title">Тусгай Форм</span> хэсэгт сонголт хийнэ. Хэрвээ та энэ <span class="doc-desc-title">тусгай жагсаалтыг</span> <span class="doc-desc-title">хүсэлтийн шүүлтүүр</span> хэсэгт <span class="doc-desc-title">үр дүн</span> болгохыг хүсвэл <span class="doc-desc-title">Хүсэлтийн форм</span> хэсэгт нэмэх шаардлагатай.
+name:
+  title: Нэр
+  0: >
+
+plural_name:
+  title: Нэр, олон тоон дээр
+  0: >
+
+sort_order:
+  title: Эрэмбэ
+  0: >
+
+list_s_initial_items:
+  title: Жагсаалтын анхны зүйлүүд
+  0: >
+
+value:
+  title: Утга
+  0: >
+
+extra:
+  title: Нэмэлт
+  content: >
+    Товчлол ашиглах бол энэ багананд оруулна. Хэрвээ тусгай жагсаалтын төрөл нь <span class="doc-desc-option"> TypeAhead</span> гэж заагдсан бол эдгээр товчлолоор хайлт хийх боломжтой.

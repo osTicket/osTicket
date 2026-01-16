@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Staff
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+signature:
+  title: Personalo parašo eilutė
+  content: |
+    Sukurkite darbuotojo parašą, atsakymams į užklausą. Šis parašas atsiras kaip galimybė atsakymo į užklausą apačioje
+type:
+  title: Paskyros tipas
+  content: |
+    Administratoriai turi privilegiją pasiekti Administratoriaus langą. Darbuotojai turi galimybę valdyti užklausas ir žinių bazę
+group:
+  title: Priskirta grupė
+  content: |
+    Grupės narystė nurodo darbuotojo rolę sistemoje. Įeikite į grupės valdymo puslapį, kad nurodytumėte kokią prieigą šis darbuotojas turi prie pagalbos sistemos
+notes:
+  title: Vidinės pastabos
+  content: |
+    Įveskite vidines pastabas atitinkamiems darbuotojams; pastabos matomos tik darbuotojams, kurių paskyros tipas yra Administratorius

@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Membrii personalului
+  content: >
+    Următorul tabel arată rezultatele filtrului de deasupra sa. Dacă nu se face nici o setare pentru filtru, atunci sunt afișați toți <span class="doc-desc-title">membrii personalului</span>, în format paginat. Vezi secțiunile paginilor de mai jos pentru a naviga prin mai multe rezultate .
+apply_filtering_criteria:
+  title: Aplica criterii de filtrare
+  content: >
+    Alege un <span class="doc-desc-title">Department</span> care este relevant pentru interesele tale. Poti deasemenea sa faci o cautare pentru un Agent anume.

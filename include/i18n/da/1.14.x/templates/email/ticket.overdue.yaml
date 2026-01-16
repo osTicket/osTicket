@@ -1,0 +1,34 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Sendt til personale medlemmer, når en bestilling overgår til forfaldnet i systemet.
+  Forfaldne sager opstår baseret på den sags forfaldsdato samt SLA
+  defineret for sager.
+subject: |
+  Forfaldne sager påmindelse
+body: |
+  <h3><strong>Hej %{recipient}</strong>,</h3>
+  En bestilling, <a href="%{ticket.staff_link}">#%{ticket.number}</a> er
+  alvorligt forsinket.
+  <br>
+  <br>
+  Vi bør arbejde hårdt for at sikre, at alle bestillinger bliver
+  behandlet i tide.
+  <br>
+  <br>
+  underskrevet,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div> For at se eller reagere på bestllingen, skal du <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> i bestillings systemet. Du modtager denne 
+  bemærkning, fordi bestillingen er tildelt til dig eller din hold eller afdeling
+  som du er medlem af.</div>
+  <em style="font-size: small">Your friendly <span style="font-size: smaller"
+  >(although with limited patience)</span> Bestillings system</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

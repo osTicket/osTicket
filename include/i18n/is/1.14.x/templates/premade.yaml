@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Hvað er osTicket (dæmi)?
+  response: |
+    osTicket er opin kóða verkbeiðna kerfi sem er notað víða, aðlaðandi mótval gegn dýrari og flóknari verkbeiðnakerfa - einfalt, létt, áreiðanlegt, opin kóði, vef viðmót og auðvelt að setja upp og nota.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Stöðluð viðhengi eru frábær!
+- 
+  isenabled: 1
+  title: Dæmi (með breytum)
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

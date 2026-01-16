@@ -1,0 +1,36 @@
+---
+- 
+  type: ticket-status
+  name: حالة التذكرة
+  name_plural: حالة  التذكرة
+  sort_mode: SortCol
+  masks: 13
+  notes: حالات التذاكر
+  properties:
+    title: خصائص حالة التذاكر
+    instructions: الخصائص التي يمكن تعيينها لحالة التذكرة.
+    deletable: false
+    fields:
+      - 
+        type: state
+        name: state
+        label: الحالة
+        required: true
+        sort: 1
+        edit_mask: 63
+        configuration:
+          prompt: حالة تذكرة
+      - 
+        type: memo
+        name: description
+        label: الوصف
+        required: false
+        sort: 3
+        edit_mask: 15
+        configuration:
+          rows: 2
+          cols: 40
+          html: false
+          length: 100
+  configuration:
+    handler: TicketStatusList

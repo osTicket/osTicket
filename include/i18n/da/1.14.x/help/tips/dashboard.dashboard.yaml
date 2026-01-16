@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Sagsaktivitet
+  content: >
+    Vælg et datointerval for at få graf og (jf. <span class="doc-desc-title"> statistik</span>) nedenstående tabel til at vise data for perioden mellem de omhandlende datoer. Nedenstående graf vil altid afspejle et bredt overblik over hele systemets data (dvs. population). Du kan dog navigere gennem tabellen <span class="doc-desc-title"> statistik</span> nedenfor for at fokusere på et mindre dataudsnit (f.eks. Afdeling, Emner eller Personale). Derudover kan du eksportere data, der vises i <span class="doc-desc-title">Statistikt</span>.
+report_timeframe:
+  title: Rapport tidsramme
+  content: >
+    Vælg en startdato for den ønskede data prøve ved hjælp af datovælgeren. Vælg derefter, hvor lang tid fra denne dato for at definere slutdato for dine data prøver.
+statistics:
+  title: Statistik
+  content: >
+    Naviger til det ønskede emne ved at klikke på den relevante fane for at se det specifikke dataudsnit. I tabellen repræsenterer cirklerne størrelsen af de nominelle data. Derfor, jo større tal i en bestemt celle, des større bliver den tilhørende cirkel.
+opened:
+  title: Åbnet
+  content: >
+    Sager, der oprindeligt blev åbnet, som har afdelingen eller hjælpe emnet på sagen, eller antallet af sager, som en agent har åbnet på vegne af en bruger.
+assigned:
+  title: Tildelt
+  content: >
+    Sager, der er tildelt enten en agent eller et team. Nummeret afspejler sager, der manuelt er tildelt agenter eller hold, uløste sager og sager tildelt fra sags filtre / andre auto-tildelingsregler.
+overdue:
+  title: Forfalden
+  content: >
+    Sager, der er markeret 'Overskredet' af systemet. Sager som er markeret forfaldne, når de har overtrådt SLA-planen, som de tilhørte, hvilket får dem til at have status som "Åben" eller forbi deres Forfaldsdato.
+closed:
+  title: Lukket
+  content: >
+    Antallet af sager, der for øjeblikket er i lukket status.
+reopened:
+  title: Genåbnet
+  content: >
+    Det samlede antal gange en sag blev genåbnet. Sagen genåbnes, når deres status ændres fra lukket til åbent.
+deleted:
+  title: Slettet
+  content: >
+    Antallet af sager, der er blevet slettet.
+service_time:
+  title: Service tid
+  content: >
+    Henviser til den tid, der begynder ved åbningen af en sag og slutter når sagen er lukket. Kolonnen Service Time måler den gennemsnitlige servicetid pr. Sag i timer.
+response_time:
+  title: Responstid
+  content: >
+    Viser en gennemsnitlig svare tid af en agent i timer for sags korrespondance.

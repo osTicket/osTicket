@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Tämä pohja määrittelee aloitussähköpostin (valinnainen) joka lähetetään käsittelijöille, kun heille luodaan tili.
+name: "Tervetuloa osTickettiin"
+body: >
+  <h3><strong>Hei %{recipient.name.first},</strong></h3> <div> Olemme luoneet sinulle tilin tukijärjestelmäämme %{url}.<br /> <br /> Ole hyvä, ja seuraa linkkiä vahvistaaksesi tilisi ja päästäksesi hallinnoimaan tikettejä. <br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ystävällisin terveisin, tukitiimi<br /> %{company.name}</em> </div>

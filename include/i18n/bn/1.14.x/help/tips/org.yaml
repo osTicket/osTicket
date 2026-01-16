@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Ticket Sharing
+  content: >
+    <p>সংস্থাব্যাপী টিকেটের অনুমোদন দিলে একই সংস্থার এক সদস্য অন্য সদস্যের টিকেটেও অনুমোদন পাবে </p> <p class="info-banner"> <i class="icon-info-sign"></i>যারা সহযোগী তারা সবসময়ই টিকেটের অনুমোদন পাবে</p>
+email_domain:
+  title: Email Domain
+  content: >
+    ইউজারবৃন্দ স্বতঃফূর্তভাবেই তাদের ই-মেইল ডোমেইন(সমূহের) ওপর ভিত্তি করে এই প্রতিষ্ঠানের সাথে যুক্ত হয়ে যাবেন। কমা দ্বারা আলাদা করা এক বা একাধিক ডোমেইনসমূহ যোগ করার জন্যে নিম্নের বক্সটি ব্যবহার করুন। উদাহরণস্বরুপ, @mycompany.com দ্বারা ই-মেইল অ্যাড্রেস শেষ হওয়া ইউজারবৃন্দ লিখুন <code>mycompany.com</code>
+

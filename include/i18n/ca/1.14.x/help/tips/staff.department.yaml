@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Estat
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Tipus
+  content: >
+    Seleccioneu <span class="doc-desc-opt"> privada</span> si voleu assignacions enmascarades a aquest departament en el Portal de Client.  Addicionalment, quan etiqueten com <span class="doc-desc-opt"> privat</span>, la <span class="doc-desc-title">signatura del departament</span> no es mostrarà en respostes d'e-mail. <br/> <br/> Com a mínim un departament ha de ser <span class="doc-desc-opt"> públic</span>
+email:
+  title: Email
+  content: >
+    Adreça d'e-mail utilitzades quan respostes s'envien als usuaris quan Agents envien respostes a Tickets.
+template:
+  title: Plantilla establida
+  content: >
+    <span class="doc-desc-title">Establida plantilla </span>d'email utilitzada per Auto-respostes i alertes &amp; notificacions de Tickets a aquest departament.
+  links:
+    - 
+      title: Gestió de plantilles
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Acord de nivell de servei de Tickets dirigits a aquest departament.
+  links:
+    - 
+      title: Gestionar Plans de SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Responsable del Departament
+  content: >
+    Seleccione un <span class="doc-desc-title"> gestor</span> per aquest departament. <br/> <br/> Els gestors poden ser configurats per rebre alertes especials i també tenen dret a dessasignar Tickets.
+  links:
+    - 
+      title: Gestió d'alertes &amp;avisos
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Alertes &amp, destinataris d'avisos
+  content: >
+    Seleccioneu els destinataris d'alertes <span class="doc-desc-title"> configurades &amp; avisos</span>.
+  links:
+    - 
+      title: Configurar alertes &amp; Notificacions
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Restriccions d'assignació de Ticket
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Desactiva l'assignació automàtica
+  content: >
+    Marca per <strong>desactivar</strong> l'autoassignació en les respostes d'aquest departament. <br><br> Els Agents podran reclamar els tickets que no estiguin assignats de forma manual
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Configuració de resposta automàtica
+  content: >
+    Això permet invalidar les escenes globals de resposta automàtica per a aquest departament.
+new_ticket:
+  title: Nou Ticket de resposta automática
+  content: >
+    Pot desactivar la Resposta Automàtica enviada a l'usuari quan un Ticket nou es crea i s'encamina a aquest departament.
+new_message:
+  title: Nou missatge de Resposta Autmàtica
+  content: >
+    Podeu desactivar la Resposta Automàtica enviada a l'usuari per a confirmar un missatge recentment publicat per a Tickets en aquest departament.
+auto_response_email:
+  title: Email de resposta automàtica
+  content: >
+    Seleccioneu una adreça de correu electrònic des d'on s'envien Respostes Automàtiques per aquest departament.
+department_access:
+  title: Accés al grup
+  content: >
+    Permeten accés a Agents d'altres departaments a Tickets d'aquest Deparmtent.
+department_signature:
+  title: Signatura del Departament
+  content: >
+    Signatura és farà disponible com una elecció, per departaments <span class="doc-desc-opt"> públics</span>, en les respostes de l'Agent.

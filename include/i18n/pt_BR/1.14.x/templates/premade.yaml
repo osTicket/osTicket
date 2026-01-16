@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: O que é o osTicket (exemplo)?
+  response: |
+    osTicket é um sistema de chamados de código aberto amplamente utilizado, uma alternativa atraente aos caros e complexos sistemas de suporte. Simples, leve, confiável, aberto, baseado na web, fácil de configurar e usar.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Anexos prontos são o máximo!
+- 
+  isenabled: 1
+  title: Exemplo (com variáveis)
+  response: |
+    Olá %{ticket.name.first},
+    <br>
+    <br>
+    Seu ticket #%{ticket.number} criado em %{ticket.create_date} está com o departamento: 
+    %{ticket.dept.name}.
+  0: |
+

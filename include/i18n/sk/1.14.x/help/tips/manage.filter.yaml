@@ -1,0 +1,93 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Filter
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+execution_order:
+  title: Poradie spracovania
+  content: >
+    Zadajte číslo, ktoré bude kontrolovať prioritu filtra. Menšie číslo, znamená vyššiu prioritu.  <br><br>  Pokiaľ chcete aby bol filter aplikovaný ako posledný (pri splnení podmienok),  zaškrtnite check-box  <span class="doc-desc-title">Zastav ďalšie spracovanie pri splnení podmienok</span>.
+target_channel:
+  title: Kanál
+  content: >
+    Vyber <span class="doc-desc-title">kanál</span>pre <span class="doc-desc-title">filter tiketov</span>. <span class="doc-desc-title">Kanál</span> je zdroj, cez ktorý dorazí tiket do systému. <br><br> Napríklad, pokiaľ vyberiete <span class="doc-desc-opt">Web Formulár</span>, hovoríte, že chcete použiť <span class="doc-desc-title">filter tiketov</span> pre tie tikety, ktoré vznikli vo pomocou formulára na webovom portáli.
+rules_matching_criteria:
+  title: Vyhľadávacie kritériá
+  content: >
+    Zvoľte ako presne sa majú pravidlá použiť. Ak chcete aby sa <span class="doc-desc-title"> filter</span> aktivoval pri ľubovolnej zhode, vyberte <span class="doc-desc-opt">Porovnať aspoň jedno</span>. Pokiaľ chcete aby sa zhodovali <em><strong>všetky pravidlá</strong></em> vyberte <span class="doc-desc-opt">Porovnať všetky</span>.
+reject_ticket:
+  title: Odmietnutie tiketu
+  content: >
+    Pokiaľ je toto nastavené, ďalšie spracovanie je ukončené a ďalšie nastavenia nižšie budú ignorované.
+reply_to_email:
+  title: Odpoveď na E-mail
+  content: >
+    Nastavte túto voľbu ak chcete, aby Helpdesk použil údaj "Reply-To" zo spracovávaného tiketu. Táto voľba je platná len ak je kanál nastavený na Email.
+ticket_auto_response:
+  title: Zakázať automatickú odpoveď
+  content: >
+    Toto prepíše nastavenie, ktoré je definované na Oddelení alebo nastavenie definované v Automatických odpovediach.
+canned_response:
+  title: Štandardná odpoveď
+  content: >
+    Vyberte, ktorú štandardnú odpoveď chcete poslať.
+  links:
+    - 
+      title: Definícia štandardných odpovedí
+      href: /scp/canned.php
+    - 
+      title: Definícia šablón (template)
+      href: /scp/templates.php
+    - 
+      title: Definícia novej šablóny (template) pre automatickú odpoveď
+      href: /scp/templates.php?id=2&a=manage
+department:
+  title: Oddelenie
+  content: >
+    Vyberte aké <span class="doc-desc-title">oddelenie</span> chcete priradiť <span class="doc-desc-title">filtru</span>.
+  links:
+    - 
+      title: Spravovať oddelenia
+      href: /scp/departments.php
+priority:
+  title: Priorita
+  content: >
+    Vyberte akú <span class="doc-desc-title">prioritu</span> chcete priradiť <span class="doc-desc-title">filtru</span>. Toto nastavenie má väčšiu prioritu ako nastavenie v definícii oddelenia alebo nastavenie v definícii Predmet tiketu.
+sla_plan:
+  title: SLA plán
+  content: >
+    Vyberte aké <span class="doc-desc-title">SLA</span> chcete priradiť <span class="doc-desc-title">filtru</span>.
+  links:
+    - 
+      title: Definícia SLA
+      href: /scp/slas.php
+auto_assign:
+  title: Automatické priradenie
+  content: >
+    Vyberte pracovníka (agenta) alebo tím, ktorému chcete priradiť <span class="doc-desc-title">filtru</span>.
+  links:
+    - 
+      title: Definícia pracovníkov (agentov)
+      href: /scp/staff.php
+    - 
+      title: Definícia tímov
+      href: /scp/teams.php
+help_topic:
+  title: Predmet tiketu
+  content: >
+    Vyberte <span class="doc-desc-title">predmet tiketu</span>, ktorý chcete priradiť  <span class="doc-desc-title">filtru</span>.
+  links:
+    - 
+      title: Definícia Predmetu tiketov
+      href: /scp/helptopics.php
+admin_notes:
+  title: Adminove poznámky
+  content: >
+    Tieto poznámky sú viditeľné len pre užívateľa ‘<span class="doc-desc-title">Admin</span>.’

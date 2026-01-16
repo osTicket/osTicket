@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  此模板定义了发给那些在登陆页面上选择了<strong>忘记了我的密码</strong>的客户的邮件。
+name: "%{company.name} 帮助中心访问"
+body: >
+  <h3><strong>你好 %{user.name.first},</strong></h3> <div> 您在帮助中心上提交了一个密码重置的申请 %{url}.<br /> <br /> 如果您认为这是个错误操作，请忽略本 邮件。 您的账号仍然是安全的，没有人可以进行未授权的访问。您的账号不会被锁定，密码也不会被重置。可能其他人无意中填写了您的邮件地址。<br /> <br /> 点击下面的链接并登陆到你的帮助中心，可以修改您的密码。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">您的客户支持系统 <br /> %{company.name}</em> </div>

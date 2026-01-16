@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  고객이 티켓에 새 메세지를 작성했을 때 고객에게 전송됩니다. 시스템이 발송한 이메일에 고객이 답변하거나, 웹포털에 고객이 방문하여 메세지를 작성했을 때 발생합니다.
+subject: |
+  메세지 확인
+body: |
+  <h3><strong>%{recipient.name.first} 고객님,</strong></h3>
+  고객님의 메세지가 티켓 <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a>에 정상적으로 등록되었습니다.
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  %{company.name} 고객 지원팀,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>서포트 요청의 진행 상태를 <a
+  href="%{recipient.ticket_link}">이곳</a>에서 확인하실 수 있습니다.</em>
+  </div>

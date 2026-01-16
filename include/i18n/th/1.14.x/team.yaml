@@ -1,0 +1,15 @@
+---
+- 
+  #Initial teams defined for the system.
+  #Fields:
+  #flags - (int)
+  #- isenabled - (0x01) true or false if the team should be initially
+  #enabled
+  #- noalerts - (0x02)
+  #name - Descriptive name for the team
+  #notes - Administrative notes (viewable internal only)
+  #---
+  flags: 0x01
+  name: ระดับการบริการ 1
+  notes: |
+    การบริการชั้นที่ 1 รับผิดชอบเกี่ยวกับการแก้ไขปัญหาเบื้องต้นให้กับลูกค้า

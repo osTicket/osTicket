@@ -1,0 +1,25 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Páginas Principales
+  content: >
+    Las página principales pueden servir como un mini sistema de gestión de contenidos (CMS). Puede definir múltiples inicios, sin conexión, y las páginas de agradecimiento y modificarlos en la configuración de empresa y temas de ayuda.
+  links:
+    - 
+      title: Configuración de la empresa
+      href: /scp/settings.php?t=pages
+type:
+  title: Tipo
+  content: >
+    Las páginas <span class="doc-desc-opt">Sin Conexión</span> aparecen en el portal del cliente 
+     si su sistema de soporte está deshabilitado. La página de <span class="doc-desc-opt">Inicio</span> se muestra en la Página Principal del Portal del Cliente. Las páginas de <span class="doc-desc-opt">Agradecimiento</span> aparecen después de que un usuario envía un Ticket. Las <span class="doc-desc-opt">Otras</span> páginas pueden ser  utilizadas como un mini gestor de contenidos (CMS).

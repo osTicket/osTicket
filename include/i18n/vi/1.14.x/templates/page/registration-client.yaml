@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  Khung mẫu  này là mẫu email gửi đến khách hàng sau khi họ tự đăng ký tài khoản trên cổng thông tin khách hàng hoặc được một nhân viên đăng ký. Đây là email dùng để xác minh. Xin vui lòng sử dụng "%{link}" trong nội dung.
+name: "Chào mừng tới %{company.name}"
+body: >
+  <h3><strong>Xin chào %{recipient.name.first},</strong></h3> <div>Chúng tôi đã tạo cho bạn một tài khoản tại %{url}.<br / > < br / > Vui lòng truy cập link bên dưới để xác nhận tài khoản của và truy cập vào ticket của bạn. < br / > < br / > <a href="%{link}"> %{link}</a> < br / > < br / > <em style="font-size: small"> Hệ thống hỗ trợ < br / > %{company.name}</em></div>

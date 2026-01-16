@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Овај темплејт дефинира известување за клиентите која ќе биде испратен доколку побарувањето е испратено преку емаил. Бројот на тикетот и емаил адресата како врска за пристап.
+name: "Тикет [#%{ticket.number}] линк за пристап"
+body: >
+  <h3><strong>Здраво %{recipient.name.first},</strong></h3> <div> Побарување на линк за пристап до тикет #%{ticket.number} беше испратен во Ваше име за помош во %{url}.<br /> <br /> Следете го линкот долу за да го проверите статусот на Вашиот тикет #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a><br /> <br /> Ако вие<strong>не сте</strong> направиле никакво поварување, ве молиме избришете го и занемарете го овај емаил. Вашиот профил е сеуште безбеден и никој нема добиено пристап до тикетот. Можно е некој по грешка да го напишал Вашиот емаил.<br /> <br /> --<br /> %{company.name} </div>

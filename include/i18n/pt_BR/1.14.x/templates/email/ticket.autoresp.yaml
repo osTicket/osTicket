@@ -1,0 +1,23 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Enviado a um usuário quando um novo chamado é criado
+subject: |
+  Ticket de Suporte Aberto [#%{ticket.number}]
+body: |
+  <h3><strong>Prezado(a) %{recipient.name.first},</strong></h3>
+  <p>
+  Uma requisição de suporte foi criada com o número #%{ticket.number}.
+  Um representante irá atende-lo mais breve possível. Você pode <a href="%{recipient.ticket_link}">ver o progresso deste ticket online</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Equipe %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Se você desejar prover comentários adicionais ou informações sobre este problema, por favor responda a este e-mail ou <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >faça o login com a sua conta</span></a> para um arquivo completo de suas requisições.</em></div>

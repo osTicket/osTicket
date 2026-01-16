@@ -2,7 +2,6 @@
 
 namespace Mpdf\Tag;
 
-use Mpdf\Mpdf;
 use Mpdf\Utils\UtfString;
 
 abstract class InlineTag extends Tag
@@ -35,7 +34,7 @@ abstract class InlineTag extends Tag
 			$objattr['SUBJECT'] = '';
 			$objattr['OPACITY'] = $this->mpdf->annotOpacity;
 			$objattr['COLOR'] = $this->colorConverter->convert('yellow', $this->mpdf->PDFAXwarnings);
-			$annot = Mpdf::OBJECT_IDENTIFIER . "type=annot,objattr=" . serialize($objattr) . Mpdf::OBJECT_IDENTIFIER;
+			$annot = "\xbb\xa4\xactype=annot,objattr=" . serialize($objattr) . "\xbb\xa4\xac";
 		}
 		/* -- END ANNOTATIONS -- */
 

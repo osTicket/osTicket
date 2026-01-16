@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: اشتراک تیکت
+  content: >
+    <p> به اشتراک گذاری تیکتهای سازمان به اعضا اجازه دسترسی به تیکتهای متعلق به دیگر اعضا را می دهد.</p><p class="info-banner"><i class="icon-info-sign"></i>دسترسی به تیکتها همیشه برای همکاران قابل دسترس باشد</p>
+email_domain:
+  title: ایمیل دامین
+  content: >
+    کاربران می توانند به طور خودکار به این سازمان بر اساس دامنه ایمیل خود، دامنه اضافه کنند. با استفاده از باکس زیر یک یا بیشتر دامنه که توسط کاما جدا می شوند را وارد نمایید. برای مثال، <code>mycompany.com</code> برای کاربرانی که با آدرس ایمیل که به mycompany ختم می شود را وارد نمایید
+

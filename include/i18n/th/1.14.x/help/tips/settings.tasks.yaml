@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: รูปแบบ Ticket Number
+  content: >
+    การตั้งค่านี้มีไว้เพื่อสร้างหมายเลขของticket โดยการใช้ค่าแฮช (`#`) ตรงที่หมายเลขปรากฎ
+    ตัวอักษรใดๆในรูปแบบของตัวเลขจะถูกจัดเก็บไว้<br/><br/>ยกตัวอย่างเช่น ตัวเลขหกหลักจะใช้ <code>######</code>.
+sequence_id:
+  title: ลำดับของ Task Number
+  content: >
+    Choose a sequence from which to derive new task numbers. The system has a incrementing sequence and a random sequence by default. You may create as many sequences as you wish.
+default_sla:
+  title: ข้อตกลงการใช้บริการ
+  content: >
+    Choose the default Service Level Agreement to manage how long a task can remain Open before it is rendered Overdue.
+  links:
+    - 
+      title: สร้างแผน SLA เพิ่มเติม
+      href: /scp/slas.php
+default_priority:
+  title: ระดับความสำคัญเริ่มต้น
+  content: >
+    Choose a default <span class="doc-desc-title">priority</span> for tasks not assigned a priority automatically.
+task_attachment_settings:
+  title: Task Thread Attachments
+  content: >
+    Configure settings for files attached to the <span class="doc-desc-title">description</span> field. These settings are used for all new tasks and new messages regardless of the source channel (web portal, email, api, etc.).
+page_title:
+  title: แจ้งเตือนและแจ้งให้ทราบ
+  content: >
+    Alerts and Notices are automated email notifications sent to Agents when various task events are triggered.
+task_alert:
+  title: การแจ้งเตือน Task ใหม่
+  content: >
+    <p> Alert sent out to Agents when a new task is created. </p><p class="info-banner"> <i class="icon-info-sign"></i> This alert is not sent out if the task is auto-assigned. </p>
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบการแจ้งเตือนข้อความใหม่
+      href: /scp/templates.php?default_for=task.alert
+activity_alert:
+  title: แจ้งเตือนกิจกรรมใหม่
+  content: >
+    ส่งแจ้งเตือนไปยังเจ้าหน้าที่เมื่อมีข้อความใหม่จากผู้ใช้ถูกเพิ่มเข้ากับ Task ที่มีอยู่
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบการแจ้งเตือนข้อความใหม่
+      href: /scp/templates.php?default_for=task.activity.alert
+assignment_alert:
+  title: อีเมลล์แจ้งเตือนเมื่อมีการมอบหมาย
+  content: >
+    การแจ้งเตือนการส่งออกไปยังเจ้าหน้าที่ที่ได้รับมอบหมาย
+  links:
+    - 
+      title: ค่าเริ่มต้นแม่แบบแจ้งเตือนการมอบหมาย Task
+      href: /scp/templates.php?default_for=task.assignment.alert
+transfer_alert:
+  title: อีเมลล์แจ้งเตือนเมื่อมีการโอน
+  content: >
+    Alert sent out to Agents on task transfer between Departments.
+  links:
+    - 
+      title: Default Task Transfer Alert Template
+      href: /scp/templates.php?default_for=task.transfer.alert
+overdue_alert:
+  title: อีเมลล์แจ้งเตือนเมื่อเกินกำหนดเวลา
+  content: >
+    Alert sent out to Agents when a task becomes overdue based on SLA or Due Date.
+  links:
+    - 
+      title: Default Stale Task Alert Template
+      href: /scp/templates.php?default_for=task.overdue.alert
+    - 
+      title: จัดการ SLA
+      href: /scp/slas.php
+

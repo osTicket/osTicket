@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Este modelo define o e-mail inicial (opcional) enviado aos Agentes quando uma conta é criada em seu nome.
+name: "Bem-vindo ao osTicket"
+body: >
+  <h3><strong>Hi %{recipient.name.first},</strong></h3> <div> Criamos uma conta para si no nosso  help desk em %{url}.<br /> <br /> Por favor siga o link abaixo indicado para confirmar a sua conta e poder aceder aos seus tickets.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">O seu sistema de Apoio a Clientes<br /> %{company.name}</em> </div>

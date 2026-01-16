@@ -1,0 +1,23 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Pranešimas apie problemos būklę išsiųstas bendradarbiams, pvz. atsakymas ar žinutė.
+subject: |
+  Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Gerb. %{recipient.name.first},</strong></h3>
+  <div>
+      <em>%{poster.name}</em> ką tik parašė žinutę prie problemos, kurią Jūs sprendžiate.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Jūs gaunate šį e. laišką, nes dalyvaujate problemoje <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Tam, kad pareikštumėte savo nuomonę paprasčiausiai atsakykite į šią žinutę arba r <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >paspauskite čia</a> pilnam susirašinėjimo archyvui.</em>
+  </div>

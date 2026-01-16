@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Formos antraštė
+  content: >
+    Šis pavadinimo tekstas rodomas pilkame laukelyje virš formos laukų
+form_instructions:
+  title: Formos instrukcijos
+  content: >
+    Jūs galite pridėti papildomų instrukcijų, kurios padės nukreipti vartotoją į formos laukus kontekste ir galimai išryškinti reikalingus duomenis.
+field_sort:
+  title: Lauko rodymo pozicija
+  content: >
+    Paspauskite rodyklės aukštyn-žemyn piktogramą ir tempkite lauko eilutę pagal kurią norite rūšiuoti šią formą. Rūšiavimo pirmenybės įsigalioja tik išsaugojus formą.
+field_label:
+  title: Lauko pavadinimas
+  content: >
+    Ši etiketė rodoma kaip šios srities eilutė. Paprastai, trumpo atsakymo laukas būtų panaudotas kaip šis:<br> <strong>Etiketė:</strong>&nbsp; <input type="text">
+field_type:
+  title: Lauko turinio tipas
+  content: >
+    Tai naudojama, apibrėžiant laukiamą įvesties tipą iš vartotojo. Galite pasirinkti iš trumpojo ir ilgojo atsakymo, telefono numerio, datos ir laiko,  žymimojo langelio, išskleidžiamojo sąrašo arba individualizuoto sąrašo pasirinkimo.
+  links:
+    - 
+      title: Individualizuoti sąrašai
+      href: /scp/lists.php
+field_visibility:
+  title: Lauko matomumas
+  content: >
+    Pasirinkite matomumo ir reikalavimo variantą šiam laukui.<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Nustatymas</th><th>Rezultatas</th></tr> <tr><td>Pasirinktinis</td> <td> Agentai ir galutiniai naudotojai gali matyti lauką, bet nei vienas neprivalo atsakyti.</td></tr> <tr><td>Privalomas</td> <td>Agentai ir galutiniai naudotojai gali matyti lauką ir abu privalo atsakyti</td></tr> <tr><td>Reikalaujama galutiniam vartotojui</td> <td>Agentai ir galutiniai naudotojai gali matyti lauką, tačiau tik galutiniai vartotojai privalo atsakyti</td></tr> <tr><td>Reikalaujama agentams</td> <td>Agentai ir galutiniai naudotojai gali matyti lauką, tačiau tik agentai privalo atsakyti</td></tr> <tr><td>Vidinis, Pasirinktinis</td> <td>Tik agentai gali matyti lauką, bet atsakymas yra nebūtinas.</td></tr> <tr><td>Vidinis, Privalomaa</td> <td>Tik agentai gali matyti lauką ir atsakymas yra privalomas.</td></tr> <tr><td>Tik galutiniams vartotojams</td><td>Tik galutiniai vartotojai gali matyti lauką ir atsakymas yra privalomas.</td></tr> </tbody></table>
+field_variable:
+  title: Lauko automatizavimas
+  content: >
+    Lauko duomenys bus prieinami elektroniniu laišku ir šablonus per pavadinimą, naudojamą šioje skiltyje. Pavyzdžiui, laukai įprastinėje užklausos formoje yra pasiekiami per <code>%{ticket.variable}</code>,kur<strong>kintamasis</strong>yra pavadinimas, naudojamas šioje skiltyje.<br> <br> <em>Įmonės informacija yra prieinama per<code>%{</code><code>company.variable}</code> ir vartotojo informacija yra prieinama per<code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Ištrinti šį lauką
+  content: >
+    Patikrinkite ir išsaugokite formą, norėdami pašalinti lauką iš šios formos.<br> <br> <em>Lauko ištrynimas nepašalina anksčiau įrašytų duomenų tam tikram laukeliui užbaigtose formuose. Pavyzdžiui, jei anksčiau pateiktoje užklausoje yra duomenų laukelis, laukelio ištrynimas iš formos nepašalins duomenų iš užklausos</em>

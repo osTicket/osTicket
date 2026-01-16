@@ -1,0 +1,175 @@
+---
+- 
+  #Initial set of schedules and entries
+  #Fields:
+  #id:
+  #flags:
+  #0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+  #sort:     Manual sort order
+  #name:     Name of the Schedule
+  #timezone:   Timezone of the Schedule
+  #description:   Description of the Schedule
+  #entries:     Schedule Entries
+  #---
+  id: 1
+  flags: 0x01
+  name: Lundi - Vendredi 8h - 17h avec vacances scolaires
+  configuration:
+    holidays:
+      - 4
+  entries:
+    - 
+      name: Lundi
+      repeats: quotidien #notrans
+      starts_on: 07/01/2019
+      starts_at: 08:00:00
+      ends_on: 07/01/2019
+      ends_at: 17:00:00
+      day: 1
+    - 
+      name: Mardi
+      repeats: quotidien #notrans
+      starts_on: 08/01/2019
+      starts_at: 08:00:00
+      ends_on: 08/01/2019
+      ends_at: 17:00:00
+      day: 2
+    - 
+      name: Mercredi
+      repeats: quotidien #notrans
+      starts_on: 09/01/2019
+      starts_at: 08:00:00
+      ends_on: 09/01/2019
+      ends_at: 17:00:00
+      day: 3
+    - 
+      name: Jeudi
+      repeats: quotidien #notrans
+      starts_on: 10/01/2019
+      starts_at: 08:00:00
+      ends_on: 10/01/2019
+      ends_at: 17:00:00
+      day: 4
+    - 
+      name: Vendredi
+      repeats: quotidien #notrans
+      starts_on: 11/01/2019
+      starts_at: 08:00:00
+      ends_on: 11/01/2019
+      ends_at: 17:00:00
+      day: 5
+- 
+  id: 2
+  flags: 0x01
+  name: 24h/7
+  entries:
+    - 
+      name: Quotidien
+      repeats: quotidien #notrans
+      starts_on: 0/01/2019
+      starts_at: 00:00:00
+      ends_on: 0/01/2019
+      ends_at: 23:59:59
+- 
+  id: 3
+  flags: 0x01
+  name: 24h/5j
+  entries:
+    - 
+      name: Semaine
+      repeats: semaine #notrans
+      starts_on: 0/01/2019
+      starts_at: 00:00:00
+      ends_on: 0/01/2019
+      ends_at: 23:59:59
+- 
+  id: 4
+  flags: 0
+  name: Congès U.S.
+  entries:
+    - 
+      name: Jour de l'An
+      repeats: annuel #notrans
+      starts_on: 0/01/2019
+      starts_at: 00:00:00
+      ends_on: 0/01/2019
+      ends_at: 23:59:59
+      day: 1
+      month: 1
+    - 
+      name: Commémoration de Martin Luther King
+      repeats: annuel #notrans
+      starts_on: 21/01/2019
+      starts_at: 00:00:00
+      ends_on: 21/01/2019
+      ends_at: 23:59:59
+      day: 1
+      week: 3
+      month: 1
+    - 
+      name: Jour du Souvenir
+      repeats: annuel #notrans
+      starts_on: 27/05/2019
+      starts_at: 00:00:00
+      ends_on: 27/05/2019
+      ends_at: 23:59:59
+      day: 1
+      week: -1
+      month: 5
+    - 
+      name: Fête de l'Indépendance U.S.
+      repeats: annuel #notrans
+      starts_on: 04/07/2019
+      starts_at: 00:00:00
+      ends_on: 04/07/2019
+      ends_at: 23:59:59
+      day: 4
+      month: 7
+    - 
+      name: Fête du travail
+      repeats: annuel #notrans
+      starts_on: 02/09/2019
+      starts_at: 00:00:00
+      ends_on: 02/09/2019
+      ends_at: 23:59:59
+      day: 1
+      week: 1
+      month: 9
+    - 
+      name: Journée des Indigènes (U.S.)
+      repeats: annuel #notrans
+      starts_on: 14/10/2019
+      starts_at: 00:00:00
+      ends_on: 14/10/2019
+      ends_at: 23:59:59
+      day: 1
+      week: 2
+      month: 10
+    - 
+      name: Journée des Vétérans
+      repeats: annuel #notrans
+      starts_on: 11/11/2019
+      starts_at: 00:00:00
+      ends_on: 11/11/2019
+      ends_at: 23:59:59
+      day: 11
+      month: 11
+    - 
+      name: Action de Grâce (Amérique du Nord)
+      repeats: annuel #notrans
+      starts_on: 28/11/2019
+      starts_at: 00:00:00
+      ends_on: 28/11/2019
+      ends_at: 23:59:59
+      day: 4
+      week: 4
+      month: 11
+    - 
+      name: Noël
+      repeats: annuel #notrans
+      starts_on: 25/11/2019
+      starts_at: 00:00:00
+      ends_on: 25/11/2019
+      ends_at: 23:59:59
+      day: 25
+      month: 12

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nova kartica
+  content: >
+    Omogućite ovo ukoliko želite da automatizirani odgovor bude poslan korisniku kod otvaranja nove kartice.
+  links:
+    - 
+      title: Predložak automatskog odgovora kod nove kartice
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nova kartica od djelatnika
+  content: >
+    Obavijest koja se šalje kada djelatnik otvori novu karticu u ime korisnika. <em>Djelatnik može blokirati ovu opciju kod otvaranja nove kartice.</em>
+  links:
+    - 
+      title: Predložak obavijesti o novoj kartici
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Potvrda o novoj poruci
+  content: >
+    Obavijest o potvrdi, kada se doda nova poruka na postojeću karticu.
+  links:
+    - 
+      title: Predložak potvrde o novoj poruci
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Obavijest o novoj poruci
+  content: >
+    Prosljedi poruke primljene od pošiljatelja svim sudionicima kartice.
+  links:
+    - 
+      title: Predložak obvavijeti o novoj aktivnosti
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Obavijest o prekomjerenom broju kartica
+  content: >
+    Obavijest o odbijenoj kartici<span class="doc-desc-title">Maksimalan broj otvorenih kartica</span> dostignut.
+  links:
+    - 
+      title: Predložak obavijesti o prekomjerenom broju otvorenih kartica
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Postavite <em>Maksimalan broj kartica</em>
+      href: /scp/settings.php?t=tickets

@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  ពុម្ពនេះកំណត់អ៊ីម៉ែលដែលបានផ្ញើទៅអតិថិជននៅពេលដែលគណនីរបស់ពួកគេត្រូវបានបង្កើតឡើងនៅក្នុងវិបផតថលអតិថិជនឬដោយភ្នាក់ងារក្នុងនាមរបស់ពួកគេ។អ៊ីមែលនេះបានបម្រើការជាមួយការផ្ទៀងផ្ទាត់អាសយដ្ឋានអ៊ីមែល។សូមប្រើ %{link} កន្លែងណាមួយនៅក្នុងកថាខណ្ឌរាងកាយ។
+name: "ស្វាគមន៍​មកកាន់ %{company.name}"
+body: >
+  <h3><strong>សួស្តី%{recipient.name.first},</strong></h3> <div> យើងបានបង្កើតគណនីសម្រាប់អ្នកនៅក្នុង helpdesk របស់យើងនៅ %{url}.<br /> <br /> សូមទៅតាមតំណខាងក្រោមនេះដើម្បីបញ្ជាក់គណនីរបស់អ្នកនិងទទួលបាននូវការចូលដំណើរការទៅសំបុត្ររបស់អ្នក។<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">ប្រព័ន្ធផ្តល់ជំនួយដល់អតិថិជនដែលងាយស្រួលរបស់អ្នក <br /> %{company.name}</em> </div>

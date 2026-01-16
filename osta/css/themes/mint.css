@@ -1,0 +1,16 @@
+@charset "utf-8";
+/* CSS Document */
+/* MINT THEME */
+:root {
+	--header-bg: #22545c;	
+	--header-title: #ffffff;
+    --header-title-hover: #ffffff;
+
+	--nav-bar-bg: #89c4c6;
+	--nav-bar-link: #22545c;
+	--nav-bar-link-hover: #000000;
+
+	--mobile-menu-bg: #89c4c6;	
+	--mobile-link-color: #22545c;
+	--stickybar: #22545c;		
+}

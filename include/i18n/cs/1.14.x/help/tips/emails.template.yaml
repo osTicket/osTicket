@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Sady šablon e-mailů
+  content: >
+    Sady šablony e-mailů jsou použity při odesílání automatických odpovědí a upozornění na různé události, které mohou nastat v průběhu požadavku.
+template_to_clone:
+  title: Sada šablon ke zkopírování
+  content: >
+    Vyberte sadu šablon ke zkopírování nebo pro začátek použijte dodávané šablony e-mailů.
+language:
+  title: Jazyk
+  content: >
+    Vyberte požadovaný jazyk <span class="doc-desc-opt">dodávané</span><span class="doc-desc-title">sady šablon e-mailů</span>. Jazykové balíčky jsou k dipozici na osTicket.com.
+  links:
+    - 
+      title: Jazykové balíčky pro osTicket
+      href: https://osticket.com/download
+status:
+  title: Stav
+  content: >
+    <span class="doc-desc-opt">Povolené</span> sady šablon jsou dostupné pro přiřazení k oddělení a nastavení jako výchozí. Aktuálně používaná sada šablon nemůže být <span class="doc-desc-opt">zakázána</span>.

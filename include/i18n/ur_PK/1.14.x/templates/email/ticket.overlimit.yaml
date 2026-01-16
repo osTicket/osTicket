@@ -1,0 +1,18 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  صارفین کو بھیجا جاتا ہے جب وہ زیادہ سے زیادہ کھلی ٹکٹ کی حد سے تجاوز کر جاتے ہیں. ایڈمن پینل میں یہ حد شکل دی جاسکتی ہے، اس سے مراد ایک خصوصی ای میل ایڈریس کی طرف سے کھلے ٹکٹوں کی تعداد ہے.
+subject: |
+  کھلے ٹکٹون کی حد ہو گئی ہے
+body: |
+  <h3><strong>عزیز %{ticket.name.first},</strong></h3>
+   آپ کھلے ٹکٹون کی زیادہ سے زیادہ تعداد تک پہنچ چکے ہیں.ایک اور ٹکٹ کھولنے کے قابل ہونے کے لیے آپ کے زیر التواء ٹکٹوں میں سے کوئی ایک بند ہونا لازمی ہے<a
+  href="%{url}/tickets.php?e=%{ticket.email}">ہمارے ہیلپ ڈیسک میں لاگ ان کریں</a>>. 
+  <br>
+  <br>
+   آپ کا شکریہ,<br/>
+  سپورٹ ٹکٹ سسٹم

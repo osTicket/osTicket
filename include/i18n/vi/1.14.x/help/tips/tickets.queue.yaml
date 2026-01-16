@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Trường tìm kiếm
+  0: >
+
+advanced:
+  title: Nâng cao
+  content: >
+    Hạn chế thông số tìm kiếm của bạn. Một khi bạn lựa chọn tiêu chí tìm kiếm nâng cao và đặt lệnh tìm kiếm, bạn có thể sử dụng <span class="doc-desc-title">Xuất </span> dữ liệu tại cuối trang yêu cầu.
+open_tickets_table:
+  title: Mở bảng lệnh
+  content: >
+    Tất cả các yêu cầu đã được mở và yêu cầu sự tập trung cao
+ticket:
+  title: Yêu cầu
+  0: >
+
+date:
+  title: Ngày
+  0: >
+
+subject:
+  title: Tiêu đề
+  0: >
+
+from:
+  title: Từ
+  0: >
+
+priority:
+  title: Quyền ưu tiên
+  0: >
+
+assigned_to:
+  title: Phân công
+  0: >
+
+export:
+  title: Xuất ra
+  content: >
+    Xuất dữ liệu của bạn ra file CSV. File CSV có thể được mở ra với bất kỳ phần mềm bảng tính (VD: Microsoft Excel, Apple Pages, OpenOffice, ...).
+advanced_search_dialog:
+  title: Tìm kiếm nâng cao
+  0: >
+
+adv_keyword:
+  title: Từ khoá tìm kiếm
+  content: >
+    Tìm kết quả dựa trên chủ đề và nội dung thông báo của yêu cầu cũng như là tất cả nội dung văn bản được liên kết với trường dữ liệu khách hàng cho người dùng và yêu cầu.
+adv_date_range:
+  title: Tìm kiếm theo dữ liệu ngày
+  content: >
+    Định nghĩa ở đây
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Reply Types
+  content: >
+    <b>Reply All:</b> This reply is sent to the User and the Collaborators you choose to include.</br> <b>Reply to User:</b> This reply is sent to the User only, no Collaborators.</br> <b>Do Not Email Reply:</b> No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.

@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Taaknummer opmaak
+  content: >
+    Deze instelling wordt gebruikt om zgn 'taaknummers' te genereren. Gebruik hekjes ('#') waar getallen moeten staan.<br><br>Bijvoorbeeld: voor 6 getallen, voer je in: <code>######</code>.
+sequence_id:
+  title: Taaknummer reeks
+  content: >
+    Kies een reeks ten behoeve van het toekennen van taaknummers. Het systeem heeft een opeenvolgende en een willekeurige reeks als standaard. Je kunt zoveel reeksen maken als je wenst.
+default_sla:
+  title: Standaard SLA
+  content: >
+    Kies de standaard 'Service Level Agreement' om in te stellen hoe lang een ticket mag open staan, voordat het de status 'overtijd' krijgt.
+  links:
+    - 
+      title: Maak meer SLA plannen
+      href: /scp/slas.php
+default_priority:
+  title: Standaardprioriteit
+  content: >
+    Kies een standaard <span class="doc-desc-title">prioriteit</span> voor opdrachten waarvan dat nog niet is ingesteld.
+task_attachment_settings:
+  title: Takenlijst bijlages
+  content: >
+    Configureer de instellingen voor het <span class="doc-desc-title">omschrijving</span> veld. Deze instellingen worden gebruikt voor alle nieuwe taken en berichten ongeacht de bron (websiteportaal, email enz enz).
+page_title:
+  title: Waarschuwingen en meldingen
+  content: >
+    Notificaties zijn automatische e-mailberichten die verstuurd worden naar agenten als er bepaalde omstandigheden worden gesignaleerd.
+task_alert:
+  title: Nieuwe taak melding
+  content: >
+    <p> Notificatie die verstuurd wordt aan agenten bij het aanmaken van een nieuwe taak.</p><p class="info-banner"> <i class="icon-info-sign"></i>Deze notificatie wordt niet verzonden als de taak reeds automatisch is toegekend.</p>
+  links:
+    - 
+      title: Standaard 'Nieuwe Taak'-notificatie opmaak
+      href: /scp/templates.php?default_for=task.alert
+activity_alert:
+  title: Nieuwe activiteit melding
+  content: >
+    Notificatie die wordt verstuurd aan agenten als er een nieuw bericht aan een taak is toegevoegd.
+  links:
+    - 
+      title: Standaard "nieuwe activiteit"-notificatie opmaak
+      href: /scp/templates.php?default_for=task.activity.alert
+assignment_alert:
+  title: Taak toewijzing melding
+  content: >
+    Notificatie die aan agenten wordt gestuurd bij het toekennen van een taak.
+  links:
+    - 
+      title: Standaard "Taak-toewijzing"-notificatie opmaak
+      href: /scp/templates.php?default_for=task.assignment.alert
+transfer_alert:
+  title: Taak overdracht melding
+  content: >
+    Notificatie die wordt verstuurd aan agenten als een taak van afdeling verhuist.
+  links:
+    - 
+      title: Standaard "taak-verhuis"-notificatie opmaak
+      href: /scp/templates.php?default_for=task.transfer.alert
+overdue_alert:
+  title: Taak te laat melding
+  content: >
+    Notificatie die aan agenten verstuurd wordt als een taak 'overtijd raakt, gebaseerd op de overeenkomst of de einddatum.
+  links:
+    - 
+      title: Standaard 'Hangende taak'-notificatie opmaak
+      href: /scp/templates.php?default_for=task.overdue.alert
+    - 
+      title: Sla's beheren
+      href: /scp/slas.php
+

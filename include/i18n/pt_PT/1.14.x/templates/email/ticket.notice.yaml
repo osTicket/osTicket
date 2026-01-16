@@ -1,0 +1,36 @@
+---
+#Email template: ticket.notice.yaml
+#Sent to a user when a staff member creates a ticket on the user's behalf.
+#This is most commonly performed when user's call in on the phone.
+#---
+notes: |
+  Enviado ao utilizador quando um dos membros do staff cria um novo ticket atribuido ao utilizador. Este procedimento acontece normalmente quando existe uma chamada telefónica por parte do utilizador.
+subject: |
+  %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Caro(a) %{recipient.name.first},</strong></h3>
+  A nossa equipa de apoio criou um pedido de assistência, <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> em seu nome, com o seguinte sumário e detalhes:
+  <br />
+  <br />
+  Tópico: <strong>%{ticket.topic.name}</strong>
+  <br />
+  Assunto: <strong>%{ticket.subject}</strong>
+  <br />
+  <br />
+  %{message}
+  <br>
+  <br>
+  %{response} 
+  <br /> 
+  <br />
+  Caso necessário, um representante entrará em contacto consigo logo que possível. Pode também <a href="%{recipient.ticket_link}">ver o progresso deste pedido online</a>.
+  <br />
+  <br />
+  <div style="color: rgb(127, 127, 127);">
+  A equipa do(a) %{company.name},<br />
+  %{signature}</div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Se pretender fornecer comentários ou informação adicional relativo a este assunto,
+   por favor responda a este e-mail ou <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >entre na sua conta</span></a> para um arquivo completo dos seus pedidos de assistência, se ativo.</em></div>

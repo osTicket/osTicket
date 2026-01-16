@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: メール テンプレート
+  content: >
+    メールテンプレートセットは、自動返信とチケットの開始から終了までに実行されるさまざまなアクションのアラートを送信するために使用されます。
+template_to_clone:
+  title: テンプレートの複製
+  content: >
+    複製するテンプレートセットを選択するか、標準メールテンプレートを使用して開始します。
+language:
+  title: 言語
+  content: >
+    <span class="doc-desc-opt">標準</span> <span class="doc-desc-title">メールテンプレートセットt</span>のデフォルト言語を選択します。 言語パックは、osTicket.com からダウンロードできます。
+  links:
+    - 
+      title: osTicket 言語パック
+      href: https://osticket.com/download
+status:
+  title: ステータス
+  content: >
+    <span class="doc-desc-opt">有効</span>なテンプレートセットは、部門に関連付けることができ、システムデフォルトに設定されます。現在使用中のテンプレートセットは<span class="doc-desc-opt">無効</span>にすることができません。

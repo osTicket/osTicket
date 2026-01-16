@@ -1,0 +1,24 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Yeni talep oluşturulduğunda kullanıcıya gönder.
+subject: |
+  Destek Talebi Açıldı [#%{ticket.number}]
+body: |
+  <h3><strong>Sayın %{recipient.name.first},</strong></h3>
+  <p>
+  #%{ticket.number} numaralı destek talebiniz oluşturuldu ve ilgili kişilere atandı.
+  Bir temsilcimiz en kısa sürede size yanıt verecektir. İsterseniz
+  <a href="%{recipient.ticket_link}">bu kaydın durumunu siteden takip edebilirsiniz</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  %{company.name} Ekibi,
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Eğer konuyla ilgili ek bilgi ya da yorum göndermek isterseniz, lütfen bu mesajı yanıtlayın ya da tüm destek taleplerinizin arşivini görmek için <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >hesabınıza giriş yapın.</span></a></em></div>

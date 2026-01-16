@@ -1,0 +1,72 @@
+---
+- 
+  #event.yaml
+  #Events initially inserted into the system.
+  #---
+  id: 1
+  name: aangemaakt
+  description:
+- 
+  id: 2
+  name: gesloten
+  description:
+- 
+  id: 3
+  name: heropend
+  description:
+- 
+  id: 4
+  name: toegekend
+  description:
+- 
+  id: 5
+  name: vrijgegeven
+  description:
+- 
+  id: 6
+  name: verhuisd
+  description:
+- 
+  id: 7
+  name: verwezen aan
+  description:
+- 
+  id: 15
+  name: achterstallig
+  description:
+- 
+  id: 9
+  name: bewerkt
+  description:
+- 
+  id: 10
+  name: bekeken
+  description:
+- 
+  id: 11
+  name: fout
+  description:
+- 
+  id: 12
+  name: collab
+  description:
+- 
+  id: 13
+  name: verstuur opnieuw
+  description:
+- 
+  id: 14
+  name: deleted
+  description:
+- 
+  id: 15
+  name: samengevoegd
+  description:
+- 
+  id: 16
+  name: unlinked
+  description:
+- 
+  id: 17
+  name: gekoppeld
+  description:

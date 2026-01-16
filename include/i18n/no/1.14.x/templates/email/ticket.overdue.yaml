@@ -1,0 +1,32 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Sendt til medarbeidere når en sak forfaller i systemet. Forfalte saker oppstår basert på sakens forfallsdato samt SLA som er definert.
+subject: |
+  Gammel sak varsel
+body: |
+  <h3><strong>Hei %{recipient}</strong>,</h3>
+  En sak, <a href="%{ticket.staff_link}">#%{ticket.number}</a> er
+  alvorlig forfalt.
+  <br>
+  <br>
+  Vi bør alle jobbe hardt for å garantere at alle saker er tatt opp i tide.
+  <br>
+  <br>
+  Signert,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>For å vise eller svare på en sak, vennligst <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logg inn</span></a> i støttesystemet. Du får denne beskjeden fordi
+  saken er tilordnet direkte til deg eller ett team/avdeling som du 
+  er medlem av.</div>
+  <em style="font-size: small">Vennlig hilsen ditt<span style="font-size: smaller"
+  >(med litt dårlig tolmodighet)</span> Støttesystem
+  </em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

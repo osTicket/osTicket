@@ -1,0 +1,84 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+number_format:
+  title: Formato do número da Tarefa
+  content: >
+    Esta configuração é utilizada para gerar números de tarefas. Utilize o símbolo de hash (`#`) onde dígitos devem ser colocados. Qualquer outro texto no formato de número será preservado. <br/><br/> Por exemplo, para números de 6 dígitos, utilize <code>######</code>.
+sequence_id:
+  title: Sequência de Número de Tarefa
+  content: >
+    Escolha uma sequência de onde devem ser derivados os números de tarefa. O sistema possui uma incrementação sequencial e uma incrementação aleatória por defeito. Poderá criar as sequências que desejar.
+default_sla:
+  title: SLA Padrão
+  content: >
+    Escolha o Sla padrão para gerenciar por quanto tempo uma tarefa pode permanecer Aberta antes de ser dada como Vencida.
+  links:
+    - 
+      title: Criar mais planos de SLA
+      href: /scp/slas.php
+default_priority:
+  title: Prioridade Padrão
+  content: >
+    Escolha a <span class="doc-desc-title">prioridade</span> padrão para tarefas que não tiveram prioridade atribuída automaticamente.
+task_attachment_settings:
+  title: Anexos da discussão de tarefa
+  content: >
+    Definir as configurações para arquivos anexados no campo de <span class="doc-desc-title">detalhes do problema</span>. Essas configurações são utilizadas para todas as novas tarefas e novas mensagens, independentemente do canal de origem (portal web, e-mail, api etc).
+page_title:
+  title: Alertas e Avisos
+  content: >
+    Alertas e avisos serão automatizados para notificações de e-mail enviadas para agentes quando vários eventos de tarefas são acionados.
+task_alert:
+  title: Alerta de Nova Tarefa
+  content: >
+    <p>Alerta enviado para os Agentes quando uma nova tarefa é criada. </p><p class="info-banner"><i class="icon-info-sign"></i> Este alerta não é enviado se a tarefa é auto-atribuída. </p>
+  links:
+    - 
+      title: Template padrão de Alerta de Nova Tarefa
+      href: /scp/templates.php?default_for=task.alert
+activity_alert:
+  title: Alerta de Atividade na Tarefa
+  content: >
+    Alerta enviado para os Agentes quando uma nova mensagem é acrescentada a uma tarefa existente.
+  links:
+    - 
+      title: Template de Alerta Padrão para Nova Atividade
+      href: /scp/templates.php?default_for=task.activity.alert
+assignment_alert:
+  title: Aviso de atribuição de tarefa
+  content: >
+    Alerta enviado aos Agentes na atribuição de tarefas.
+  links:
+    - 
+      title: Template de Alerta Padrão para Atribuição de Tarefa
+      href: /scp/templates.php?default_for=task.assignment.alert
+transfer_alert:
+  title: Aviso de transferência de tarefa
+  content: >
+    Alerta enviado aos agentes quando uma tarefa é transferida entre Departamentos.
+  links:
+    - 
+      title: Template de alerta padrão para Transferência de Tarefa
+      href: /scp/templates.php?default_for=task.transfer.alert
+overdue_alert:
+  title: Alerta de tarefas em atraso
+  content: >
+    Alerta enviado para agentes quando uma Tarefa vence com base no SLA ou na data de vencimento.
+  links:
+    - 
+      title: Template de Alerta Padrão para Tarefa Obsoleta
+      href: /scp/templates.php?default_for=task.overdue.alert
+    - 
+      title: Gerenciar os SLAs
+      href: /scp/slas.php
+

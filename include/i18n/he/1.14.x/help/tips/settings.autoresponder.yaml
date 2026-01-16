@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: כרטיס חדש
+  content: >
+    אשר זאת אם אתה רוצה שהלקוח יקבל התראה אוטומטית בעת פתיחה קריאה חדשה.
+  links:
+    - 
+      title: תבנית התראה אוטומטית בעת פתיחת קריאה 
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: קריאה חדשה על ידי הצוות
+  content: >
+    הערה נשלחה כאשר סוכן פתח קריאה בשם הלקוח <em>הסוכן יכול להתעלם מהערה זו בעת פתיחת קריאות חדשות</em>
+  links:
+    - 
+      title: תבנית הודעה על כרטיס חדש
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: הודעה חדשה התקבלה
+  content: >
+    הערת אישור נשלחה כאשר התקבלה הודעה חדשה בקריאה הנוכחית.
+  links:
+    - 
+      title: תבנית אישור ' הודעה חדשה '
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: התראת הודעה חדשה
+  content: >
+    ההודעה נשלחה לכל הנמענים הקשורים לקריאה הנוכחית.
+  links:
+    - 
+      title: תבנית "בתקדמות בתהליך הטיפול בקריאה"
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: הערת "עברת את מספר הקריאות המקסימלי ללקוח"
+  content: >
+    פתיחת הקריאה נדחתה נשלחה הערת <span class="doc-desc-title">"עברת את מכסת הקריאות למשתמש"</span> violation.
+  links:
+    - 
+      title: תבנית הערת "עברת את מספר הקריאות המקסימלי ללקוח"
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: הגדר<em>מספר קריאות מקסימלי למשתמש</em>
+      href: /scp/settings.php?t=כרטיס

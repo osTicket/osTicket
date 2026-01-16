@@ -1,0 +1,25 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: Co to jest osTicket (przykład)?
+  response: |
+    osTicket jest bardzo popularnym systemem opartym na wolnym oprogramowaniu służącym do obsługi spraw klientów, atrakcyjną alternatywą w porównaniu do drogich i skomplikowanych systemów obsługi klienta - prosty, lekki, solidny, oparty na wolnym oprogramowaniu, w pełni obsługiwany przez www oraz prosty w instalacji i obsłudze.
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: Gotowe załączniki rządzą!
+- 
+  isenabled: 1
+  title: Przykład (ze zmiennymi)
+  response: |
+    Witaj %{ticket.name.first},
+    <br>
+    <br>
+    Twoje zgłoszenie #%{ticket.number} utworzone %{ticket.create_date} znajduje się w departamencie %{ticket.dept.name}.
+  0: |
+

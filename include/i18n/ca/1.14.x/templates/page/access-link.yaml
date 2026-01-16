@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Aquesta plantilla defineix la notificació per a Clients als quals se'ls ha enviat al seu email un enllaç d'accés . El número de Ticket i l'adreça d'email activen l'enllaç d'accés.
+name: "Enllaç d'accés a Ticket [#%{ticket.number} #%]"
+body: >
+  <h3><strong>Hola %{recipient.name.first},</strong></h3> <div>S'ha demanat un de petició d'un link d'accés per al Ticket #%{ticket.number} s'ha presentat en el seu nom pel servei d'assistència a %{url}.<br /> <br  /> Segueixi el següent enllaç per consultar l'estat del Ticket #%{ticket.number}.<br /> <br /> <a href="%{recipient.ticket_link}"> %{recipient.ticket_link}</a> <br /> <br /> Si <strong>no</strong> ha fet la petició, si us plau, suprimixca i ometixca aquest e-mail. El seu compte és encara segur i ningú ha tingut accés al tiquet. Algú podria haver introduït per error la seua adreça d'email . <br /> <br /> --<br /> %{company.name} </div>

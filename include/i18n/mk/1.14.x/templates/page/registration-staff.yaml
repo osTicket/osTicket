@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Овој шаблон дефинира почетем емаил (опционално) испратен до агенти кога акаунтот е креиран во нивно име.
+name: "Добредојдовте на osTicket"
+body: >
+  <h3><strong>Здраво %{recipient.name.first},</strong></h3> <div> Ние направивме акаунт за вас на нашето биро за помош на %{url}.<br /> <br /> Ве молиме следете го линкот подолу за да го потврдите вашиот акаунт и да добиете пристап до тикетите.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Вашите пријателски корисници за поддршка на системот<br /> %{company.name}</em> </div>

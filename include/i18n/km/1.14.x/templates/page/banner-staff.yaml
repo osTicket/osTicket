@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  នេះគឺជាសារដំបូងនិងផ្ទាំងបដា បង្ហាញនៅលើទំព័របុគ្គលិក staff log in page។ field ទីមួយគឺសម្រាប់អត្ថបទណ៍ក្រហម។ field ទីពីរគឺសម្រាប់មាតិកាបដា ដែលគួរតែប្រើជាសេចក្តីអះអាង disclaimer ។
+name: "ការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវគឺត្រូវបានទាមទារ"
+body: ""

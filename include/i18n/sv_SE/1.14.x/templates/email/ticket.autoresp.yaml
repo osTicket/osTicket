@@ -1,0 +1,25 @@
+---
+#Email template: ticket.autoresp.yaml
+#Sent to a user when a new ticket is created
+#---
+notes: |
+  Skickas till en användare när ett nytt ärende skapas
+subject: |
+  Supportärende skapat [#%{ticket.number}]
+body: |
+  <h3><strong>Kära %{recipient.name.first},</strong></h3>
+  <p>
+  En önskan om hjälp har skapats och tilldelats #%{ticket.number}.
+  Någon i vårt gäng kommer att återkomma till dig så snart som möjligt. Du kan 
+  <a href="%{recipient.ticket_link}">följa utvecklingen i ärendet online</a>.
+  </p>
+  <br>
+  <div style="color: rgb(127, 127, 127)">
+  Supportpersonalen på %{company.name},
+  <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; "><em>Om du önskar lägga till kommentarer eller information i ärendet,
+  vänligen svara på detta e-postmeddelande eller <a href="%{recipient.ticket_link}"><span
+  style="color: rgb(84, 141, 212);" >logga in på ditt konto</span></a> för att se hela listan med dina ärenden.</em></div>

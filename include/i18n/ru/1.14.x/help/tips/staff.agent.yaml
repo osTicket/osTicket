@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Имя пользователя
+  content: >
+    Пожалуйста укажите уникальное <span class="doc-desc-title">имя</span> Сотрудника в Вашей <span class="doc-desc-title">Системе Заявок</span>.
+email_address:
+  title: Адрес email
+  content: >
+    Введите email Сотрудника который будет получать <span class="doc-desc-title">Оповещения и Уведомления</span> от <span class="doc-desc-title">Системы Заявок</span>.
+  0: <br><br>
+  1: Персонал может войти в панель управления персоналом с помощью имени пользователя или адреса электронной почты.
+welcome_email:
+  title: Письмо Приветствия
+  content: >
+    Отправляет новому Сотруднику ссылку для доступа к аккаунту с помощью которой сотрудник сможет установить собственный пароль. Если не отмечено, Вам необходимо установить пароль и информацию для входа сотрудника самостоятельно.
+account_password:
+  title: Пароль учетной записи
+  content: >
+    Как <span class="doc-desc-title">администратор</span>, Вы можете изменить пароль сотрудника.
+forced_password_change:
+  title: Принудительная смена пароля
+  content: >
+    Включите, если желаете чтобы новый сотрудник обязательно сменил пароль при следующем входе в систему.
+agents_signature:
+  title: Подпись Сотрудника
+  content: >
+    Создание подписи для Сотрудника, которая может быть выбрана при ответе на заявку.
+account_status:
+  title: Статус Учётной Записи
+  content: >
+    Если состояние Сотрудника <span class="doc-desc-opt">заблокирован</span>, он не сможет войти в службу поддержки.
+assigned_group:
+  title: Назначенные группы
+  content: >
+    Выбранная <span class="doc-desc-title">Группа</span> для этого Сотрудника определяет разрешения Сотрудника внутри <span class="doc-desc-title">Системы Заявок</span>.
+  links:
+    - 
+      title: Управление группами
+      href: /scp/groups.php
+primary_department:
+  title: Отдел по умолчанию
+  content: >
+    Выберите основной <span class="doc-desc-title">отдел</span> к которому принадлежит этот сотрудник и нужную <span class="doc-desc-title">роль</span>.
+  links:
+    - 
+      title: Управление Отделами
+      href: /scp/departments.php
+primary_role:
+  title: Основная роль
+  content: >
+    Выберите основной <span class="doc-desc-title">отдел</span> к которому принадлежит этот сотрудник.
+primary_role_on_assign:
+  title: Использовать основную роль для выполнения заявок
+  content: >
+    Включите эту опцию, чтобы возвратить <span class="doc-desc-title">основную роль</span>  когда этот сотрудник назначается к заявкам и задачам вне <span class="doc-desc-title">основного отдела</span> и <span class="doc-desc-title">расширенного доступа</span>. В противном случае сотрудник будет иметь доступ только для просмотра.
+daylight_saving:
+  title: Летнее Время
+  content: >
+    Включите эту функцию, если вы хотите, чтобы летнее время учитывалось в Часовом Поясе этого Сотрудника.
+limited_access:
+  title: Ограниченный доступ
+  content: >
+    Если этот параметр включен, Сотрудник получит доступ только к тем Заявкам, которые назначены напрямую или через Команду.
+directory_listing:
+  title: Список Каталогов
+  content: >
+    Включите это если вы хотите сделать этого Сотрудника видимым в <span class="doc-desc-title">Списке Сотрудников</span>.
+  links:
+    - 
+      title: Посетить Список Сотрудников
+      href: /scp/directory.php
+vacation_mode:
+  title: Режим Отпуска
+  content: >
+    Если изменить состояние сотрудника на <span class="doc-desc-opt"> Режим отдыха</span>, сотрудник не будет получать любые <span class="doc-desc-title">оповещения и уведомления</span> или быть доступным для назначения заявок.
+

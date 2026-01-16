@@ -1,0 +1,10 @@
+---
+#pwreset-client.yaml
+#Template of the email sent to clients when using the Forgot My Password
+#link on the login page
+#---
+notes: >
+  Denna mall anger innehållet i det e-postmeddelande som skickas till den kund som klickar på <strong>Glömt mitt lösenord</strong>-länken på login-sidan i kundportalen.
+name: "Ärendehanteringssystemet för %{company.name}"
+body: >
+  <h3><strong>Hej %{user.name.first},</strong></h3> <div> En önskan om återställning av lösenord har skickats för ditt konto på %{url}.<br /> <br /> Om du upplever att detta har gjorts felaktigt, vänligen radera eller bortse från detta meddelande. Ditt konto vilar säkert och ingen annan har fått tillgång till det. Det har inte heller låsts och ditt lösenord har inte återställts. Någon kan t ex ha råkat ange din e-postadress av misstag.<br /> <br /> Följ länken nedan för att logga in i ärendehanteringssystem och byta lösenord.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vänliga hälsningar från oss på supporten<br /> %{company.name}</em> </div>

@@ -1,0 +1,11 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+#---
+notes: >
+  此模板定义了通过确认账户客户注册成功后显示的内容。此页面应通知用户注册已完成且客户现可提交咨询或访问现有咨询。
+name: "账户已确认！"
+body: >
+  <div> <strong>感谢您完成账户注册。</strong><br /> <br />您已确认您的电子邮件地址且成功激活账户。您可继续打开新咨询或管理现有咨询。<br /> <br /> <em>您的友好支持中心</em><br /> %{company.name} </div>

@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: Екипи
+  content: >
+    Екипите са обединение на един или повече сътрудници, с цел възлагане на заявки. Членството в екипа може да се разпространяване извън рамките на определен отдел.
+status:
+  title: Статус
+  content: >
+    Ако е <span class="doc-desc-opt">забранено</span>, този екип няма да бъде на разположение за възлагане заявки, нито ще получава предупреждения &amp; уведомления за предишни възложения.
+lead:
+  title: Водач на екипа
+  content: >
+    <span class="doc-desc-title">Екип</span> може да има назначен водач, който може да получава <span class="doc-desc-title">предупреждения &amp; уведомления</span> отделно от останалите членовете.
+  links:
+    - 
+      title: Настройка на предупреждения &amp; уведомления
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: Предупреждение за възложение
+  content: >
+    Можете да изключите <span class="doc-desc-title">предупреждението за възлагане на заявка</span> за заявки, възложени на този екип.
+  links:
+    - 
+      title: Настройка на предупреждения &amp; уведомления
+      href: /scp/settings.php?t=alerts
+members:
+  title: Членове на екипа
+  content: >
+    Членството в екипа се настройва от профила на сътрудник.
+  links:
+    - 
+      title: Управление на служителите
+      href: /scp/staff.php

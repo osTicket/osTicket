@@ -1,0 +1,8 @@
+---
+#banner-staff.yaml
+#This is the initial message and banner shown on the staff login page
+#---
+notes: >
+  To jest wiadomość powitalna i baner wyświetlany na stronie logowania pracowników. Pierwsze pole odnosi się do tekstu napisanego na czerwono, który pojawia się na górze. Do drugiego pola wprowadza się informację, która powinna służyć jako zrzeczenie się pretensji/klauzula zrzeczenia się odpowiedzialności.
+name: "Wymagane uwierzytelnienie"
+body: ""

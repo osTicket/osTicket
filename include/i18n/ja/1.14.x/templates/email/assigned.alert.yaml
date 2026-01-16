@@ -1,0 +1,49 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  チケットにアサインされた場合スタッフのメンバー宛に送信されます。
+  チケットはシステムによる自動アサイン、もしくは他のスタッフメンバーによりアサインすることが出来ます。
+  アサインする人を区別する場合は%{assigner}パラメータを使ってください。
+subject: |
+  チケットにアサインされました。
+body: |
+  <h3><strong>Hi %{assignee.name.first},</strong></h3>
+   %{assigner.name.short}によってチケット <a href="%{ticket.staff_link}">#%{ticket.number}</a> にアサインされました。
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+  <td>
+  <strong>From</strong>:
+  </td>
+  <td>
+  %{ticket.name} &lt;%{ticket.email}&gt;
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <strong>件名</strong>:
+  </td>
+  <td>
+  %{ticket.subject}
+  </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>このチケットにレスする場合は、サポートチケットシステムへ<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >ログイン</span></a>してください。</div>
+  <em style="font-size: small; ">カスタマーサポートより</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Hjelpeemnets informasjon
+  content: >
+    <span class="doc-desc-title"> hjelpeemner</span> guide hvilke opplysninger samles inn fra brukere og hvordan saker er rutet eller tildelt.
+topic:
+  title: Emnenavnet
+  content: >
+    Unikt hjelpeemnet navn.
+status:
+  title: Status
+  content: >
+    Hvis deaktivert eller arkivert, vil dette <span class="doc-desc-title">Hjelpeemnet</span> ikke være tilgjengelig.
+type:
+  title: Type
+  content: >
+    Hvis et <span class="doc-desc-title"> Emne</span> er merket som privat, vil det bare være tilgjengelige for agenter å velge når en Agent åpner en ny sak under ansatte panelet.
+parent_topic:
+  title: Overordnede tema
+  content: >
+    Velg det overordnede emnet som dette <span class="doc-desc-title"> hjelpeemnet</span> skal tilhøre. Det overordnede emnet vises først i oppføringen med dette <span class="doc-desc-title"> hjelpeemnet</span> katalogiseret bak overordnet.
+custom_form:
+  title: Egendefinert skjema
+  content: >
+    Egendefinerte skjemaer vil hjelpe deg å skaffe mer spesifikk informasjon fra brukere som er relevante for dette <span class="doc-desc-title"> hjelpeemnet</span>.
+  links:
+    - 
+      title: Behandle egendefinerte skjemaer
+      href: /scp/forms.php
+priority:
+  title: Prioritet
+  content: >
+    Velg prioritet tilordnet nye saker relatert til dette <span class="doc-desc-title"> hjelpeemnet</span>. <br><br>saks-filtre kan overstyre ny saksprioritet.
+department:
+  title: Avdeling
+  content: >
+    Velg avdelingen som nye saker under dette hjelpeemnet rutes.
+  links:
+    - 
+      title: Administrer avdelinger
+      href: /scp/departments.php
+sla_plan:
+  title: SLA Plan
+  content: >
+    Velg SLA plan forbundet med dette <span class="doc-desc-title"> hjelpeemnet</span>. <br><br>Dette valget vil overstyre alle valgt avdelingens SLA plan
+  links:
+    - 
+      title: Administrere SLA planer
+      href: /scp/slas.php
+thank_you_page:
+  title: Takkeside
+  content: >
+    Velg takk siden som brukeren dirigeres til etter åpning av en sak under dette <span class="doc-desc-title"> hjelpeemnet</span>.
+  links:
+    - 
+      title: Administrere Takk sider
+      href: /scp/pages.php
+auto_assign_to:
+  title: Auto-tildele nye saker
+  content: >
+    Du kan også velge en Agent eller Team auto-tildele saker åpnet med dette <span class="doc-desc-title"> hjelpeemnet</span> <br><br>saks filtre kan overstyre tildeling.
+  links:
+    - 
+      title: Administrere ansatte og team
+      href: /scp/staff.php
+ticket_auto_response:
+  title: sak automatisk svar
+  content: >
+    Hvis merket, deaktiverer innstillingen nye saker auto-svar for dette <span class="doc-desc-title"> hjelpeemnet</span>. <br><br>Dette overstyrer autosvarer innstillingen for den <span class="doc-desc-title"> avdelingen</span> samt globale <span class="doc-desc-title"> autosvar-innstillinger</span>.
+  links:
+    - 
+      title: Autosvar-innstillinger
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Tilpass saksnummer
+  content: >
+    Velg "tilpass" her for å overstyre systemets standardiserte saksnummer format. Se hjelp og tips under Innstillinger / Saker-sidene for ytterligere detaljer omkring innstillingene.

@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Ansatte
+  content: >
+    Følgende tabell viser resultatene av filteret ovenfor. Hvis ingen filterinnstillingene blir valgt, så vises alle <span class="doc-desc-title"> Ansatte</span>, delt over flere sider. Se del-sider under for å se flere resultater.
+apply_filtering_criteria:
+  title: Bruk filtervilkårene
+  content: >
+    Velg en <span class="doc-desc-title"> avdeling</span> som er relevant for gjeldende tema. Du kan også utføre et søk for en spesifikk Agent.

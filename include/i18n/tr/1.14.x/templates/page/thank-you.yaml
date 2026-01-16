@@ -1,0 +1,22 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  Teşekkürler sayfası, kullanıcıların müşteri portalı üzerinden yeni bir talep
+  oluşturduğunda müşteri portalı üzerinde görüntülenen sayfadır.
+name: Teşekkürler
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  Bizimle iletişim kurduğunuz için teşekkür ederiz.
+  <br>
+  <br>
+  Destek talebi biletiniz oluşturuldu ve temsilcimiz en kısa sürede 
+  size geri dönüş sağlayacaktır.</p>
+  <br>
+  <br>
+  Destek Ekibi
+  </div>

@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Format Nama Pengguna
+  content: >
+    Pilih sebuah format untuk nama Pengguna melalui sistem. Template Email akan menggunakannya untuk nama jika tidak ada format yang ditentukan.
+#Authentication settings
+client_session_timeout:
+  title: Batas Waktu Sesi Pengguna
+  content: >
+    Pilih batas waktu maksimum ketidak aktifan (dalam menit) Pengguna untuk melakukan login kembali.<br><br>Untuk menonaktfikan <span class="doc-desc-title">Batas Waktu Sesi Pengguna</span>, masukkan nilai 0.
+registration_method:
+  title: Pilihan Registrasi
+  content: >
+    <span class="doc-desc-title">Metode Pendaftaran</span> dan <span class="doc-desc-title">Syarat Pendaftaran</span> digunakan bersama untuk mengatur bagaimana user mendaftar dan mengakses portal situs help desk anda. Tabel dibawah adalah ringkasan bagaimana kedua pengaturan tersebut akan ditafsirkan oleh sistem. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Syarat Pendaftaran</th> <th>Metode Pendaftaran</th> <th>Hasil</th></tr> <tr><td>Tidak</td><td>Publik</td> <td>Pendaftaran dianjurkan tapi tidak dibutuhkan untuk tiket baru.</td></tr> <tr><td>Iya</td><td>Publik</td> <td>Pendaftaran dan login dibutuhkan untuk tiket baru.</td></tr> <tr><td>Tidak</td><td>Pribadi</td> <td>Setiap orang bisa membuat tiket, tapi hanya agen yang dapat melakukan pendaftran akun.</td></tr> <tr><td>Iya</td><td>Pribadi</td> <td>Akses pengguna hanya melalui undangan.</td></tr> <tr><td>Tidak</td><td>Non aktif</td> <td>Tidak ada yang dapat melakukan pendaftaran, tapi semua dapat membuat tiket. <em>osTicket sebelum versi 1.9 berfungsi seperti ini</em></td></tr> <tr><td>Iya</td><td>Non aktfi</td> <td>Non aktifkan tiket baru via portal situs</td></tr> </tbody></table>
+client_verify_email:
+  title: Verifikasi Email Dibutuhkan
+  content: >
+    Nonaktifkan pilihan ini untuk memberikan pengguna akses langsung ke tiket melalui halaman login "Cek Status Tiket" pada portal klien. Jika diaktifkan (pengaturan standar), pengguna harus menerima email dan mengikuti tautan pada email untuk melihat tiket.<br><br>Menonaktfikan verifikasi email akan memungkinkan pihak ketiga (seperti tiket kolaborator) untuk menirukan pemilik tiket.
+allow_auth_tokens:
+  title: Aktifkan Token Otentikasi
+  content: >
+    Aktifkan pilihan ini untuk mengijinkan penggunaan otentikasi token ke login-otomatis pengguna pada saat klik link tiket.

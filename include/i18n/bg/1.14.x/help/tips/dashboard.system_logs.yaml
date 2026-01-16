@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: Системни записи
+  content: >
+    Това е място, където можете да информация за отстраняване на различни неизправности (например грешки, предупреждения или проблем в програмата).
+  links:
+    - 
+      title: Персонализиране на типа информация, която ще бъдат регистрирани чрез промяната на <br /><span class="doc-desc-title">нивото на системни записи по подразбиране</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: Времеви интервал
+  content: >
+    Изберете в календара времеви интервал, който искате да проследите за <span class="doc-desc-title">Системните записи</span>.
+type:
+  title: Тип
+  content: >
+    Изберете конкретно ниво на отчитане, за да се фокусирате върху определена дейност. <span class="doc-desc-opt">Дебъг</span> показва най-незначителните, а <span class="doc-desc-opt">Грешки</span> представляват най-сериозните.
+showing_logs:
+  title: Показване на&hellip; записи
+  content: >
+    Уверете се, че сте проверили раздел <span class="doc-desc-title">страница</span> по-долу, за да сте сигурни, че няма повече страници със системните записи за показване.
+log_title:
+  title: Заглавие на записа
+  content: >
+    Щракнете върху <span class="doc-desc-title">заглавие на записа</span> ако желаете да сортирате резултатите в съответствие с  <span class="doc-desc-title">заглавието на записа</span>.
+log_type:
+  title: Тип на записа
+  content: >
+    Щракнете върху <span class="doc-desc-title">тип на записа</span> ако желаете да сортирате резултатите в съответствие с  <span class="doc-desc-title">типа на записа</span>.
+log_date:
+  title: Дата на записа
+  content: >
+    Това е дата на записа, която е генерирана автоматично от системата. Ако искате да сортирате резултатите съобразено с <span class="doc-desc-title">датата на записа</span>, просто щракнете върху <span class="doc-desc-title">дата на записа</span>. (Използвайте <span class="doc-desc-title">времеви интервал</span> от формуляра по-горе, за да стесните времевия диапазон на записите.)
+ip_address:
+  title: IP адрес
+  content: >
+    Това се отнася до <span class="doc-desc-title">IP</span><span class="doc-desc-title"> адреса</span> на сътрудника или потребителя, който е използвал osTicket в момента, в който е възникнало събитието, записано в системния запис.

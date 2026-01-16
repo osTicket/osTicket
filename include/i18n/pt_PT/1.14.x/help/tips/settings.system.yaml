@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Estado do Helpdesk
+  content: >
+    Se mudar o estado para <span class="doc-desc-opt">Offline</span>, a interface de cliente será desativada. Apenas os Administradores poderão aceder ao sistema.
+helpdesk_url:
+  title: URL do Helpdesk
+  content: >
+    Este URL é a base da sua instalação do osTicket. É usado na comunicação por e-mail para direcionar os utilizadores finais para a assistência técnica.
+helpdesk_name_title:
+  title: Nome Helpdesk
+  content: >
+    Este é o título que aparece no browser/navegador. Caso adicione a página aos favoritos, este será o nome/título da página do site.
+default_department:
+  title: Departamento predefinido
+  content: >
+    Escolha um <span class="doc-desc-title">departamento</span> predefinido para os pedidos em que não é especificado um departamento.<br/><br/>O pedido pode ser reencaminhado com base no tópico de ajuda e filtros.
+default_schedule:
+  title: Agendamento Padrão
+  content: >
+    Escolha o agendamento a ser usado por este SLA ao colocar os tickets como vencidos.
+  links:
+    - 
+      title: Gerir agendamentos
+      href: /scp/schedules.php
+default_page_size:
+  title: Tamanho de página padrão
+  content: >
+    Escolha o número de itens exibidos por página nas Filas de Tickets no Painel de Pessoal. Cada Agente também pode personalizar este número para a sua própria conta em <span class="doc-desc-title"> Minhas Preferências</span>.
+default_log_level:
+  title: Nível de Log padrão
+  content: >
+    Determine o nível mínimo de questões que será gravado no <span class="doc-desc-title"> log do sistema</span>. <span class="doc-desc-opt"> Depurar</span> representa a menor gravidade, e <span class="doc-desc-opt"> Erro</span> representa a maior gravidade. Por exemplo, se você quiser ver todos os problemas nos <span class="doc-desc-title"> Logs do sistema</span>, escolha <span class="doc-desc-opt"> depurar</span>.
+purge_logs:
+  title: Limpar Logs
+  content: >
+    Defina por quanto tempo pretende manter os <span class="doc-desc-title">Logs de sistema</span>.
+enable_richtext:
+  title: Activar Rich Text
+  content: >
+    Se ativado, permite a utilização de RTF (rich text formatting) entre clientes e agentes.
+enable_avatars:
+  title: Ativar Avatares na Lista
+  content: >
+    Ative esta opção para mostrar <span class = " doc -desc - title"> Avatares </span> sobre a correspondência da discussão. <br> <br> O <span class = " doc -desc - title"> Avatar </span> pode ser definido nas páginas de configurações dos agentes e dos utilizadores.
+  links:
+    - 
+      title: Definições do Agente
+      href: /scp/settings.php?t=agents
+    - 
+      title: Definições do utilizador
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Evitar colisão de agentes
+  content: >
+    Digite o período máximo de tempo que um Agente tem permissão para realizar um bloqueio num bilhete ou tarefa sem qualquer atividade. <br><br> Digite <span class = " doc -desc -opt ">0</span > para desativar a funcionalidade de bloqueio.
+allow_iframes:
+  title: Permitir iFrames
+  content: >
+    Insira a lista separada por vírgulas de domínios para o sistema a ser emoldurado. Se for deixado vazio, o sistema irá definir como padrão 'self'. Isto aceita wildcards de domínio, esquema URL HTTP/HTTPS, e números de porta. <br><<br> <b>Exemplo:</b> <br> https://domain.tld, sub.domínio.tld:443, http://*.domínio.tld
+  links:
+    - 
+      title: Informações de sintaxe (host-source)
+      href: "https://developer.mozilla.org/pt-PT/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Lista de Controlo de Acessos)
+  content: >
+    Insira uma lista separada por vírgulas de endereços IP para permitir o acesso ao sistema. Há quatro opções para escolher a que painel(s) aplicar a LCA. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Aplicar Para</th> <th>Descrição</th></tr> <tr><td>Desabilitado</td> <td>Desactiva completamente o ACL.</td></tr> <tr><td>All</td> <td>Aplica o ACL a todos os Painéis. (ou seja, Portal do Cliente, Painel do Pessoal, Painel de Administração)</td></tr> <tr><td>Portal do Cliente</td> <td>Aplica ACL somente ao Portal do Cliente.</td></tr> <tr><td>Painel de Administração</td> <td>Aplica ACL somente ao Painel do Pessoal e Painel de Administração.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Opções data &amp; hora
+  content: >
+    As seguintes configurações definem as configurações padrão para a Data &amp; Hora para o help desk. Pode optar por usar os padrões para o local selecionado ou personalizar os formatos para atender às suas necessidades específicas. Consulte as string no formato UTI como uma referência para a personalização. As datas abaixo indicadas simplesmente demonstram o resultado dos valores correspondentes.
+  links:
+    - 
+      title: Ver a tabela de formatação da Data UTI
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Linguas do sistema
+  content: >
+    Escolha o idioma principal do sistema e, opcionalmente, idiomas secundários para que a interface seja multilingue para agentes e utilizadores.
+primary_language:
+  title: Linguagem primária do sistema
+  content: >
+    Conteúdo deste idioma é apresentado aos agentes e utilizadores se a sua preferência de idioma não esteja disponível actualmente. Inclui conteúdo da interface assim como conteúdo costumizado como por exemplo páginas de agradecimento e mensagens de email. <br/><br/> Este é o idioma para o qual versões não traduzidas do seu conteúdo devem ser redigidas.
+secondary_language:
+  title: Idiomas Secundários
+  content: >
+    Seleccione as preferências de idioma para os seus agentes e utilizadores. A interface estará disponível nestes idiomas e conteúdo costumizado, como por exemplo páginas de agradecimento e nomes dos tópicos de ajuda, serão traduzíveis para estes idiomas.
+#Attachments
+attachments:
+  title: Opções de Anexos e Armazenamento
+  content: >
+    Configurar como os anexos são armazenados.
+default_storage_bk:
+  title: Backend de Armazenamento de Ficheiros
+  content: >
+    Escolha o modo de armazenamento dos anexos. <br /><br /> Podem ser adicionados "backends" de armazenamento através da instalação de plug-ins de armazenamento
+max_file_size:
+  title: Tamanho máximo do ficheiro
+  content: >
+    Seleccione um tamanho máximo para os anexos carregados pelos agentes. Inclui anexos padrão, artigos das Perguntas Frequentes e anexos para pedidos e respostas de tarefas. O limite superior é controlado pela configuração <code>upload_max_filesize</code> do PHP.
+  links:
+    - 
+      title: Definições do PHP ini
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Login Necessário
+  content: >
+    Ative esta definição para proibir anexos a utilizadores não autenticados. Ou seja, os utilizadores devem entrar no sistema (ambos utilizadores finais e agentes) para visualizar anexos. <br> <br> De uma perspectiva de segurança, esteja ciente de que o navegador do utilizador pode reter arquivos previamente visualizados em cache. Além disso, todos os links de ficheiros no seu helpdesk expiram automaticamente após cerca de 24 horas.

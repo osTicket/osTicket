@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: پاسخ آماده
+  content: >
+    ایجاد یک <span class="doc-desc-title">پاسخ آماده</span> که می تواند در پاسخ هر درخواست گنجانده شود.  در واقع، شما می توانید هر تعداد از <span class="doc-desc-title">پاسخ های آماده</span> را که می خواهید در پاسخ یک درخواست بگنجانید. همچنین این پاسخ آماده می توان در <span class="doc-desc-title">پاسخ خودکار</span> قابل تنظیم در بخش <span class="doc-desc-title">فیلتر درخواست</span> گنجاند.
+  links:
+    - 
+      title: راه اندازی فیلتر درخواست
+      href: /scp/filters.php
+canned_attachments:
+  title: پاسخ آماده  پیوست
+  content: >
+    فایل هایی را که می خواهید به صورت خودکار در پاسخ درخواستی گنجانده شود که از این <span class="doc-desc-title">پاسخ آماده</span> جدید استفاده کرده پیوست نمایید. 

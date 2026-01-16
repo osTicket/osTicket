@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  ផ្ញើទៅឱ្យបុគ្គលិកពេលសំបុត្រមួយត្រូវបានផ្ដល់ទៅឱ្យពួកគេ។សំណុំរឿងអាចត្រូវបានផ្ដល់ដោយស្វ័យប្រវត្តិដោយប្រព័ន្ធឬដោយដៃដោយសមាជិកបុគ្គលិកផ្សេងទៀត។ប្រើ %{assigner} ដើម្បីសម្គាល់អ្នក ដែលត្រូវបានធ្វើកិច្ចការនេះ។
+subject: |
+  ករណីដែលបានផ្ដល់ទៅឱ្យអ្នក
+body: |
+  <h3><strong>សួស្តី %{assignee.name.first},</strong></h3>
+  ករណី <a href="%{ticket.staff_link}">#%{ticket.number}</a> ត្រូវបានផ្ដល់ទៅអ្នកដោយ %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>ពី</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>ប្រធានបទ</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>ដើម្បីមើល / ឆ្លើយតបទៅនឹងសំបុត្រនេះទេសូម <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> ទៅប្រព័ន្ធករណីនេះ</div>
+  <em style="font-size: small; ">ប្រព័ន្ធផ្តល់ជំនួយដល់អតិថិជនរបស់អ្នក</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

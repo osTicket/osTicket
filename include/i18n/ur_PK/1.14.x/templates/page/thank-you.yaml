@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  یہ سانچہ کلائنٹ پورٹل میں ایک نئی ٹکٹ جمع کرانے کے بعد شکریہ کے صفحے پر دکھائے جانے والے مواد کی وضاحت کرتا ہے.
+name: آپ کا شکریہ
+body: |
+  <div>%{ticket.name},
+  <br>
+  <br>
+  ہم سے رابطہ کرنے کا شکریہ.
+  <br>
+  <br>
+  ایک سپورٹ ٹکٹ کی درخواست تیار کی گئی ہے اور نمائندہ اگر ضروری ہو تو جلد ہی آپ سے رابطہ کرے گا۔</p>
+  <br>
+  <br>
+  سپورٹ ٹیم
+  </div>

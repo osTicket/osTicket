@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informazioni del Contatto
+  0: >
+
+username:
+  title: Nome utente
+  content: >
+    Solo gli agenti con lo status di Admin possono cambiare un nome utente. Se sei un agente con privilegi di amministratore, è possibile eseguire questa operazione selezionando un agente per modificare la tabella <span class="doc-desc-title">Staff Members</span>.
+  links:
+    - 
+      title: 'Avendo effettuato l''accesso come amministratore: cambiare un nome utente'
+      href: /SCP/staff.php
+time_zone:
+  title: Fuso orario
+  0: >
+
+daylight_saving:
+  title: Imposta l'Ora Legale
+  0: >
+
+maximum_page_size:
+  title: Massima dimensione della pagina
+  0: >
+
+auto_refresh_rate:
+  title: Frequenza di aggiornamento automatico
+  0: >
+
+default_signature:
+  title: Firma predefinita
+  0: >
+
+default_paper_size:
+  title: Formato carta predefinito
+  0: >
+
+show_assigned_tickets:
+  title: Mostra i ticket assegnati
+  content: >
+    <p> Haibilite rit lem otio vera overscribitta le set globe per hid asigne tickle pel de abriuto assegottii remoccoli. </p> <p class="info-banner"> <i class="icon-info-sign"> </i> Leit otio se omly desponible saro exclusiv globellitto mucho ticklet. </p>
+password:
+  title: Password
+  0: >
+
+current_password:
+  title: Password attuale
+  0: >
+
+new_password:
+  title: Nuova Password
+  0: >
+
+confirm_new_password:
+  title: Conferma nuova Password
+  0: >
+
+signature:
+  title: Firma
+  content: >
+    Creare una <span class="doc-desc-title"> firma</span> facoltativa da inserire alla fine della tua risposte al ticket. Se questa <span class="doc-desc-title"> firma</span> viene visualizzata, o no, dipende dal <span class="doc-desc-title"> Modello Email</span>scelto come biglietto di risposta.
+  links:
+    - 
+      title: Creare modelli di messaggi di posta elettronica nel pannello di amministrazione
+      href: /scp/templates.php

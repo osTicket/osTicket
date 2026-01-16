@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    Om inaktiv eller arkiverad, kommer inte <span class="doc-desc-title">Avdelning</span> finnas tillgängligt.
+type:
+  title: Typ
+  content: >
+    Välj <span class="doc-desc-opt">Privat</span> om du vill dölja tilldelningar till den här avdelningen i klientportalen.  Dessutom när märkt som <span class="doc-desc-opt">Privat</span>, så kommer inte <span class="doc-desc-title">avdelnings signaturen</span> att visas i e-post svaren. <br/><br/> Åtminstone en avdelning måste vara <span class="doc-desc-opt">Publik</span>
+email:
+  title: Email
+  content: >
+    Handläggares e-postadress som används i svaren till ärenden.
+template:
+  title: Mall-paket
+  content: >
+    E-post <span class="doc-desc-title">Mall-paket</span> som används för Automatiska svar och Varningar &amp; Meddelanden för ärenden som dirigeras till den här avdelningen.
+  links:
+    - 
+      title: Administrera mallar
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Tjänstenivåavtal (SLA) för ärenden som dirigeras till denna avdelning.
+  links:
+    - 
+      title: Hantera SLA-regler
+      href: /scp/slas.php
+schedule:
+  title: Schema
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Hantera scheman
+      href: /scp/schedules.php
+manager:
+  title: Avdelningschef
+  content: >
+    Välj  <span class="doc-desc-title">ansvarig</span> för den här avdelningen. <br/><br/> Chefer kan konfigureras att mottaga specialla varingar och också få rättighet att ta bort tilldelade ärenden.
+  links:
+    - 
+      title: Administrera Varningar &amp; meddelanden
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Mottagare av Varningar &amp; meddelanden
+  content: >
+    Välj mottagare av <span class="doc-desc-title">Varningar &amp; Meddelanden</span>.
+  links:
+    - 
+      title: Konfigurera Varningar &amp; Meddelanden
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Begränsa tilldelning av ärenden
+  content: >
+    Avgör om ärenden kan bli tilldelade till alla handläggare, handläggare med primär eller utökad avdelningsåtkomst, eller endast handläggare med primär avdelningsåtkomst.
+disable_auto_claim:
+  title: Inaktivera automatiskt anspråk
+  content: >
+    Markera det här för att <strong>inaktivera</strong> automatiskt anspråk vid svar för denna avdelning. <br><br> Handläggare kan fortfarande manuellt göra anspråk på otilldelade ärenden
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Autosvars-inställningar
+  content: >
+    Detta gör att du kan åsidosätta de globala inställningar för auto-svar gällande den här avdelningen.
+new_ticket:
+  title: Autosvar för nytt ärende
+  content: >
+    Du kan inaktivera Autosvar som skickas till användaren när ett nytt ärende skapas och skickas till den här avdelningen.
+new_message:
+  title: 'Nytt meddelande: Autosvar'
+  content: >
+    Du kan inaktivera att Autosvar skickas till användaren för att bekräfta ett nygjort meddelande i ärendet för den här avdelningen.
+auto_response_email:
+  title: 'Autosvar: Epost'
+  content: >
+    Välj en e-postadress som Autosvar skickas ifrån för denna avdelning.
+department_access:
+  title: Gruppbehörighet
+  content: >
+    Tillåt handläggare från andra avdelningar att komma åt denna avdelnings ärenden.
+department_signature:
+  title: Avdelningssignatur
+  content: >
+    Signatur görs tillgänglig som ett val för <span class="doc-desc-opt">Publik</span> Avdelning, för handläggarsvar.

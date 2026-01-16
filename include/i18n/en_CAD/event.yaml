@@ -1,0 +1,73 @@
+#
+# event.yaml
+#
+# Events initially inserted into the system.
+#
+---
+- id: 1
+  name: created
+  description:
+
+- id: 2
+  name: closed
+  description:
+
+- id: 3
+  name: reopened
+  description:
+
+- id: 4
+  name: assigned
+  description:
+
+- id: 5
+  name: released
+  description:
+
+- id: 6
+  name: transferred
+  description:
+
+- id: 7
+  name: referred
+  description:
+
+- id: 8
+  name: overdue
+  description:
+
+- id: 9
+  name: edited
+  description:
+
+- id: 10
+  name: viewed
+  description:
+
+- id: 11
+  name: error
+  description:
+
+- id: 12
+  name: collab
+  description:
+
+- id: 13
+  name: resent
+  description:
+
+- id: 14
+  name: deleted
+  description:
+
+- id: 15
+  name: merged
+  description:
+
+- id: 16
+  name: unlinked
+  description:
+
+- id: 17
+  name: linked
+  description:

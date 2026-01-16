@@ -24,7 +24,7 @@ $sort_options = array(
 $queue_columns = array(
         'number' => array(
             'width' => '8%',
-            'heading' => __('Number'),
+            'heading' => __('#'), // osta
             ),
         'ticket' => array(
             'width' => '16%',
@@ -152,7 +152,7 @@ $tasks->annotate(array(
     ),
 ));
 
-$tasks->values('id', 'number', 'created', 'staff_id', 'dept_id', 'team_id',
+$tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
         'staff__firstname', 'staff__lastname', 'team__name',
         'dept__name', 'cdata__title', 'flags', 'ticket__number', 'ticket__ticket_id');
 // Apply requested quick filter
@@ -289,8 +289,10 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
         <input type="hidden" name="a" value="search">
         <input type="hidden" name="search-type" value=""/>
         <div class="attached input">
+            <!--osta-->
             <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
-                   autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+                   placeholder="<?php echo __('Search Tasks'); ?>" 
+                   size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
                    autocomplete="off" autocorrect="off" autocapitalize="off">
             <button type="submit" class="attached button"><i class="icon-search"></i>
             </button>
@@ -308,7 +310,16 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                 title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
                 $results_type.$showing; ?></a></h2>
         </div>
+                     
         <div class="pull-right flush-right">
+<!--osta-->		
+		
+		<div id="add-task-mobile">
+			<span class="action-button">
+				<a class="newTicket new-task" href="#tasks/add" title="Open a New Task" id="new-task" data-dialog-config='{"size":"large"}'><i class="icon-share"></i></a>		
+			</span>
+        </div> 			
+         					
            <?php
            if ($count)
                 echo Task::getAgentActions($thisstaff, array('status' => $status));
@@ -370,10 +381,10 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             $assinee ='';
             if ($T['staff_id']) {
                 $staff =  new AgentsName($T['staff__firstname'].' '.$T['staff__lastname']);
-                $assignee = sprintf('<span class="Icon staffAssigned">%s</span>',
+                $assignee = sprintf('<div class="Icon staffAssigned">%s</div>',
                         Format::truncate((string) $staff, 40));
             } elseif($T['team_id']) {
-                $assignee = sprintf('<span class="Icon teamAssigned">%s</span>',
+                $assignee = sprintf('<div class="Icon teamAssigned">%s</div>',
                     Format::truncate(Team::getLocalById($T['team_id'], 'name', $T['team__name']),40));
             }
 
@@ -391,12 +402,12 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                     if ($ids && in_array($T['id'], $ids))
                         $sel = true;
                     ?>
-                <td align="center" class="nohover">
-                    <input class="ckb" type="checkbox" name="tids[]"
-                        value="<?php echo $T['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                <td align="center" class="nohover"><!--osta-->
+                    <p class="checkbox"><input class="ckb" type="checkbox" name="tids[]"
+                        value="<?php echo $T['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>><label></label></p>
                 </td>
                 <?php } ?>
-                <td nowrap>
+                <td nowrap class="task-number">
                   <a class="preview"
                     href="tasks.php?id=<?php echo $T['id']; ?>"
                     data-preview="#tasks/<?php echo $T['id']; ?>/preview"
@@ -408,21 +419,17 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                     ><?php echo $T['ticket__number']; ?></a></td>
                 <td align="center" nowrap><?php echo
                 Format::datetime($T[$date_col ?: 'created']); ?></td>
-                <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+                <td><div class="wrap"><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tasks.php?id=<?php echo $T['id']; ?>"><?php
-                    echo $title; ?></a>
+                    echo $title; ?></a></div><div class="tasks-icons">
                      <?php
                         if ($threadcount>1)
-                            echo "<small>($threadcount)</small>&nbsp;".'<i
-                                class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
-                        if ($T['collab_count'])
-                            echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
-                        if ($T['attachment_count'])
-                            echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
-                    ?>
+                            echo "<small>$threadcount</small>&nbsp;".'<i
+                                class="icon-fixed-width icon-comments-alt"></i>';
+                    ?></div><!--osta-->
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::truncate($dept, 40); ?></td>
-                <td nowrap>&nbsp;<?php echo $assignee; ?></td>
+                <td nowrap><!--osta--><?php echo Format::truncate($dept, 40); ?></td>
+				<td nowrap><div class="wrap"><?php echo $assignee; ?></div></td>
             </tr>
             <?php
             } //end of foreach
@@ -432,7 +439,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="7"><!--osta-->
             <?php if($total && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
@@ -447,9 +454,32 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
      </tr>
     </tfoot>
     </table>
+        <!--osta-->
+	<script>
+	if ( ($("#msg_info" ).length) || ($("#msg_notice" ).length) || ($("#msg_warning" ).length) || ($("#msg_error" ).length) ) {
+		$(".attached.input").addClass("move-search"); //move search when msg displayed
+	}
+	function myFunction(x) {
+	  if (x.matches) { // If media query matches
+		$( "tbody tr" ).wrapInner( "<label></label>");
+		
+		$('tr').each(function() {
+			var $this = $(this),
+				$href = $this.find('div.tasks-icons'),
+				$target = $this.find('td.task-number');
+			$href.appendTo($target);
+		});
+	  } else {
+		;
+	  }
+	}
+	var x = window.matchMedia("(max-width: 760px)")
+	myFunction(x) // Call listener function at run time
+	x.addListener(myFunction) // Attach listener function on state changes	
+	</script>
     <?php
     if ($total>0) { //if we actually had any tasks returned.
-        echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
+        echo '<div id="table-foot-options">&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
                         'a' => 'export', 'h' => $hash,
@@ -481,7 +511,8 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 </div>
 <script type="text/javascript">
 $(function() {
-
+    console.log("HERE" );
+    $(document).on('click', '*', function(e) {console.log( "CLICKED:", e ) })
     $(document).off('.new-task');
     $(document).on('click.new-task', 'a.new-task', function(e) {
         e.preventDefault();

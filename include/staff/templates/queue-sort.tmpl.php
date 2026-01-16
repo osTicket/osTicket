@@ -16,8 +16,8 @@ elseif (strpos($_GET['sort'], 'qs-') === 0) {
 }
 
 ?>
-
-<span class="action-button muted" data-dropdown="#sort-dropdown"
+<!--osta-->
+<span class="action-button muted" data-placement="bottom" data-dropdown="#sort-dropdown"
   data-toggle="tooltip" title="<?php
     if (is_object($queuesort)) echo Format::htmlchars($queuesort->getName()); ?>">
   <i class="icon-caret-down pull-right"></i>

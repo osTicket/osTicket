@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Pages
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+site_pages:
+  title: Saidi leheküljed
+  content: >
+    Saidi leheküljed on kui mini sisuhaldus tarkvara (CMS). Sa saad defineerida mitmeid avalehti, offlain -ja tänulehekülje ning seadistada neid ettevõtte seadetes ja abiteemas.
+  links:
+    - 
+      title: Ettevõtte seaded
+      href: /scp/settings.php?t=pages
+type:
+  title: Tüüp
+  content: >
+    <span class="doc-desc-opt">Offline</span> lehekülge näidatakse kliendi portaalis, kui kasutajatugi pole kättesaadav. <span class="doc-desc-opt">Avalehte</span> kuvatakse Sinu kliendi portaali kodulehel. <span class="doc-desc-opt">Aitähh</span> lehti kuvatakse, kui klient registreerib pileti. <span class="doc-desc-opt">Teisi</span> lehti saab kasutada kui lihtsalt sisuhalduse süsteemi (CMS).

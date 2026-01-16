@@ -1,0 +1,10 @@
+---
+#access-link.yaml
+#Ticket access link sent to clients for guest-only systems where the ticket
+#number and email address will trigger an access link sent via email
+#---
+notes: >
+  Denne malen definerer varsel til klienter om at tilgang linken ble sendt til deres e-post. Sak og e-postadresse gir tilgangs linken.
+name: "Sak [#%{ticket.number}] tilgangs lenke"
+body: >
+  <h3><strong>Hei %{recipient.name.first},</strong></h3> <div>En tilgangsforespørsel for sak #%{ticket.number} er sendt på dine vegne for brukerstøtten hos %{url}.<br/> <br/> Følg linken nedenfor for å kontrollere statusen for sak #%{ticket.number}.<br/> <br/> <a href="%{recipient.ticket_link}"> %{recipient.ticket_link}</a> <br/> <br/> Hvis du <strong>ikke</strong> foretar forespørselen, slett og ignorere denne eposten. Kontoen er fortsatt sikker og ingen har fått tilgang til saken. Noen kan ha feilaktig brukt din e-postadresse. <br/> <br/>-<br/> %{company.name}</div>

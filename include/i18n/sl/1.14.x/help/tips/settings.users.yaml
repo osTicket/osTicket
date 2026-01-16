@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Format imena za ime uporabnika
+  content: >
+    Izberi format imen za uporabnike v sistemu. Predloge e-pošte jih bodo uporabile za imena, če ni določen drug format.
+#Authentication settings
+client_session_timeout:
+  title: Pretekla seja uporabnika
+  content: >
+    Izberite maksimalen čas nedejavnosti (v minutah) preden bo zahtevana ponovna prijava uporabnika. <br><br> Če želite onemogočiti <span class="doc-desc-title"> Pretečena seja uporabnika</span>, vnesite 0.
+registration_method:
+  title: Možnosti prijave
+  content: >
+    <span class="doc-desc-title">Metoda registracije</span> in <span class="doc-desc-title">Zahtevana registracija</span> sta uporabljeni skupaj, da nastavimo kako se uporabniki registrirajo in kako dostopajo spletni portal mize pomoči. Spodnja tabela povzema kako ti dve nastavitvi funkcionirata v sistemu. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Zahtevana registracija</th> <th>Metoda registracije</th> <th>Rezultat</th></tr> <tr><td>Ne</td><td>Javno</td> <td>Registracija zaželjena, ni pa obvezna za nov zahtevek.</td></tr> <tr><td>Da</td><td>Javno</td> <td>Registracija in prijava sta obvezni za nove zahteveke</td></tr> <tr><td>Ne</td><td>Javno</td> <td>Kdorkoli lahko ustvari nov zahtevek, vendar samo zastopniki lahko registrirajo račune</td></tr> <tr><td>Da</td><td>Javno</td> <td>Dostop uporabnika samo s povabilom</td></tr><tr><td>Ne</td><td>Onemogočeno</td> <td>Nihče ne more registrirati računa, toda vsi lahko ustvarijo zahtevek. <em>To je kako je osTicket funkcioniral pred verzijo 1.9</em></td></tr><tr><td>Da</td><td>Onemogočeno</td> <td>Onemogočite nove zahtevke preko spletnega portala</td></tr> </tbody></table>
+client_verify_email:
+  title: Zahtevana verifikacija email naslova
+  content: >
+    Onemogočite to možnost, če želite vašemu uporabniku dati takojšen dostop do zahtevkov preko "Preveri status zahtevka" prijavne strani v portalu stranke. Če je omogočen (kar je privzeto), bodo uporabniki morali prejeti email sporočilo in slediti povezavi v email sporočilu, da bodo lahko videli zahtevek. <br><br> Onemogočanje preverjanje email naslova lahko omogoči tretjim osebam (k.n. sodelavci zahtevka), da se predstavljajo kot lastniki zahtevka.
+allow_auth_tokens:
+  title: Omogoči authentifikacijske žetone
+  content: >
+    Omogoči to opcijo, da dovoliš uporabnikom uporabo athentifikacijskih žetonov za avtomatsko prijavo preko povezave v e-pošti.

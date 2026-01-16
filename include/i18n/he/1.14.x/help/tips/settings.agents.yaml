@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: עיצוב שם סוכן
+  content: >
+    בחר תבנית עבור שמות סוכנים בכל המערכת. תבניות דוא"ל תשתמשנה בו לשמות אם אין פורמט אחר מצוין.
+staff_identity_masking:
+  title: זיהוי צוות
+  content: >
+    אם זה מאושר, שם הסוכן המטפל יוסתר מהלקוח.
+#Authentication settings
+password_reset:
+  title: מדיניות תפוגת סיסמה
+  content: >
+    מגדיר את התדירות (בחודשים) סוכנים יידרשו לשנות את הסיסמה שלהם. אם מושבת (מוגדר "אין תפוגה"), סיסמאות לא יפוג.
+password_expiration_policy:
+  title: מדיניות תפוגת סיסמה
+  content: >
+    בחר כמה תדיר סוכנים יחויבו לשנות את סיסמתם. אם כבוי (כלומר, <span class="doc-desc-opt">ללא תפוגה</span>), סיסמתם לא תפוג.
+allow_password_resets:
+  title: אפשר החלפת סיסמא
+  content: >
+    הפעילו את התוכנה הזו אם אתה רוצה להציג את
+     <span class="doc-desc-title">שכחתי את הסיסמה</span> על הקישור <span class="doc-desc-title">דף כניסה צוות</span> לאחר ניסיון כניסה ללא הצלחה.
+reset_token_expiration:
+  title: חלון איפוס סיסמה
+  content: >
+    בחר את משך הזמן (בדקות) עבורו <span class="doc-desc-title">אות החלפת הסיסמא</span> יהיה תקף. כאשר סוכן יבקש <span class="doc-desc-title">החלפת סיסמא</span>, ישלח אליהם בדוא"ל אות אשר יאפשר להחלפה להתבצע.
+staff_session_timeout:
+  title: הפסקת session של סוכן
+  content: >
+    בחר את משך הזמן המרבי סרק (בדקות) לפני סוכן נדרש להתחבר שוב. <br><br>אם אתה רוצה להשבית<span class="doc-desc-title">פסקי זמן הפעלת סוכן
+    </span>, הקש 0.
+bind_staff_session_to_ip:
+  title: צרף session סוכן ל-IP
+  content: >
+    הפעל זאת אם אתה רוצה סוכן שיזכור ידי ה- IP הנוכחי שלהם על התחברתי. <br><br> הגדרה זו אינה מומלצת למשתמשים להקצות כתובות IP באופן דינמי.

@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Yeni Talep
+  content: >
+    Yeni talep oluşturulduğunda Kullanıcıya otomatik mesaj için bunu etknleştirin.
+  links:
+    - 
+      title: Yeni Talep Otomatik Yanıtlama Şablonu
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Personel Tarafından Yeni Talep Girişi
+  content: >
+    Temsilci Kullanıcı adına talep oluşturduğunda uyarı gönderilir.  <em>Temsilci yeni bir talep oluşturuken bu ayarı çiğneyebilir.</em>
+  links:
+    - 
+      title: Yeni Talep Bildirim Taslağı
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Yeni Mesaj Doğrulaması
+  content: >
+    Varolan bir talebe yeni bir mesaj eklendiğinde gönderilen onay bildirimi.
+  links:
+    - 
+      title: Yeni Mesaj Doğrulama Taslağı
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Yeni Mesaj Bildirimi
+  content: >
+    Gelen mesajı talebin diğer bütün katılıcımlılarına iletir.
+  links:
+    - 
+      title: Yeni Etkinlik Bildirim Şablonu
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Limitaşımı Bildirimi
+  content: >
+    <span class="doc-desc-title">Maksimum Açık Talep</span> sayısı aşıldığında Kullanıcıya talep red bildirimi gönderilir.
+  links:
+    - 
+      title: Limit Aşımı Bilgilendirme Şablonu
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: <em>Maksimum Açık Talep</em> sayısını belirtin
+      href: /scp/settings.php?t=tickets

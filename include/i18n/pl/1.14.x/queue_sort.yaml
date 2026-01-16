@@ -1,0 +1,34 @@
+---
+- 
+  #Columns are not necessary and a default list is used if no columns are
+  #specified.
+  #Fields:
+  #id:
+  #---
+  id: 1
+  name: Priorytet + Ostatnio uaktualnione
+  columns: 'Priorytet + Data aktualizacji'
+- 
+  id: 2
+  name: Priorytet + Ostatnio Utworzone
+  columns: 'Priorytet + Data utworzenia'
+- 
+  id: 3
+  name: Priorytet + Termin wykonania
+  columns: 'Priorytet + Termin wykonania'
+- 
+  id: 4
+  name: Termin wykonania
+  columns: 'Termin wykonania'
+- 
+  id: 5
+  name: Data zakończenia
+  columns: 'Data zamknięcia'
+- 
+  id: 6
+  name: Data utworzenia
+  columns: 'Data utworzenia'
+- 
+  id: 7
+  name: Data aktualizacji
+  columns: 'Data aktualizacji'

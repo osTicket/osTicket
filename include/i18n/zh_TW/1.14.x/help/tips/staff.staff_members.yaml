@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Staff Members
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: 工作人員
+  content: >
+    以下表格顯示篩選後的結果。如果沒有設定篩選值，則分頁顯示所有<span class="doc-desc-title">專員</span>（工作人員）<span class="doc-desc-title">成員</span>。拜訪以下頁面瀏覽更多結果。
+status:
+  title: 狀態
+  content: >
+    無論<span class="doc-desc-title">專員</span>是否鎖定、啟用或啟用（休眠），都顯示结果。

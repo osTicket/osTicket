@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: Standar Kumpulan Contoh Email
+  content: >
+    Pilih <span class="doc-desc-title">Kumpulan Contoh Email</span> yang akan digunakan untuk mengirim <span class="doc-desc-title">Respon-Otomatis</span> dan <span class="doc-desc-title">Sinyal</span> untuk beberapa aksi yang berlangsung selama siklus Tiket.<br><br>Masing-masing Departemen dapat menetapkan Kumpulan Contoh Email tersendiri.
+  links:
+    - 
+      title: Atur Kumpulan Contoh Email
+      href: /scp/templates.php
+default_system_email:
+  title: Standar Email Keluar
+  content: >
+    Pilih alamat email dimana email keluar dikirim.<br><br> <span class="doc-desc-title">Departemen</span> dapat mengatur <span class="doc-desc-title">alamat email</span> tersendiri yang akan menimpa alamat email yang diatur disini.
+  links:
+    - 
+      title: Atur Alamat Email
+      href: /scp/emails.php
+default_alert_email:
+  title: Standar Peringatan Email
+  content: >
+    Pilih alamat email dimana <span class="doc-desc-title">Sinyal &amp; Pemberitahuan</span> dikirim ke Agen.
+  links:
+    - 
+      title: Atur Alamat Email
+      href: /scp/emails.php
+admins_email_address:
+  title: Alamat Email Admin
+  content: >
+    Masukkan alamat email administrator dimana <span class="doc-desc-title">Sistem Error</span> and <span class="doc-desc-title">Sinyal Tiket Baru</span> (Jika diaktifkan) dikirim.
+  links:
+    - 
+      title: Atur Sinyal & Pemberitahuan
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: Menarik Email
+  content: >
+    Izinkan pengumpulan IMAP/POP untuk dikonfigurasi dan mengaktifkan <span class="doc-desc-title">Kotak Surat</span>.
+  links:
+    - 
+      title: Atur Kotak Surat
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: Tarik Email menggunakan Auto-cron
+  content: >
+    Aktifkan penarikan email secara periodik menggunakan task manager internal yang dipicu oleh aktifitas Agen.<br><br>Harap perhatikan, email tidak akan ditarik jika tidak ada Staf yang login ke Control Panel. Sangat direkomendikasikan untuk menggunakan penjadwalan tugas eksternal untuk penarikan agar sesuai dengan interval yang diharapkan.
+  links:
+    - 
+      title: Menggunakan Penjadwalan Tugas Eksternal
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: Hilangkan Kutipan Balasan
+  content: >
+    Jika diaktifkan, fitur ini akan menghilangkan korespondensi email untuk setiap komunikasi email.<br><br>Fitur ini bergantung secara relasional dengan <span class="doc-desc-title">Tag Pemisah Balasan</span> dibawah.
+reply_separator_tag:
+  title: Tag Pemisah Balasan
+  content: >
+    Ini adalah sebuah token mengindikasikan kepada Pengguna untuk membalas diatas garis. <br><br> <strong>Catatan:</strong> hal ini hanya relevan jika <span class="doc-desc-title">Strip Quoted Reply</span> diaktifkan di atas.
+emailed_tickets_priority:
+  title: Prioritas Tiket telah Diemail
+  content: >
+    Pilih apakah Anda ingin pilihan prioritas / pentingnya email Pengguna (misalnya Outlook) untuk menentukan prioritas tiket baru. <br><br> Pengaturan ini dapat ditimpa dengan sebuah <span class="doc-desc-title">Tapis Tiket</span>.
+  links:
+    - 
+      title: Buat &amp; Atur Filter Tiket
+      href: /scp/filters.php
+accept_all_emails:
+  title: Terima Semua Email
+  content: >
+    Terima Email dari Pengguna tak dikenal.<br><br>Menghilang centang pada pengaturan ini membuat tiket akan ditolak.
+accept_email_collaborators:
+  title: Terima Email Kolaborator
+  content: >
+    Tambahkan email partisipan dimasukkan didalam field <code><strong>To</strong></code> dan <code><strong>CC</strong></code>sebagai kolaborator tiket. <br /><br /> <em>Kolaborator selalu dapat ditambahkan secara manual oleh Aget ketika melihat sebuah tiket.</em>
+default_mta:
+  title: Standar MTA
+  content: >
+    <span class="doc-desc-title">Standar MTA</span> mengatur proses pengiriman email untuk email keluar tanpa pengaturan SMTP.
+ticket_response_files:
+  title: File Respon Tiket
+  content: >
+    Jikan diaktifkan, setiap lampiran yang dikirim oleh Agen pada respon tiket akan termasuk pada email ke pengguna.
+verify_email_addrs:
+  title: Verifikasi Alamat Email
+  content: >
+    Aktifkan pilihan ini untuk memeriksa apakah alamat email memiliki penukar email (MX) di domain DNS. Ini berguna untuk mendeteksi alamat email yang salah ketik. Ini sebagai tambahan untuk memeriksa alamat email dengan benar.

@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: 헬프데스크 상태
+  content: >
+    상태가 <span class="doc-desc-opt">오프라인</span>으로, 변경되면 클라이언트 인터페이스가 비활성화됩니다. 관리자만 시스템에 액세스할 수 있습니다.
+helpdesk_url:
+  title: 헬프데스크 URL
+  content: >
+    이 URL은 OsTicket 설치의 기본입니다. 최종 사용자가 헬프데스크로 돌아가도록 전자 메일 통신에 사용됩니다.
+helpdesk_name_title:
+  title: 헬프데스크 이름/제목
+  content: >
+    브라우저 탭에 나타나는 제목입니다. 헬프데스크를 북마크 지정하면 사이트 페이지의 제목이 됩니다.
+default_department:
+  title: 기본 부서
+  content: >
+    자동으로 부서로 전달되지 않는 티켓에 대해 기본값인 <span class = "doc-desc-title">부서</span>를 선택하세요. <br/> <br/> 티켓은 도움 주제, 수신 전자 메일 및 티켓 필터 설정에 따라 전달할 수 있습니다.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: 기본 페이지 크기
+  content: >
+    직원 패널의 티켓 대기열에서 페이지당 표시되는 항목 수를 선택합니다. 각 에이전트는 <span class = "doc-desc-title">나의 속성</span>에서 자신의 계정에 이 숫자를 지정할 수 있습니다.
+default_log_level:
+  title: 기본 로그 레벨
+  content: >
+    <span class = "doc-desc-title">시스템 로그</span>에 기록될 이슈의 최소 수준을 정합니다. <span class = "doc-desc-opt">디버그</span>는 가장 낮은 심각도를 의미하며 <span class = "doc-desc-opt">오류</span>는 가장 높은 심각도를 나타냅니다. 예를 들어 <span class = "doc-desc-title">시스템 로그</span>에서 모든 이슈를 보고 싶다면 <span class = "doc-desc-opt">디버그</span>를 선택하세요.
+purge_logs:
+  title: 로그 삭제
+  content: >
+    <span class = "doc-desc-title">시스템 로그</span>가 삭제될 때까지 보관 기간을 정합니다.
+enable_richtext:
+  title: 서식있는 텍스트 사용
+  content: >
+    활성화하면 고객과 담당자간 서식있는 텍스트를 사용할 수 있습니다.
+enable_avatars:
+  title: 스레드 보기에 아바타 사용
+  content: >
+    스레드 통신에 <span class="doc-desc-title">아바타</span>를 표시하려면 이 기능을 활성화하십시오. <br><br> 담당자 및 사용자 설정 페이지에서<span class="doc-desc-title">아바타 소스</span>를 설정할 수 있습니다.
+  links:
+    - 
+      title: 담당자 설정
+      href: /scp/settings.php?t=담당자
+    - 
+      title: 사용자 설정
+      href: /scp/settings.php?t=사용자
+collision_avoidance:
+  title: 담당자 충돌 방지
+  content: >
+    담당자가 아무런 활동 없이 티켓 또는 작업에 대해 잠금을 보류할 수 있는 최대 기간을 입력하십시오. <br><br> <span class="doc-desc-opt">0</span>을 입력해 잠금 기능을 비활성화 합니다.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: 날짜 &amp; 시간 옵션
+  content: >
+    다음 설정은 헬프 데스크의 날짜 &amp; 시간 설정에 대한 기본 설정을 정의합니다. 선택한 지역에 대해 지역 기본값을 사용하도록 선택하거나 고유한 요구 사항을 충족하도록 형식을 사용자 정의하십시오. 사용자 정의에 대한 참조로 ICU 형식 문자열을 참조하십시오. 아래에 표시된 날짜는 해당 값의 결과를 단순히 예시 한 것입니다.
+  links:
+    - 
+      title: ICU 날짜 형식 테이블 참조
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: 시스템 언어
+  content: >
+    사용자 인터페이스가 담당자와 최종 사용자에게 지역화 된 것처럼 느끼게 하려면 시스템 주언어와 보조 언어를 선택하십시오.
+primary_language:
+  title: 시스템 주 언어
+  content: >
+    이 언어의 내용은 각 언어 선호도를 현재 사용할 수 없는 경우 담당자와 최종 사용자에게 표시됩니다. 인터페이스의 내용뿐만 아니라 감사 페이지 및 메일 메시지와 같은 맞춤형 컨텐츠도 포함됩니다. <br/><br/> 이것은 번역되지 않은 버전의 컨텐츠를 작성해야 하는 언어입니다.
+secondary_language:
+  title: 부 언어
+  content: >
+    담당자 및 최종 사용자에 대한 언어 기본 설정 옵션을 선택하십시오. 인터페이스는 이러한 언어로 제공될 것이며, 감사 페이지와 도움말 항목 이름과 같은 사용자 정의 콘텐츠는 이 언어로 번역될 수 있을 것입니다.
+#Attachments
+attachments:
+  title: 첨부파일 설정 및 저장소
+  content: >
+    첨부파일을 저장하는 방법을 구성하십시오.
+default_storage_bk:
+  title: 파일 저장소 백엔드
+  content: >
+    첨부파일을 저장하는 방법을 선택합니다. <br><br> 스토리지 플러그인을 설치하여 추가 스토리지 백엔드를 추가할 수 있습니다.
+max_file_size:
+  title: 최대 파일 크기
+  content: >
+    담당자가 업로드 할 수 있는 최대 파일 크기를 선택하십시오. 여기에는 지식기반 기본 문서 , 티켓 , 업무 관련 답변에 대한 첨부파일이 포함됩니다. 상한값은 PHP의 <code>upload_max_filesize</code> 설정에 의해 제어됩니다.
+  links:
+    - 
+      title: PHP ini 설정
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: 로그인이 필요합니다.
+  content: >
+    인증되지 않은 사용자에게 첨부파일을 제공하지 않으려면 이 설정을 사용합니다. 사용자는 첨부 파일을 보려면 시스템(최종 사용자와 담당자)에 로그인해야 합니다. <br><br> 보안 측면에서는 사용자의 브라우저가 이전에 본 파일을 캐시에 보관할 수 있습니다. 또한 헬프데스크의 모든 파일 링크는 약 24시간 후에 자동으로 만료됩니다.

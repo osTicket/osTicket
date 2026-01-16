@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  Lähetetään tukihenkilölle kun uusi viesti / muistiinpano lähetetty tehtävään. Tämä voi tapahtua, jos yhteistyökumppani tai edustaja vastaa järjestelmään lähetettyyn sähköpostiin tai käy verkkosivustossa ja lähettää siellä uuden viestin.
+subject: |
+  Tehtävän aktiivisuus [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hei %{recipient.name},</strong></h3>
+  Tehtävä <a href="%{task.staff_link}">#%{task.number}</a> päivitetty: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Tarkastellaksesi ja vastataksesi tehtävään <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >Kirjaudu</span></a> tiketti - järjestelmään </div>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

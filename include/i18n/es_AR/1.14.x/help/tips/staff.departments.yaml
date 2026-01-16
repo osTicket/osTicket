@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Tipo
+  content: >
+    Si el Tipo del Departamento es privado, la Firma del Departamento no estará disponible en las respuestas ni se mostrará la asignación del departamento en el Portal del cliente.
+dept_manager:
+  title: Gerente del Departamento
+  content: >
+    Puede elegir a un Agente como Gerente del Departamento para recibir alertas y avisos de Tickets en el departamento.
+  0: Los agentes no tienen que ser miembros del Departamento para ser el gerente del Departamento

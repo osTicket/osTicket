@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: 新 Ticket
+  content: >
+    如果您想要自動回覆的郵件發送到使用者新Ticket上，請啟用此功能。
+  links:
+    - 
+      title: 新Ticket的自動回覆範本
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: 由工作人員新建Ticket
+  content: >
+    使用者授權代理商新建Ticket通知。<em>代理商新建 tickets可以重寫 tickets。</em>
+  links:
+    - 
+      title: 新Ticket的通知範本
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: 新訊息確認
+  content: >
+    當有新訊息附加在原有的ticket上、會發出確認通知。
+  links:
+    - 
+      title: 新消息確認範本
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: 新消息通知
+  content: >
+    所有在 ticket 上參與者都會接收到所送出的廣播訊息。
+  links:
+    - 
+      title: 新活動的通知範本
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: 過量通知
+  content: >
+    若使用者拒絕Ticket通知在<span class="doc-desc-title">最大Ticket開票數量</span> 的違反情形。
+  links:
+    - 
+      title: 數量限制範本
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: 設置 <em>最大Ticket開票數量</em>
+      href: /scp/settings.php?t=tickets

@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Polje za pretragu
+  0: >
+
+advanced:
+  title: Još
+  content: >
+    Suziti parametre pretrage. Jednom kada su selektovani kriterijumi napredne pretrage i kada se pokrene pretraga, možete <span class="doc-desc-title">izvesti</span> podatke sa dna stranice tiketa.
+open_tickets_table:
+  title: Tabela otvorenih tiketa
+  content: >
+    Svi tiketi trenutno otvoreni i koji zahtevaju paznju
+ticket:
+  title: Tiket
+  0: >
+
+date:
+  title: Datum
+  0: >
+
+subject:
+  title: Naslov
+  0: >
+
+from:
+  title: Od
+  0: >
+
+priority:
+  title: Prioritet
+  0: >
+
+assigned_to:
+  title: Dodeljeno
+  0: >
+
+export:
+  title: Izvoz
+  content: >
+    Izvoz trenutno vidljivih podataka u CSV fajl. CSV fajlovi se mogu otvoriti bilo kojim softverom koji omogućava tabelarni prikaz (t.j. Microsoft Excel, Apple Pages, OpenOffice, itd.).
+advanced_search_dialog:
+  title: Napredna pretraga
+  0: >
+
+adv_keyword:
+  title: Pretraga po ključnim rečima
+  content: >
+    Pronađi pogotke bazirane na predmetu i telu poruka tiketa kao i sav tekstualan sadržaj asociran sa namenskim poljima za korisnike i tikete.
+adv_date_range:
+  title: Traži po opsegu datuma
+  content: >
+    Definicija ovde
+merge_types:
+  title: Merge Types
+  content: >
+    <b>Combine Threads:</b> Threads from all Tickets will be displayed chronologically.</br> <b>Separate Threads:</b> Threads from Tickets will be displayed one Ticket at a time.
+reply_types:
+  title: Reply Types
+  content: >
+    <b>Reply All:</b> This reply is sent to the User and the Collaborators you choose to include.</br> <b>Reply to User:</b> This reply is sent to the User only, no Collaborators.</br> <b>Do Not Email Reply:</b> No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.

@@ -1,0 +1,25 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Poslano uporabniku, ko uporabnik napiše novo sporočilo v kartici. To se zgodi, če se uporabnik odzove na sistemsko elektonsko pošto ali če obišče spletni portal in napiše novo sporočilo na portal.
+subject: |
+  Potrdilo sporočila
+body: |
+  <h3><strong>Pozdravljeni %{recipient.name.first},</strong></h3>
+  Nove informacije za <a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a>v zvezi z oddajo vašega ticketa
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  Vaša %{company.name} Ekipa,<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em>Napredek obdelave vašega ticketa lahko vidite <a
+  href="%{recipient.ticket_link}">tukaj</a></em>
+  </div>

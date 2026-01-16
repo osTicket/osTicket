@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Dashboard  -> System Logs page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+system_logs:
+  title: יומני רישום של המערכת
+  content: >
+    כאן תמצאו פתרון לכל הבעיות הקשורות לרישום פעילות כלשהי (למשל, שגיאות, אזהרות או באגים).
+  links:
+    - 
+      title: התאמה אישית של איזה סוג של פעילות נרשם על-ידי שינוי <br /> <span class="doc-desc-title">רמת יומן ברירת מחדל</span>.
+      href: /scp/settings.php?t=system
+date_span:
+  title: טווח תאריך
+  content: >
+    בחר את טווח התאריכים שאתה רוצה לראות <span class="doc-desc-title"> לוג המערכת</span>.
+type:
+  title: סוג
+  content: >
+    בחר באפשרות לצמצם את המיקוד שלך על סוג מסוים של פעילות.<span class="doc-desc-opt">Debug</span> מייצג את המקרים הפחות חמורים ו- <span class="doc-desc-opt"> Error </span> את המקרים החמורים.
+showing_logs:
+  title: מציג &hellip; לוג
+  content: >
+    אנא וודא שאין דפים נוספים בתחתית ה <span class="doc-desc-title">דף</span>.
+log_title:
+  title: כותרת לוג
+  content: >
+    לחץ על <span class="doc-desc-title"> כותרת הלוג</span> על מנת למיין לפי <span class="doc-desc-title"> כותרת הלוג </span>.
+log_type:
+  title: סוג יומן
+  content: >
+    לחץ על <span class="doc-desc-title"> סוג הלוג</span> על מנת למיין לפי <span class="doc-desc-title"> סוג הלוג </span>.
+log_date:
+  title: יומן רישום תאריך
+  content: >
+    זה התאריך בו נוצר הלוג. אתה יכול למיין את הלוג לפי <span class="doc-desc-title"> תאריך הלוג </span> ע"י לחיצה על <span class="doc-desc-title"> תאריך הלוג </span> שבכותרת הטבלה. (השתמש <span class="doc-desc-title">טווח התאריך </span> שלמעלה על מנת לצמצם את הטווח הלוג בלוח השנה)
+ip_address:
+  title: כתובת IP
+  content: >
+    זה מתייחס ל<span class="doc-desc-title">כתובת ה <span class="doc-desc-title">-IP  </span>של הסוכן או הלקוח שהשתמשו במערכת בזמן יצור הלוג 

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Ativ dos Tickets
+  content: >
+    Selecione um intervalo de datas para gerar tanto o gráfico e a tabela (cf. <span class="doc-desc-title">Estatísticas</span>) correspondente a data especificada. O gráfico abaixo sempre mostrará uma visão ampla dos dados do sistema inteiro (ou seja, população). No entanto, você pode navegar através da tabela de <span class="doc-desc-title">Estatísticas</span> abaixo para focar um tema mais restrito do seu interesse (por exemplo, Departamento, Tópicos ou Equipe). Além disso, você pode exportar todos os dados atualmente exibidos na tabela de <span class="doc-desc-title">Estatísticas</span>.
+report_timeframe:
+  title: Intervalo de tempo do relatório
+  content: >
+    Escolha a data inicial desejada utilizando o calendário. Então escolha o período que define o fim do intervalo de tempo para o relatório.
+statistics:
+  title: Estatísticas
+  content: >
+    Navegue até o assunto de seu interesse clicando na guia apropriada para exibir os dados. Dentro da tabela, os círculos representam o tamanho dos dados nominais. Portanto, quanto maior o número em uma célula específica, maior será o círculo adjacente.
+opened:
+  title: Aberto
+  content: >
+    Os chamados que foram originalmente abertos tendo o Departamento ou Tópico de Ajuda no chamado, ou número de chamados que um Agente abriu em favor de um Usuário.
+assigned:
+  title: Atribuído
+  content: >
+    Os chamados que foram atribuídos a um Agente ou a uma Equipe. O número reflete os chamados atribuídos manualmente a agentes ou equipes, chamados reivindicados e chamados atribuídos a partir de filtros dos chamados/outras regras de atribuição automática.
+overdue:
+  title: Atrasado
+  content: >
+    Os chamados que foram marcados como "Em atraso" pelo sistema. Os chamados são marcados como Atrasados quando violaram o Plano de SLA ao qual pertenciam, fazendo com que eles tivessem o status de 'Aberto' após a Data de Vencimento.
+closed:
+  title: Encerrado
+  content: >
+    O número de Chamados que atualmente estão com a situação Fechado.
+reopened:
+  title: Reaberto
+  content: >
+    O total de número de vezes que um chamado foi Reaberto. Os chamados são reabertos toda vez que sua situação é alterada de Fechado para Aberto.
+deleted:
+  title: Deletado
+  content: >
+    A quantidade de chamados que foram excluídos.
+service_time:
+  title: Tempo de Serviço
+  content: >
+    Refere-se à duração que começa na abertura de um chamado e termina quando o chamado é fechado. A coluna Tempo de Serviço mede o Tempo de Serviço por chamado, em horas.
+response_time:
+  title: Tempo de Resposta
+  content: >
+    Mostra o tempo médio de resposta do Agente, em horas, ao atender a um chamado.

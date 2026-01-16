@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: 양식 표제
+  content: >
+    이 제목 텍스트는 양식 입력칸 위에 회색 박스로 나타납니다.
+form_instructions:
+  title: 양식 설명
+  content: >
+    부연 설명을 적음으로써 고객이 양식 입력칸에 정보를 기입하는 것을 도울 수 있으며, 요구하는 정보를 강조할 수 있습니다.
+field_sort:
+  title: 입력칸 출력 위치
+  content: >
+    상하 화살표 아이콘을 클릭하거나 입력칸을 줄 단위로 드래그하여 양식 내에서 위치 정렬이 가능합니다. 정렬 변경을 저장하기 전까지는 실제 영향을 미치지 않습니다.
+field_label:
+  title: 양식 문구
+  content: >
+    이 문구는 입력칸에 대한 지시 사항을 나타냅니다. 일반적으로, 짧은 입력칸의 경우 다음과 같이 표시됩니다:<br><strong>문구:</strong>&nbsp; <input type="text">
+field_type:
+  title: 양식 내용 종류
+  content: >
+    고객이 입력하는 정보가 어떤 종류인지 정의합니다. 짧거나 긴 텍스트 입력, 전화 번호, 날짜 혹은 시간, 체크 박스, 선택 리스트, 혹은 사용자 정의 선택 목록을 지정할 수 있습니다.
+  links:
+    - 
+      title: 사용자 정의 목록
+      href: /scp/lists.php
+field_visibility:
+  title: 입력칸 표시 유무
+  content: >
+    표시 유무와 필요한 옵션을 지정합니다. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>설정</th> <th>결과</th></tr> <tr><td>선택 사항</td> <td>에이전트와 최종 사용자 모두 입력칸을 볼 수 있으며, 입력하지 않아도 됩니다.</td></tr> <tr><td>필수</td> <td>에이전트와 최종 사용자 모두 입력칸을 볼 수 있으며, 반드시 입력해야 합니다.</td></tr> <tr><td>최종 사용자의 입력 필수</td> <td>에이전트와 최종 사용자 모두 입력칸을 볼 수 있으며, 최종 사용자만 필수로 입력해야 합니다.</td></tr> <tr><td>에이전트의 입력 필수</td> <td>에이전트와 최종 사용자 모두 입력칸을 볼 수 있으며, 에이전트만 필수로 입력해야 합니다.</td></tr> <tr><td>내부 전달, 선택 사항</td> <td>에이전트만 입력칸을 볼 수 있으며, 입력하지 않아도 됩니다.</td></tr> <tr><td>내부 전달, 필수</td> <td>에이전트만 입력칸을 볼 수 있으며, 반드시 입력해야 합니다.</td></tr> <tr><td>최종 사용자에게만</td> <td>최종 사용자만 입력칸을 볼 수 있으며, 반드시 입력해야 합니다.</td></tr> </tbody></table>
+field_variable:
+  title: 입력칸 자동화
+  content: >
+    이 이름을 통해 입력칸에 입력된 데이터를 이메일과 페이지 양식에 사용할 수 있습니다. 예를 들어, 일반적인 티켓 양식에 입력되는 내용을 <code>%{ticket.variable}</code> 코드를 통해 사용 가능하며, 코드의 <strong>variable</strong>이 여기서 입력한 이름이 됩니다.<br><br><em>회사 정보는 <code>%{company.변수명}</code> 코드를 통해, 고객 정보는 <code>%{ticket.user.variable}</code> 코드를 통해 사용 가능합니다.</em>
+field_delete:
+  title: 이 입력칸 삭제
+  content: >
+    체크 후 양식을 저장하면 이 입력칸을 삭제합니다.<br> <br> <em>입력칸이 삭제되어도 기존에 입력한 데이터는 삭제되지 않습니다. 예를 들어, 기존에 접수된 티켓이 입력칸과 데이터를 가지고 있다면, 입력칸을 삭제한다고 해서 티켓의 데이터를 삭제하지는 않습니다.</em>

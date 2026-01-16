@@ -1,0 +1,18 @@
+---
+notes: |
+  ترسل إلى المستخدمين في رد أحد الموظفين على تذاكرهم.
+  الردود تنشأ عن طريق الموظفين الأعضاء في النظام.
+subject: |
+  رد على: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>عزيزي %{recipient.name},</strong></h3>
+  %{response}
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127);">
+  فريق عمل %{company.name}، <br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;"<br>
+  ><em>نرجو أن يكون هذا الرد كافياً للإجابة عن أسئلتك. إذا لم يكن كذلك، فأرجو عدم إرسال رسالة جديدة. وإنما الرد على هذا البريد أو <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" >تسجيل الدخول إلى حسابك</a> لتصفح الأرشيف لجميع طلبات الدعم والردود الخاصة بك.</em></div>

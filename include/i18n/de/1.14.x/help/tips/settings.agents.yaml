@@ -1,0 +1,46 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Agents
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+agent_name_format:
+  title: Namensformatierung für Agenten
+  content: >
+    Wählen Sie eine Namensformatierung für Agenten, welche für das ganze System gilt. Diese wird in E-Mail-Vorlagen für die Namen verwendet, falls kein anderes Format festgelegt wurde.
+staff_identity_masking:
+  title: Agenten-Identität verbergen
+  content: >
+    Wenn aktiviert, wird der Name des Agenten in jeder Korrespondenz mit dem Benutzer verborgen.
+#Authentication settings
+password_reset:
+  title: Richtlinie für das Ablaufen der Passwörter
+  content: >
+    Legt fest, in welchen Zeitabständen (in Monaten) die Agenten ihr Passwort ändern müssen. Wenn die Option deaktiviert ist ("unbefristet"), laufen die Passwörter nie ab.
+password_expiration_policy:
+  title: Richtlinie für das Ablaufen der Passwörter
+  content: >
+    Legen Sie fest wie häufig Agenten ihr Passwort ändern müssen. Wenn diese Option deaktiviert ist (<span class="doc-desc-opt">unbefristet</span>), laufen die Passwörter nie ab.
+allow_password_resets:
+  title: Zurücksetzen von Passwörtern erlauben
+  content: >
+    Aktivieren Sie diese Funktion, wenn Sie den <span class="doc-desc-title">Passwort vergessen</span>-Link im <span class="doc-desc-title">Agenten Anmelde-Bereich</span> nach einem fehlgeschlagenen Anmeldeversuch, anzeigen lassen wollen.
+reset_token_expiration:
+  title: Gültigkeitsdauer für Passwort-Zurücksetzungslink
+  content: >
+    Wählen Sie die Dauer (in Minuten), für die der <span class="doc-desc-title">Passwort-Zurücksetzungslink</span> gültig sein soll. Wenn ein Agent das <span class="doc-desc-title">Zurücksetzen seines Passwortes</span> anfordert, wird an ihn ein Link versendet, welcher das Zurücksetzen ermöglicht.
+staff_session_timeout:
+  title: Inaktivitätslimit für Agenten
+  content: >
+    Geben Sie die maximale Inaktivitätsdauer (in Minuten) an, bevor ein Agent automatisch abgemeldet wird. <br><br>Wenn Sie die Funktion <span class="doc-desc-title">Inaktivitätslimit für Agenten</span> deaktivieren wollen, geben Sie "0" ein.
+bind_staff_session_to_ip:
+  title: Sitzung des Agenten an IP-Adresse binden
+  content: >
+    Aktivieren Sie diese Funktion, wenn Sie wollen, dass die Sitzung des Agenten beim Anmelden an seine aktuelle IP-Adresse gebunden wird. <br><br>Diese Funktion wird nicht für Agenten mit dynamischer IP-Adresse empfohlen.

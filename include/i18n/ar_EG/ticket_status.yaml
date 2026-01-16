@@ -1,0 +1,50 @@
+---
+- 
+  id: 1
+  name: فتح
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: التذاكر المفتوحة.
+- 
+  id: 2
+  name: تم حلها
+  state: resolved
+  mode: 3
+  sort: 2
+  flags: 0
+  properties:
+    description: >
+      التذاكر المحلولة هي تذاكر مغلقةيمكن إعادة فتحها بواسطة المستخدم. قد ذلك مفيداً عند استخدام مشغل لإغلاق التذاكر المحلولة مع إرسال إشعار إلى المستخدم.
+- 
+  id: 3
+  name: مغلق
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    description: >
+      لا يمكن إعادة فتح التذاكر المغلقة بواسطة المستخدم. سيظل بالإمكان الدخول إلى التذاكر المعاد فتحها من لوحة تحكم العملاء و الموظفين.
+- 
+  id: 4
+  name: تم أرشفته
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      التذاكر متاحة فقط للإدارة، ولم تعد قابلة للإضطلاع بقائمة إنتظار التذاكر.
+- 
+  id: 5
+  name: تم الحذف
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      تذاكر الإنتظار في قائمة الحذف. لا يمكن الوصول إليها في قوائم إنتظار التذاكر.

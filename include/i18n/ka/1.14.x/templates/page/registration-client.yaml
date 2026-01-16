@@ -1,0 +1,11 @@
+---
+#registration-staff.yaml
+#Confirmation email sent to clients when accounts are created for them by
+#staff or via the client portal. This email serves as an email address
+#verification.
+#---
+notes: >
+  This template defines the email sent to Clients when their account has been created in the Client Portal or by an Agent on their behalf. This email serves as an email address verification. Please use %{link} somewhere in the body.
+name: "მოგესალმებათ კომანია %{company.name}"
+body: >
+  <h3><strong>გამარჯობა %{recipient.name.first},</strong></h3> <div> ჩვენ შევქმენით თქვენი პროფილი დახმარების პორტალზე მისამართზე %{url}.<br /> <br /> გთხოვთ მიჰყვეთ ქვემოდ მოცემულ ბმულს, თქვენი პროფილის აქტივაციისთვის და დახმარების მოთხოვნების სანახავად.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">თქვენი ტექნიკური დახმარების გუნდი <br /> %{company.name}</em> </div>

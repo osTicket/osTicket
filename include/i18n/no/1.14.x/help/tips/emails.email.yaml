@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Nytt saksemne
+  content: >
+    Velg et <span class="doc-desc-title"> hjelpeemne</span> som skal tilordnes automatisk til saker opprettet via denne e-postadressen. <br/> <br/> Skjemaer tilknyttet hjelpeemnet legges til sak, men vil ikke ha noen data.
+  links:
+    - 
+      title: Administrer hjelpeemner
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Ny saksprioritet
+  content: >
+    Velg <span class="doc-desc-title"> prioritet</span> for nye saker opprettet via denne e-postadressen.
+new_ticket_department:
+  title: Ny saksavdeling
+  content: >
+    Velg <span class="doc-desc-title"> avdelingen</span> som nye saker opprettet via denne e-postadressen skal tilordnes.
+  links:
+    - 
+      title: Administrer avdelinger
+      href: /scp/departments.php
+auto_response:
+  title: Ny autosvar til sak
+  content: >
+    Du kan deaktivere autosvar som blir sendt til bruker når en ny sak blir åpnet via denne e-postadressen.
+username:
+  title: Brukernavn
+  0: >
+
+password:
+  title: Passord
+  0: >
+
+login_information:
+  title: Send påloggingsinformasjon på e-post
+  content: >
+    <span class="doc-desc-title"> brukernavn</span> og <span class="doc-desc-title"> passord</span> kreves for å hente e-post fra IMAP / POP postkasser så vel som å sende e-post via SMTP.
+mail_account:
+  title: Hente e-post
+  content: >
+    Hente e-post fra en ekstern IMAP eller POP mail boks og konvertere dem til saksnummer i help desk.
+  links:
+    - 
+      title: Administrere <span class="doc-desc-title"> E-post valgkort</span> &amp; <span class="doc-desc-title"> AutoCron</span> innstillinger.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Eksterne vert
+  content: >
+    Angi <span class="doc-desc-title"> vertsnavn</span> og <span class="doc-desc-title"> portnummeret</span> for e-postserveren. Dette kan være tilgjengelig i dokumentasjonen for din vertskonto eller e-postadministratoren.
+protocol:
+  title: E-post protokoll
+  content: >
+    Velg e-post protokollen som støttes av den eksterne e-postserveren. IMAP anbefales og SSL er anbefalt hvis mulig.
+fetch_frequency:
+  title: Hente frekvens
+  content: >
+    Angi hvor ofte, i minutter, systemet vil spørre postkassen. <br/> <br/> Dette definerer gjennomsnittlig forsinkelse i å motta et automatisk svar når en bruker sender en e-post til denne postkassen.
+emails_per_fetch:
+  title: Antall e-post per henteforespørsel
+  content: >
+    Angi antall e-post som er behandlet samtidig.
+fetched_emails:
+  title: Hentet e-post
+  content: >
+    Avgjøre hva som skal skje med behandlet epost: <br/> <br/> <span class="doc-desc-opt"> <b>Flytt til mappe</b></span>: Dette vil sikkerhetskopiere din e-post fra INNBOKSEN til en angitt mappe. Hvis mappen ikke finnes ennå på serveren, vil systemet forsøke å automatisk opprette den. (<b>Anbefalt</b>) <hr><span class="doc-desc-opt"> <b>Slett e-post</b></span>: Dette vil slette e-post fra INNBOKSEN når den behandles. <hr><span class="doc-desc-opt"> <b>Gjør ingenting</b></span>: Dette vil la e-post ligge i INNBOKSEN. Systemet vil registrere meldings-IDene for e-post og vil ikke hente den på nytt. Imidlertid kan dette alternativet forårsake duplikate saker opprettes. (<em>Anbefales ikke</em>)
+smtp_settings:
+  title: SMTP-innstillinger
+  content: >
+    E-post sendt fra kundesenteret kan sendes via en SMTP-server. Dette er anbefalt, hvis mulig, ettersom det vil øke sannsynligheten for e-postlevering og gjør de mindre sannsynlig å bli merket som spam.
+header_spoofing:
+  title: Tillate Falskt hode
+  content: >
+    Aktivere dette for å tillate å sende e-post via denne postkassen fra en e-postadresse annen enn det som er angitt i innstillingen <span class="doc-desc-title"> E-postadresse</span> ovenfor. <br/> <br/> Denne avanserte innstillingen brukes vanligvis når du sender e-post fra aliasene til denne postkassen.
+

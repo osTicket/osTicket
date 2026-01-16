@@ -1,0 +1,14 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Pagina inițială se refera la continutul pentru prima pagina din Portalul pentru Clienti. Sablonul afectează continutul vizibul deasupra celor doua link-uri <strong>Deschide un Tichet Nou</strong> si <strong>Verifica Stare Tichet</strong>.
+name: Pagina Inițială
+body: >
+  <h1>Bine ati venit la Centrul de Suport Tehnic</h1>
+  <p>
+  Pentru a putea optimiza cat mai bine cererile de suport tehnic, folosim un sistem de tichete de suport. Fiecarui tichet ii este atribuit un ID unic, pe care-l puteti utiliza la urmarirea online a progresului si a timpului interventiei. Mai mult, va punem la dispozitie evidenta si istoricul tuturor cererilor Dvs de service.
+  Pentru a deschide un tichet nou, este nevoie de o adresa de e-mail valabila.
+  </p>

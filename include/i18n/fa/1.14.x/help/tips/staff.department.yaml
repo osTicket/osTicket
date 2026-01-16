@@ -1,0 +1,101 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: وضعیت
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: نوع
+  content: >
+    گزینه <span class="doc-desc-opt">خصوصی</span> را انتخاب کنید اگر می خواهید واحد سازمانی را از دسترسی مستقیم کاربران پنهان کنید. به علاوه اینکه وقتی سازمان به عنوان  <span class="doc-desc-opt">خصوصی</span> مشخص شده باشد <span class="doc-desc-title">امضای واحد سازمانی</span> در پاسخ ایمیل نشان داده نمی شود.<br/><br/> حداقل یک واحد سازمانی باید<span class="doc-desc-opt"> عمومی </span>باشد.
+email:
+  title: Email
+  content: >
+    آدرس ایمیلی که به هنگام ارسال پاسخ به کاربر از طرف کارشناسان این واحد سازمانی استفاده خواهد شد.
+template:
+  title: مجموعه قالب
+  content: >
+    <span class="doc-desc-title">مجموعه قالب</span> ایمیل برای استفاده در ارسال پاسخ های خودکار و هشدار ها&amp; یا اطلاعیه های مربوط به درخواست های رسیده به این واحد سازمانی.
+  links:
+    - 
+      title: مدیریت قالب ها
+      href: /scp/templates.php
+sla:
+  title: توافق نامه سطح خدمات
+  content: >
+    توافق نامه سطح خدمات برای تیکتهای ارجاع داده شده به این واحد سازمانی.
+  links:
+    - 
+      title: مدیریت طرح SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: مدیر واحد
+  content: >
+    یک<span class="doc-desc-title"> مدیر</span> برای این واحد سازمانی انتخاب کنید. <br/><br/>مدیرها این قابلیت را دارند که هشدارهای خاص دریافت کنند و همچنین بتوانند از ارجاع درخواست جلوگیری کنند.
+  links:
+    - 
+      title: مدیریت هشدارها و اطلاعیه ها
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: دریافت کنندگان هشدار ها و اطلاعیه ها
+  content: >
+    دریافت کنندگان <span class="doc-desc-title">هشدارها و اطلاع رسانی ها</span>ی تنظیم شده را مشخص کنید.
+  links:
+    - 
+      title: پیکربندی هشدارها و اطلاعیه ها
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: محدودیت های تخصیص درخواست
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: غیرفعال کردن مطالبه خودکار
+  content: >
+    <strong>غیرفعال کردن</strong> بررسی پاسخ خودکار به مطالبه برای این دپارتمان.
+    <br><br>کارشناسان همچنان میتوانند به صورت دستی مظالبه را به تیکت ها اختصاص ندهند
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: تنظیمات پاسخگوی خودکار 
+  content: >
+    این به شما اجازه می دهد تا تنظیمات عمومی پاسخ دهنده های خودکار را برای این واحد سازمانی بازنویسی کنید.
+new_ticket:
+  title: پاسخ خودکار به درخواست جدید
+  content: >
+    ممکن است بخواهید پاسخ خودکار برای درخواست های ایجاد و هدایت شده به این واحد سازمانی را غیرفعال کنید.
+new_message:
+  title: پاسخ گوی خودکار به پیام جدید
+  content: >
+    در صورت تمایل می توانید برای در خواست های رسیده به این واحد سازمانی ارسال پاسخ خودکار به کاربر در هنگام ایجاد پیام جدید بر روی درخواست را غیر فعال نمایید.
+auto_response_email:
+  title: ' پاسخ خودکار به ایمیل'
+  content: >
+    یک آدرس ایمیل که پاسخ خودکار برای این بخش ارسال می شوند را انتخاب کنید.
+department_access:
+  title: مجوز دسترسی به گروه
+  content: >
+    اجازه دسترسی به درخواست های این واحد سازمانی را به کارشناسان واحد های سازمانی دیگر بده.
+department_signature:
+  title: امضای واحد سازمانی
+  content: >
+    هنگام پاسخ دادن ، کارشناس می تواند از امضا برای واحدهای سازمانی <span class="doc-desc-opt">عمومی </span>استفاده کند.

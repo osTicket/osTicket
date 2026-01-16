@@ -281,4 +281,10 @@ if ($search->isSaved()) { ?>
             window.location.href = 'tickets.php?queue='+id;
     });
 }();
+//osta
+$(document).ready(function() {
+  $("select#parent").select2({
+		minimumResultsForSearch: Infinity
+	});
+});	
 </script>

@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  該模板定義誰選擇發送到員工的電子郵件 <strong>忘記密碼</strong>在工作人員的控制面板登錄鏈接頁面。
+name: "osTicket 工作人員密碼重設"
+body: >
+  <h3><strong>您好 %{staff.name.first},</strong></h3> <div> 重新設定密碼要求已經由您授權於求助中心處理  %{url}.<br /> <br />若您發現這是誤送訊息、請忽略與刪除此信件。您的帳戶仍安全且並無人進入。帳戶並無列管也無重置密碼。有人可能錯誤輸入了電子郵件。<br /> <br /> 提供的連結可以讓您登錄至求助中心並可已更改密碼。<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">您友好的可戶支援系統</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

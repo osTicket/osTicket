@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Hilfethema-Informationen
+  content: >
+    <span class="doc-desc-title">Hilfethemen</span> steuern, welche Informationen von den Benutzern erfasst werden und wie die Tickets weitergeleitet oder zugewiesen werden.
+topic:
+  title: Name des Themas
+  content: >
+    Eindeutiger Name für das Hilfethema.
+status:
+  title: Status
+  content: >
+    Wenn deaktiviert, ist dieses <span class="doc-desc-title">Hilfethema</span> nicht verfügbar.
+type:
+  title: Typ
+  content: >
+    Wenn ein <span class="doc-desc-title">Hilfethema</span> als Privat eingestuft wird, ist es nur für Agenten zugänglich, wenn ein Agent ein neues Ticket über den Agenten-Bereich eröffnet.
+parent_topic:
+  title: Übergeordnetes Thema
+  content: >
+    Wählen Sie das übergeordnete Thema, zu welchem dieses <span class="doc-desc-title">Hilfethema</span> gehören wird. Das übergeordnete Thema wird als erstes in der Auswahlliste angezeigt, dieses <span class="doc-desc-title">Hilfethema</span> wird dahinter angezeigt.
+custom_form:
+  title: Benutzerdefiniertes Formular
+  content: >
+    Benutzerdefinierte Formulare werden Ihnen helfen, gezieltere Informationen, die für dieses <span class="doc-desc-title">Hilfethema</span> relevant sind, aufzunehmen.
+  links:
+    - 
+      title: Benutzerdefinierte Formulare verwalten
+      href: /scp/forms.php
+priority:
+  title: Priorität
+  content: >
+    Wählen Sie die Priorität, die neuen Tickets zugewiesen wird, wenn Sie mit diesem <span class="doc-desc-title">Hilfethema</span> eröffnet werden. <br><br>Ticket-Filter können die Priorität eines neuen Tickets überschreiben.
+department:
+  title: Abteilung
+  content: >
+    Wählen Sie die Abteilung aus, zu der neue Tickets mit diesem Hilfethema weitergeleitet werden.
+  links:
+    - 
+      title: Abteilungen verwalten
+      href: /scp/departments.php
+sla_plan:
+  title: SLA-Plan
+  content: >
+    Wählen Sie einen SLA-Plan der diesem <span class="doc-desc-title">Hilfethema</span> zugeordnet wird. <br><br>Diese Auswahl wird jeden ausgewählten Abteilungs-SLA-Plan überschreiben
+  links:
+    - 
+      title: SLA-Pläne verwalten
+      href: /scp/slas.php
+thank_you_page:
+  title: Dankeschön-Seite
+  content: >
+    Wählen Sie die Dankeschön-Seite, zu der ein Benutzer weitergeleitet wird, nachdem er unter diesem <span class="doc-desc-title">Hilfethema</span> ein Ticket eröffnet hat.
+  links:
+    - 
+      title: Dankeschön-Seiten verwalten
+      href: /scp/pages.php
+auto_assign_to:
+  title: Neue Tickets automatisch zuweisen
+  content: >
+    Wählen Sie optional einen Agenten oder ein Team, welcher/welches automatisch dem Ticket zugewiesen wird, wenn es mit diesem <span class="doc-desc-title">Hilfethema</span> eröffnet wurde. Ticket-Filter können diese Zuweisung überschreiben.
+  links:
+    - 
+      title: Agenten und Teams verwalten
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Ticket Auto-Antwort
+  content: >
+    Wenn der Haken gesetzt ist, werden Auto-Antworten für dieses <span class="doc-desc-title">Hilfethema</span> deaktiviert. <br><br> Das überschreibt die Einstellung für Auto-Antworten der <span class="doc-desc-title">Abteilung</span> genauso wie die globalen <span class="doc-desc-title">Einstellungen für Auto-Antworten</span>.
+  links:
+    - 
+      title: Einstellungen für Auto-Antworten
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Benutzerdefinierte Ticket-Nummern
+  content: >
+    Wählen Sie hier "Benutzerdefiniert" aus, um das Standard-Ticket-Nummernformat des Systems zu überschreiben für Tickets, die mit diesem Hilfethema erstellt wurden. Näheres zu den Einstellungen finden Sie in den Hilfe-Hinweisen unter Admin-Bereich -&gt; Einstellungen -&gt; Tickets.

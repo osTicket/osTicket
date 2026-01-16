@@ -1,0 +1,44 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Teams
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+teams:
+  title: تیم ها
+  content: >
+    تیم از تعدادی کارشناس تشکیل می شود که با هدف انتصاب درخواست ها در کنار هم گرد آمده اند. کل اعضای یک واحد سازمانی هم می توانند عضو تیم باشند.
+status:
+  title: وضعیت
+  content: >
+    در صورتی که تیم <span class="doc-desc-opt">غیر فعال</span> باشد، نمی توان درخواستی را به آن تیم منتصب نمود و هشدار های و اطلاعیه های مربوط به درخواست هایی که از قبل به آن منتصب شده نیز به اعضای تیم ارسال نخواهد شد.
+lead:
+  title: مدیر تیم
+  content: >
+    می توان به یک <span class="doc-desc-title">تیم</span>، جدای از اعضای آن تیم، یک رهبر منتصب نمود که <span class="doc-desc-title"> هشدار ها و اطلاعیه های</span> آن تیم را دریافت خواهد نمود.
+  links:
+    - 
+      title: پیکربندی هشدارها و اطلاعیه ها
+      href: /scp/settings.php?t=alerts
+assignment_alert:
+  title: هشدار تخصیص درخواست
+  content: >
+    شما می توانید <span class="doc-desc-title">هشدار انتصاب درخواست</span> را برای درخواست های منتصب شده به این تیم غیر فعال نمایید.
+  links:
+    - 
+      title: پیکربندی هشدارها و اطلاعیه ها
+      href: /scp/settings.php?t=alerts
+members:
+  title: اعضای تیم
+  content: >
+    عضویت کارشناسان در تیم ها در پروفایل کارشناسان قابل تنظیم است.
+  links:
+    - 
+      title: مدیریت کارشناسان
+      href: /scp/staff.php

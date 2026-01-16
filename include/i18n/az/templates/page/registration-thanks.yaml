@@ -1,0 +1,10 @@
+---
+#registration-thanks.yaml
+#Page shown to the user after successfully registring and confirming their
+#account. This page should inform the user that the process is complete and
+#that the user can now submit a ticket or access existing tickets
+notes: >
+  Bu şablon müştərilər öz hesablarını təsdiq edərək uğurla qeydiyyatdan keçəndən sonra görünən kontenti təyin edir. Bu səhifə istifadəçiyə onun qeydiyyatının tamamlandığını və indi müştərinin sorğunu təqdim edə və ya mövcud sorğulara giriş edə biləcəyini bildirməlidir.
+name: "Hesab qəbul edildi!"
+body: >
+  <div> <strong>Qeydiyyat üçün təşəkkürlər.</strong><br /> <br />Siz e-poçtunuzu qəbul etdiniz və hesabınızı uğurla aktiv etdiniz. Yeni sorğu aça və ya mövcud sorğuları idarə edə bilərsiniz. <br /> <br /> <em>Sizin dost dəstək mərkəziniz</em><br /> %{company.name} </div>

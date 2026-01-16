@@ -1,0 +1,121 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_status:
+  title: Kasutajatoe staatus
+  content: >
+    Kui vahetada staatus <span class="doc-desc-opt">Offline</span> peale, siis pole kliendi kasutajaliides kättesaadav. Ainult administraatorid saavad süsteemi siseneda.
+helpdesk_url:
+  title: Kasutajatoe URL
+  content: >
+    See URL on Sinu osTicket süsteemi algaadress. Seda linki kasutatakse lõpp-kasutajale saadetavates emailides.
+helpdesk_name_title:
+  title: Kasutajatoe nimetus/pealkiri
+  content: >
+    See pealkiri kuvatakse veebilehitseja saki pealkirjana. Kui su kasutajatoe leht on lisatud lemmikutesse, siis kuvatakse seda veebilehe nimetuse/pealkirjana.
+default_department:
+  title: Vaikimisi osakond
+  content: >
+    Vali piletitele vaikimisi <span class="doc-desc-title">osakond </span>, mida ei suunata automaatselt edasi osakonda. <br/><br/> Pileteid saab edasi suunata abiteema, sissetuleva emaili ja pileti filtri seadete alusel.
+default_schedule:
+  title: Default Schedule
+  content: >
+    Choose the default Schedule to be used by SLA when rendering tickets Overdue.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+default_page_size:
+  title: Lehekülje vaikesuurus
+  content: >
+    Vali, mitut elementi kuvatakse piletite järjekorras töötajate juhtpaneelil. Agent saab ka ise seda arvu määrata oma konto alt <span class="doc-desc-title">minu eesistused</span>.
+default_log_level:
+  title: Logi vaiketase
+  content: >
+    Määra minimaalne probleemide tase, mida salvestatakse <span class="doc-desc-title">süsteemi logis</span>. <span class="doc-desc-opt">Silumine</span> esindab vähimat tõsidust ja <span class="doc-desc-opt">Viga</span> tõsist probleemi. Näiteks, kui Sa soovid näha kõiki probleeme <span class="doc-desc-title">süsteemi logis</span>, vali <span class="doc-desc-opt">Silumine</span>.
+purge_logs:
+  title: Tühjenda logid
+  content: >
+    Määra, kui kaua Sa soovid alles hoida <span class="doc-desc-title">süsteemi logi</span> enne, kui see kustutatakse.
+enable_richtext:
+  title: Võimalda rikas tekst
+  content: >
+    Kui lubatud, siis on kliendi ja agendi vahelises kirjavahetuses lubatud rich text vorming.
+enable_avatars:
+  title: Luba pildid sissekande vaates
+  content: >
+    Aktiveeri, et näidata <span class="doc-desc-title">pilte</span> sissekande kirjavahetuses. <br><br><span class="doc-desc-title">Pildi allkia</span> saab määrata agentide ja kasutajate seadete lehel.
+  links:
+    - 
+      title: Agentide seaded
+      href: /scp/settings.php?t=agents
+    - 
+      title: Kasutajate seaded
+      href: /scp/settings.php?t=users
+collision_avoidance:
+  title: Agentide kokkupõrkumise vältimine
+  content: >
+    Sisesta maksimaalne agendi poolt seatud lukustuse aeg, mille jooksul võib ilma tegevuseta olla piletil või ülesandel.<br><br> Sisesta <span class="doc-desc-opt">0</span> lukustuse funktsiooni keelamiseks.
+allow_iframes:
+  title: Allow iFrames
+  content: >
+    Enter comma separated list of domains for the system to be framed in. If left empty, the system will default to 'self'. This accepts domain wildcards, HTTP/HTTPS URL scheme, and port numbers. <br><br> <b>Example:</b> <br> https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+  links:
+    - 
+      title: Syntax Information (host-source)
+      href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+acl:
+  title: ACL (Access Control List)
+  content: >
+    Enter a comma separated list of IP addresses to allow access to the system. There are four options to choose which panel(s) to apply the ACL to. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Apply To</th> <th>Description</th></tr> <tr><td>Disabled</td> <td>Disables ACL altogether.</td></tr> <tr><td>All</td> <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel, Admin Panel)</td></tr> <tr><td>Client Portal</td> <td>Applies ACL to only Client Portal.</td></tr> <tr><td>Staff Panel</td> <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr> </tbody></table>
+#Date and time options
+date_time_options:
+  title: Kuupäeva ja kellaaja valikud
+  content: >
+    Järgnevad seaded määravad kasutajatoe vaikekuupäeva ja -kellaaja seaded. Saad valida vaikimisi seaded oma piirkonnas või kasutada kohandatud vormingut, et need sobituksid sinu vajadustega. Kohandamiseks viita vastavale ICU vormingule. Allpool olevad kuupäevad illustreerivad valitud väärtusi.
+  links:
+    - 
+      title: Vaata ICU kuupäeva vormingu tabelit
+      href: http://userguide.icu-project.org/formatparse/datetime
+languages:
+  title: Süsteemi keele
+  content: >
+    Vali süsteemi peamine keel ja vajadusel teine keel, et agentide ja lõppkasutajate jaoks oleks kasutajaliides lokaliseeritud.
+primary_language:
+  title: Süsteemi peamine keel
+  content: >
+    Selles keeles kuvatakse sisu agentidele ja lõppkasutajatele, kui nende valitud keelde pole sisu veel tõlgitud. Siia kuulub kasutajaliidese sisu, tänu leheküljed ja emailid. <br/><br/> See on keel, milles veel tõlkimata versiooni sisu kirjutatakse.
+secondary_language:
+  title: Täiendavad keeled
+  content: >
+    Vali oma agentidele ja lõppkasutajatele keele eelistused. Kasutajaliides on saadaval nendes keeltes, samuti tänu lehekülg ja teemade nimed tõlgitakse nendesse keeltesse.
+#Attachments
+attachments:
+  title: Manuste salvestamine ja seaded
+  content: >
+    Seadista manuste salvestamise sätted.
+default_storage_bk:
+  title: Failisalvestuse taustaprogramm
+  content: >
+    Vali kuidas hoida manuseid. <br><br> Täiendavat salvestusruumi saab lisada vastavate installeeritavate salvestusruumi pluginatega
+max_file_size:
+  title: Faili maksimumsuurus
+  content: >
+    Vali agentide poolt üleslaetav maksimum failisuurus. See sisaldab ettevalmistatud vastuseid, teadmistebaasi artikleid, piletite ja ülesannete manuseid. Limiiti kontrollitakse PHP <code>upload_max_filesize</code> seadetega.
+  links:
+    - 
+      title: PHP ini seaded
+      href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+files_req_auth:
+  title: Nõua sisse logimist
+  content: >
+    Luba see säte, et keelata manuste autoriseerimata kasutamine. See tähendab, kasutaja peab sisselogima (mõlemad, nii lõppkasutaja kui ka agent), et näha manuseid. <br><br> Turvalisuse kaalutlustel pea meeles, et kasutaja veebilehitseja cashis võivad veel olla varasemalt vaadatud faile. Seepärast kaotavad kasutajatoe kõik lingid automaatselt kehtivuse 24 tunni pärast.

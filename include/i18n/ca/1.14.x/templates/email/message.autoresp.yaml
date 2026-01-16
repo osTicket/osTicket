@@ -1,0 +1,24 @@
+---
+#Email template: message.autoresp.yaml
+#Sent to a user when the user posts a new message to a ticket. This can
+#happen if the users responds to an email from the system or visits the
+#customer web portal and posts a new message there.
+#---
+notes: |
+  Enviat a l'usuari quan escriu un nou missatge al Ticket. Això succeeix si l'usuari respon amb un correu electrònic del sistema o visita el portal per a clients i escriu allí un nou missatge.
+subject: |
+  Confirmació de missatge
+body: |
+  <h3><strong>Benvolgut%{recipient.name.first}</strong></h3>
+  La seva resposta per la sol·licitud d'ajuda<a
+  href="%{recipient.ticket_link}">#%{ticket.number}</a> a sigut rebuda
+  <br>
+  <br>
+  <div style="color: rgb(127, 127, 127); ">
+  El vostre equip %{company.name},<br>
+  %{signature}
+  </div>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align:
+  center"><em> Vosté pot vore el progres de la seva petició de manera online <a
+  href="%{recipient.ticket_link}">ací</a></em></div>

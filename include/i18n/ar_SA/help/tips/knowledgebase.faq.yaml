@@ -1,0 +1,9 @@
+---
+listing_type:
+  title: نوع الإدراج
+  content: >
+    اختر <span class="doc-desc-opt">عام (للنشر)</span> إذا كنت ترغب في أن تُنشر <span class="doc-desc-title">الأسئلة والأجوبة الشائعة</span> في قاعدة المعرفة العامة إذا كان التصنيف الأساسي في وضع عام.
+  links:
+    - 
+      title: تمكين قاعدة المعرفة لبوابة العميل
+      href: /scp/settings.php?t=kb

@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Ärendeaktivitet
+  content: >
+    Välj datumintervall för att visa tillhörande data (<span class="doc-desc-title">Statistik</span>) i tabell och diagram nedan. Diagrammet visar alltid hela datamängden i systemet (t ex antal ärenden). Dock så kan du navigera i <span class="doc-desc-title">Statistik-</span> tabellen nedan för att fokusera på en viss del av informationen som du är intresserad av (t ex Avdelningar, Rubriker, Personal, etc). Du kan även välja att exportera data ur <span class="doc-desc-title">Statistik-</span>tabellen.
+report_timeframe:
+  title: Tidsram för rapporter
+  content: >
+    Välj startdatum och sedan hur lång period du är intresserad av för att på så vis rama in en datamängd för perioden.
+statistics:
+  title: Statistik
+  content: >
+    Navigera till ett intresseområde genom att klicka på lämplig flik. Inom tabellen så representerar cirklarna storleken på den nominella datamängden. Ju större antalet är i en speciell cell, desto större kommer den intilliggande cirkeln vara.
+opened:
+  title: Öppnad
+  content: >
+    Ärenden som ursprungligen öppnats med 'Avdelning' eller 'Kunskapsbanken' i ärendet, eller antal ärenden en handläggare har öppnat på uppdrag av användare.
+assigned:
+  title: Tilldelad
+  content: >
+    Ärenden som har blivit tilldelade antingen handläggare eller team. Antalet anger ärenden som manuellt har tilldelats till handläggare eller team, begärda ärenden, och ärenden tilldelade från ärende filter/andra auto-tilldelade regler.
+overdue:
+  title: Förfallet
+  content: >
+    Ärenden som har blivit märkt 'Försenad' av systemet. Ärenden blir märkta 'Försenad' när dom bryter mot SLA-plan som de tillhör, vilket medför att de får statusen 'Öppen' efter passerat försenat datum.
+closed:
+  title: Stängd
+  content: >
+    Antal ärenden som för närvarande har status 'Stängd'.
+reopened:
+  title: Återöppnade
+  content: >
+    Totala antal gånger ett ärende har återöppnats. Ärenden återöppnas när deras status har ändrats från 'Stängd' till 'Öppen'.
+deleted:
+  title: Borttagna
+  content: >
+    Antalet ärenden som har tagits bort.
+service_time:
+  title: Servicetid
+  content: >
+    Refererar till tidsperioden som börjar när ärendet öppnas och avslutas när ärendet stängs. 'Servicetid'-kolumnen visar den genomsnittliga servicetiden per ärende, i timmar.
+response_time:
+  title: Svarstid
+  content: >
+    Visar genomsnittliga respons tiden för en handläggare, i timmar, för ärendets korrespondens.

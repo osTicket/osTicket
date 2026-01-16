@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  زمانی برای کارشناسان ارسال می شود که یک درخواست به کارشناس ارجاع داده شده است. درخواست  می تواند به  صورت خودکار توسط سیستم و یا به صورت دستی توسط کارشناس دیگری تخصیص داده شده باشد. از کلید %{assigner} استفاده کنید تا نشان دهید که توسط چه کسی در خواست ارجاع داده شده است.
+subject: |
+  در خواستی به شما ارجاع شده است
+body: |
+  <h3><strong>سلام  %{assignee.name.first},</strong></h3>
+  تیکت  <a href="%{ticket.staff_link}">#%{ticket.number}</a> توسط  %{assigner.name.short} به شما ارجاع داده شده است
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>از</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>موضوع</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>برای مشاهده درخواست و پاسخ به آن، لطفا  <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  ></span></a>وارد سیستم پشتیبانی شوید </div>
+  <em style="font-size: small; ">  </em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

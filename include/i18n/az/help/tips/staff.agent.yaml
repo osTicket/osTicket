@@ -1,0 +1,90 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+username:
+  title: İstifadəçi adı
+  content: >
+    Xahiş edirik <span class="doc-desc-title">help deskiniz</span> üçün xüsusi agent <span class="doc-desc-title">istifadəçi adı</span> seçin.
+reset2fa:
+  title: Reset Two Factor Authentication
+  content: >
+    In the event that an Agent loses the ability to log into the helpdesk using their current 2FA configuration, an Admin can reset the Agent's 2FA configuration so that they can reconfigure it upon their next successful login.
+email_address:
+  title: E-poçt ünvanı
+  content: >
+    <span class="doc-desc-title">Help deskdən</span> <span class="doc-desc-title">siqnallar&amp; xəbərdarlıqlar</span> qəbul edəcək agent e-poçtunu daxil edin.
+  0: <br><br>
+  1: Heyət hər hansı istifadəçi adı və ya e-poçt ünvanı ilə heyət idarə panelinə daxil ola bilər.
+welcome_email:
+  title: Salamlama e-poçtu
+  content: >
+    Yeni agentə öz şəxsi şifrəsini quraşdıra biləcəyi hesaba giriş linki göndərin. Əgər yoxlanılmayıbsa, şifrəni quraşdırmağa və yeni heyətə giriş məlumatını xəbər ehtiyacınız olacaq.
+account_password:
+  title: Hesab şifrəsi
+  content: >
+    <span class="doc-desc-title">Administrator</span> olaraq, siz agentin şifrəsini dəyişə bilərsiniz.
+forced_password_change:
+  title: Məcburi şifrə dəyişmə
+  content: >
+    Əgər yeni agentin növbəti girişdə şifrəsini dəyişməsinə məcbur etmək istəyirsinizsə bunu aktiv edin.
+agents_signature:
+  title: Agentin imzası
+  content: >
+    Agent üçün sorğuya cavab verərkən seçilə biləcək imza yaradın.
+account_status:
+  title: Hesab statusu
+  content: >
+    Əgər agentin statusu <span class="doc-desc-opt">kiliklidirsə</span>, onlar help deskə daxil ola bilməyəcəklər.
+assigned_group:
+  title: Təyin olunmuş qrup
+  content: >
+    Bu agentə aid olması üçün seçdiyiniz <span class="doc-desc-title">qrup</span> agentin  <span class="doc-desc-title">help deskdə</span> olduğu müddətdə hansı icazələri olduğunu müəyyən edəcək.
+  links:
+    - 
+      title: Qrupları idarə edin
+      href: /scp/groups.php
+primary_department:
+  title: Əsas şöbə
+  content: >
+    Choose the primary <span class="doc-desc-title">department</span> to which this Agent belongs and an effective <span class="doc-desc-title">Role</span>.
+  links:
+    - 
+      title: Şöbələri idarə et
+      href: /scp/departments.php
+primary_role:
+  title: Primary Role
+  content: >
+    Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
+primary_role_on_assign:
+  title: Use Primary Role For Assignments
+  content: >
+    Enable this to fallback to the <span class="doc-desc-title">primary role</span>  when this agent is assigned tickets and tasks outside of the <span class="doc-desc-title">primary department</span> and <span class="doc-desc-title">extended access</span> departments. Otherwise the agent will have view only access.
+daylight_saving:
+  title: Yay vaxtı
+  content: >
+    Əgər yaya keçid vaxtının bu agentin vaxt qurşağına avtomatik olaraq gəlməsini istəyirsinizsə bu funksiyanı aktiv edin.
+limited_access:
+  title: Limitli giriş
+  content: >
+    Əgər aktivdirsə, agentin ancaq birbaşa ona yönləndirilmiş və ya komanda tərəfindən təyin olunmuş sorğulara girişi olacaq.
+directory_listing:
+  title: Rəhbərlik siyahısı
+  content: >
+    Əgər <span class="doc-desc-title">heyət rəhbərliyindəki</span> bu agenti siyahıya almaq istəyirsinizsə bunu aktiv edin.
+  links:
+    - 
+      title: Heyət rəhbərliyini ziyarət edin
+      href: /scp/directory.php
+vacation_mode:
+  title: Məzuniyyət rejimi
+  content: >
+    Əgər siz agentin statusunu <span class="doc-desc-opt">məzuniyyət rejiminə</span> dəyişsəniz, agent hər hansı <span class="doc-desc-title">xəbərdarlıq &amp; siqnalları</span> qəbul etməyəcək və sorğu tapşırıqları üçün aktiv olmayacaq.
+

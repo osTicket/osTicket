@@ -1,0 +1,10 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  The Landing Page សំដៅទៅលើមាតិកាដំបូងនៃ អតិថិជនវិបផតថល Customer Portal។ពុម្ពគំរូ - កែប្រែមាតិកាដែលបានឃើញខាងលើនេះ - ភ្ជាប់ពីរតំណ two links គឺ <strong>Open a New Ticket</strong> និង <strong>Check Ticket Status</strong> ។
+name: Landing
+body: >
+  <h1>ស្វាគមន៍​មកកាន់ Support Center</h1> <p> នៅក្នុងគោលបំណងដើម្បីបំពេញតាមសំណើនិងការធ្វើឱ្យល្អប្រសើរជាងមុននៅក្នុងការបម្រើអតិថិជន យើងបានប្រើប្រាស់ប្រព័ន្ធគ្រប់គ្រងករណី ticket system។ រាល់ករណីស្នើសុំត្រូវបានផ្ដល់លេខសំណុំរឿងតែមួយគត់ unique ticket number ដែលអ្នកអាចប្រើដើម្បីតាមដានការវិវត្តនិងការឆ្លើយតបអនឡាញ។ សម្រាប់ជាឯកសារយោងរបស់អ្នក, យើងផ្តល់បណ្ណសារពេញលេញ និងប្រវត្តិនៃសំណើរបស់អ្នកទាំងអស់។ អាសយដ្ឋានអ៊ីមែល ដែលត្រឹមត្រូវ valid email គឺត្រូវបានទាមទារមុនពេលដែលអ្នកអាចដាក់សំណើករណីមួយ។ </p>

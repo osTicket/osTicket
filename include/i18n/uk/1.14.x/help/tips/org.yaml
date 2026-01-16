@@ -1,0 +1,22 @@
+---
+#This is the view / management page for an organization in the user
+#directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+org_sharing:
+  title: Загальнодоступна заявка
+  content: >
+    <p> Спільна обробка заявок організацією надає працівникам доступ до заявок, власниками яких є інші працівники </p> <p class="info-banner"> <i class="icon-info-sign"></i> Співвиконавці завжди мають доступ до заявок. </p>
+email_domain:
+  title: Домен e-mail
+  content: >
+    Користувачі можуть автоматично бути додані до організації, в залежності від доменів їхніх ел.адрес. Використовуйте поле нижче для введення одного або кількох доменів, розділених комами. Наприклад, введіть <code>mycompany.com</code> для користувачів, адреси яких закінчуються на @mycompany.com
+

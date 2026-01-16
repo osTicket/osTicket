@@ -1,0 +1,17 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Schedules
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+schedule:
+  title: Definição de programação
+  content: >
+    <b>Nome</b>: Nome exclusivo para o programação. <hr> <b>Tipo</b>: Escolha o tipo de agendamento. <span class="doc-desc-title">Horário Comercial</span> define as horas incluídas no cálculo das horas do SLA, onde <span class="doc-desc-title">Horário de Feriado</span> defini as horas que serão excluídas. <hr> <b>Fuso Horário</b>: Escolha o fuso horário para o agendamento. É recomendável deixá-lo vazio por um <span class="doc-desc-title">Flutuante</span> fuso horário. <br><br> O fuso horário flutuante permite que os horários sejam relativos ao fuso horário efetivo no momento do uso.<span class="doc-desc-title">.
+

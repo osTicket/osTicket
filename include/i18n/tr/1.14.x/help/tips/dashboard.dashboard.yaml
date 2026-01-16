@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Talep Etkinliği
+  content: >
+    Grafik ve tablonun (Örn.  <span class="doc-desc-title">İstatistik</span>) güncellenmesi için bir tarih aralığı belirleyin. Grafik sistemdeki tüm verinin bir önizlemesini yansıtacaktır (Örn. Popülasyon). Fakat  <span class="doc-desc-title">İstatistik</span> tablosu üzerinde gezinerek daha dar bir konuya inebilirsiniz (Örn. Bölümler, Konular veya Personel). Ek olarak,  <span class="doc-desc-title">İstatistik</span> tablosunda görüntülenen tüm veriyi dışarıya aktarabilirsiniz.
+report_timeframe:
+  title: Rapor Zaman Aralığı
+  content: >
+    İstenilen veri örneği için,Tarih seçici ile bir başlangıç tarihini seçiniz. Daha sonra, bu tarihten veri örneğinizin genişliğini belirleyecek, bitiş tarihini seçiniz.
+statistics:
+  title: İstatistikler
+  content: >
+    İlgi duyulan konu belirli örnek verileri görüntülemek için ilgili sekmeyi tıklayarak gidin. Tablo içinde daireler nominal veri boyutunu temsil eder. Bu nedenle, daha büyük daha büyük belirli bir hücre içinde sayı bitişik daire-ecek var olmak.
+opened:
+  title: Açık
+  content: >
+    Başlangıçta açılmış olan biletler, bilet üzerinde Departman veya Yardım Konusu ile veya bir Temsilcinin Kullanıcı adına açtığı bilet sayısıdır.
+assigned:
+  title: Atanmış
+  content: >
+    Bir Temsilciye veya Ekibe atanmış biletler. Sayı, aracılara veya ekiplere manuel olarak atanan biletleri, talep edilen biletleri ve bilet filtrelerinden / diğer otomatik atama kurallarından atanan biletleri gösterir.
+overdue:
+  title: Süresi Aşmış
+  content: >
+    Sistem tarafından ‘Geciken’ olarak işaretlenmiş biletler. Biletler, ait oldukları SLA Planını ihlal ettiklerinde Sona Erme tarihini geçtikten sonra “Açık” statüsüne sahip olmaları nedeniyle Gecikmiş olarak işaretlendi.
+closed:
+  title: Kapalı
+  content: >
+    Halen Kapalı durumda olan Biletlerin sayısı.
+reopened:
+  title: Yeniden Açıldı
+  content: >
+    Bir biletin toplam kaç kez açıldığı. Durumları Kapalı'dan Açık'a değiştirildiğinde, biletler yeniden açılır.
+deleted:
+  title: Silindi
+  content: >
+    Silinen biletlerin miktarı.
+service_time:
+  title: Hizmet Süresi
+  content: >
+    Bir biletin açılışında başlayan ve bilet kapatıldığında sona eren süreyi ifade eder. Servis Süresi sütunu, bilet başına ortalama Servis Süresi'ni saat olarak ölçer.
+response_time:
+  title: Yanıt süresi
+  content: >
+    Bir temsilcinin ortalama bir yanıt süresini saat cinsinden bilet eşleşmesine gösterir.

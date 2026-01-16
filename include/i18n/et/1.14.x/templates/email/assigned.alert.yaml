@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Saadetakse meeskonna liikmetele, kui pilet on neile suunatud. Suunamine võib toimuda automaatselt süsteemi poolt või käsitsi kaastöötaja poolt. Suunaja teadasaamiseks, kasuta %{assigner}.
+subject: |
+  Pilet on suunatud Sulle
+body: |
+  <h3><strong>Tere %{assignee.name.first}!</strong></h3>
+  Pilet <a href="%{ticket.staff_link}">#%{ticket.number}</a> suunati sulle lahendamiseks %{assigner.name.short} poolt
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Kellelt</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Teema</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Selleks, et näha või vastata piletile, palun <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >logi sisse</span></a> piletite haldussüsteemi</div>
+  <em style="font-size: small; ">Sinu sõbralik kasutajatugi</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

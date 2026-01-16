@@ -62,6 +62,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 $.dialog('ajax.php/sequence/manage', 205);
                 return false;
                 "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
+                <!-- osta --><span>&nbsp;</span>
                 <i class="help-tip icon-question-sign" href="#sequence_id"></i>
             </td>
         </tr>

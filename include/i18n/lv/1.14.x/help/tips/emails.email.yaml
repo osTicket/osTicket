@@ -1,0 +1,85 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket_help_topic:
+  title: Jauna pieteikuma Help Topic
+  content: >
+    Izvēlieties <span class="doc-desc-title">Help Topic</span>, kas tiks automātiski piesaistīts pieteikumiem, kas izveidoti no šīs e-pasta adreses. <br/><br/> Ar Help Topic asociētās formas tiks pievienotas pieteikumam, bet tās nesaturēs datus.
+  links:
+    - 
+      title: Pārvaldīt Help Topics
+      href: /scp/helptopics.php
+new_ticket_priority:
+  title: Jauna pieteikuma prioritāte
+  content: >
+    Izvēlies <span class="doc-desc-title"> prioritāti </span> jauniem pietiekumiem, kuri nāk no šīs e-pasta adreses.
+new_ticket_department:
+  title: Jauna pieteikumu departaments
+  content: >
+    Izvēlieties <span class="doc-desc-title">Departamentu</span>, kuram jaunie, ar šo e-pastu izveidotie pieteikumi, tiks nodoti.
+  links:
+    - 
+      title: Pārvaldīt Departamentus
+      href: /scp/departments.php
+auto_response:
+  title: Automātiskā atbilde jaunam pieteikumam
+  content: >
+    Jūs varat atspējot Automātisko Atbildi, kas tiks nosūtīta lietotājam, kad jauns pieteikums tiks izveidots ar šo e-pasta adresi.
+username:
+  title: Lietotāja vārds
+  0: >
+
+password:
+  title: Parole
+  0: >
+
+login_information:
+  title: E-pasta pieslēgšanās informācija
+  content: >
+    <span class="doc-desc-title">Lietoātjvārds</span> un <span class="doc-desc-title">Parole</span> ir nepieciešami, lai iegūtu e-pastu no IMAP / POP pasta kastītēm, kā arī, lai nosūtītu e-pastu caur SMTP.
+mail_account:
+  title: E-pastu straumēšana
+  content: >
+    Straumēt e-pastus no attālinātas IMAP vai POP pasta kastītes un pārvērst tos pieteikumos, kas adresēti Jūsu Help Desk.
+  links:
+    - 
+      title: Iestatīt <span class="doc-desc-title">E-pastu savākšanas</span>&amp;<span class="doc-desc-title">AutoCron</span> iestatījumus.
+      href: /scp/settings.php?t=emails
+host_and_port:
+  title: Attālinātais serveris
+  content: >
+    Ievadiet Jūsu e-pasta servera <span class="doc-desc-title">hostname</span> un <span class="doc-desc-title">porta</span> numuru.
+protocol:
+  title: Pasta kastītes protokols
+  content: >
+    Izvēlieties kādu pasta kastītes protokolu atbalsta Jūsu attālinātais e-pasta serveris. Tiek rekomendēts IMAP un, ja iespējams, iestatīts SSL .
+fetch_frequency:
+  title: Straumēt periodiski
+  content: >
+    Ievadiet laika posmu ik pēc cik minūtēm sistēmai jāpārbauda e-pasts. <br/><br/> Tas noteiks arī Automātiskās atbildes piegādes laiku pēc problēmas pieteikuma nosūtīšanas.
+emails_per_fetch:
+  title: Straumēto e-pastu skaits
+  content: >
+    Ievadiet e-pastu daudzumu, kuri tiks apstrādāti vienlaicīgi.
+fetched_emails:
+  title: Izvēlētie e-pasti
+  content: >
+    Izvēlieties ko darīt ar apstrādātajām vēstulēm: <br/><br/><span class="doc-desc-opt"><b> Pārvietot uz mapi</b></span>: tas pārvietos vēstuli no mapes IENĀKOŠIE uz Jūsu norādīto mapi. Ja šī mape šobrīd neeksistē uz servera, tad sistēma mēģinās to izveidot automātiski. (<b>Ieteicams</b>) <hr><span class="doc-desc-opt"><b>Izdzēst e-pastus</b></span>: tas izdzēsīs vēstuli no mapes IENĀKOŠIE, kolīdz vēstule tiks apstrādāta. <hr><span class="doc-desc-opt"><b> Nedarīt neko</b></span>: Tas atstās e-pastus mapē IENĀKOŠIE. Sistēma pierakstīs vēstules ID un centīsies to neiestraumēt vēlreiz. Tomēr, šī opcija var radīt pieteikumu dublēšanos. (<em>Nav ieteicams</em>)
+smtp_settings:
+  title: SMTP iestatījumi
+  content: >
+    E-pasts, kas tiek nosūtīts no Help Desk, var tikt nosūtīts caur SMTP serveri. Tas tiek rekomendēts, ja iespējams, jo tas palielinās e-pasta piegādes iespējamību un samazinās varbūtību, ka e-pasts tiks atzīmēts kā spams.
+header_spoofing:
+  title: Atļaut sadaļu izvēli
+  content: >
+    Iespējojiet šo, lai atļautu e-pastu nosūtīšanu caur šo pastkastīti no citas adreses, kas nav norādīta <span class="doc-desc-title">E-pasta Adrese</span> iestatījumos augstāk. <br/><br/> Šis advancētais iestatījums parasti tiek lietots, kad vēstule tiek sūtīta no šīs pastkastītes aliasiem.
+

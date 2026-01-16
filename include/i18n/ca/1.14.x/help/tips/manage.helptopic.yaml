@@ -1,0 +1,88 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+help_topic_information:
+  title: Informació del tema d'ajuda
+  content: >
+    <span class="doc-desc-title"> temes d'ajuda</span> guia quina informació es recaptin dels usuaris i com els Tickets són encaminats o assignats.
+topic:
+  title: Nom del tema
+  content: >
+    Nom únic tema d'ajuda.
+status:
+  title: Estat
+  content: >
+    Si aquest <span class="doc-desc-title">tema d'ajuda</span> està desactivat o arxivat, no estarà disponible.
+type:
+  title: Tipus
+  content: >
+    Si un <span class="doc-desc-title"> tema d'ajuda</span> s'etiqueta com a privada, només estarà disponible per als Agents a triar quan un Agent s'obre un nou Ticket sota el quadre de personal.
+parent_topic:
+  title: Tema principal
+  content: >
+    Seleccione el tema principal a el qual pertanyen aquests <span class="doc-desc-title"> teme d'ajuda</span>. El tema principal apareixerà primer en la llista amb aquest <span class="doc-desc-title"> temes d'ajuda</span> llistades darrere del principal.
+custom_form:
+  title: Formulari personalitzat
+  content: >
+    Formularis personalitzats  li ajudarà a adquirir informació més específica d'usuaris que són rellevants per a aquest <span class="doc-desc-title"> tema d'ajuda</span>.
+  links:
+    - 
+      title: Gestió de formularis personalitzats
+      href: /scp/forms.php
+priority:
+  title: Prioritat
+  content: >
+    Seleccione la prioritat assignada a nous tickets relacionats amb aquest <span class="doc-desc-title"> tema d'ajuda</span>. <br><br> Els Filtres de Ticket  poden invalidar la prioritat d'un nou Ticket.
+department:
+  title: Departament
+  content: >
+    Triar el Departament al qual s'encaminarà nous Tickets sota aquest tema d'ajuda.
+  links:
+    - 
+      title: Gestionar Departaments
+      href: /scp/departments.php
+sla_plan:
+  title: pla SLA
+  content: >
+    Triar pla  SLA associat amb aquest <span class="doc-desc-title"> tema d'ajuda</span>. <br><br>Aquesta selecció, se substituirà qualsevol pla seleccionat  del Departament de SLA 
+  links:
+    - 
+      title: Gestionar Plans de SLA
+      href: /scp/slas.php
+thank_you_page:
+  title: Pàgina d'agraïment
+  content: >
+    Triar la pàgina d'agraïment al qual està dirigit un usuari després d'obrir un Ticket sota aquest <span class="doc-desc-title"> tema d'ajuda</span>.
+  links:
+    - 
+      title: Administrar pàgines d'agraïment
+      href: /scp/pages.php
+auto_assign_to:
+  title: Assignació automática de Nous Tickets
+  content: >
+    Opcionalment es pot escollir un Agent o equip d'auto-assignació de Tickets oberts amb aquest <span class="doc-desc-title"> tema d'ajuda</span> <br><br>Filtres de Ticket poden invalidar assignació.
+  links:
+    - 
+      title: Gestionar personal i equips
+      href: /scp/staff.php
+ticket_auto_response:
+  title: Resposta automàtica de Ticket
+  content: >
+    Si està marcada, Els ajustos impossibilitarn un nou Ticket de resposta automática d'aquest <span class="doc-desc-title"> tema d'ajuda</span>. <br><br>Això invalida els ajustos d'autoresposta per a el <span class="doc-desc-title"> Departament</span> així com global <span class="doc-desc-title"> Ajustos de resposta automàtica</span>.
+  links:
+    - 
+      title: Configuració de resposta automàtica
+      href: /scp/settings.php?t=autoresp
+custom_numbers:
+  title: Números de tiquet personalitzats
+  content: >
+    Seleccioni "Personalitzat" per anular el format de numeració per defecte per als tiquets creats en aquest tema d'ajuda. Consulti els consells d'ajuda en la pàgina de configuració de tiquets per a més detalls sobre la configuració.

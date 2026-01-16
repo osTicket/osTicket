@@ -1,0 +1,55 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Autoresponder
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+new_ticket:
+  title: Nuovo Ticket
+  content: >
+    Abilitata per inviare una risposta automatica all'utente su nuovo ticket.
+  links:
+    - 
+      title: Nuovo modello di risposta automatica del biglietto
+      href: /scp/templates.php?default_for=ticket.autoresp
+new_ticket_by_staff:
+  title: Nuovi ticket da parte dello staff
+  content: >
+    Avviso inviato quando un Operatore crea un ticket per conto dell'utente. <em>L'operatore può scegliere comunque se inviare o meno l'email quando crea il Ticket.</em>
+  links:
+    - 
+      title: Nuovo modello di avviso di biglietto
+      href: /scp/templates.php?default_for=ticket.notice
+new_message_for_submitter:
+  title: Nuovo messaggio di conferma
+  content: >
+    La notifica di conferma inviata quando un nuovo messaggio viene accodato ad un Ticket esistente.
+  links:
+    - 
+      title: Nuovo modello di conferma del messaggio
+      href: /scp/templates.php?default_for=message.autoresp
+new_message_for_participants:
+  title: Nuovo avviso di messaggio
+  content: >
+    Invia i messaggi ricevuti dal mittente a tutti i partecipanti al ticket.
+  links:
+    - 
+      title: Nuovo modello di avviso attività
+      href: /scp/templates.php?default_for=ticket.activity.notice
+overlimit_notice:
+  title: Notifica fuori limite
+  content: >
+    Avviso inviato all'utente in caso di superamento del <span class="doc-desc-title"> Massimo Numero di Tickets Aperti </span>.
+  links:
+    - 
+      title: Modello di avviso overlimit
+      href: /scp/templates.php?default_for=ticket.overlimit
+    - 
+      title: Imposta il numero <em>massimo di biglietti aperti</em>
+      href: /scp/settings.php?t=tickets

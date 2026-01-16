@@ -1,0 +1,30 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Lähetetään henkilöstön jäsenille, kun tiketti vanhenee järjestelmässä.
+  Tiketit vanhenee perustuen tiketille määrättyyn päivämäärään tai tiketille määrätyn Palvelutason mukaan.
+subject: |
+  Varoitus vanhentuvasta tiketistä
+body: |
+  <h3><strong>Terve %{recipient}</strong>,</h3>
+  Tiketti, <a href="%{ticket.staff_link}">#%{ticket.number}</a> on todella vanha.
+  <br>
+  <br>
+  Meidän kaikkien tulee huolehtia, että jokainen tiketti osoitetaan ajoissa.
+  <br>
+  <br>
+  Allekirjoittanut,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Nähdäksesi tai vastataksesi tikettiin<a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >kirjaudu</span></a> tukitiketti järjestelmään. Sait tämän ilmoituksen, koska joko tämä tiketti on suoraan sinulle määrätty, 
+  tai kuulut tiettyyn ryhmään, osastoon, jolle tämä tiketti on määrätty.</div>
+  <em style="font-size: small">Ystävällisesti<span style="font-size: smaller"
+  >(vaikkakin rajoitetulla kärsivällisyydellä)</span> Asiakastuki järjestelmä</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+  alt="Käyttää osTicket-moottoria" width="126" style="width: 126px;">

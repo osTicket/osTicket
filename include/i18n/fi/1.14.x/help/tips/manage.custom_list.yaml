@@ -1,0 +1,40 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> Add New Custom List
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+custom_lists:
+  title: Mukautetut listat
+  content: >
+    Sinun <span class="doc-desc-title">muokattavat listat</span> antavat mahdollisuuden luoda alasvetovalikkoja esimääritellyillä vaihtoehdoilla, joista asiakas voi valita <span class="doc-desc-title">Muokatun lomakkeen</span>. Jos haluat käyttää tätä <span class="doc-desc-title">muokattavaa listaa</span> kuin <span class="doc-desc-title">kohteena</span> <span class="doc-desc-title">Tiketti suodatimessa</span>, muista lisätä tämä lista omalle <span class="doc-desc-title">Tiketin Tiedot</span> lomakkeelle.
+name:
+  title: Nimi
+  0: >
+
+plural_name:
+  title: Monikko nimi
+  0: >
+
+sort_order:
+  title: Lajittelujärjestys
+  0: >
+
+list_s_initial_items:
+  title: Listaa tärkeimmät osat
+  0: >
+
+value:
+  title: Arvo
+  0: >
+
+extra:
+  title: Extra
+  content: >
+    Lyhenteet ja muut. Jos tapaat käyttää sisäisiä koodeja tällä listalla, nuo koodit ja lyhenteet voidaan lisätä tähän sarakkeeseen. Jos muokatulla listalla on <span class="doc-desc-option"> Kirjoitettu etukäteen</span>, näitä lyhenteitä voidaan käyttää hakujen tekemiseen muokatun listan osista.

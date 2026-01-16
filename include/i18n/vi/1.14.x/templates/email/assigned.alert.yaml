@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Gửi đến các nhân viên khi một thẻ hỗ trợ được chuyển giao cho họ. Thẻ hỗ trợ có thể được chuyển giao tự động bởi hệ thống hoặc thủ công bởi một nhân viên khác.  Sử dụng %{assigner} để xem người người chuyển giao nhiệm vụ.
+subject: |
+  Thẻ yêu cầu được chuyển giao cho bạn
+body: |
+  <h3><strong>Chào %{assignee.name.first},</strong></h3>
+  Thẻ hỗ trợ <a href="%{ticket.staff_link}">#%{ticket.number}</a> đã được chuyển giao cho bạn bởi
+   %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Từ</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Tiêu đề</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Để xem/trả lời thẻ yêu cầu, Hãy <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >đăng nhập</span></a> hệ thống thẻ hỗ trợ</div>
+  <em style="font-size: small; ">Hệ thống hỗ trợ khách hàng thân thiện của bạn</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

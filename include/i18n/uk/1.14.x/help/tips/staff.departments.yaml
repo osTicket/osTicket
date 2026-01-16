@@ -1,0 +1,21 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Departments
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+type:
+  title: Тип
+  content: >
+    Якщо тип цього відділу - Приватний, то підпис відділу не буде доступний в відповідях, а призначення заявок на цей відділ не відображатимуться на клієнтському порталі.
+dept_manager:
+  title: Керування відділом
+  content: >
+    Ви можете вибрати співробітника на роль менеджера відділу, щоб він отримував сповіщення та повідомлення на заявки у відділах.
+  0: Для того, щоб бути менеджером відділу, співробітник не обов'язково повинен бути членом відділу

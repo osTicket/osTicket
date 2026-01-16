@@ -1,0 +1,24 @@
+---
+#Upgrade completed ticket
+#This ticket is added to the system after the completion of an upgrade. It
+#might include information specific to the release, perhaps with some new
+#feature highlights, etc.
+#---
+source: Web #notrans
+name: Support osTicket
+email: support@osticket.com
+subject: osTicket mis à jour !
+message: |
+  <p>
+  osTicket a été mis à jour avec succès ! Veuillez consulter les notes de mise à jour (https://docs.osticket.com/en/latest/Getting%20Started/v1-11%20Overview.html) pour plus d'informations sur les changements et nouveautés.
+  </p><p>
+  N'oubliez pas de rejoindre les <a href="https://forum.osticket.com"> forums osTicket</a> pour être tenu au courant des dernières nouvelles, des mises à jour de sécurité et des alertes ! Votre contribution à la communauté d'osTicket sera appréciée !
+  </p><p>
+  L'équipe d'osTicket s'engage à fournir du soutien à tous les utilisateurs par le biais de nos ressources en ligne gratuites et une gamme complète de services et packs commerciaux. Pour plus d'informations ou pour discuter de vos besoins, contactez-nous dès aujourd'hui sur <a href="https://osticket.com/support/">https://osticket.com/support/</a>. Tout commentaire sera apprécié !
+  </p><p>
+  Si vous êtes découragé par la gestion et la mise à jour de cette installation de osTicket, vous pouvez accéder à osTicket en tant que service hébergé, auprès de <a href="http://www.supportsystem.com/">https://www.supportsystem.com/</a> -- vous n'aurez plus à vous soucier des mises à jour et nous pouvons importer vos données ! Avec l'infrastructure clé en main de SupportSystem, vous obtenez le meilleur de osTicket et pouvez vous concentrer sur vos clients sans vous soucier de maintenir l'application stable, à jour et sûre.
+  </p><p>
+  -<br/>
+  L'équipe osTicket<br/>
+  <a href="https://osticket.com/">https://osticket.com/</a>
+  </p>

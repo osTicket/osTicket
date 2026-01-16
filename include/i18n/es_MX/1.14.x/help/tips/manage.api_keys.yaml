@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Admin Panel -> Manage -> API Keys
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+api_key:
+  title: Clave API
+  content: >
+    Las clave API son usadas para autenticar a los clientes que están enviando nuevas solicitudes de servicio por medio de la Application Programming Interface (API).  Las claves API  son creadas para ser usadas como contraseñas. Las claves API pueden enviarse sin encriptar, siempre y cuando estén vinculadas a la dirección IP de la red de cada cliente.
+  links:
+    - 
+      title: Documentación de la API de osTicket
+      href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
+ip_addr:
+  title: Dirección IP
+  content: >
+    Dirección IP del cliente. Cada dirección IP unica de cliente necesitará una clave API separada

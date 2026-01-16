@@ -1,0 +1,25 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  S'envia als agents quan es publica un nou missatge o nota a una tasca. Això pot passar si un col·laborador o un agent respon a un correu enviat pel sistema o visita el portal web i hi publica un nou missatge.
+subject: |
+  Activitat de les tasques [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>Hola %{recipient.name},</strong></h3>
+  Tasca <a href="%{task.staff_link}">#%{task.number}</a> actualitzada: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>Per veur o respondre a la tasca, si us plau <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >accedeix</span></a> al sistema</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">Amablement, de part del teu servei d'atenció a l'usuari</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

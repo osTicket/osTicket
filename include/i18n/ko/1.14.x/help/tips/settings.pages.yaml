@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: 회사 정보
+  content: >
+    이는 osTicket과 지원 스태프로부터 혜택을 받는 회사나 조직을  주목하게 합니다. 이 정보는 에이전트가 티켓에 응답할 때 이메일의 서명(하단 꼬릿말)에 표시됩니다.
+  links:
+    - 
+      title: 회사 정보 양식
+      href: /scp/forms.php?type=C
+landing_page:
+  title: 랜딩 페이지
+  content: >
+    <span class="doc-desc-title">렌딩 페이지</span>란 서포트 사이트의 초기화면을 말합니다.
+offline_page:
+  title: 오프라인 페이지
+  content: >
+    <span class="doc-desc-title">오프라인 페이지</span>란 서포트 사이트를 오프라인으로 설정하였을때 표시되는 화면을 말합니다.Admin Panel -&gt; Setting -&gt; System -&gt; Helpdesk Status 를 확인하세요.
+default_thank_you_page:
+  title: 디폴트 문의 완료 페이지
+  content: >
+    <span class="doc-desc-title">문의 완료 페이지</span>란 <span class="doc-desc-title">고객</span>이 새 티켓을 발행완료 하였을 때 표시되는 화면입니다. <br/><br/> <span class="doc-desc-title">문의 완료</span>페이지는 help topics과 연관시키는 것이 가능합니다.
+logos:
+  title: 로고
+  content: >
+    클라이언트 포탈 (서포트 사이트)의 <span class="doc-desc-title">로고</span>를 커스터마이즈 할 수 있습니다.
+upload_a_new_logo:
+  title: 새 로고 업로드
+  content: >
+    .gif、.jpg、.png 형식의 이미지를 선택합니다. 이미지는 표시규격에 맞게 리사이즈됩니다. 하지만 이미지의 데이터사이즈 변경은 불가능합니다. 그렇기 때문에 표시시간을 단축하기위해서 (817px &times; 170px) 에 가까운 사이즈로 리사이즈 해주세요.
+backdrops:
+  title: 배경화면
+  content: >
+    직원 로그인 페이지에 표시될 <span class="doc-desc-title">배경화면</span>을 사용자 정의할 수 있습니다.
+upload_a_new_backdrop:
+  title: 새 배경화면 업로드
+  content: >
+    .gif, .jpg 또는 .png 형식의 이미지를 선택하십시오. 이미지 크기를 비례적으로 조정할 것입니다. 그러나 데이터 크기는 조정하지 않을 것입니다. 로드 시간을 빨리 하기 위해서는 작은 이미지를 사용하는 것이 좋습니다(메가바이트 이하). 또한 PHP 최대 업로드 설정이 적용된다는 점에 유의하십시오.

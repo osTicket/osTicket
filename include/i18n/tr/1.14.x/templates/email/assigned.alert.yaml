@@ -1,0 +1,47 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Bir personele bir talep atandığında gönder. Talepler otomatik olarak sistem tarafından veya elle personel tarafından atanabilir. %{assigner} atama yapan kişinin kim olduğunu ayırt etmede kullanın.
+subject: |
+  Talep size atandı
+body: |
+  <h3><strong>Merhaba %{assignee.name.first},</strong></h3>
+  <a href="%{ticket.staff_link}">#%{ticket.number}</a> numaralı talep size
+  %{assigner.name.short} tarafından atanmıştır.
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Kimden</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Konu</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Talebi görüntülemek ya da cevap yazmak için lütfen Destek Talep Sistemine
+  <a href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);">giriş</span>
+  </a> yapın. </div>
+  <em style="font-size: small">Müşteri Destek Sistemi</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="osTicket tarafından güçlendirildi" width="126" height="19" style="width: 126px;">

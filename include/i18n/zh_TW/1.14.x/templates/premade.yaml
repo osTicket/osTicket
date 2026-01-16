@@ -1,0 +1,26 @@
+---
+- 
+  #Canned response templates
+  #---
+  isenabled: 1
+  title: OsTicket 是什麼 （範例說明）？
+  response: |
+    osTicket 是一個廣泛使用的開放原始碼的支援案件系統，對於成本較高和複雜的客戶支援系統而言我們具備更強的優勢：  簡單、 輕巧、 可靠、 原始碼開放，web基礎和易於安裝和使用。
+  0: |
+
+  attachments:
+    - 
+      name: osTicket.txt
+      type: text/plain
+      data: 如同簡易安裝的罐頭搖滾樂！
+- 
+  isenabled: 1
+  title: 範例 （與多樣式）
+  response: |
+    Hi %{ticket.name.first},
+    <br>
+    <br>
+    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    %{ticket.dept.name} department.
+  0: |
+

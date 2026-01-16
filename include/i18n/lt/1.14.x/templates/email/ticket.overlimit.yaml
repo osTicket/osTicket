@@ -1,0 +1,16 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Vartotojams siunčiama kai jie viršijo leistiną maksimalų atvirų užklausų skaičių. Riba yra konfigūruojama administratoriaus skydelyje, ir apibrėžia atidarytų užklausų skaičių ypač naudojant tam tikrą elektroninio pašto adresą.
+subject: |
+  Pasiekta leistina atidarytų užklausų riba
+body: |
+  <h3><strong>Gerbiamas%{ticket.name.first},</strong></h3>
+  Jūs paiekėte maksimalų leistiną atidarytų užklausų kiekį. Kad galėtumėte atidaryti kitą užklausą, viena iš jūsų nagrinėjamų užklausų turi būti uždaryta.
+  Kad atnaujintumėte užklausa arba pridėtumėte komentarus į atidarytą užklausą tiesiog<a
+  href="%{url}/tickets.php?e=%{ticket.email}">prisijunkite prie mūsų pagalbos sistemos</a>.<br><br>Ačiū,<br/>
+  Pagalbos užklausų sistema

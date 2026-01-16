@@ -1,0 +1,72 @@
+---
+#This is popup help messages for the Staff Panel -> Tickets -> Open
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+search_field:
+  title: Поле Поиска
+  0: >
+
+advanced:
+  title: Дополнительно
+  content: >
+    Сузьте свои параметры поиска. После того, как Вы выбрали дополнительные критерия поиска и выполнили поиск - Вы можете <span class="doc-desc-title">Экспортировать</span> данные внизу страницы Заявок.
+open_tickets_table:
+  title: Таблица Открытых Заявок
+  content: >
+    Все Заявки, которые сейчас открыты и требуют внимания
+ticket:
+  title: Заявка
+  0: >
+
+date:
+  title: Дата
+  0: >
+
+subject:
+  title: Тема
+  0: >
+
+from:
+  title: От
+  0: >
+
+priority:
+  title: Приоритет
+  0: >
+
+assigned_to:
+  title: Назначено На
+  0: >
+
+export:
+  title: Экспорт
+  content: >
+    Экспортировать данные, которые сейчас отображаются, в CSV-файл. CSV-файлы могут быть открыты любым редактором таблиц (например, Microsoft Excel, Apple Pages, OpenOffice Calc и др.).
+advanced_search_dialog:
+  title: Расширенный поиск
+  0: >
+
+adv_keyword:
+  title: Поиск по ключевым словам
+  content: >
+    Найти совпадения на основании темы и тел сообщений ветки Заявки, а также всего текстового содержимого, связанного с настраиваемыми полями Пользователей и Заявок.
+adv_date_range:
+  title: Поиск по дате
+  content: >
+    Определение здесь
+merge_types:
+  title: Типы Слияния
+  content: >
+    <b>Объединять Потоки:</b> Потоки Заявок будут отображаться в хронологическом порядке.</br><b>Разделять Потоки:</b>Потоки Заявок будут отображаться раздельно - по одному за раз.
+reply_types:
+  title: Типы Ответов
+  content: >
+    <b>Ответить Всем:</b> этот ответ отправляется Пользователю и Соавторам, которых вы хотите включить.</br> <b>Ответ Пользователю:</b> этот ответ отправляется только Пользователю, без Соавторов.</br> <b>Не отправлять ответ по электронной почте:</b> уведомления по электронной почте не отправляются, однако ответ сотрудника виден <b>ВСЕМ</b> Пользователям при просмотре Заявки.

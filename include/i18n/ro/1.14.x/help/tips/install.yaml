@@ -1,0 +1,69 @@
+---
+#Help popup items for the installer
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+helpdesk_name:
+  title: Nume Helpdesk
+  content: |
+    <p>Numele sistemului de suport, de exemplu Suport [Nume Companie]</p>
+system_email:
+  title: Adresa e-mail implicita
+  content: |
+    <p>Adresa email implicita.  Exemplu support@yourcompany.com - poti adauga mai multe mai tarziu!</p>
+default_lang:
+  title: Limba implicită a sistemului
+  content: |
+    <p>Informatiile initiale pentru aceasta limba vor fi instalate in baza de date. Templateurile de email si paginile standard ale sistemului vor fi instalate pt aceasta limba.</p>
+  links:
+    - 
+      title: Pachete lingvistice osTicket
+      href: 'https://osticket.com/download/#ostLang'
+first_name:
+  title: Prenume
+  content: |
+    <p>Preume Administrator</p>
+last_name:
+  title: Nume
+  content: |
+    <p>Nume Administrator</p>
+email:
+  title: Adresa de e-mail
+  content: |
+    <p>Adresa e-mail personala a Administratorului. Trebuie sa fie diferita de adresa implicita a sistemului. </p>
+username:
+  title: Nume de utilizator
+  content: |
+    <p>Numele de utilizator al Administratorului. Trebuie sa contina cel putin trei (3) caractere.</p>
+password:
+  title: Parola
+  content: |
+    <p>Parola Administratorului.  Trebuie sa contina minim cinci (5) caractere.</p>
+password2:
+  title: Confirmă parola
+  content: |
+    <p>Confirma parola Administratorului. Trebuie sa corespunda cu parola anterioara.</p>
+db_prefix:
+  title: Prefix tabela MySQL
+  content: |
+    <p>osTicket necesita un prefix al tabelei pentru a evita posibilele conflicte intr-o baza de date folosita de mai multe servicii. </p>
+db_host:
+  title: Hostname MySQL
+  content: |
+    <p>Majoritatea host-urilor folosesc 'localhost' ca nume pentru host-ul bazei de date locale.</p><p>Va fi folosit portul implicit definit în php.ini.
+    Dacă portul bazei tale de date nu e standard, poate fi specificat sub forma <code>hostname:port</code></p>
+db_schema:
+  title: Baza de date MySQL
+  content: |
+    <p>Numele bazei de date pe care o va folosi osTicket. </p>
+db_user:
+  title: Numele de utilizator MySQL
+  content: |
+    <p> Utilizatorul MySQL trebuie să aibă drepturi depline la baza de date. </p>
+db_password:
+  title: Parola MySQL
+  content: |
+    <p> Parola MySQL asociată cu utilizatorul de mai sus. </p>

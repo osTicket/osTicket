@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  To ustvari glavo na prijavni strani stranke. To je lahko koristno, saj obvesti tvoje stranke o vaši trenutni prijavi in ​​politiki za registracijo.
+name: "Prijavite se v %{company.name}"
+body: >
+  Za boljšo podporo vam, vzpodbujamo stranke, da se registrirajo za pridobitev računa.

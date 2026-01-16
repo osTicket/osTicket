@@ -1,0 +1,87 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+username:
+  title: Brukernavn
+  content: >
+    Velg en Agent <span class="doc-desc-title"> brukernavn</span> som er unik for <span class="doc-desc-title"> Brukerstøtte</span>.
+email_address:
+  title: E-postadresse
+  content: >
+    Angi Agent epost som skal motta <span class="doc-desc-title"> varsler og meldinger</span> fra <span class="doc-desc-title"> Help Desk</span>.
+  0: <br><br>
+  1: Ansatte kan logge inn på ansatte med enten brukernavn eller epost adresse.
+welcome_email:
+  title: Velkomst e-post
+  content: >
+    Send nye agenter en kontotilgang kobling hvor Agentene vil kunne sette sine egne passord. Hvis umerket, må du angi passord og kommunisere innlogging informasjonen til nye ansatte.
+account_password:
+  title: kontoens Passord
+  content: >
+    Som <span class="doc-desc-title"> administrator</span> kan du endre en Agents passord.
+forced_password_change:
+  title: Tvungen passordendring
+  content: >
+    Aktiver dette hvis du vil tvinge nye agentene til å endre sine egne passord på neste innlogging.
+agents_signature:
+  title: Agent signatur
+  content: >
+    Opprette en signatur for agenter som kan velges når du svarer på en sak.
+account_status:
+  title: Kontostatus
+  content: >
+    Hvis Agent statusen er <span class="doc-desc-opt"> låst</span>, vil de ikke kunne logge på helpdesk.
+assigned_group:
+  title: Tilordnet gruppe
+  content: >
+    <span class="doc-desc-title"> Gruppen</span> du vil at denne agenten skal tilhøre bestemmer hvilke tillatelser Agent har <span class="doc-desc-title"> Help Desk</span>.
+  links:
+    - 
+      title: Administrer grupper
+      href: /scp/groups.php
+primary_department:
+  title: Primær avdeling
+  content: >
+    Velg primær <span class="doc-desc-title">avdeling</span> for Agenten og en aktiv<span class="doc-desc-title">Rolle</span>.
+  links:
+    - 
+      title: Administrer avdelinger
+      href: /scp/departments.php
+primary_role:
+  title: Primær rolle
+  content: >
+    Velg den primære <span class="doc-desc-title"> rollen</span> som denne agenten tilhører.
+primary_role_on_assign:
+  title: Bruk hovedrolle for oppdrag
+  content: >
+    Slå på denne for å falle tilbake på <span class="doc-desc-title">primær rolle</span> når denne agenten blir tildelt saker og oppgaver utenfor <span class="doc-desc-title">primær avdeling</span> og <span class="doc-desc-title">utvidet tilgang</span>avdelinger. Ellers vil agenten bare ha lese tilgang.
+daylight_saving:
+  title: Sommertid
+  content: >
+    Aktiver denne funksjonen hvis du ønsker at sommertid automatisk tiltrer for denne agentens tidssone.
+limited_access:
+  title: Begrenset tilgang
+  content: >
+    Hvis aktivert, vil agenten bare ha tilgang til saker tilordnet direkte eller via teamet.
+directory_listing:
+  title: Adresseliste
+  content: >
+    Aktiver dette hvis du vil vise denne agenten i <span class="doc-desc-title"> Ansatte-katalogen</span>.
+  links:
+    - 
+      title: Besøk ansatte katalogen
+      href: /scp/directory.php
+vacation_mode:
+  title: Feriemodus
+  content: >
+    Hvis du endrer Agent status til <span class="doc-desc-opt"> Feriemodus</span>, vil Agent ikke motta noen <span class="doc-desc-title"> varsler og meldinger</span> eller kunne bli tilordnet saker.
+

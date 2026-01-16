@@ -1,0 +1,56 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Dashboard
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+ticket_activity:
+  title: Aktiviteti i Tiketes
+  content: >
+    Të përzgjedhet një interval i të dhënave për të gjeneruar në grafik dhe në tabela (cf. <span class="doc-desc-title">Statistics</span>) këtu nën çfarëdo lloj informacioni korrespondent për ato të dhëna. Grafiku i mëposhtëm reflekton gjithmonë në panoramikë të gjerë e të dhënave të të gjithë sistemit (që është, popullsia). Megjithatë, mund të lundrosh në tabelën <span class="doc-desc-title"> statistika </span> që qëndron poshtë për të vendosur në evidencë një subjekt interesi më të kufizuar (p.sh. departamenti, argumentet, ose personale). Më tej, mund të eksportohen të gjitha të dhënat aktualisht të shfaqura në tabelën <span class="doc-desc-title">Statistik</span> tabel.
+report_timeframe:
+  title: Afati kohor i raportimit
+  content: >
+    Zgjedh një datë fillimi për të dhënat shembull të dëshiruara, duke përdorur seleksionuesin data. Pastaj, zgjedh intervalin kohorë duke filluar nga ajo datë për të përkufizuar datë e mbarimit për të dhënat shembull.
+statistics:
+  title: Statistikat
+  content: >
+    Lundro në subjektin e interesit duke klikuar në vendin përkatës me qëllim që të shfaq një shembull specifik të të dhënash. Brenda tabelës, qarqet prezantojnë madhësinë e të dhënave nominale. Prandaj, sa më i madh të jetë numri në një qelizë të veçantë, aq më i madh do jetë rrethi i ngjitur.
+opened:
+  title: E Hapur
+  content: >
+    Tickets that were originally opened having the Department or Help Topic on the ticket, or the number of tickets an Agent has opened on behalf of a User.
+assigned:
+  title: Caktohet
+  content: >
+    Tickets that have been assigned to either an Agent or a Team. The number reflects tickets that are manually assigned to agents or teams, claimed tickets, and tickets assigned from ticket filters/other auto-assignment rules.
+overdue:
+  title: e vonuar
+  content: >
+    Tickets that have been marked ‘Overdue’ by the system. Tickets are marked Overdue when they have violated the SLA Plan to which they belonged, causing them to have a status of ‘Open’ past their Due Date.
+closed:
+  title: E Mbyllur
+  content: >
+    The number of Tickets that are currently in the Closed status.
+reopened:
+  title: E Rihapur
+  content: >
+    The total number of times a ticket was Reopened. Tickets are reopened whenever their status is changed from Closed to Open.
+deleted:
+  title: E fshira
+  content: >
+    The amount of tickets that have been deleted.
+service_time:
+  title: Koha e shërbimit
+  content: >
+    Refers to the duration of time that begins at the opening of a ticket and ends when the ticket is closed. The Service Time column measures the average Service Time per ticket, in hours.
+response_time:
+  title: Koha e përgjigjeve
+  content: >
+    Shows an average response time by an Agent, in hours, to ticket correspondence.

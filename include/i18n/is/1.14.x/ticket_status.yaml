@@ -1,0 +1,66 @@
+---
+- 
+  #Default system data for ticket statuses
+  #Fields:
+  #id - (int:optional) id number in the database
+  #name - (string) descriptive name of the status
+  #state - (string) Main status of a ticket
+  #(open, closed, archived, deleted)
+  #mode - (bit) access mask (1 - enabled, 2 - internal)
+  #flags - (bit) flags that can be set on a ticket
+  #properties:
+  #description - (string) Description of the status
+  #---
+  id: 1
+  name: Open
+  state: open
+  mode: 3
+  sort: 1
+  flags: 0
+  properties:
+    description: >
+      Opnar beiðnir.
+- 
+  id: 2
+  name: Leyst
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Afgreiddar beiðnir
+- 
+  id: 3
+  name: Lokað
+  state: closed
+  mode: 3
+  sort: 3
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+      Lokaðar beiðnir. Beiðnir eru áfram aðgengilegar fyrir notendum og starfsmönnum.
+- 
+  id: 4
+  name: Geymt
+  state: archived
+  mode: 3
+  sort: 4
+  flags: 0
+  properties:
+    description: >
+      Beiðnir aðeins aðgengilegar kerfisstjórum en ekki í biðröðum hjá notendum almennt.
+- 
+  id: 5
+  name: Eytt
+  state: deleted
+  mode: 3
+  sort: 5
+  flags: 0
+  properties:
+    description: >
+      Beiðnir sem bíða eftir að verða eytt. Eru ekki sjáanlegar í beiðnalista.

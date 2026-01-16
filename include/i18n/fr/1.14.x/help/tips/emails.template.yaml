@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Modèles de courriel
+  content: >
+    Les modèles de courriels servent à envoyer des réponses automatiques et les alertes pour les différentes actions que peuvent avoir lieu pendant la durée de vie d'un billet.
+template_to_clone:
+  title: Modèle à dupliquer
+  content: >
+    Choisissez un modèle pour dupliquer ou tout simplement commencer avec les modèles de courriel disponible.
+language:
+  title: Langue
+  content: >
+    Sélectionnez la langue souhaitée pour le <span class="doc-desc-opt"> stock</span> <span class="doc-desc-title"> de courriels disponibles</span>. Les modules linguistiques sont disponibles sur osTicket.com.
+  links:
+    - 
+      title: Pack de langues pour osTicket
+      href: https://osticket.com/download
+status:
+  title: État
+  content: >
+    Les courriels modèles<span class="doc-desc-opt">activés</span>sont disponibles pour être associés avec les services et la valeur système par défaut. Les modèles actuellement en usage ne peuvent pas être <span class="doc-desc-opt">désactivé</span>.

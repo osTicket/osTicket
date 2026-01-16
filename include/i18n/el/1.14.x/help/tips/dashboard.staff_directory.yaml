@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> Staff Directory
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+staff_members:
+  title: Μέλη Προσωπικού
+  content: >
+    Ο παρακάτω πίνακας παρουσιάζει τα αποτελέσματα του φίλτρου πάνω από αυτό. Αν δεν επιλεγούν ρυθμίσεις για το φίλτρο, τότε όλα τα <span class="doc-desc-title">Μέλη Προσωπικού</span> εμφανίζονται, και χωρίζονται ανά σελίδες. Δείτε την ενότητα σελίδων παρακάτω για να περιηγηθείτε σε περισσότερα αποτελέσματα.
+apply_filtering_criteria:
+  title: Εφαρμογή Κριτηρίων Φιλτραρίσματος
+  content: >
+    Επιλέξτε ένα <span class="doc-desc-title">Τμήμα</span> που είναι σχετικό με τα τρέχοντα ενδιαφέροντά σας. Μπορείτε επίσης να πραγματοποιήσετε μια αναζήτηση για συγκεκριμένο Εκπρόσωπο.

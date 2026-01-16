@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Ovaj predložak definira email poslan osoblju koji odabiru <strong>Zaboravio sam lozinku</strong> link na Kontrolnoj ploči osoblja.
+name: "poništavanje zaporke osoblja osTicketa"
+body: >
+  <h3><strong>Pozdrav %{staff.name.first},</strong></h3> <div> Zahtjev za poništavanje zaporke podnesen je u vaše ime u centru za tehničku podršku na %{url}.<br /> <br /> Ukoliko niste poslali ovaj zahtjev, molimo Vas da obrišete i zanemarite ovu email poruku. Vaš korisnički račun je je još uvjek siguran i nitko nema pristum Važem računu osim vas. Netko je možda greškom unio vašu email adresu.<br /> <br />lijedite link ispod kako bi se prijavili na centar za tehničku podršku i promjenili svoju zaporku.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Vaša tehnička podrška</em> <br /> <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /> </div>

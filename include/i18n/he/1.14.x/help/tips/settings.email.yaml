@@ -1,0 +1,96 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Emails
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+default_email_templates:
+  title: הגדרת תבנית אימייל ברירת מחדל
+  content: >
+    בחר  <span class="doc-desc-title"> תבנית אימייל </span> אשר תשלח  <span class="doc-desc-title"> הודעות אוטומטיות </span> ו <span class="doc-desc-title"> התראות לפעולות שונות שיקרו במהלך זמן הקיום של הקריאה <br><br> מחלקות שונות יכולות להגדיר תבנית מייל ספציפית למחלקה.
+  links:
+    - 
+      title: ניהול ערכות תבנית דואר אלקטרוני
+      href: /scp/templates.php
+default_system_email:
+  title: ברירת מחדל של מייל יוצא
+  content: >
+    אנא בחר כתובת מייל שממנה יצאו המיילים  <br><br> <span class="doc-desc-title"> מחלקה </span>  יכולה להגדיר מייל</span> משלה <span class="doc-desc-title">
+  links:
+    - 
+      title: ניהול כתובות דוא"ל
+      href: /scp/emails.php
+default_alert_email:
+  title: דואל אלקטרוני ברירת מחדל להתראות
+  content: >
+    בחר כתובת מייל אשר ממני ישלחו <span class="doc-desc-title">התראות &amp; והודעות </span> לסוכנים.
+  links:
+    - 
+      title: ניהול כתובות דוא"ל
+      href: /scp/emails.php
+admins_email_address:
+  title: כתובת הדוא"ל של מנהל המערכת
+  content: >
+    הכנס כתובת מייל של מנהל המערכת אליו ישלחו  <span class="doc-desc-title">שגיאות מערכת</span>  <span class="doc-desc-והתראות של פתיחת קריאה חדשה</span> אם זה מאושר הודעות אלו ישלחו.
+  links:
+    - 
+      title: נהל התראות והערות
+      href: /scp/settings.php?t=alerts
+email_fetching:
+  title: שליפת דוא"ל
+  content: >
+    אשר משיכת מיילים  <span class="doc-desc-title">לתיבות דואר</span> מאושרות ומגדרות.
+  links:
+    - 
+      title: נהל תיבות דואר
+      href: /scp/emails.php
+enable_autocron_fetch:
+  title: משיכת מיילים אוטומטית
+  content: >
+    מאפשר משיכה תקופתית של מיילים בעזרה יישום פנימי שמנתח פעילות סוכנים. <br><br> אנא שים לב שמיילים לא ימשכו אם אף אחד לא מחובר למערכת. 
+  links:
+    - 
+      title: שימוש במתזמן ישומיים חיצוני
+      href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
+strip_quoted_reply:
+  title: תגובת ציטוט רצועה
+  content: >
+    אם מאושר,יוסרו התכתביות קודמות בתקשורת המיילים  <br><br> האפשרות הזתא תלוייה  <span class="doc-desc-title"> בתיוג התגובה</span> שנמצא למטה
+reply_separator_tag:
+  title: תיוג הפרדת תגובה
+  content: >
+    הטוקן הזה מסמן למשתמש להשיב מעל קו הסימון. <br><br> <strong>הערה:</strong> זה רלוונטי רק אם <span class="doc-desc-title">רצועת ציטוט בתגובות</span> מופעלת.
+emailed_tickets_priority:
+  title: עדיפות קריאות שנשלחו במייל
+  content: >
+    בחר האם ברצונך לאפשר את עדיפות/חשיבות  של הדוא"ל  של המשתמש (Outlook) בכדי להכתיב את עדיפות הקריאה החדשה <br><br>  הגדרה זו ניתנת לשינוי על ידי  <span class="doc-desc-title">מסנן הקריאות</span>.
+  links:
+    - 
+      title: צור  &amp; ניהול מסנני קריאות
+      href: /scp/filters.php
+accept_all_emails:
+  title: אשר את כל האימיילים
+  content: >
+    קבל דואר ממשתמשים לא ידועים. <br><br> אם אפשרות זו לא תיבחן קריאות לא ידועות ידחו אוטמטית.
+accept_email_collaborators:
+  title: אשר נמענים נוספים
+  content: >
+    הוספת נמען מייל מצביע בשדות-<code><strong>אל</strong></code> וגם <code><strong>העתק</strong></code> שהפנייה משותפת  <br /><br /> <em>שיתוף תמיד יכול להתווסף באופן ידני על ידי נציג כשהוא צופה בפנייה.</em>
+default_mta:
+  title: MTA ברירת מחדל
+  content: >
+    <span class="doc-desc-title"> MTA ברירת מחדל </span>  יטפל בתהליך שליחת המיילים עבור מיילים יוצאים ללא הגדרות SMTP
+ticket_response_files:
+  title: קבצי תגובת קריאה
+  content: >
+    אם זה מאושר, כל צירוף קבצים שסוכן יעשה לקריאה יצורף בנוסף למייל הלקוח.
+verify_email_addrs:
+  title: בדוק כתובות דוא"ל
+  content: >
+    הפעל אפשרות זו כדי לבדוק אם כתובת הדואר האלקטרוני יש מחליף אלקטרוני (MX) בשנות ה DNS מושלם. אפשרות זו שימושית כדי לזהות את כתובות הדוא"ל שהקלדת שגוי. זה והבנות בנוסף לבדיקת wellformedness כתובת הדוא"ל.

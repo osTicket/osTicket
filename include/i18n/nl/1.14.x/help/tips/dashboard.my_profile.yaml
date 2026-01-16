@@ -1,0 +1,77 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Contact informatie
+  0: >
+
+username:
+  title: Gebruikersnaam
+  content: >
+    Alleen medewerkers met een Admin status mogen een gebruikersnaam aanpassen. Als u een medewerker bent met admin privileges, kunt u dit doen door een te wijzigen medewerker te selecteren in de <span class="doc-desc-title">Medewerkers</span> tabel.
+  links:
+    - 
+      title: Als een beheerder een gebruikersnaam wijzigen
+      href: /scp/staff.php
+time_zone:
+  title: Tijdzone
+  0: >
+
+daylight_saving:
+  title: Zomertijd
+  0: >
+
+maximum_page_size:
+  title: Maximale paginagrootte
+  0: >
+
+auto_refresh_rate:
+  title: Auto Refresh Rate
+  0: >
+
+default_signature:
+  title: Standaardhandtekening
+  0: >
+
+default_paper_size:
+  title: Standaard papierformaat
+  0: >
+
+show_assigned_tickets:
+  title: Toon toegewezen Tickets
+  content: >
+    <p>Als deze optie wordt ingeschakeld, wordt de instelling om toegewezen tickets te verbergen in het lijstje "Open tickets" genegeerd.</p><p class="info-banner"><i class="icon-info-sign"></i>Deze instelling is alleen beschikbaar als de globale instelling inzake toegewezen tickets geactiveerd wordt.</p>
+password:
+  title: Wachtwoord
+  0: >
+
+current_password:
+  title: Huidig wachtwoord
+  0: >
+
+new_password:
+  title: Nieuw wachtwoord
+  0: >
+
+confirm_new_password:
+  title: Bevestig nieuw wachtwoord
+  0: >
+
+signature:
+  title: Handtekening
+  content: >
+    Maak een optionele <span class="doc-desc-title">Ondertekening</span> die eventueel wordt weergegeven aan het einde van youw Ticket Antwoorden. Of deze  <span class="doc-desc-title">Handtekening</span> verschijnt hangt af
+    van de <span class="doc-desc-title">Email Template</span> die wordt gebruikt in een Ticket Antwoord.
+  links:
+    - 
+      title: Maak email templates in het Admin Panel
+      href: /scp/templates.php

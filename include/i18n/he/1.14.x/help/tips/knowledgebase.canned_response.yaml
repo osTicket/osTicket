@@ -1,0 +1,24 @@
+---
+#This is popup help messages for the Staff Panel -> Knowledgebase -> Canned Responses -> Add New Response
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+canned_response:
+  title: תגובות שמורות
+  content: >
+    צור <span class="doc-desc-title"> תגובה שמורה </span>שניתן להוסיף למענה לכרטיס. זה יכול גם לשמש כ<span class="doc-desc-title"> תגובה אוטומטית לכרטיס</span>  התקנה על ידי <span class="doc-desc-title"> מסנן הכרטיסים</span>.
+  links:
+    - 
+      title: הגדרת מסנן כרטיסים
+      href: /scp/filters.php
+canned_attachments:
+  title: מסמכים מצורפים שמורים
+  content: >
+    צירוף קובץ שאתה רוצה שיכלל באופן אוטומטי בתגובת לכרטיס שמשתמש ב <span class="doc-desc-title">תגובות שמורות</span>.

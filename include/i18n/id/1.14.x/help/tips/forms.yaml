@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: Judul Laman
+  content: >
+    Judul teks ini ditampilkan dalam kotak abu-abu di atas form isian
+form_instructions:
+  title: Form Instruksi
+  content: >
+    Anda dapat menambah instruksi tambahan yang akan membantu pengguna dalam konteks dari kolom isian dan memungkinkan untuk menyoroti data yang dibutuhkan.
+field_sort:
+  title: Posisi tampilan kolom
+  content: >
+    Klik pada ikon panah naik dan panah turun dan tarik baris kolom untuk menyortir halaman ini. Preferensi penyortiran tidak menimbulkan efek sampai halaman disimpan.
+field_label:
+  title: Label Kolom
+  content: >
+    Label ini ditampilkan sebagai prompt untuk kolom ini. Biasanya, kolom jawaban-pendek yang akan diberikan seperti ini: <br><strong>Label:</strong>&nbsp; <input type="text">
+field_type:
+  title: Tipe konten kolom
+  content: >
+    Ini digunakan untuk menentukan jenis masukan yang diharapkan dari pengguna. Anda dapat memilih dari jawaban pendek dan panjang, nomor telepon, tanggal dan waktu, centang, daftar drop-down atau pilihan daftar kustom.
+  links:
+    - 
+      title: Penyesuaian Daftar
+      href: /scp/lists.php
+field_visibility:
+  title: Kolom_Terlihat
+  content: >
+    Choose a visibility and requirement option for this field. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>Pengaturan</th> <th>Hasil</th></tr> <tr><td>Pilihan</td> <td>Agen pengguna dapat melihat kolom, tetapi tidak memerlukan jawaban.</td></tr> <tr><td>Memerlukan</td> <td>Agents and EndUsers can see the field, and both are required to answer</td></tr> <tr><td>Required for EndUsers</td> <td>Agents and EndUsers can see the field, only EndUsers are required to answer</td></tr> <tr><td>Required for Agents</td> <td>Agents and EndUsers can see the field, only Agents are required to answer</td></tr> <tr><td>Internal, Optional</td> <td>Only Agents can see the field, but no answer is required.</td></tr> <tr><td>Internal, Required</td> <td>Only Agents can see the field, and an answer is required.</td></tr> <tr><td>For EndUsers Only</td> <td>Only EndUsers can see the field, and an answer is required.</td></tr> </tbody></table>
+field_variable:
+  title: Bidang Automation
+  content: >
+    Bidang data akan tersedia untuk email dan halaman template melalui nama yang digunakan dalam kolom ini. Misalnya, bidang bentuk tiket umum tersedia via <code>%{ticket.variable}</code>, mana <strong>variabel</strong> adalah nama yang digunakan dalam kolom ini.<br><br><em>Perusahaan informasi tersedia melalui <code>%{</code> <code>company.variable}</code> dan informasi pengguna tersedia melalui <code>%{ticket.user.variable}</code></em>
+field_delete:
+  title: Hapus Kolom ini
+  content: >
+    Memeriksa dan menyimpan formulir untuk menghapus bidang dari formulir ini.<br><br><em>Menghapus bidang Apakah tidak menghapus dimasukkan sebelumnya data untuk bidang selesai bentuk. Sebagai contoh, jika sebuah tiket yang sebelumnya diajukan memiliki data untuk bidang, menghapus bidang dari formulir ini tidak akan menghapus data pada tiket.</em>

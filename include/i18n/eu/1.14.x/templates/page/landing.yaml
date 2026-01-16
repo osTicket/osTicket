@@ -1,0 +1,17 @@
+---
+#Page template: landing.yaml
+#The landing page is served on the front page of the customer portal above
+#the two links for creating new tickets and viewing ticket status.
+#---
+notes: >
+  Aterrizatzeko Orria Bezeroaren hasierako Ikustekoari errefertzen du. Txantiloia behean ikusten den 2 linkak aldatzen ditu <strong>Ireki Ticket Berria</strong> eta <strong>Ikusi Ticket Egoera</strong>
+name: Hasiera
+body: >
+  <h1>Ongi etorri Laguntza Gunera</h1>
+  <p>
+  Ahalik eta soporterik onena eman ahal izateko, laguntza tiket sistema bat
+  erabiltzen dugu. Laguntza eskaera guztiei tiket zenbaki bat esleitzen zaio,
+  horrekin egoera eta erantzunak on-line kudeatu ahal dituzu. Zure erreferentziarako
+  zure laguntza eskare guztien historiala ematen dizugu. E-posta helbide baliogarri
+  bat beharrezkoa da tiket bat bidaltzeko.
+  </p>

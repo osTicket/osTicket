@@ -1,0 +1,48 @@
+---
+#Email template: assigned.alert.yaml
+#Sent to staff members when a ticket is assigned to them. Tickets can be
+#assigned automatically by the system or manually by another staff member.
+#Use %{assigner} to distinguish who made the assignment.
+#---
+notes: |
+  Dikirim ke anggota staf ketika tiket ditugaskan kepada mereka. Tiket dapat ditugaskan secara otomatis oleh sistem atau secara manual oleh anggota staf lainnya. Gunakan %{assigner} untuk membedakan siapa yang membuat penugasan.
+subject: |
+  Tiket Ditugaskan ke Anda
+body: |
+  <h3><strong>Halo %{assignee.name.first},</strong></h3>
+  Tiket <a href="%{ticket.staff_link}">#%{ticket.number}</a> telah 
+  ditugaskan ke Anda oleh %{assigner.name.short}
+  <br>
+  <br>
+  <table>
+  <tbody>
+  <tr>
+      <td>
+           <strong>Dari</strong>:
+      </td>
+      <td>
+           %{ticket.name} &lt;%{ticket.email}&gt;
+      </td>
+  </tr>
+  <tr>
+      <td>
+           <strong>Subjek</strong>:
+      </td>
+      <td>
+           %{ticket.subject}
+      </td>
+  </tr>
+  </tbody>
+  </table>
+  <br>
+  %{comments}
+  <br>
+  <br>
+  <hr>
+  <div>Untuk melihat/merespon tiket tersebut, silahkan <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> ke sistem dukungan tiket</div>
+  <em style="font-size: small; ">Salam dari Petugas Dukungan Sistem</em>
+  <br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

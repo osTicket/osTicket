@@ -1,0 +1,20 @@
+---
+#This is popup help messages for the Agents Panel -> Tasks
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+advanced:
+  title: Разширено
+  content: >
+    Стесняване на параметрите на вашето търсене. След като сте избрали вашите критерии за търсене и стартирате търсене, можете да <span class="doc-desc-title">експортирате</span> информацията в края на страницата със заявки.
+export:
+  title: Експорт
+  content: >
+    Експортиране на данните, които в момента виждате в CSV формат. CSV файловете могат да бъдат отворени от програма за електрони таблици (например Microsoft Excel, Apple Pages, OpenOffice и др.).

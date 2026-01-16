@@ -1,0 +1,10 @@
+---
+#banner-client.yaml
+#This forms the header on the staff login page. It can be useful to inform
+#your clients about your login and registration policies.
+#---
+notes: >
+  פעולה זו יוצרת את הכותרת על עמוד התחברות הלקוח. יכול להיות שימושי כדי לידע את לקוחותיך לגבי מדיניות ההתחברות וההרשמה שלך.
+name: "התחבר אל %{company.name}"
+body: >
+  כדי לשרת אותך יותר טוב, אנו מעודדים את לקוחותינו להירשם עבור חשבון.

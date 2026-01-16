@@ -1,0 +1,78 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+page_title:
+  title: Upozorenja i obaveštenja
+  content: >
+    Upozorenja i obaveštenja su automatizovani imejlovi obaveštenja poslati agentima kada se aktiviraju različiti događaji.
+ticket_alert:
+  title: Obaveštenje o novom tiketu
+  content: >
+    <p> Obaveštenje poslato zaposlenima kada se otvori novi tiket. </p><p class="info-banner"> <i class="icon-info-sign"></i> Ovo obaveštenje se šalje kada je tiket automatski dodeljen putem filtera tiketa ili teme podrške. </p>
+  links:
+    - 
+      title: Podrazumevani šablon za upozorenje o novom tiketu
+      href: /scp/templates.php?default_for=ticket.alert
+message_alert:
+  title: Obaveštenje o novoj poruci
+  content: >
+    Obaveštenje poslato zaposlenima kada korisnik odgovori na otvoren tiket.
+  links:
+    - 
+      title: Podrazumevani šablon za obaveštenje o novoj poruci
+      href: /scp/templates.php?default_for=message.alert
+internal_note_alert:
+  title: Obaveštenje o novoj aktivnosti, interno
+  content: >
+    Upozorenje agentima ako je bilo interne aktivnosti, kao što je interna napomena ili odgovor agenta na zahtev.
+  links:
+    - 
+      title: Podrazumevani šablon za aktivnost tiketa
+      href: /scp/templates.php?default_for=note.alert
+assignment_alert:
+  title: Obaveštenje o dodeljivanju tiketa
+  content: >
+    Obaveštenje poslato zaposlenima prilikom dodele tiketa.
+  links:
+    - 
+      title: Podrazumevani šablon za dodelu tiketa
+      href: /scp/templates.php?default_for=assigned.alert
+transfer_alert:
+  title: Obaveštenje o preraspodeli tiketa
+  content: >
+    Obaveštenje poslato zaposlenima kod prenosa tiketa između odseka.
+  links:
+    - 
+      title: Podrazumevani šablon za obaveštenje o preraspodeli tiketa
+      href: /scp/templates.php?default_for=transfer.alert
+overdue_alert:
+  title: Obaveštenje da je prošao rok za odgovor na tiket
+  content: >
+    Obaveštenje poslato zaposlenima kad prođe ili istekne rok za odgovor na tiket prema ugovoru o nivou usluge.
+  links:
+    - 
+      title: Podrazumevani šablon za obaveštenje o tiketu čije je vreme za razrešenje prekoračeno
+      href: /scp/templates.php?default_for=ticket.overdue
+    - 
+      title: Upravljanje ugovorima o nivou usluge
+      href: /scp/slas.php
+system_alerts:
+  title: Sistemska upozorenja
+  content: >
+    Značajni sistemski događaji koji se šalju administratoru (%{config.admin_email}). Zavisno od konfiguracije <span class="doc-desc-title">Nivoa dnevnika</span>, događaji se mogu pratiti u <span class="doc-desc-title">Dnevniku sistema</span>
+  links:
+    - 
+      title: Pregled sistemskih dnevnika
+      href: /scp/logs.php
+    - 
+      title: Promeni imejl admina
+      href: /scp/settings.php?t=emails

@@ -1,0 +1,10 @@
+---
+#pwreset-staff.yaml
+#Template of the email sent to staff members when using the Forgot My
+#Password link
+#---
+notes: >
+  Šis ruošinys naudojamas kaip elektroninis laiškas siunčiamas darbuotojui, kuris pasirenka<strong>Pamiršau savo slaptažodį</strong> nuorodą prisijungimo prie Darbuotojų valdymo skydo puslapyje.
+name: "osTicket pagalbos darbuotojo slaptažodžio atstatymas"
+body: >
+  <h3><strong>Laba diena%{staff.name.first},</strong></h3><div>Slaptažodžio pakeitimo prašymas pagalbos sistemai %{url} buvo pateiktas Jūsų  vardu.<br /><br />Jeigu manote, kad įvyko klaida, nekreipkite dėmesio  ir ištrinkite šį laišką. Jūsų paskyra vis dar saugi  ir niekam nebuvo suteikta prieiga prie jos. Ji nėra užrakinta ir Jūsų slaptažodis nebuvo pakeistas. Kažkas galėjo klaidingai įvesti Jūsų elektroninio pašto adresą.<br /><br />Paspauskite nuorodą žemiau, kad prisijungtumėte prie pagalbos sistemos, kad pakeistumėte slaptžodį.<br /><br /><a href="%{link}">%{link}</a><br /><br /><em style="font-size: small">Jūsų draugiška klientų aptarnavimo sistema</em><br /><img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket" width="126" height="19" style="width: 126px" /></div>

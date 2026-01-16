@@ -1,0 +1,32 @@
+---
+#This is popup help messages for the Admin Panel -> Emails -> Templates
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+email_templates:
+  title: Modello di email
+  content: >
+    I modelli di email sono utilizzati per inviare avvisi e risposte automatiche per varie azioni che possono avvenire durante la vita di un ticket.
+template_to_clone:
+  title: Modello da clonare
+  content: >
+    Scegli se clonare un Set di Template o iniziare dai template email predefiniti.
+language:
+  title: Lingua
+  content: >
+    Seleziona la lingua desiderata per la <span class="doc-desc-opt"> raccolta</span> <span class="doc-desc-title"> di modelli email </span>. Le traduzioni sono disponibili su osTicket.com.
+  links:
+    - 
+      title: osTicket Traduzioni
+      href: http://osticket.com/download
+status:
+  title: Stato
+  content: >
+    I set di modelli <span class="doc-desc-opt">Abilitati</span> possono essere associati ad un Reparto e usati come impostazione predefinita dal sistema. I set di modelli attualmente in uso non possono essere <span class="doc-desc-opt">Disabilitati</span>.

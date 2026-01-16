@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> System page
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+form_title:
+  title: 表单标题
+  content: >
+    标题文本显示在表单字段上方的灰色框内
+form_instructions:
+  title: 表单说明
+  content: >
+    您可添加附加说明，这将有助于引导用户了解表单字段内容和潜在的重要必需数据。
+field_sort:
+  title: 字段显示位置
+  content: >
+    点击向上和向下箭头图标并拖动字段行以在表单内进行排序。表单保存前，排序偏好不会生效。
+field_label:
+  title: 字段标签
+  content: >
+    该标签可显示为该字段的提示。通常情况下，简答字段如下所示：<br> <strong>标签：</strong>&nbsp; <input type="text">
+field_type:
+  title: 字段内容类型
+  content: >
+    用于定义用户预期输入的类型。可选范围广泛，包括简答和冗长的回答、电话号码、日期和时间、复选框、下拉列表或自定义列表选择。
+  links:
+    - 
+      title: 自定义列表
+      href: /scp/lists.php
+field_visibility:
+  title: 字段可见性
+  content: >
+    选择该字段的可见性和要求选项。<table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" ><tbody style="vertical-align:top;"> <tr><th>设置</th> <th>结果</th></tr> <tr><td>可选项</td> <td>代理和终端用户可查看该字段，但均无需解答。</td></tr> <tr><td>必选项</td> <td>代理和终端用户可查看该字段，且均需解答</td></tr> <tr><td>终端用户必选项</td> <td>代理和终端用户可查看该字段，仅终端用户需解答</td></tr> <tr><td>代理必选项</td> <td>代理和终端用户可查看该字段，仅代理需解答</td></tr> <tr><td>内部可选项</td> <td>仅代理可查看该字段，但无需解答。</td></tr> <tr><td>内部必选项</td> <td>仅代理可查看该字段，且需解答。</td></tr> <tr><td>仅适用于终端用户</td> <td>仅终端用户可查看该字段，且需解答。</td></tr> </tbody></table>
+field_variable:
+  title: 字段自动化
+  content: >
+    通过该列中使用的名称，字段数据可用于电子邮件和页面模板。例如，通过<code>%{ticket.variable}</code>可启用常见咨询上的字段，其中<strong>变量</strong>为该列中使用的名称。<br> <br> <em>通过<code>%{</code><code>company.variable}</code>和<code>%{ticket.user.variable}</code>可分别启用公司信息和用户信息。</em>
+field_delete:
+  title: 删除该字段
+  content: >
+    检查并保存表单以删除该表单中的字段。<br> <br> <em>删除字段并不会删除完成表单中字段的先前输入数据。例如，如果之前提交的咨询内含字段数据，删除该表单中的该字段将不会删除咨询中的数据。</em>

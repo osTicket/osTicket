@@ -1,0 +1,47 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+company_information:
+  title: Şirkət haqda məlumat
+  content: >
+    Bu, osTicketin proqram təminatından və onun dəstək heyətindən faydası olacaq şirkət və ya təşkilatı göstərir. Buradakı məlumat, sorğular agentlər tərəfindən cavablandırılanda e-poçt imzalarında görünəcək.
+  links:
+    - 
+      title: Şirkət məlumatı formu
+      href: /scp/forms.php?type=C
+landing_page:
+  title: Açılış səhifə
+  content: >
+    <span class="doc-desc-title">Açılış səhifə</span> sizin dəstək saytınızın ön səhifəsində görünür.
+offline_page:
+  title: Offline səhifə
+  content: >
+    Help desk offline olanda <span class="doc-desc-title">offline səhifə</span> dəstək saytında görünür.Admin panel -&gt; tənzimləmə -&gt; sistemi -&gt; helpdesk statusu.
+default_thank_you_page:
+  title: Cari təşəkkür səhifəsi
+  content: >
+    <span class="doc-desc-title">Təşəkkür səhifəsi</span> sifarişçiyə <span class="doc-desc-title">müştəri</span> yeni sorğu təqdim edəndə  görünür. <br/><br/> <span class="doc-desc-title">Təşəkkür</span> səhifələri kömək mövzuları ilə əlaqəlidir.
+logos:
+  title: Girişlər
+  content: >
+    Müştəri portalında  müştəriyə görünəcək <span class="doc-desc-title">logonu</span> xüsusiləşdirə bilərsiz (məs., sizin dəstək saytınız).
+upload_a_new_logo:
+  title: Yeni logo yüklə
+  content: >
+    Şəkilləri .gif, .jpg və ya .png formatda seçin. Biz sizin şəklinizin görüntüsünü proporsional olaraq dəyişəcəyik. Amma biz onun ölçü məlumatlarını dəyişməyəcəyik. Buna görə də, yükləmək vaxtını sürətləndirmək üçün məsləhət görürük ki, şəklin ölçüsünü cari ölçüyə yaxın bir ölçüdə saxlayasınız (817px &times; 170px).
+backdrops:
+  title: Backdrops
+  content: >
+    You may customize the <span class="doc-desc-title">Backdrop</span> that will be displayed on the staff login page.
+upload_a_new_backdrop:
+  title: Upload a New Backdrop
+  content: >
+    Choose an image in the .gif, .jpg or .png formats. We will proportionally resize the display of your image. We will not, however, resize the image’s data. Therefore, to speed load times, it is recommended that you keep your image relatively small (under a megabyte). Note also that the PHP max upload settings apply.

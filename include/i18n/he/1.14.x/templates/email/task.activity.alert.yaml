@@ -1,0 +1,28 @@
+---
+#Email template: task.activity.alert.yaml
+#Sent to agents when a new note/message is posted to a task.
+#This can occur if a collaborator or an agent responds to an email from the
+#system or visits the web portal and posts a new message there.
+#---
+notes: |
+  נשלח לתומך כאשר הודעה/הערה נשלחת למשימה. זה יכול להתרחש כאשר תומך או משתתף אחר מגיב לדואר אלקטרוני מהמערכת או נכנס לממשק האינטרנטי ושולח שם הודעה.
+subject: |
+  פעילות משימות [#%{task.number}] - %{activity.title}
+body: |
+  <h3><strong>שלום %{recipient.name},</strong></h3>
+  קריאה <a
+  href="%{task.staff_link}">#%{task.number}</a>
+  עודכנה: %{activity.description}
+  <br>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div>להגיב או לצפיה לחץ כאן <a
+  href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >login</span></a> לתמיכה טכנית</div>
+  <em style="color: rgb(127,127,127); font-size: small; ">בברכה
+  Customer Support System</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+  alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

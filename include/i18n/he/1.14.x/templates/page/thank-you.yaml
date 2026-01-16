@@ -1,0 +1,20 @@
+---
+#Page template: thank-you.yaml
+#The thank-you page is served to the customer portal when a user submites a
+#new ticket via the customer portal.
+#---
+notes: |
+  תבנית זו מגדירה את התוכן שיוצג בעמוד התודה לאחר שלקוח שולח פנייה חדשה בפורטל הלקוחות.
+name: תודה לך
+body: |
+  <div>%{ticket.name}
+  <br>
+  <br>
+  אנו מודים לך על פנייתך
+  <br>
+  <br>
+  פנייתך נשלחה ונציג יחזור אליך בהקדם במידת הצורך.</p>
+  <br>
+  <br>
+  צוות התמיכה
+  </div>

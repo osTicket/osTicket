@@ -1,0 +1,28 @@
+---
+#Email template: ticket.overdue.yaml
+#Sent to staff members when a ticket transitions to overdue in the system.
+#Overdue tickets occur based on the ticket's due-date as well as the SLA
+#defined for the ticket.
+#---
+notes: |
+  Enviada aos membros da equipe quando umas transições de multa para atraso no sistema. Tickets em atrasos ocorrerem com base na data de vencimento do ticket, bem como o SLA definido para o atendimento.
+subject: |
+  Alerta de Chamados Atrasados
+body: |
+  <h3><strong>Olá %{recipient}</strong>,</h3>
+  Um chamado, <a href="%{ticket.staff_link}">#%{ticket.number}</a> está atrasado.
+  <br>
+  <br>
+  Nós devemos todos trabalhar para garantir que todos os chamados sejam gerenciados a tempo.
+  <br>
+  <br>
+  Assinado,<br>
+  %{ticket.dept.manager.name}
+  <hr>
+  <div>Para ver ou responder a esse chamado, favor <a
+  href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+  >acessar</span></a> ao sistema de atendimento. Você está recebendo esse aviso pois o chamado foi designado diretamente a você , a sua equipe ou departamento.</div>
+  <em style="font-size: small">Seu amigo, <span style="font-size: smaller"
+  >(embora com paciência limitada)</span> Sistema de Atendimento</em><br>
+  <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+      alt="Powered by osTicket" width="126" style="width: 126px;">

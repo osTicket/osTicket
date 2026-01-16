@@ -1,0 +1,10 @@
+---
+#registration-staff.yaml
+#Initial (optional) email sent to staff members when accounts are created
+#for them in the staff control panel
+#---
+notes: >
+  Ez a sablon határozza meg az első emailt (opcionális), ami elküldésre kerül a munkatársnak, mikor egy felhasználói fiókot létrehozunk számára.
+name: "Üdvözöljük az osTicket rendszerében"
+body: >
+  <h3><strong>Kedves %{recipient.name.first},</strong></h3> <div> elkészítettük felhasználói fiókját ügyfélszolgálatunkon: %{url}.<br /> <br /> Kérjük, kövesse az alábbi linket és erősítse meg fiókját, hogy elérhesse hibajegyeit.<br /> <br /> <a href="%{link}">%{link}</a><br /> <br /> <em style="font-size: small">Ügyfélszolgálat<br /> %{company.name}</em> </div>

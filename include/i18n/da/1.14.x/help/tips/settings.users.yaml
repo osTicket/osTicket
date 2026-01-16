@@ -1,0 +1,34 @@
+---
+#This is popup help messages for the Admin Panel -> Settings -> Users
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+#General Settings
+client_name_format:
+  title: Brugernavns formatering
+  content: >
+    Vælg et format for brugernavne i hele systemet. Email-skabeloner vil bruge det til navne, hvis intet andet format er specificeret.
+#Authentication settings
+client_session_timeout:
+  title: Bruger Sessions Timeout
+  content: >
+    Vælge den maksimale inaktiv tid (i minutter), inden en bruger bliver nødt til at logge ind igen. <br><br>Hvis du ønsker at deaktivere <span class="doc-desc-title"> Personale Session Timeout</span>, skal du indtaste 0.
+registration_method:
+  title: Indstillinger for Registrering
+  content: >
+    <span class="doc-desc-title"> Registrering metode</span> og <span class="doc-desc-title"> registrering kræves</span> bruges sammen til at konfigurere, hvordan brugere registrere og får adgang til en web-portal på din helpdesk. Nedenstående tabel opsummerer, hvordan de to indstillinger er fortolket af systemet. <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px" > <tbody style="vertical-align:top;"> <tr><th>registrering kræves</th> <th>Registrering metode</th> <th>resultatet</th></tr> <tr><td>ingen</td> <td>offentlige</td> <td>registrering tilskyndes, men kræves ikke for nye billetter.</td></tr> <tr><td>Ja</td> <td>offentlig</td> <td>registrering og login er påkrævet for nye sager</td></tr> <tr><td>Ingen</td> <td>privat</td> <td>alle kan oprette en sag men kun agenter kan registrere konti</td></tr> <tr><td>Ja</td> <td>privat</td> <td>brugeradgang er ved invitation kun</td></tr> <tr><td>Nej</td> <td>deaktiveret</td> <td>ingen kan tilmelde en konto, men alle kan oprette en sag. <em>Dette var, hvordan osTicket fungerede før 1,9</em></td></tr> <tr><td>Ja</td> <td>handicappede</td> <td>deaktiveret nye sager via webportalen</td></tr></tbody></table>
+client_verify_email:
+  title: Kræv Email bekræftelse
+  content: >
+    Deaktiver denne indstilling for at give brugerne øjeblikkelig adgang til billetter via siden "Tjek Sags Status" login i portalen klient. Hvis aktiveret, (som er standard), brugere vil være forpligtet til at modtage en e-mail og følge et hyperlink i e-mail for at se billetten. <br><br>Forhindrede email verifikation kan tillade tredjemand (f.eks. billet samarbejdspartnere) til at repræsentere sags ejeren.
+allow_auth_tokens:
+  title: Aktiver godkendelsestokens
+  content: >
+    Aktivér dette for at tillade brug af godkendelsestokens til auto-login når brugere klikker på et sags link.

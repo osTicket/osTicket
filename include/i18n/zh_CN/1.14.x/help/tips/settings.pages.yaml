@@ -1,0 +1,48 @@
+---
+#This is popup help messages for the Account Panel ->
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+company_information:
+  title: 公司信息
+  content: >
+    这指将受益于 osTicket 软件及其支持工作人员的公司或组织。代理响应咨询时，此处的信息将出现在电子邮件签名处（例如，页脚）。
+  links:
+    - 
+      title: 公司信息表单
+      href: /scp/forms.php?type=C
+landing_page:
+  title: 登陆页
+  content: >
+    <span class="doc-desc-title">登陆页</span>显示于支持网站的首页。
+offline_page:
+  title: 离线页
+  content: >
+    <span class="doc-desc-title">离线页</span>在帮助中心离线时显示于支持网站中，参见管理员面板 -&gt; 设置 -&gt; 系统 -&gt; 帮助中心状态。
+default_thank_you_page:
+  title: 默认感谢页
+  content: >
+    <span class="doc-desc-title">感谢页</span>在<span class="doc-desc-title">客户</span>提交新咨询时显示给客户。<br/><br/> <span class="doc-desc-title">感谢</span>页与帮助主题互相关联。
+logos:
+  title: 徽标
+  content: >
+    您可自定义<span class="doc-desc-title">徽标</span>，徽标将显示在客户入口（例如，支持网站）以供客户使用。
+upload_a_new_logo:
+  title: 上传新徽标
+  content: >
+    选择 .gif、.jpg 或 .png 格式图像。我们将按比例调整图像显示，但不会调整图像数据。因此，要提高上传速度，建议保持您的图像接近默认图像尺寸 (817px &times; 170px)。
+backdrops:
+  title: 背景
+  content: >
+    您可以自定义要显示在员工登录页面的<span class="doc-desc-title">背景</span>。
+upload_a_new_backdrop:
+  title: 上传一个新的背景
+  content: >
+    选择一个格式为.gif，.jpg或者.png的图片文件。系统将按比例缩放图片显示。但是系统不会缩放图片数据。因此，为了加快载入速度，建议您相对保持文件小尺寸（在MB内）。请注意，php最大上传设置会有限制。

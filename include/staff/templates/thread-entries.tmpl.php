@@ -31,8 +31,8 @@ if ($this->getObjectType() == 'T')
     <?php
     if ($entries->exists(true)) {
         $buckets = ThreadEntry::sortEntries($entries, $ticket);
-        // TODO: Consider adding a date boundary to indicate significant
-        //       changes in dates between thread items.
+            // TODO: Consider adding a date boundary to indicate significant
+            //       changes in dates between thread items.
         foreach ($buckets as $entry) {
             $entry = ThreadEntry::lookup($entry->id);
             $extra = $entry->getMergeData();
@@ -48,17 +48,17 @@ if ($this->getObjectType() == 'T')
             } else
                 $number = null;
 
-            // Emit all events prior to this entry
-            while ($event && $cmp($event->timestamp, $entry->created)) {
-                $event->render(ThreadEvent::MODE_STAFF);
-                $events->next();
-                $event = $events->current();
+                // Emit all events prior to this entry
+                while ($event && $cmp($event->timestamp, $entry->created)) {
+                    $event->render(ThreadEvent::MODE_STAFF);
+                    $events->next();
+                    $event = $events->current();
+                }
+                ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
+                include STAFFINC_DIR . 'templates/thread-entry.tmpl.php';
+                ?></div><?php
             }
-            ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
-            include STAFFINC_DIR . 'templates/thread-entry.tmpl.php';
-            ?></div><?php
         }
-    }
 
     // Emit all other events
     while ($event) {

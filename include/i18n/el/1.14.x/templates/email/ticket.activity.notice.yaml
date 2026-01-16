@@ -1,0 +1,24 @@
+---
+#Email template: ticket.activity.notice.yaml
+#Notice sent to collaborators on ticket activity e.g reply or message
+#---
+notes: |
+  Ενημέρωση που αποστέλλεται στους συνεργάτες όταν υπάρχει δραστηριότητα στο ticket π.χ. απάντηση ή μήνυμα.
+subject: |
+  Απ: %{ticket.subject} [#%{ticket.number}]
+body: |
+  <h3><strong>Αγαπητέ %{recipient.name.first},</strong></h3>
+  <div>
+      Το <em>%{poster.name}</em> κατέγραψε ένα μήνυμα σε ένα ticket στο οποίο συμμετέχετε.
+  </div>
+  <br>
+  %{message}
+  <br>
+  <br>
+  <hr>
+  <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+  <em>Λάβατε αυτό το email επειδή είστε συνεργαζόμενος στο ticket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >#%{ticket.number}</a>.  Για να συμμετάσχετε, απλά απαντήστε στο παρόν email
+  ή <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+  >πατήστε εδώ</a> για ένα πλήρες ιστορικό της ροής του ticket.</em>
+  </div>

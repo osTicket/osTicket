@@ -1,0 +1,100 @@
+---
+#This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+status:
+  title: Status
+  content: >
+    If disabled or archived, this <span class="doc-desc-title">Department</span> will not be available.
+type:
+  title: Jenis
+  content: >
+    Plih <span class="doc-desc-opt">Peribadi</span> jika anda ingin untuk menutup tugasan kepada Jabatan ini dalam Portal Pelanggan. Selain itu, apabila dilabel sebagai <span class="doc-desc-opt">Peribadi</span>, <span class="doc-desc-title">Tandatangan Jabatan</span> tidak akan dipaparkan dalam balasan e-mel. <br/><br/> Sekurang-kurangnya satu jabatan mesti menjadi <span class="doc-desc-opt">Awam</span>
+email:
+  title: Email
+  content: >
+    Alamat e-mel digunakan apabila respon dihantar kepada Pengguna apabila Ejen hantar Respon kepada Tiket.
+template:
+  title: Set templat
+  content: >
+    <span class="doc-desc-title"> Set Templat</span> E-mel digunakan untuk Auto-Respon dan Peringatan &amp; Notis untuk tiket dihantar ke Jabatan ini.
+  links:
+    - 
+      title: Urus Templat
+      href: /scp/templates.php
+sla:
+  title: SLA
+  content: >
+    Perjanjian Tahap Perkhidmatan untuk tiket dihantar ke Jabatan ini.
+  links:
+    - 
+      title: Urus rancangan SLA
+      href: /scp/slas.php
+schedule:
+  title: Schedule
+  content: >
+    Schedule used by SLA when rendering tickets, routed to this Department, Overdue. <br><br> This setting takes presidence over System and SLA schedule settings.
+  links:
+    - 
+      title: Manage Schedules
+      href: /scp/schedules.php
+manager:
+  title: Pengurus jabatan
+  content: >
+    Pilih <span class="doc-desc-title">Pengurus</span>untuk jabatan ini. <br/><br/> Pengurus boleh dikonfigurasikan untuk menerima amaran khas dan juga mempunyai hak untuk menarik balik tiket.
+  links:
+    - 
+      title: Urus Peringatan &amp; Notis
+      href: /scp/settings.php?t=alerts
+group_membership:
+  title: Penerima Amaran &amp; Notis
+  content: >
+    Pilih penerima yang mengkonfigurasikan <span class="doc-desc-title">Peringatan &amp; Notis</span>.
+  links:
+    - 
+      title: Konfigurasi Peringatan &amp; Notis
+      href: "/scp/settings.php?t=tickets#alerts"
+sandboxing:
+  title: Sekatan Tugasan tiket
+  content: >
+    Determine if Tickets can be assigned to all agents, agents with Primary or Extended Department access, or only agents with Primary Department access.
+disable_auto_claim:
+  title: Matikan Auto Tuntutan
+  content: >
+    Semak ini untuk < strong> melumpuhkan < / strong > auto - tuntutan kepada sambutan / membalas untuk jabatan ini. <br> Ejen boleh masih secara manual menuntut tiket ditugaskan
+disable_reopen_auto_assign:
+  title: Disable Auto Assign on Reopen
+  content: >
+    Check this to <strong>disable</strong> auto-assignment of reopened tickets for this department. <br><br> Otherwise, the Ticket will be auto assigned to the last responding Agent
+auto_response_settings:
+  title: Tetapan autorespon
+  content: >
+    Ini membolehkan anda untuk mengatasi tetapan Autopengerespon global untuk Jabatan ini.
+new_ticket:
+  title: Auto-respon tiket baru
+  content: >
+    Anda boleh menutup Auto-Respon yang dihantar kepada pengguna apabila tiket baru dicipta dan dihantar ke Jabatan ini.
+new_message:
+  title: Auto-respon mesej baru
+  content: >
+    Anda boleh menutup Auto-Respons dihantar kepada pengguna untuk mengesahkan mesej baru dipaparkan untuk tiket di Jabatan ini.
+auto_response_email:
+  title: E-mel Auto Respon
+  content: >
+    Pilih alamat e-mel yang mana Auto-Respon dihantar untuk Jabatan ini.
+department_access:
+  title: Akses Kumpulan
+  content: >
+    Benarkan Ejen Jabatan lain akses ke tiket Jabatan ini.
+department_signature:
+  title: Tandatangan Jabatan
+  content: >
+    Tandatangan disediakan sebagai pilihan, untuk Jabatan <span class="doc-desc-opt">Awam</span>, pada Respon Ejen.

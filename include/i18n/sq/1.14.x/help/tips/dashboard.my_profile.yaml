@@ -1,0 +1,76 @@
+---
+#This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#Fields:
+#title - Shown in bold at the top of the popover window
+#content - The body of the help popover
+#links - List of links shows below the content
+#title - Link title
+#href - href of link (links starting with / are translated to the
+#helpdesk installation path)
+#The key names such as 'helpdesk_name' should not be translated as they
+#must match the HTML #ids put into the page template.
+#---
+contact_information:
+  title: Informacione për kontaktin
+  0: >
+
+username:
+  title: Emri i shfrytezuesit
+  content: >
+    Vetëm Agjentët me status të Administartorit mund të ndryshojnë nofkën . Nëse ju jeni një agjent me privilegje të administratorit , ju mund të kërkoni ndryshimin duke zgjedhur një agjent për të redaktuar nga tabela <span class="doc-desc-titull"> Stafi Anëtarëve </span>.
+  links:
+    - 
+      title: Ndrysho emrin e përdoruesit si një Administrator
+      href: /scp/staff.php
+time_zone:
+  title: Time Zone
+  0: >
+
+daylight_saving:
+  title: Daylight Saving
+  0: >
+
+maximum_page_size:
+  title: Madhësia maksimale e ndërfaqes
+  0: >
+
+auto_refresh_rate:
+  title: Norma Automatike e Rifreskimit
+  0: >
+
+default_signature:
+  title: Nënshkrimi
+  0: >
+
+default_paper_size:
+  title: Madhësia e letrës
+  0: >
+
+show_assigned_tickets:
+  title: Shfaq kërkesat e caktuara
+  content: >
+    <p> Duke aktivizuar kete opsion ju mbishkruani konfigurimin per te fshehur problemet e caktuara tek nje agjent nga lista e problemeve te hapura. </p> <p class="info-banner"> <i class="icon-info-sign"></i> Ky konfigurim eshte i vlefshem vetem nese tiketa eshte e caktuara tek nje agjent dhe jane perjashtuar nga konfigurimet globale. </p>
+password:
+  title: Fjalekalimi
+  0: >
+
+current_password:
+  title: Fjalëkalimi i tanishëm
+  0: >
+
+new_password:
+  title: Fjalëkalimi i ri
+  0: >
+
+confirm_new_password:
+  title: Konfirmo fjalëkalimin
+  0: >
+
+signature:
+  title: Nënshkrimi
+  content: >
+    Krijo një <span class="doc-desc-title">nënshkrim</span> dhe me siguri do të shfaqet të përgjigjet tuaja në fund të kërkesës. Nëse ky <span class="doc-desc-titull"> Nënshkrim</span> duket , apo jo , varet nga <span class="doc-desc-title">Ndërfaqja e emailit</span> që do të përdoren në një përgjigje të kërkesës.
+  links:
+    - 
+      title: Krijo ndërfaqet e emailit në panelin e administrimit
+      href: /scp/templates.php

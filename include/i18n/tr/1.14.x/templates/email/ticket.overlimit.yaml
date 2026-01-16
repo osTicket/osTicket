@@ -1,0 +1,21 @@
+---
+#Email template: ticket.overlimit.yaml
+#Sent to users when they have exceeded the maximum open ticket limit. The
+#limit is configurable in the Admin Panel, and is defined by the number of
+#tickets open by a particular email address.
+#---
+notes: |
+  Kullanıcılar açılabilecek en fazla talep sayısına ulaştığında gönder. 
+  Limit değeri Yönetim Panelinden ayarlanabilir, ve belirli bir e-posta 
+  adresine dayalı tanımlanır. 
+
+subject: |
+  Kayıt Oluşturma Üst Sınırına Ulaşıldı
+body: |
+  <h3><strong>Sayın %{ticket.name.first},</strong></h3>
+  Oluşturulabilecek açık kayıt üst sınırına ulaştınız. Yeni bir kayıt oluşturabilmeniz için bekleyen destek kayıtlarınızın kapatılması gerekiyor. Açık kayıtlarınızı güncellemek ya da yorum eklemek için <a
+  href="%{url}/tickets.php?e=%{ticket.email}">yardım sistemine giriş yapabilirsiniz.</a>.
+  <br>
+  <br>
+  Teşekkürler,<br/>
+  Destek Sistemi
