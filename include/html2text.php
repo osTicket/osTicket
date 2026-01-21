@@ -44,27 +44,28 @@ function convert_html_to_text($html, $width=74) {
 
     $elements = identify_node($doc);
 
-    // Add the default stylesheet
-    $elements->getRoot()->addStylesheet(
-        HtmlStylesheet::fromArray(array(
-            'html' => array('white-space' => 'pre'), # Don't wrap footnotes
-            'center' => array('text-align' => 'center'),
-            'p' => array('margin-bottom' => '1em'),
-            'pre' => array('white-space' => 'pre'),
-            'u' => array('text-decoration' => 'underline'),
-            'a' => array('text-decoration' => 'underline'),
-            'b' => array('text-transform' => 'uppercase'),
-            'strong' => array('text-transform' => 'uppercase'),
-            'h4' => array('text-transform' => 'uppercase'),
+    if (is_object($elements)) {
+        // Add the default stylesheet
+        $elements->getRoot()->addStylesheet(
+            HtmlStylesheet::fromArray(array(
+                'html' => array('white-space' => 'pre'), # Don't wrap footnotes
+                'center' => array('text-align' => 'center'),
+                'p' => array('margin-bottom' => '1em'),
+                'pre' => array('white-space' => 'pre'),
+                'u' => array('text-decoration' => 'underline'),
+                'a' => array('text-decoration' => 'underline'),
+                'b' => array('text-transform' => 'uppercase'),
+                'strong' => array('text-transform' => 'uppercase'),
+                'h4' => array('text-transform' => 'uppercase'),
 
-            // Crazy M$ styles
-            '.MsoNormal' => array('margin' => 0, 'margin-bottom' => 0.0001),
-            '.MsoPlainText' => array('margin' => 0, 'margin-bottom' => 0.0001),
-        ))
-    );
-    $options = array();
-    if (is_object($elements))
+                // Crazy M$ styles
+                '.MsoNormal' => array('margin' => 0, 'margin-bottom' => 0.0001),
+                '.MsoPlainText' => array('margin' => 0, 'margin-bottom' => 0.0001),
+            ))
+        );
+        $options = array();
         $output = $elements->render($width, $options);
+    }
     else
         $output = $elements;
 
