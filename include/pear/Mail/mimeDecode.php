@@ -160,6 +160,9 @@ class Mail_mimeDecode extends PEAR
      */
     function __construct(&$input)
     {
+        // normalize different line breaks \r or \n or \r\n or mixed -> \r\n
+        $input = str_replace("\n", "\r\n", str_replace(["\r\n", "\r"], "\n", $input));
+        
         list($header, $body)   = $this->_splitBodyHeader($input);
 
         $this->_input          = &$input;
@@ -303,7 +306,15 @@ class Mail_mimeDecode extends PEAR
         }
 
         if (isset($content_type)) {
-            switch (strtolower($content_type['value'])) {
+            $ct = strtolower(trim($content_type['value'] ?? ''));
+            // not all multipart bodies will parsed correct
+            // for example, multipart/form-data goes to default fallback and will not parsed correct
+            // so we handle all multipart bodies the same way
+            // -> for switch, we change content type temporarly to multipart/mixed
+            if($ct && str_starts_with($ct, 'multipart/'))
+                $ct = 'multipart/mixed';
+
+            switch ($ct) {
                 case 'text/plain':
                     $encoding = isset($content_transfer_encoding) ? $content_transfer_encoding['value'] : '7bit';
                     $this->_include_bodies ? $return->body = ($this->_decode_bodies ? $this->_decodeBody($body, $encoding) : $body) : null;
@@ -313,7 +324,8 @@ class Mail_mimeDecode extends PEAR
                     $encoding = isset($content_transfer_encoding) ? $content_transfer_encoding['value'] : '7bit';
                     $this->_include_bodies ? $return->body = ($this->_decode_bodies ? $this->_decodeBody($body, $encoding) : $body) : null;
                     break;
-                
+
+/* no need for this cases at the moment, because all multipart/* content types changed to multipart/mixed....
                 case 'multipart/parallel':
                 case 'multipart/appledouble': // Appledouble mail
                 case 'multipart/report': // RFC1892
@@ -322,6 +334,8 @@ class Mail_mimeDecode extends PEAR
                 case 'multipart/alternative':
                 case 'multipart/related':
                 case 'multipart/relative': //#20431 - android
+                case 'multipart/form-data':
+*/
                 case 'multipart/mixed':
                 case 'application/vnd.wap.multipart.related':
                     if(!isset($content_type['other']['boundary'])){
@@ -430,7 +444,9 @@ class Mail_mimeDecode extends PEAR
         if ($input instanceof StringView)
             $check = $input->substr(0, 64<<10);
         else
-            $check = &$input;
+            $check = $input;
+
+        $match = [];
         if (preg_match("/^.*?(\r?\n\r?\n)(.)/s", $check, $match, PREG_OFFSET_CAPTURE)) {
             $headers = ($input instanceof StringView)
                 ? (string) $input->substr(0, $match[1][1]) : substr($input, 0, $match[1][1]);
@@ -440,11 +456,14 @@ class Mail_mimeDecode extends PEAR
         }
         // bug #17325 - empty bodies are allowed. - we just check that at least one line 
         // of headers exist..
-        if (count(explode("\n",$input))) {
+        // $input ends with an empty line (maybe with white spaces...)
+        if (preg_match("/\r?\n\r?\n[ \t]*\z/s", (string)$check)) {
             return array($input, '');
         }
         $this->_error = 'Could not split header and body';
-        return false;
+        // if we can't splitt $input into header and bodies, we set $input for header and body
+        // header may correct, body may contain raw email (better than empty)
+        return array($input, $input);
     }
 
     /**
