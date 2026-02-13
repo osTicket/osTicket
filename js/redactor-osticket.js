@@ -386,7 +386,7 @@ $(function() {
                 'imageCaption': false,
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'imagePosition': true,
-                'imageUploadData': {
+                'imageData': {
                     '__CSRFToken__': $("meta[name=csrf_token]").attr("content")
                 },
                 'imageResizable': true,
