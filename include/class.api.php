@@ -101,16 +101,62 @@ class API {
         return ($key && $ip && self::getIdByKey($key, $ip));
     }
 
+    static function parseNetworks($networks) {
+        return array_filter(array_map('trim', explode(',', (string) $networks)), 'strlen');
+    }
+
+    static function isValidNetwork($network) {
+        if (Validator::is_ip($network))
+            return true;
+
+        if (strpos($network, '/') === false)
+            return false;
+
+        list($address, $prefix) = explode('/', $network, 2);
+        $address = trim($address);
+        $prefix = trim($prefix);
+
+        if ($prefix === '' || !is_numeric($prefix))
+            return false;
+
+        return Validator::is_ip($address) && Validator::check_ip($address, $address.'/'.$prefix);
+    }
+
+    static function isValidSource($source) {
+        $networks = self::parseNetworks($source);
+        if (!$networks)
+            return false;
+
+        foreach ($networks as $network) {
+            if (!self::isValidNetwork($network))
+                return false;
+        }
+
+        return true;
+    }
+
+    static function isSourceAuthorized($ip, $source) {
+        if (!Validator::is_ip($ip))
+            return false;
+
+        foreach (self::parseNetworks($source) as $network) {
+            if (Validator::check_ip($ip, $network))
+                return true;
+        }
+
+        return false;
+    }
+
     static function getIdByKey($key, $ip='') {
 
-        $sql='SELECT id FROM '.API_KEY_TABLE.' WHERE apikey='.db_input($key);
-        if($ip)
-            $sql.=' AND ipaddr='.db_input($ip);
+        $sql='SELECT id, ipaddr FROM '.API_KEY_TABLE.' WHERE apikey='.db_input($key);
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            list($id, $source) = db_fetch_row($res);
+            if (!$ip || self::isSourceAuthorized($ip, $source))
+                return $id;
+        }
 
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id) = db_fetch_row($res);
-
-        return $id;
+        return null;
     }
 
     static function lookupByKey($key, $ip='') {
@@ -123,8 +169,11 @@ class API {
 
     static function save($id, $vars, &$errors) {
 
-        if(!$id && (!$vars['ipaddr'] || !Validator::is_ip($vars['ipaddr'])))
-            $errors['ipaddr'] = __('Valid IP is required');
+        if (!$id) {
+            $vars['ipaddr'] = trim($vars['ipaddr']);
+            if (!$vars['ipaddr'] || !self::isValidSource($vars['ipaddr']))
+                $errors['ipaddr'] = __('Valid IP or CIDR is required');
+        }
 
         if($errors) return false;
 
@@ -198,18 +247,18 @@ class ApiController extends Controller {
         // see getApiKey method.
         if (!($key=$this->getKey()))
             return $this->exerr(401, __('Valid API key required'));
-        elseif (!$key->isActive() || $key->getIPAddr() != $this->getRemoteAddr())
+        elseif (!$key->isActive() || !API::isSourceAuthorized($this->getRemoteAddr(), $key->getIPAddr()))
             return $this->exerr(401, __('API key not found/active or source IP not authorized'));
 
         return $key;
     }
 
     function getKey() {
-        // Lookup record using sent API Key && IP Addr
+        // Lookup record using sent API key. Source authorization is
+        // validated separately in requireApiKey().
         if (!$this->key
-                && ($key=$this->getApiKey())
-                && ($ip=$this->getRemoteAddr()))
-            $this->key = API::lookupByKey($key, $ip);
+                && ($key=$this->getApiKey()))
+            $this->key = API::lookupByKey($key);
 
         return $this->key;
     }

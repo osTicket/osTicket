@@ -28,5 +28,5 @@ api_key:
 ip_addr:
     title: IP Address
     content: >
-        Client's network IP address. Each unique client IP address will
-        require separate API keys
+        Client source IP or CIDR range (for example: 10.0.8.0/24). Use a
+        CIDR range to authorize a subnet with a single API key.
