@@ -1,14 +1,19 @@
 <?php
 global $cfg;
-$entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
+$entryTypes = ThreadEntry::getTypes();
 $user = $entry->getUser() ?: $entry->getStaff();
-$name = $user ? $user->getName() : $entry->poster;
+if ($entry->staff && $cfg->hideStaffName())
+    $name = __('Staff');
+else
+    $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
 if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
 ?>
-
-<div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+<?php
+ $type = $entryTypes[$entry->type];
+ ?>
+<div class="thread-entry <?php echo $type; ?> <?php if ($avatar) echo 'avatar'; ?>">
 <?php if ($avatar) { ?>
     <span class="<?php echo ($entry->type == 'M') ? 'pull-left' : 'pull-right'; ?> avatar">
 <?php echo $avatar; ?>
@@ -51,7 +56,8 @@ if ($cfg->isAvatarsEnabled() && $user)
 ?>
         <span class="attachment-info">
         <i class="icon-paperclip icon-flip-horizontal"></i>
-        <a class="no-pjax truncate filename" href="<?php echo $A->file->getDownloadUrl();
+        <a  class="no-pjax truncate filename"
+            href="<?php echo $A->file->getDownloadUrl(['id' => $A->getId()]);
             ?>" download="<?php echo Format::htmlchars($A->getFilename()); ?>"
             target="_blank"><?php echo Format::htmlchars($A->getFilename());
         ?></a><?php echo $size;?>

@@ -33,10 +33,10 @@ if($category && $_REQUEST['a']!='add'){
     $submit_text=__('Add');
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 ?>
-<form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -51,9 +51,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <div style="margin:8px 0"><strong><?php echo __('Category Type');?>:</strong>
         <span class="error">*</span></div>
     <div style="margin-left:5px">
-    <input type="radio" name="ispublic" value="2" <?php echo $info['ispublic']?'checked="checked"':''; ?>><b><?php echo __('Featured');?></b> <?php echo __('(on front-page sidebar)');?>
+    <input type="radio" name="ispublic" value="2" <?php echo $info['ispublic']==2?'checked="checked"':''; ?>><b><?php echo __('Featured');?></b> <?php echo __('(on front-page sidebar)');?>
     <br/>
-    <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><b><?php echo __('Public');?></b> <?php echo __('(publish)');?>
+    <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']==1?'checked="checked"':''; ?>><b><?php echo __('Public');?></b> <?php echo __('(publish)');?>
     <br/>
     <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><?php echo __('Private');?> <?php echo __('(internal)');?>
     <br/>
@@ -108,6 +108,32 @@ if (count($langs) > 1) { ?>
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
     >
     <div style="padding-bottom:8px;">
+        <b><?php echo __('Parent');?></b>:
+        <div class="faded"><?php echo __('Parent Category');?></div>
+    </div>
+    <div style="padding-bottom:8px;">
+        <select name="pid">
+            <option value="">&mdash; <?php echo __('Top-Level Category'); ?> &mdash;</option>
+            <?php
+            foreach (Category::getCategories() as $id=>$name) {
+                if ($info['id'] && $id == $info['id'])
+                    continue; ?>
+                <option value="<?php echo $id; ?>" <?php
+                    if ($info['category_pid'] == $id) echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+            <?php
+            } ?>
+        </select>
+        <script>
+            $('select[name=pid]').on('change', function() {
+                var val = this.value;
+                $('select[name=pid]').each(function() {
+                    $(this).val(val);
+                });
+            });
+        </script>
+    </div>
+    <div style="padding-bottom:8px;">
         <b><?php echo __('Category Name');?></b>:
         <span class="error">*</span>
         <div class="faded"><?php echo __('Short descriptive name.');?></div>
@@ -124,7 +150,7 @@ if (count($langs) > 1) { ?>
     </div>
     <textarea class="richtext" name="<?php echo $dname; ?>" cols="21" rows="12"
         style="width:100%;"><?php
-        echo $desc; ?></textarea>
+        echo Format::sanitize($desc); ?></textarea>
     </div>
 <?php } ?>
 </div>
@@ -134,7 +160,7 @@ if (count($langs) > 1) { ?>
     <b><?php echo __('Internal Notes');?></b>:
     <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
 </div>
 
 

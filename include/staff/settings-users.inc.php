@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 
 ?>
 <h2><?php echo __('Users Settings'); ?></h2>
-<form action="settings.php?t=users" method="post" id="save">
+<form action="settings.php?t=users" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="users" >
 <ul class="tabs" id="users-tabs">
@@ -89,6 +89,26 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <i class="help-tip icon-question-sign" href="#registration_method"></i>
             </td>
         </tr>
+		<tr>
+			<td><?php echo __('Password Policy'); ?>:</td>
+			<td>
+				<select name="client_passwd_policy">
+				<option value=" "> &mdash; <?php echo __('All Active Policies'); ?> &mdash;</option>
+				<?php
+					foreach (PasswordPolicy::allActivePolicies()
+							as $P) {
+					echo sprintf('<option value="%s" %s>%s</option>',
+						$P::$id,
+						(($config['client_passwd_policy'] == $P::$id) ? 'selected="selected"' : ''),
+						$P->getName());
+					}
+				?>
+				</select>
+				<font class="error"><?php echo
+				$errors['client_passwd_policy']; ?></font>
+				<i class="help-tip icon-question-sign" href="#client_password_policy"></i>
+			</td>
+		</tr>
         <tr><td><?php echo __('User Excessive Logins'); ?>:</td>
             <td>
                 <select name="client_max_logins">

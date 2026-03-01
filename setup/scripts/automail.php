@@ -6,7 +6,7 @@
     PHP script used for remote email piping...same as as the perl version.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
+    Copyright (c)  2006-2020 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -16,12 +16,12 @@
 **********************************************************************/
 
 # Configuration: Enter the url and key. That is it.
-#  url => URL to api/tickets.email e.g http://yourdomain.com/support/api/tickets.email
+#  url => URL to api/tickets.email e.g http://yourdomain.com/api/tickets.email
 #  key => API's Key (see admin panel on how to generate a key)
-#   
+#
 
 $config = array(
-        'url'=>'http://yourdomain.com/support/api/tickets.email',
+        'url'=>'http://yourdomain.com/api/tickets.email',
         'key'=>'API KEY HERE'
         );
 
@@ -35,16 +35,16 @@ $data=file_get_contents('php://stdin') or die('Error reading stdin. No message')
 set_time_limit(10);
 
 #curl post
-$ch = curl_init();        
-curl_setopt($ch, CURLOPT_URL, $config['url']);        
-curl_setopt($ch, CURLOPT_POST, 1);        
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $config['url']);
+curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-curl_setopt($ch, CURLOPT_USERAGENT, 'osTicket API Client v1.7');
+curl_setopt($ch, CURLOPT_USERAGENT, 'osTicket API Client v1.14');
 curl_setopt($ch, CURLOPT_HEADER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Expect:', 'X-API-Key: '.$config['key']));
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); 
-$result=curl_exec($ch);        
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+$result=curl_exec($ch);
 curl_close($ch);
 
 //Use postfix exit codes...expected by MTA.
@@ -71,10 +71,13 @@ if(preg_match('/HTTP\/.* ([0-9]+) .*/', $result, $status)) {
             $code = 69;
             break;
         case 500: //Server error.
-        default: //Temp (unknown) failure - retry 
+        default: //Temp (unknown) failure - retry
             $code = 75;
     }
 }
 
+if ($code == 66) {
+    echo "HTTPS protocol required. Please update the URL in automail.php to include 'https'.\r\n";
+}
 exit($code);
 ?>

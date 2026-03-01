@@ -83,8 +83,8 @@ if ($user) { ?>
 <form method="post" class="user" action="<?php echo $info['action'] ?: '#users/lookup/form'; ?>">
     <table width="100%" class="fixed">
     <?php
-        if(!$form) $form = UserForm::getInstance();
-        $form->render(true, __('Create New User')); ?>
+        $form = $form ?: UserForm::getInstance();
+        $form->render(['staff' => true, 'title' => __('Create New User'), 'mode' => 'create']); ?>
     </table>
     <hr>
     <p class="full-width">

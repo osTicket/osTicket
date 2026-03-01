@@ -353,3 +353,6 @@ input[type=password] {
     padding: 5px;
     font-size: 0.75em;
 }
+.hidden {
+    display: none;
+}

@@ -27,6 +27,14 @@ username:
       - title: Change a username as an Administrator
         href: /scp/staff.php
 
+config2fa:
+    title: Two Factor Authentication
+    content: >
+        Two Factor Authentication adds an extra layer of security
+        when logging into the helpdesk. Once you correctly submit
+        your username and password, you will need to enter a token
+        to finish logging into the helpdesk.
+
 time_zone:
     title: Time Zone
     content: >
@@ -83,11 +91,11 @@ confirm_new_password:
 signature:
     title: Signature
     content: >
-        Create an optional <span class="doc-desc-title">Signature</span> 
-        that perhaps appears at the end of your Ticket Responses. Whether this 
-        <span class="doc-desc-title">Signature</span> appears, or not, depends 
-        on the <span class="doc-desc-title">Email Template</span> that will be 
-        used in a Ticket Response. 
+        Create an optional <span class="doc-desc-title">Signature</span>
+        that perhaps appears at the end of your Ticket Responses. Whether this
+        <span class="doc-desc-title">Signature</span> appears, or not, depends
+        on the <span class="doc-desc-title">Email Template</span> that will be
+        used in a Ticket Response.
     links:
       - title: Create Emails Templates in the Admin Panel
         href: /scp/templates.php

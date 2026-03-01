@@ -9,10 +9,10 @@
 - name: osTicket
   fields:
     address:|
-        420 Desoto Street
+        1120 5th Street
         Alexandria, LA 71301
     phone: (318) 290-3674
-    website: http://osticket.com
+    website: https://osticket.com
     notes: >
         Not only do we develop the software, we also use it to manage
         support for osTicket. Let us help you quickly implement and leverage

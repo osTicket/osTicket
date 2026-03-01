@@ -16,12 +16,6 @@ $sortOptions = array(
 $orderWays = array('DESC'=>'DESC', 'ASC'=>'ASC');
 $sort = ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ? strtolower($_REQUEST['sort']) : 'name';
 
-if ($sort && $sortOptions[$sort]) {
-    $order_column = $sortOptions[$sort];
-}
-
-$order_column = $order_column ? $order_column : array('firstname', 'lastname');
-
 switch ($cfg->getAgentNameFormat()) {
 case 'last':
 case 'lastfirst':
@@ -30,6 +24,12 @@ case 'legal':
     break;
 // Otherwise leave unchanged
 }
+
+if ($sort && $sortOptions[$sort]) {
+    $order_column = $sortOptions[$sort];
+}
+
+$order_column = $order_column ?: array('firstname', 'lastname');
 
 if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])])) {
     $order = $orderWays[strtoupper($_REQUEST['order'])];
@@ -141,6 +141,12 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                             <a class="dialog-first" data-action="department" href="#staff/change-department">
                                 <i class="icon-truck icon-fixed-width"></i>
                                 <?php echo __( 'Change Department'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="no-pjax" href="staff.php?a=export">
+                                <i class="icon-download-alt icon-fixed-width"></i>
+                                <?php echo __( 'Export Agents'); ?>
                             </a>
                         </li>
                         <!-- TODO: Implement "Reset Access" mass action

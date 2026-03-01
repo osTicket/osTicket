@@ -36,15 +36,32 @@ echo sprintf('<div class="pull-right flush-right">
 </div>
 <div class="faq-category">
     <div style="margin-bottom:10px;">
-        <div class="faq-title pull-left"><?php echo $category->getName() ?></div>
+        <div class="faq-title pull-left"><?php echo $category->getFullName() ?></div>
         <div class="faq-status inline">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</div>
         <div class="clear"><time class="faq"> <?php echo __('Last Updated').' '. Format::daydatetime($category->getUpdateDate()); ?></time></div>
     </div>
     <div class="cat-desc has_bottom_border">
-    <?php echo Format::display($category->getDescription()); ?>
-</div>
+    <?php echo Format::display($category->getDescription());
+    if ($category->children) {
+        echo '<p/><div>';
+        foreach ($category->children as $c) {
+            echo sprintf('<div><i class="icon-folder-open-alt"></i>
+                    <a href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></div>',
+                    $c->getId(),
+                    $c->getLocalName(),
+                    $c->getNumFAQs(),
+                    $c->getVisibilityDescription()
+                    );
+        }
+        echo '</div>';
+    }
+    ?>
+    </div>
 <?php
-
+if (!$thisstaff->hasPerm(Dept::PERM_DEPT)) {
+    $staffTopics = $thisstaff->getTopicNames(false);
+    $filter = true;
+}
 
 $faqs = $category->faqs
     ->constrain(array('attachments__inline' => 0))
@@ -53,15 +70,27 @@ if ($faqs->exists(true)) {
     echo '<div id="faq">
             <ol>';
     foreach ($faqs as $faq) {
-        echo sprintf('
-            <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
-            $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
-            $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
-        );
+        if ($filter) {
+            if ($faqTopics = $faq->getHelpTopicsIds()) {
+                foreach ($faqTopics as $key => $value) {
+                    if (array_key_exists($value, $staffTopics))
+                        $show = true;
+                }
+            } else
+                $show = true;
+        } else
+            $show = true;
+
+        if ($show)
+            echo sprintf('
+                <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
+                $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
+                $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
+            );
     }
     echo '  </ol>
          </div>';
-}else {
+} elseif (!$category->children) {
     echo '<strong>'.__('Category does not have FAQs').'</strong>';
 }
 ?>

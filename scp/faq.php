@@ -48,6 +48,21 @@ if ($langs = $cfg->getSecondaryLanguages()) {
 
 $faq_form = new SimpleForm($form_fields, $_POST);
 
+// Set fields' attachments so exsting files stay put
+if ($faq
+    && $faq->getAttachments()->window(array('inline' => false))
+    && ($common_attachments = $faq_form->getField('attachments'))) {
+     // Common attachments
+     $common_attachments->setAttachments($faq->getAttachments()->window(array('inline' => false)));
+}
+if ($langs && $faq) {
+    // Multi-lingual system
+    foreach ($langs as $lang) {
+        $attachments = $faq_form->getField('attachments.'.$lang);
+        $attachments->setAttachments($faq->getAttachments($lang)->window(array('inline' => false)));
+    }
+}
+
 if ($_POST) {
     $errors=array();
     // General attachments
@@ -65,6 +80,8 @@ if ($_POST) {
             $faq = FAQ::create();
             if($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($faq->getQuestion()));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $faq, $type);
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
             } elseif(!$errors['err'])
@@ -85,6 +102,8 @@ if ($_POST) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this FAQ article')),
                     __('Correct any errors below and try again.'));
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $faq, $type);
             break;
         case 'manage-faq':
             if(!$faq) {
@@ -126,24 +145,9 @@ if ($_POST) {
 
     }
 }
-else {
-    // Not a POST — load database-backed attachments to attachment fields
-    if ($langs && $faq) {
-        // Multi-lingual system
-        foreach ($langs as $lang) {
-            $attachments = $faq_form->getField('attachments.'.$lang);
-            $attachments->setAttachments($faq->getAttachments($lang)->window(array('inline' => false)));
-        }
-    }
-    if ($faq) {
-        // Common attachments
-        $attachments = $faq_form->getField('attachments');
-        $attachments->setAttachments($faq->getAttachments()->window(array('inline' => false)));
-    }
-}
 
 $inc='faq-categories.inc.php'; //FAQs landing page.
-if($faq) {
+if($faq && $faq->getId()) {
     $inc='faq-view.inc.php';
     if ($_REQUEST['a']=='edit'
             && $thisstaff->hasPerm(FAQ::PERM_MANAGE))

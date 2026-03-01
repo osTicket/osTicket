@@ -54,6 +54,19 @@ class TestValidation extends Test {
         #$this->assert(Validator::is_email('δοκιμή@παράδειγμα.δοκιμή'));
         #$this->assert(Validator::is_email('甲斐@黒川.日本'));
     }
+
+    function testIPAddresses() {
+
+        // Validate IP Addreses
+        $this->assert(Validator::is_ip('127.0.0.1'));
+        $this->assert(Validator::is_ip('192.168.129.74'));
+
+        // Test IP check
+        $this->assert(Validator::check_ip('127.0.0.1', '127.0.0.0/24'));
+        $this->assert(Validator::check_ip('192.168.129.42',
+                    ['127.0.0.0/24', '192.168.129.0/24']));
+        $this->assert(!Validator::check_ip('10.0.5.15', '127.0.0.0/24'));
+    }
 }
 return 'TestValidation';
 ?>

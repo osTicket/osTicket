@@ -4,9 +4,13 @@ require_once "class.test.php";
 class SyntaxTest extends Test {
     var $name = "PHP Syntax Checks";
 
+    static function ignore3rdparty() {
+        return false;
+    }
+
     function testCompileErrors() {
         $exit = 0;
-        foreach ($this->getAllScripts(false) as $s) {
+        foreach (static::getAllScripts() as $s) {
             ob_start();
             system("php -l $s", $exit);
             $line = ob_get_contents();

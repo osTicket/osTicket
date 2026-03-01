@@ -27,8 +27,8 @@ $wizard=array();
 $wizard['title']=__('osTicket Installer');
 $wizard['tagline']=sprintf(__('Installing osTicket %s'),$installer->getVersionVerbose());
 $wizard['logo']='logo.png';
-$wizard['menu']=array(__('Installation Guide')=>'http://osticket.com/wiki/Installation',
-        __('Get Professional Help')=>'http://osticket.com/support');
+$wizard['menu']=array(__('Installation Guide')=>'https://docs.osticket.com/en/latest/Getting%20Started/Installation.html',
+        __('Get Professional Help')=>'https://osticket.com/support');
 
 if($_POST && $_POST['s']) {
     $errors = array();

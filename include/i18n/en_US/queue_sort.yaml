@@ -1,0 +1,33 @@
+# Columns are not necessary and a default list is used if no columns are
+# specified.
+#
+# Fields:
+#   id:
+---
+- id: 1
+  name: Priority + Most Recently Updated
+  columns: '["-cdata__priority","-lastupdate"]'
+
+- id: 2
+  name: Priority + Most Recently Created
+  columns: '["-cdata__priority","-created"]'
+
+- id: 3
+  name: Priority + Due Date
+  columns: '["-cdata__priority","-est_duedate"]'
+
+- id: 4
+  name: Due Date
+  columns: '["-est_duedate"]'
+
+- id: 5
+  name: Closed Date
+  columns: '["-closed"]'
+
+- id: 6
+  name: Create Date
+  columns: '["-created"]'
+
+- id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

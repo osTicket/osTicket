@@ -107,6 +107,39 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 
 # define('ROOT_PATH', '/support/');
 
+
+# Option: TRUSTED_PROXIES (default: <none>)
+#
+# To support running osTicket installation on a web servers that sit behind a
+# load balancer, HTTP cache, or other intermediary (reverse) proxy; it's
+# necessary to define trusted proxies to protect against forged http headers
+#
+# osTicket supports passing the following http headers from a trusted proxy;
+# - HTTP_X_FORWARDED_FOR    =>  Chain of client's IPs
+# - HTTP_X_FORWARDED_PROTO  =>  Client's HTTP protocal (http | https)
+#
+# You'll have to explicitly define comma separated IP addreseses or CIDR of
+# upstream proxies to trust. Wildcard "*" (not recommended) can be used to
+# trust all chained IPs as proxies in cases that ISP/host doesn't provide
+# IPs of loadbalancers or proxies.
+#
+# References:
+# http://en.wikipedia.org/wiki/X-Forwarded-For
+#
+
+define('TRUSTED_PROXIES', '');
+
+
+# Option: LOCAL_NETWORKS (default: 127.0.0.0/24)
+#
+# When running osTicket as part of a cluster it might become necessary to
+# whitelist local/virtual networks that can bypass some authentication/checks.
+#
+# define comma separated IP addreseses or enter CIDR of local network.
+
+define('LOCAL_NETWORKS', '127.0.0.0/24');
+
+
 #
 # Session Storage Options
 # ---------------------------------------------------

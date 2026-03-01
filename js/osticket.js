@@ -45,6 +45,17 @@ $(document).ready(function(){
 
     $('form').submit(function() {
         $(window).unbind('beforeunload');
+        // Disable client-side Post Reply/Create Ticket buttons to help
+        // prevent duplicate POST
+        var form = $(this);
+        $(this).find('input[type="submit"]').each(function (index) {
+            // Clone original input
+            $(this).clone(false).removeAttr('id').prop('disabled', true).insertBefore($(this));
+
+            // Hide original input and add it to top of form
+            $(this).hide();
+            form.prepend($(this));
+        });
         $('#overlay, #loading').show();
         return true;
        });
@@ -171,23 +182,6 @@ getConfig = (function() {
     };
 })();
 
-$.translate_format = function(str) {
-    var translation = {
-        'd':'dd',
-        'j':'d',
-        'z':'o',
-        'm':'mm',
-        'F':'MM',
-        'n':'m',
-        'Y':'yy'
-    };
-    // Change PHP formats to datepicker ones
-    $.each(translation, function(php, jqdp) {
-        str = str.replace(php, jqdp);
-    });
-    return str;
-};
-
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
     if ($dialog.length) {
@@ -213,11 +207,8 @@ $(document).on('submit', 'form', function() {
     $('.dp', $(this)).each(function(i, e) {
         var $e = $(e),
             d = $e.datepicker('getDate');
-        if (!d) return;
-        var day = ('0'+d.getDate()).substr(-2),
-            month = ('0'+(d.getMonth()+1)).substr(-2),
-            year = d.getFullYear();
-        $e.val(year+'-'+month+'-'+day);
+        if (d)
+            $e.val(d.toISOString());
     });
 });
 

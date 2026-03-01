@@ -7,10 +7,11 @@ $category=$faq->getCategory();
 <div class="row">
 <div class="span8">
 
-<h1><?php echo __('Frequently Asked Questions');?></h1>
-<div id="breadcrumbs">
+<h1><?php echo __('Frequently Asked Question');?></h1>
+<div id="breadcrumbs" style="padding-top:2px;">
     <a href="index.php"><?php echo __('All Categories');?></a>
-    &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
+    &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php
+    echo $category->getFullName(); ?></a>
 </div>
 
 <div class="faq-content">
@@ -18,7 +19,7 @@ $category=$faq->getCategory();
 <?php echo $faq->getLocalQuestion() ?>
 </div>
 <div class="faded"><?php echo sprintf(__('Last Updated %s'),
-    Format::relativeTime(Misc::db2gmtime($category->getUpdateDate()))); ?></div>
+    Format::relativeTime(Misc::db2gmtime($faq->getUpdateDate()))); ?></div>
 <br/>
 <div class="thread-body bleed">
 <?php echo $faq->getLocalAnswerWithImages(); ?>
@@ -42,7 +43,8 @@ $category=$faq->getCategory();
     <strong><?php echo __('Attachments');?>:</strong>
 <?php foreach ($attachments as $att) { ?>
     <div>
-    <a href="<?php echo $att->file->getDownloadUrl(); ?>" class="no-pjax">
+    <a href="<?php echo $att->file->getDownloadUrl(['id' => $att->getId()]);
+    ?>" class="no-pjax">
         <i class="icon-file"></i>
         <?php echo Format::htmlchars($att->getFilename()); ?>
     </a>

@@ -413,6 +413,9 @@ class EmailTemplateGroup {
                 .' WHERE tpl_id='.db_input($this->getId()));
         }
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return $num;
     }
 
@@ -454,6 +457,13 @@ class EmailTemplateGroup {
             $errors['tpl_id']=__('Invalid template set specified');
 
         if($errors) return false;
+
+        foreach ($vars as $key => $value) {
+            if ($id && isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $sql=' updated=NOW() '
             .' ,name='.db_input($vars['name'])
@@ -616,16 +626,16 @@ class EmailTemplate {
 
     function save($id, $vars, &$errors) {
         if(!$vars['subject'])
-            $errors['subject']='Message subject is required';
+            $errors['subject'] = __('Message subject is required');
 
         if(!$vars['body'])
-            $errors['body']='Message body is required';
+            $errors['body'] = __('Message body is required');
 
         if (!$id) {
             if (!$vars['tpl_id'])
-                $errors['tpl_id']='Template set is required';
+                $errors['tpl_id'] = __('Template set is required');
             if (!$vars['code_name'])
-                $errors['code_name']='Code name is required';
+                $errors['code_name'] = __('Code name is required');
         }
 
         if ($errors)
@@ -634,6 +644,12 @@ class EmailTemplate {
         $vars['body'] = Format::sanitize($vars['body'], false);
 
         if ($id) {
+            foreach ($vars as $key => $value) {
+                if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+                    $type = array('type' => 'edited', 'key' => $this->getCodeName());
+                    Signal::send('object.edited', $this->getGroup(), $type);
+                }
+            }
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '
                 .', subject='.db_input($vars['subject'])
                 .', body='.db_input($vars['body'])
@@ -646,8 +662,16 @@ class EmailTemplate {
                 .', code_name='.db_input($vars['code_name'])
                 .', subject='.db_input($vars['subject'])
                 .', body='.db_input($vars['body']);
-            if (db_query($sql) && ($id=db_insert_id()))
+            if (db_query($sql) && ($id=db_insert_id())) {
+                $template = EmailTemplate::lookup($id);
+                foreach ($vars as $key => $value) {
+                    if (isset($template->ht[$key]) && ($template->ht[$key] != $value)) {
+                        $type = array('type' => 'edited', 'key' => $template->getCodeName());
+                        Signal::send('object.edited', $template->getGroup(), $type);
+                    }
+                }
                 return $id;
+            }
         }
         return null;
     }

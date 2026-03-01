@@ -12,6 +12,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once INCLUDE_DIR.'class.businesshours.php';
+include_once INCLUDE_DIR.'class.schedule.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -26,7 +28,8 @@ implements TemplateVariable {
     const FLAG_NOALERTS     = 0x0004;
     const FLAG_TRANSIENT    = 0x0008;
 
-    var $_config;
+    protected $_config;
+    protected $_schedule;
 
     function getId() {
         return $this->id;
@@ -38,6 +41,40 @@ implements TemplateVariable {
 
     function getGracePeriod() {
         return $this->grace_period;
+    }
+
+    // Add Grace Period to datetime
+    function addGracePeriod(Datetime $date, BusinessHoursSchedule $schedule
+            = null, &$timeline=array()) {
+        global $cfg;
+
+        // Requested schedule takes precedence, then local and lastly the
+        // system default as a fall-back
+        if (($schedule = $schedule ?: $this->getSchedule() ?:
+                    $cfg->getDefaultSchedule())) {
+            if (($schedule->addWorkingHours($date,
+                            $this->getGracePeriod(), $timeline)))
+                return $date;
+        }
+
+        // No schedule, no problem - just add the hours and call ot a day.
+        $time = round($this->getGracePeriod()*3600);
+        $interval = new DateInterval('PT'.$time.'S');
+        $date->add($interval);
+
+        return $date;
+    }
+
+    function getScheduleId() {
+        return $this->schedule_id;
+    }
+
+    function getSchedule() {
+        if (!isset($this->_schedule) && $this->getScheduleId())
+            $this->_schedule = BusinessHoursSchedule::lookup(
+                    $this->getScheduleId());
+
+        return $this->_schedule;
     }
 
     function getInfo() {
@@ -67,6 +104,16 @@ implements TemplateVariable {
 
     function sendAlerts() {
         return 0 === ($this->flags & self::FLAG_NOALERTS);
+    }
+
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    function flagChanged($flag, $var) {
+        if (($this->hasFlag($flag) && $var != $flag) ||
+            (!$this->hasFlag($flag) && $var == $flag))
+                return true;
     }
 
     function alertOnOverdue() {
@@ -106,11 +153,16 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors) {
-
+        $vars = Format::htmlchars($vars);
         if (!$vars['grace_period'])
             $errors['grace_period'] = __('Grace period required');
         elseif (!is_numeric($vars['grace_period']))
             $errors['grace_period'] = __('Numeric value required (in hours)');
+        elseif ($vars['grace_period'] > 8760)
+            $errors['grace_period'] = sprintf(
+                    __('%s cannot be more than 8760 hours'),
+                    __('Grace period')
+                    );
 
         if (!$vars['name'])
             $errors['name'] = __('Name is required');
@@ -120,14 +172,31 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
+        $vars['disable_overdue_alerts'] = isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0;
+        $vars['transient'] = isset($vars['transient']) ? self::FLAG_TRANSIENT : 0;
+        //flags
+        $auditDisableOverdue = $this->flagChanged(self::FLAG_NOALERTS, $vars['disable_overdue_alerts']);
+        $auditTransient = $this->flagChanged(self::FLAG_TRANSIENT, $vars['transient']);
+        $auditStatus = $this->flagChanged(self::FLAG_ACTIVE, $vars['isactive']);
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) ||
+               ($auditDisableOverdue && $key == 'disable_overdue_alerts' ||
+                $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->name = $vars['name'];
+        $this->schedule_id = $vars['schedule_id'];
         $this->grace_period = $vars['grace_period'];
         $this->notes = Format::sanitize($vars['notes']);
         $this->flags =
               ($vars['isactive'] ? self::FLAG_ACTIVE : 0)
-            | (isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0)
-            | (isset($vars['enable_priority_escalation']) ? self::FLAG_ESCALATE : 0)
-            | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
+            | ($vars['disable_overdue_alerts'])
+            | ($vars['enable_priority_escalation'])
+            | ($vars['transient']);
 
         if ($this->save())
             return true;
@@ -165,6 +234,9 @@ implements TemplateVariable {
             db_query('UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($cfg->getDefaultSLAId()).' WHERE sla_id='.db_input($id));
         }
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return $num;
     }
 
@@ -177,12 +249,16 @@ implements TemplateVariable {
 
         $entries = array();
         foreach ($slas as $row) {
-            $row[2] = $row[2] & self::FLAG_ACTIVE;
-            $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
-                        /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
-                        self::getLocalById($row[0], 'name', $row[1]),
-                        $row[3],
-                        $row[2] ? __('Active') : __('Disabled'));
+            if ($criteria['nameOnly'])
+                $entries[$row[0]] = __(self::getLocalById($row[0], 'name', $row[1]));
+            else {
+                $row[2] = $row[2] & self::FLAG_ACTIVE;
+                $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
+                            /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
+                            self::getLocalById($row[0], 'name', $row[1]),
+                            $row[3],
+                            $row[2] ? __('Active') : __('Disabled'));
+            }
         }
 
         return $entries;
@@ -202,7 +278,12 @@ implements TemplateVariable {
         return $row ? $row[0] : 0;
     }
 
+    function __toString() {
+        return $this->getName();
+    }
+
     static function create($vars=false, &$errors=array()) {
+        $vars = Format::htmlchars($vars);
         $sla = new static($vars);
         $sla->created = SqlFunction::NOW();
         return $sla;

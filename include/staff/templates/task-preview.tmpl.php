@@ -2,7 +2,7 @@
 $error=$msg=$warn=null;
 
 if (!$task->checkStaffPerm($thisstaff))
-     $warn.= __('You do not have access to this task');
+     $warn.= sprintf(__('You do not have access to %s'), __('this task'));
 elseif ($task->isOverdue())
     $warn.='&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
@@ -115,7 +115,7 @@ echo '</div>';
     <br>
     <?php
     echo sprintf('<span><a class="collaborators"
-                            href="#thread/%d/collaborators">%s</a></span>',
+                            href="#thread/%d/collaborators/1">%s</a></span>',
                             $task->getThreadId(),
                             $task->getThread()->getNumCollaborators()
                                 ? __('Manage Collaborators') : __('Add Collaborator')

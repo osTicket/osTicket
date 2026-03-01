@@ -20,6 +20,14 @@ username:
         that is unique to your <span class="doc-desc-title">Help
         Desk</span>.
 
+reset2fa:
+    title: Reset Two Factor Authentication
+    content: >
+        In the event that an Agent loses the ability to log into the helpdesk
+        using their current 2FA configuration, an Admin can reset the Agent's
+        2FA configuration so that they can reconfigure it upon their next
+        successful login.
+
 email_address:
     title: Email Address
     content: >

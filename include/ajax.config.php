@@ -28,7 +28,7 @@ class ConfigAjaxAPI extends AjaxController {
         list($sl, $locale) = explode('_', $lang);
 
         $rtl = false;
-        foreach (Internationalization::availableLanguages() as $info) {
+        foreach (Internationalization::getConfiguredSystemLanguages() as $info) {
             if (isset($info['direction']))
                 $rtl = true;
         }
@@ -40,7 +40,7 @@ class ConfigAjaxAPI extends AjaxController {
         $config=array(
               'lock_time'       => $cfg->getTicketLockMode() == Lock::MODE_DISABLED ? 0 : ($cfg->getLockTime()*60),
               'html_thread'     => (bool) $cfg->isRichTextEnabled(),
-              'date_format'     => $cfg->getDateFormat(true),
+              'date_format'     => Format::dtfmt_php2js($cfg->getDateFormat(true)),
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
@@ -49,6 +49,8 @@ class ConfigAjaxAPI extends AjaxController {
               'primary_language' => Internationalization::rfc1766($primary),
               'secondary_languages' => $cfg->getSecondaryLanguages(),
               'page_size'       => $thisstaff->getPageLimit() ?: PAGE_LIMIT,
+              'path'            => ROOT_PATH,
+              'editor_spacing' => $thisstaff->editorSpacing(),
         );
         return $this->json_encode($config);
     }
@@ -72,6 +74,7 @@ class ConfigAjaxAPI extends AjaxController {
             'has_rtl'         => $rtl,
             'primary_language' => Internationalization::rfc1766($cfg->getPrimaryLanguage()),
             'secondary_languages' => $cfg->getSecondaryLanguages(),
+            'path'            => ROOT_PATH,
         );
 
         $config = $this->json_encode($config);

@@ -18,7 +18,7 @@ if ($_REQUEST['query']) {
 
 $sortOptions = array(
         'name' => 'name',
-        'users' => 'users',
+        'users' => 'user_count',
         'create' => 'created',
         'update' => 'updated'
         );
@@ -219,7 +219,11 @@ $(function() {
             $form.find('#selected-count').val(ids.length);
             $form.submit();
           };
-          $.confirm(__('You sure?')).then(submit);
+          $.confirm(__('You sure?')).then(function(promise) {
+            if (promise === false)
+              return false;
+            submit();
+          });
         }
         else if (!ids.length) {
             $.sysAlert(__('Oops'),

@@ -68,8 +68,12 @@ interface CustomListItem {
     function getAbbrev();
     function getSortOrder();
 
+    function getList();
+    function getListId();
+
     function getConfiguration();
 
+    function hasProperties();
     function isEnabled();
     function isDeletable();
     function isEnableable();
@@ -394,7 +398,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function update($vars, &$errors) {
-
+        $vars = Format::htmlchars($vars);
         $required = array();
         if ($this->isEditable())
             $required = array('name');
@@ -402,8 +406,14 @@ class DynamicList extends VerySimpleModel implements CustomList {
         foreach (static::$fields as $f) {
             if (in_array($f, $required) && !$vars[$f])
                 $errors[$f] = sprintf(__('%s is required'), mb_convert_case($f, MB_CASE_TITLE));
-            elseif (isset($vars[$f]))
-                $this->set($f, $vars[$f]);
+            elseif (isset($vars[$f])) {
+                if ($vars[$f] != $this->get($f)) {
+                    $type = array('type' => 'edited', 'key' => $f);
+                    Signal::send('object.edited', $this, $type);
+                    $this->set($f, $vars[$f]);
+                }
+            }
+
         }
 
         if ($errors)
@@ -432,6 +442,9 @@ class DynamicList extends VerySimpleModel implements CustomList {
         if (!parent::delete())
             return false;
 
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
+
         if (($form = $this->getForm(false))) {
             $form->delete(false);
             $form->fields->delete();
@@ -451,7 +464,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     static function add($vars, &$errors) {
-
+        $vars = Format::htmlchars($vars);
         $required = array('name');
         $ht = array();
         foreach (static::$fields as $f) {
@@ -465,7 +478,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             return false;
 
         // Create the list && form
-        if (!($list = self::create($ht))
+        if (!($list = self::create($ht, $errors, false))
                 || !$list->save(true)
                 || !$list->createConfigurationForm())
             return false;
@@ -473,7 +486,10 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $list;
     }
 
-    static function create($ht=false, &$errors=array()) {
+    static function create($ht=false, &$errors=array(), $sanitize=true) {
+        if ($ht && $sanitize)
+            $ht = Format::htmlchars($ht);
+
         if (isset($ht['configuration'])) {
             $ht['configuration'] = JsonDataEncoder::encode($ht['configuration']);
         }
@@ -518,7 +534,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         foreach (DynamicList::objects() as $list) {
             $selections['list-'.$list->id] =
                 array($list->getPluralName(),
-                    SelectionField, $list->get('id'));
+                    'SelectionField', $list->get('id'));
         }
         return $selections;
     }
@@ -664,8 +680,16 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         $this->clearStatus(self::ENABLED);
     }
 
+    function hasProperties() {
+        return ($this->getForm() && $this->getForm()->getFields());
+    }
+
     function getId() {
         return $this->get('id');
+    }
+
+    function getList() {
+        return $this->list;
     }
 
     function getListId() {
@@ -733,6 +757,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->getConfigurationForm();
     }
 
+    function getFields() {
+        return $this->getForm()->getFields();
+    }
+
     function getVar($name) {
         $config = $this->getConfiguration();
         $name = mb_strtolower($name);
@@ -768,6 +796,18 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->toString();
     }
 
+    function display() {
+
+        return $this->getValue();
+        //TODO: Allow for display mode (edit, preview or both)
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
+                $this->getListId(),
+                $this->getId(),
+                $this->getValue()
+                );
+    }
+
     function update($vars, &$errors=array()) {
 
         if (!$vars['value']) {
@@ -779,7 +819,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
                     'sort' => 'sort',
                     'value' => 'value',
                     'abbrev' => 'extra') as $k => $v) {
-            if (isset($vars[$k]))
+            if ($k == 'abbrev' && empty($vars[$k])) {
+                $vars[$k] = NULL;
+                $this->set($v, $vars[$k]);
+            } elseif (isset($vars[$k]))
                 $this->set($v, $vars[$k]);
         }
 
@@ -1069,7 +1112,7 @@ CustomListHandler::register('ticket-status', 'TicketStatusList');
 
 class TicketStatus
 extends VerySimpleModel
-implements CustomListItem, TemplateVariable {
+implements CustomListItem, TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => TICKET_STATUS_TABLE,
@@ -1077,7 +1120,7 @@ implements CustomListItem, TemplateVariable {
         'pk' => array('id'),
         'joins' => array(
             'tickets' => array(
-                'reverse' => 'TicketModel.status',
+                'reverse' => 'Ticket.status',
                 )
         )
     );
@@ -1102,7 +1145,7 @@ implements CustomListItem, TemplateVariable {
         return $this->set($field, $this->get($field) | $flag);
     }
 
-    protected function hasProperties() {
+    function hasProperties() {
         return ($this->get('properties'));
     }
 
@@ -1248,10 +1291,31 @@ implements CustomListItem, TemplateVariable {
         return $base;
     }
 
+    // Searchable interface
+    static function getSearchableFields() {
+        return array(
+            'state' => new TicketStateChoiceField(array(
+                'label' => __('State'),
+            )),
+            'id' => new TicketStatusChoiceField(array(
+                'label' => __('Status Name'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        return false;
+    }
+
     function getList() {
         if (!isset($this->_list))
             $this->_list = DynamicList::lookup(array('type' => 'ticket-status'));
         return $this->_list;
+    }
+
+    function getListId() {
+        if (($list = $this->getList()))
+            return $list->getId();
     }
 
     function getConfigurationForm($source=null) {
@@ -1281,6 +1345,10 @@ implements CustomListItem, TemplateVariable {
         }
 
         return $this->_form;
+    }
+
+    function getFields() {
+        return $this->getConfigurationForm()->getFields();
     }
 
     function getConfiguration() {
@@ -1367,6 +1435,18 @@ implements CustomListItem, TemplateVariable {
         return count($errors) === 0;
     }
 
+    function display() {
+
+        return $this->getLocalName();
+
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
+                $this->getListId(),
+                $this->getId(),
+                $this->getLocalName()
+                );
+    }
+
     function update($vars, &$errors) {
         $fields = array('name', 'sort');
         foreach($fields as $k) {
@@ -1379,10 +1459,12 @@ implements CustomListItem, TemplateVariable {
     function delete() {
 
         // Statuses with tickets are not deletable
-        if (!$this->isDeletable())
+        if (!$this->isDeletable() || !parent::delete())
             return false;
 
-        return parent::delete();
+        Signal::send('object.deleted', $this);
+
+        return true;
     }
 
     function __toString() {

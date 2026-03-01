@@ -14,7 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Exporter extends Module {
+class CliExporter extends Module {
     var $prologue =
         "Dumps the osTicket database in formats suitable for the importer";
 
@@ -38,6 +38,11 @@ class Exporter extends Module {
     function run($args, $options) {
         require_once dirname(__file__) . '/../../../bootstrap.php';
         require_once INCLUDE_DIR . 'class.export.php';
+
+        Bootstrap::connect();
+
+        if (!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
+            $this->fail('Unable to load config info!');
 
         if (!$args['module']) {
             $exporter = 'DatabaseExporter';
@@ -85,5 +90,5 @@ class Exporter extends Module {
     }
 }
 
-Module::register('export', 'Exporter');
+Module::register('export', 'CliExporter');
 ?>

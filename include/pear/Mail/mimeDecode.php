@@ -329,6 +329,7 @@ class Mail_mimeDecode extends PEAR
 
                 case 'message/rfc822':
                     $obj = new Mail_mimeDecode($body);
+                    $return->body = $body;
                     $return->parts[] = $obj->decode(array('include_bodies' => $this->_include_bodies,
 					                                      'decode_bodies'  => $this->_decode_bodies,
 														  'decode_headers' => $this->_decode_headers));
@@ -645,7 +646,10 @@ class Mail_mimeDecode extends PEAR
         $input = preg_replace("/=\r?\n/", '', $input);
 
         // Replace encoded characters
-		$input = preg_replace('/=([a-f0-9]{2})/ie', "chr(hexdec('\\1'))", $input);
+       $input = preg_replace_callback('/=([a-f0-9]{2})/i',
+               create_function('$matches',
+                   ' return chr(hexdec($matches[0]));'),
+               $input);
 
         return $input;
     }

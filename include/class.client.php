@@ -53,25 +53,41 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function getVar($tag) {
-        global $cfg;
-
         switch (strtolower($tag)) {
         case 'ticket_link':
-            $qstr = array();
-            if ($cfg && $cfg->isAuthTokenEnabled()
-                    && ($ticket=$this->getTicket()))
-                $qstr['auth'] = $ticket->getAuthToken($this);
-
-            return sprintf('%s/view.php?%s',
-                    $cfg->getBaseUrl(),
-                    Http::build_query($qstr, false)
-                    );
+            $ticket = $this->getTicket();
+            return $this->getTicketLink(($ticket &&
+                        !$ticket->getNumCollaborators()));
             break;
         }
     }
 
+    function getTicketLink($authtoken=true) {
+        global $cfg;
+
+        $ticket = $this->getTicket();
+        if ($authtoken
+                && $ticket
+                && $cfg->isAuthTokenEnabled()) {
+            $qstr = array();
+            $qstr['auth'] = $ticket->getAuthToken($this);
+            return sprintf('%s/view.php?%s',
+                        $cfg->getBaseUrl(),
+                        Http::build_query($qstr, false)
+                        );
+        }
+
+        return sprintf('%s/view.php?id=%s',
+                $cfg->getBaseUrl(),
+                $ticket ? $ticket->getId() : 0
+                );
+    }
+
     function getId() { return ($this->user) ? $this->user->getId() : null; }
     function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
+    function getName() {
+        return ($this->user) ? $this->user->getName() : null;
+    }
 
     static function lookupByToken($token) {
 
@@ -148,6 +164,11 @@ class TicketOwner extends  TicketUser {
         $this->ticket = $ticket;
     }
 
+    function __toString() {
+        return (string) $this->getName();
+    }
+
+
     function getTicket() {
         return $this->ticket;
     }
@@ -162,7 +183,7 @@ class TicketOwner extends  TicketUser {
  *
  */
 
-class  EndUser extends BaseAuthenticatedUser {
+class EndUser extends BaseAuthenticatedUser {
 
     protected $user;
     protected $_account = false;
@@ -224,6 +245,11 @@ class  EndUser extends BaseAuthenticatedUser {
     function getAuthBackend() {
         list($authkey,) = explode(':', $this->getAuthKey());
         return UserAuthenticationBackend::getBackend($authkey);
+    }
+
+    function get2FABackend() {
+        //TODO: support 2FA on client portal
+        return null;
     }
 
     function getTicketStats() {
@@ -297,12 +323,20 @@ class  EndUser extends BaseAuthenticatedUser {
         return $this->_account;
     }
 
+    function getUser() {
+        if ($this->user === false)
+            $this->user = User::lookup($this->getId());
+
+        return $this->user;
+    }
+
     function getLanguage($flags=false) {
         if ($acct = $this->getAccount())
             return $acct->getLanguage($flags);
     }
 
     private function getStats() {
+        global $cfg;
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
             ->values('status__state', 'topic_id')
@@ -320,10 +354,11 @@ class  EndUser extends BaseAuthenticatedUser {
         // one index. Therefore, to scan two indexes (by user_id and
         // thread.collaborators.user_id), we need two queries. A union will
         // help out with that.
-        $mine->union($collab->filter(array(
-            'thread__collaborators__user_id' => $this->getId(),
-            Q::not(array('user_id' => $this->getId()))
-        )));
+        if ($cfg->collaboratorTicketsVisibility())
+            $mine->union($collab->filter(array(
+                'thread__collaborators__user_id' => $this->getId(),
+                Q::not(array('user_id' => $this->getId()))
+            )));
 
         if ($orgid = $this->getOrgId()) {
             // Also generate a separate query for all the tickets owned by
@@ -351,7 +386,7 @@ class  EndUser extends BaseAuthenticatedUser {
 
 class ClientAccount extends UserAccount {
 
-    function checkPassword($password, $autoupdate=true) {
+    function check_passwd($password, $autoupdate=true) {
 
         /*bcrypt based password match*/
         if(Passwd::cmp($password, $this->get('passwd')))
@@ -372,7 +407,7 @@ class ClientAccount extends UserAccount {
     }
 
     function hasCurrentPassword($password) {
-        return $this->checkPassword($password, false);
+        return $this->check_passwd($password, false);
     }
 
     function cancelResetTokens() {
@@ -396,37 +431,42 @@ class ClientAccount extends UserAccount {
         global $cfg;
 
         // FIXME: Updates by agents should go through UserAccount::update()
-        global $thisstaff;
+        global $thisstaff, $thisclient;
         if ($thisstaff)
             return parent::update($vars, $errors);
 
         $rtoken = $_SESSION['_client']['reset-token'];
-        if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
+
+
+		if ($rtoken) {
+			$_config = new Config('pwreset');
+			if ($_config->get($rtoken) != 'c'.$this->getUserId())
+				$errors['err'] =
+					__('Invalid reset token. Logout and try again');
+			elseif (!($ts = $_config->lastModified($rtoken))
+					&& ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+				$errors['err'] =
+					__('Invalid reset token. Logout and try again');
+		} elseif ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
 
             if (!$vars['passwd1'])
                 $errors['passwd1']=__('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']=__('Passwords do not match');
-
-            if ($rtoken) {
-                $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != 'c'.$this->getUserId())
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-                elseif (!($ts = $_config->lastModified($rtoken))
-                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-            }
             elseif ($this->get('passwd')) {
                 if (!$vars['cpasswd'])
                     $errors['cpasswd']=__('Current password is required');
                 elseif (!$this->hasCurrentPassword($vars['cpasswd']))
                     $errors['cpasswd']=__('Invalid current password!');
-                elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                    $errors['passwd1']=__('New password MUST be different from the current password!');
+            }
+
+            // Check password policies
+			if (!$errors) {
+                try {
+                    UserAccount::checkPassword($vars['passwd1'], @$vars['cpasswd']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] = $ex->getMessage();
+                }
             }
         }
 
@@ -436,7 +476,6 @@ class ClientAccount extends UserAccount {
         if ($errors) return false;
 
         $this->set('timezone', $vars['timezone']);
-        $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);
         Internationalization::setCurrentLanguage(null);
@@ -454,18 +493,14 @@ class ClientAccount extends UserAccount {
             Signal::send('auth.pwchange', $this->getUser(), $info);
             $this->cancelResetTokens();
             $this->clearStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+            // Clean sessions
+            Signal::send('auth.clean', $this->getUser(), $thisclient);
         }
 
         return $this->save();
     }
 }
 
-// Used by the email system
-interface EmailContact {
-    // function getId()
-    // function getName()
-    // function getEmail()
-}
 
 interface ITicketUser {
 /* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue

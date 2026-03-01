@@ -44,49 +44,48 @@ statistics:
 opened:
     title: Opened
     content: >
-        This represents the tickets opened by Agents (i.e., internally opened) and
-        not by Clients.
+        Tickets that were originally opened having the Department or Help Topic
+        on the ticket, or the number of tickets an Agent has opened on behalf of a
+        User.
 
 assigned:
     title: Assigned
     content: >
-        The system tracks every event whereby a ticket is automatically or manually
-        assigned to a particular Department or Agent. Automatic assignments will
-        depend on established settings for <span class="doc-desc-title">Help
-        Topics</span> and <span class="doc-desc-title">Email Filters</span> in the
-        Admin Panel.
+        Tickets that have been assigned to either an Agent or a Team. The number
+        reflects tickets that are manually assigned to agents or teams, claimed
+        tickets, and tickets assigned from ticket filters/other auto-assignment rules.
 
 overdue:
     title: Overdue
     content: >
-        This is the amount of tickets that have violated the SLA Plan to which they
-        belonged.
+        Tickets that have been marked ‘Overdue’ by the system. Tickets are marked
+        Overdue when they have violated the SLA Plan to which they belonged, causing
+        them to have a status of ‘Open’ past their Due Date.
 
 closed:
     title: Closed
     content: >
-        This is the amount of tickets that were closed.
+        The number of Tickets that are currently in the Closed status.
 
 reopened:
     title: Reopened
     content: >
-        This is the amount of tickets that were reopened either by an Agent or by a
-        Client when he/she responded while the ticket was in a Closed status.
+        The total number of times a ticket was Reopened. Tickets
+        are reopened whenever their status is changed from Closed to Open.
+
+deleted:
+    title: Deleted
+    content: >
+        The amount of tickets that have been deleted.
 
 service_time:
     title: Service Time
     content: >
-        <span class="doc-desc-title">Service time</span> is the duration of time
-        that begins at the opening of a ticket and ends when the ticket is closed.
-        The <span class="doc-desc-title">Service Time</span> column here measures
-        the average Service Time per ticket, in hours, within the specified date
-        span.
+        Refers to the duration of time that begins at the opening of a ticket and ends
+        when the ticket is closed. The Service Time column measures the average Service
+        Time per ticket, in hours.
 
 response_time:
     title: Response Time
     content: >
-        <span class="doc-desc-title">Response Time</span> is a duration of time
-        that begins with any Client’s correspondence and ends when an Agent makes a
-        response. This measurement of time is not exclusive to a Client’s
-        correspondence of the initial Ticket opening. This refers to every act of
-        discourse originating with a Client.
+        Shows an average response time by an Agent, in hours, to ticket correspondence.

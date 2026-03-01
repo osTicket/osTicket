@@ -26,7 +26,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             $F = $F->instanciate();
             $F->isValidForClient();
         }
-        $forms[] = $F;
+        $forms[] = $F->getForm();
     }
 }
 
@@ -42,7 +42,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         if (!$thisclient) {
             $uform = UserForm::getUserForm()->getForm($_POST);
             if ($_POST) $uform->isValid();
-            $uform->render(false);
+            $uform->render(array('staff' => false, 'mode' => 'create'));
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
@@ -79,9 +79,6 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                         echo sprintf('<option value="%d" %s>%s</option>',
                                 $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
                     }
-                } else { ?>
-                    <option value="0" ><?php echo __('General Inquiry');?></option>
-                <?php
                 } ?>
             </select>
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
@@ -89,7 +86,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tr>
     </tbody>
     <tbody id="dynamic-form">
-        <?php foreach ($forms as $form) {
+        <?php
+        $options = array('mode' => 'create');
+        foreach ($forms as $form) {
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
     </tbody>
@@ -122,7 +121,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)
-                    redactor.deleteDraft();
+                    redactor.plugin.draft.deleteDraft();
             });
             window.location.href='index.php';">
   </p>

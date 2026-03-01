@@ -41,6 +41,10 @@ $extensions = array(
             'name' => 'fileinfo',
             'desc' => __('Used to detect file types for uploads')
             ),
+        'zip' => array(
+            'name' => 'zip',
+            'desc' => __('Used for ticket and task exporting')
+            ),
         'apcu' => array(
             'name' => 'APCu',
             'desc' => __('Improves overall performance')
@@ -74,7 +78,7 @@ else {
     $cv = $tv[0] == 'v' ? $tv : $gv;
 ?>
       <a class="green button action-button pull-right"
-         href="http://osticket.com/download?cv=<?php echo $cv; ?>"><i class="icon-rocket"></i>
+         href="https://osticket.com/download?cv=<?php echo $cv; ?>"><i class="icon-rocket"></i>
         <?php echo __('Upgrade'); ?></a>
 <?php if ($lv) { ?>
       <strong> — <?php echo str_replace(
@@ -154,7 +158,17 @@ if (!$lv) { ?>
         echo sprintf('%.2f MiB', $space); ?></td>
     <tr><td><?php echo __('Space for Attachments'); ?></td>
         <td><?php
-        $sql = 'SELECT SUM(LENGTH(filedata)) / 1048576 FROM '.FILE_CHUNK_TABLE;
+        $sql = 'SELECT
+                    (DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024
+                FROM
+                    information_schema.TABLES
+                WHERE
+                    TABLE_SCHEMA = "'.DBNAME.'"
+                AND
+                    TABLE_NAME = "'.FILE_CHUNK_TABLE.'"
+                ORDER BY
+                    (DATA_LENGTH + INDEX_LENGTH)
+                DESC';
         $space = db_result(db_query($sql));
         echo sprintf('%.2f MiB', $space); ?></td></tr>
     <tr><td><?php echo __('Timezone'); ?></td>
@@ -171,18 +185,26 @@ if (!$lv) { ?>
 <?php
     foreach (Internationalization::availableLanguages() as $info) {
         $p = $info['path'];
-        if ($info['phar']) $p = 'phar://' . $p;
-        if (file_exists($p . '/MANIFEST.php')) {
-            $manifest = (include $p . '/MANIFEST.php'); ?>
+        if ($info['phar'])
+            $p = 'phar://' . $p;
+        $manifest = (file_exists($p . '/MANIFEST.php')) ? (include $p . '/MANIFEST.php') : null;
+?>
     <h3><strong><?php echo Internationalization::getLanguageDescription($info['code']); ?></strong>
-        &mdash; <?php echo $manifest['Language']; ?>
-<?php       if ($info['phar'])
-                Plugin::showVerificationBadge($info['path']);
-            ?>
+        <?php if ($manifest) { ?>
+            &mdash; <?php echo $manifest['Language']; ?>
+        <?php } ?>
+<?php   if ($info['phar'])
+            Plugin::showVerificationBadge($info['path']); ?>
         </h3>
-        <div><?php echo __('Version'); ?>: <?php echo $manifest['Version']; ?>,
-            <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
+        <div><?php echo sprintf('<code>%s</code> — %s', $info['code'],
+                str_replace(ROOT_DIR, '', $info['path'])); ?>
+<?php   if ($manifest) { ?>
+            <br/> <?php echo __('Version'); ?>: <?php echo $manifest['Version'];
+                ?>, <?php echo sprintf(__('for version %s'),
+                    'v'.($manifest['Phrases-Version'] ?: '1.9')); ?>
+            <br/> <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
+<?php   } ?>
         </div>
-<?php }
+<?php
     } ?>
 </div>

@@ -5,7 +5,7 @@ class CryptoMigrater extends MigrationTask {
     var $description = "Migrating encrypted password";
     var $status ='Making the world a better place!';
 
-    function run() {
+    function run($max_time) {
 
         $sql='SELECT email_id, userpass, userid FROM '.EMAIL_TABLE
             ." WHERE userpass <> ''";

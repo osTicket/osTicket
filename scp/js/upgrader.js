@@ -27,6 +27,13 @@ jQuery(function($) {
       });
 
     function autoUpgrade(url, data) {
+
+        if (!$.isFunction('__')) {
+          function __(s) {
+                return s;
+          }
+        }
+
         function _lp(count) {
             $.ajax({
                 type: 'POST',

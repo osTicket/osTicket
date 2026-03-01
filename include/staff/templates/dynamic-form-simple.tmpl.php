@@ -1,6 +1,6 @@
 <div class="form-simple">
     <?php
-    echo $form->getMedia();
+    echo $form->getMedia($options);
     foreach ($form->getFields() as $name=>$f) { ?>
         <div class="flush-left custom-field" id="field<?php echo $f->getWidget()->id;
             ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>

@@ -6,7 +6,7 @@ class UnitializedVars extends Test {
     var $name = "Access to unitialized variables";
 
     function testUnitializedUsage() {
-        $scripts = $this->getAllScripts();
+        $scripts = static::getAllScripts();
         $matches = array();
         foreach ($scripts as $s) {
             $a = new SourceAnalyzer($s);

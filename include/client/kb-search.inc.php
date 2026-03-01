@@ -45,6 +45,7 @@ foreach (Topic::objects()
             <div class="header"><?php echo __('Categories'); ?></div>
 <?php
 foreach (Category::objects()
+    ->exclude(Q::any(array('ispublic'=>Category::VISIBILITY_PRIVATE)))
     ->annotate(array('faqs_count'=>SqlAggregate::count('faqs')))
     ->filter(array('faqs_count__gt'=>0))
     as $C) { ?>

@@ -1,13 +1,24 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
+//get canned responses for depts with a role that can manage canned responses
+$departments = array();
+if ($thisstaff->getRole()->hasPerm(Canned::PERM_MANAGE, false))
+    $departments[] = $thisstaff->getDeptId();
+
+foreach($thisstaff->dept_access as $da) {
+    if ($da->role->hasPerm(Canned::PERM_MANAGE, false))
+        $departments[] = $da->dept->getId();
+}
+$departments = implode(',', $departments);
+
 $qs = array();
 $sql='SELECT canned.*, count(attach.file_id) as files, dept.name as department '.
      ' FROM '.CANNED_TABLE.' canned '.
      ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.id=canned.dept_id) '.
      ' LEFT JOIN '.ATTACHMENT_TABLE.' attach
             ON (attach.object_id=canned.canned_id AND attach.`type`=\'C\' AND NOT attach.inline)';
-$sql.=' WHERE 1';
+$sql.= sprintf(' WHERE canned.dept_id = 0 OR dept.id IN (%s)', $departments);
 
 $sortOptions=array('title'=>'canned.title','status'=>'canned.isenabled','dept'=>'department','updated'=>'canned.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');

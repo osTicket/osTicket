@@ -15,11 +15,15 @@
 **********************************************************************/
 if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); //Say hi to our friend..
 
-if(!file_exists('../main.inc.php')) die('Fatal error... get technical support');
+if(!file_exists('../main.inc.php')) die('Fatal error... Get technical help!');
 
 require_once('../main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');
+
+// Enforce ACL (if applicable)
+if (!Validator::check_acl('staff'))
+    die(__('Access Denied'));
 
 /*Some more include defines specific to staff only */
 define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
@@ -78,7 +82,7 @@ if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
 //2) if not super admin..check system status and group status
 if(!$thisstaff->isAdmin()) {
     //Check for disabled staff or group!
-    if (!$thisstaff->isactive()) {
+    if (!$thisstaff->isActive()) {
         staffLoginPage(__('Access Denied. Contact Admin'));
         exit;
     }
@@ -131,6 +135,10 @@ if($thisstaff->forcePasswdChange() && !$exempt) {
     #      the request
     $sysnotice = __('Password change required to continue');
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
+    exit;
+} elseif ($thisstaff->force2faConfig() && !$exempt) {
+    $sysnotice = __('Two Factor Authentication configuration required to continue');
+    require('profile.php');
     exit;
 }
 $ost->setWarning($sysnotice);

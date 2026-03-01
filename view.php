@@ -39,6 +39,8 @@ elseif (isset($_GET['auth']) || isset($_GET['t'])) {
 
 if (@$user && is_object($user) && $user->getTicketId())
     Http::redirect('tickets.php?id='.$user->getTicketId());
+elseif ($thisclient && isset($_GET['id']) && is_numeric($_GET['t']))
+    Http::redirect('tickets.php?id='.$_GET['id']);
 
 $nav = new UserNav();
 $nav->setActiveNav('status');

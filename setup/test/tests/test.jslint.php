@@ -6,8 +6,7 @@ class JsSyntaxTest extends Test {
 
     function testLintErrors() {
         $exit = 0;
-        $root = get_osticket_root_path();
-        foreach (glob_recursive("$root/*.js") as $s) {
+        foreach (static::getAllScripts('*.js') as $s) {
             ob_start();
             system("jsl -process $s", $exit);
             $line = ob_get_contents();

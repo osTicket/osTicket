@@ -152,7 +152,7 @@ class Mail_Parse {
      * the header key. If left as FALSE, only the value given in the last
      * occurance of the header is retained.
      */
-    /* static */ function splitHeaders($headers_text, $as_array=false) {
+    static function splitHeaders($headers_text, $as_array=false) {
         $headers = preg_split("/\r?\n/", $headers_text);
         for ($i=0, $k=count($headers); $i<$k; $i++) {
             // first char might be whitespace (" " or "\t")
@@ -386,7 +386,7 @@ class Mail_Parse {
     }
 
     function getAttachments($part=null){
-        $files=array();
+        $files = $matches = array();
 
         /* Consider this part as an attachment if
          *   * It has a Content-Disposition header
@@ -417,18 +417,36 @@ class Mail_Parse {
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
-
+            elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches))
+                $filename = Format::mimedecode($matches[1], $this->charset);
             // Some mail clients / servers (like Lotus Notes / Domino) will
             // send images without a filename. For such a case, generate a
             // random filename for the image
             elseif (isset($part->headers['content-id'])
                     && $part->headers['content-id']
-                    && 0 === strcasecmp($part->ctype_primary, 'image'))
+                    && 0 === strcasecmp($part->ctype_primary, 'image')) {
                 $filename = 'image-'.Misc::randCode(4).'.'
                     .strtolower($part->ctype_secondary);
-            else
+            // Attachment of type message/rfc822 without name!!!
+            } elseif (strcasecmp($part->ctype_primary, 'message') === 0) {
+                $struct = $part->parts[0];
+                if ($struct && isset($struct->headers['subject']))
+                    $filename = Format::mimedecode($struct->headers['subject'],
+                                $this->charset);
+                else
+                    $filename = 'email-message-'.Misc::randCode(4);
+
+                $filename .='.eml';
+            } elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches)) {
+                $filename = Format::mimedecode($matches[1], $this->charset);
+            } else {
                 // Not an attachment?
                 return false;
+            }
 
             $file=array(
                     'name'  => $filename,
@@ -647,21 +665,32 @@ class EmailDataParser {
         if (($dt = $parser->getDeliveredToAddressList()))
             $tolist['delivered-to'] = $dt;
 
+        $data['system_emails'] = array();
+        $data['thread_entry_recipients'] = array();
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
+                    $name = trim(@$addr->personal, '"');
+                    $email = strtolower($addr->mailbox).'@'.$addr->host;
                     $data['recipients'][] = array(
                         'source' => sprintf(_S("Email (%s)"), $source),
-                        'name' => trim(@$addr->personal, '"'),
-                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$data['emailId']) {
-                    $data['emailId'] = $emailId;
+                        'name' => $name,
+                        'email' => $email);
+
+                    $data['thread_entry_recipients'][$source][] = sprintf('%s <%s>', $name, $email);
+                } elseif ($emailId) {
+                    $data['system_emails'][] = $emailId;
+                    $system_email = Email::lookup($emailId);
+                    $data['thread_entry_recipients']['to'][] = (string) $system_email;
+                    if (!$data['emailId'])
+                        $data['emailId'] = $emailId;
                 }
             }
         }
+        $data['thread_entry_recipients']['to'] = array_unique($data['thread_entry_recipients']['to']);
 
         /*
          * In the event that the mail was delivered to the system although none of the system
@@ -680,15 +709,17 @@ class EmailDataParser {
 
 
         //maybe we got BCC'ed??
-        if(!$data['emailId']) {
-            $emailId =  0;
-            if($bcc = $parser->getBccAddressList()) {
-                foreach ($bcc as $addr)
-                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
-                        break;
+        if($bcc = $parser->getBccAddressList()) {
+            foreach ($bcc as $addr) {
+                if (($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host))) {
+                    $data['system_emails'][] = $emailId;
+                    if (!$data['emailId'])
+                        $data['emailId'] =  $emailId;
+                }
             }
-            $data['emailId'] = $emailId;
         }
+
+        $data['system_emails'] = array_unique($data['system_emails']);
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'

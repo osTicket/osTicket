@@ -42,11 +42,28 @@ class Http {
         if ($charset)
             $ct .= "; charset=$charset";
         header($ct);
-        if ($content) {
+        if (is_string($content)) {
             header('Content-Length: '.strlen($content)."\r\n\r\n");
             print $content;
             exit;
         }
+    }
+
+    /*
+     *  Flush the content to requester without exiting
+     *
+     */
+    function flush($code, $content, $contentType='text/html', $charset='UTF-8') {
+        self::response($code, null, $contentType, $charset);
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Content-Length: '.strlen($content)."\r\n\r\n");
+        print $content;
+        // Flush the request buffer
+        while(@ob_end_flush());
+        flush();
+        // Terminate the request
+        if (function_exists('fastcgi_finish_request'))
+            fastcgi_finish_request();
     }
 
     function redirect($url,$delay=0,$msg='') {
@@ -106,6 +123,9 @@ class Http {
     }
 
     function download($filename, $type, $data=null, $disposition='attachment') {
+        if (strpos($type, 'image/') !== false && preg_match('/image\/.*\+.*/', $type))
+          $disposition='attachment';
+
         header('Pragma: private');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private', false);

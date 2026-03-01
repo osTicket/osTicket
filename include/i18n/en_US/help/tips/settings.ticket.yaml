@@ -32,6 +32,12 @@ sequence_id:
         in the <span class="doc-desc-title">Ticket Number
         Format</span> configuration for help topics.
 
+queue_bucket_counts:
+    title: Top-Level Ticket Counts
+    content: >
+        This setting is used to hide or show the ticket counts on Main-Level
+        queues. Get back to the way things used to be.
+
 default_ticket_status:
     title: Default Status for new Tickets
     content: >
@@ -92,7 +98,40 @@ claim_tickets:
     content: >
         Enable this to auto-assign unassigned tickets to the responding Agent.
         <br><br>
-        Reopened tickets are always assigned to the last respondent.
+        Reopened tickets are always assigned to the last respondent unless auto
+        assign on reopen is disabled on the Department level.
+
+auto_refer:
+    title: Auto-refer Tickets on Close
+    content: >
+        Enable this to auto-refer tickets to the assigned or closing
+        Agent when a ticket is closed.
+        <br><br>
+        This is necessary when you want to give agents with limited access
+        continued access to assigned tickets after they're closed.
+
+collaborator_ticket_visibility:
+    title: Collaborator Tickets Visibility
+    content: >
+        If Enabled, Users will have visibility to ALL Tickets they participate in
+        when signing into the Web Portal.
+        <br><br>
+        If Disabled, Users will only be able to see their own Tickets
+        when signing into the Web Portal.
+
+require_topic_to_close:
+    title: Require Help Topic to Close
+    content: >
+        If Enabled, a Ticket must have a Help Topic in order to be Closed by an Agent
+
+allow_external_images:
+    title: Allow External Images
+    content: >
+        If Enabled, the system will allow external inline images that have a valid image
+        extension (.png, .jpg, .jpeg, .gif). If Disabled, the system will exclude
+        any external inline images. One caveat to note, is if the setting is Disabled we
+        will still store external inline images that have a valid image extension in case
+        the setting is re-enabled in the future.
 
 assigned_tickets:
     title: Assigned Tickets
@@ -115,4 +154,3 @@ ticket_attachment_settings:
         class="doc-desc-title">issue details</span> field. These settings
         are used for all new tickets and new messages regardless of the
         source channel (web portal, email, api, etc.).
-

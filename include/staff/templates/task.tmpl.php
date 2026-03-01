@@ -25,12 +25,12 @@ if ($info['error']) {
 <form method="post" class="org" action="<?php echo $info['action'] ?: '#tasks/add'; ?>">
     <?php
         $form = $form ?: TaskForm::getInstance();
-        echo $form->getForm()->asTable(' ',
-                array('draft-namespace' => $namespace)
+        echo $form->getForm($vars)->asTable(' ',
+                array('draft-namespace' => $namespace, 'filterVisibility' => true)
                 );
 
         $iform = $iform ?: TaskForm::getInternalForm();
-        echo $iform->asTable(__("Task Visibility & Assignment"));
+        echo $iform->asTable(__("Task Visibility & Assignment"), array('filterVisibility' => true));
 ?>
     <hr>
     <p class="full-width">

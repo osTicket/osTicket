@@ -44,7 +44,7 @@ if($ost->isUpgradePending()) {
             die($sysnotice);
 
     } elseif(file_exists('../setup/')) {
-        $sysnotice=__('Please take a minute to delete <strong>setup/install</strong> directory (../setup/) for security reasons.');
+        $sysnotice=__('Please take a minute to delete <strong>setup</strong> directory (../setup/) for security reasons.');
     } elseif(CONFIG_FILE && file_exists(CONFIG_FILE) && is_writable(CONFIG_FILE)) {
             //Confirm for real that the file is writable by group or world.
             clearstatcache(); //clear the cache!

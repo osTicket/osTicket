@@ -18,6 +18,6 @@
 ---
 - id: 1
   flags: 3
-  grace_period: 48
+  grace_period: 18
   name: Default SLA
   notes: |

@@ -88,6 +88,17 @@ implements TemplateVariable {
         return $this->_members;
     }
 
+    function getMembersForAlerts() {
+        $alertmembers = array();
+        $members = $this->members->filter(array(
+            'flags__hasbit' => TeamMember::FLAG_ALERTS,
+        ));
+        foreach ($members as $m)
+            $alertmembers[] = $m->staff;
+
+        return $alertmembers;
+    }
+
     function hasMember($staff) {
         return $this->members
             ->filter(array('staff_id'=>$staff->getId()))
@@ -126,6 +137,20 @@ implements TemplateVariable {
         return $this->isEnabled();
     }
 
+    function isAvailable() {
+        return ($this->isActive() && $this->members);
+    }
+
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    function flagChanged($flag, $var) {
+        if (($this->hasFlag($flag) && $var != $flag) ||
+            (!$this->hasFlag($flag) && $var == $flag))
+                return true;
+    }
+
     function alertsEnabled() {
         return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
@@ -145,11 +170,25 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors=array()) {
-
         if (!$vars['name']) {
             $errors['name']=__('Team name is required');
         } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
             $errors['name']=__('Team name already exists');
+        }
+
+        $vars['noalerts'] = isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0;
+        if ($this->getId()) {
+            //flags
+            $auditEnabled = $this->flagChanged(self::FLAG_ENABLED, $vars['isenabled']);
+            $auditAlerts = $this->flagChanged(self::FLAG_NOALERTS, $vars['noalerts']);
+
+            foreach ($vars as $key => $value) {
+                if (isset($this->$key) && ($this->$key != $value) && $key != 'members' ||
+                   ($auditEnabled && $key == 'isenabled' || $auditAlerts && $key == 'noalerts')) {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
         }
 
         // Reset team lead if they're getting removed
@@ -161,7 +200,7 @@ implements TemplateVariable {
 
         $this->flags =
               ($vars['isenabled'] ? self::FLAG_ENABLED : 0)
-            | (isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0);
+            | ($vars['noalerts']);
         $this->lead_id = $vars['lead_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);
         $this->notes = Format::sanitize($vars['notes']);
@@ -173,13 +212,14 @@ implements TemplateVariable {
                 $access[] = array($staff_id, @$vars['member_alerts'][$staff_id]);
             }
         }
-        $this->updateMembers($access, $errors);
 
         if ($errors)
             return false;
 
-        if ($this->save())
-            return $this->members->saveAll();
+        if ($this->save()) {
+            $this->updateMembers($access, $errors);
+            return true;
+        }
 
         if (isset($this->team_id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
@@ -205,16 +245,26 @@ implements TemplateVariable {
           if (!isset($member)) {
               $member = new TeamMember(array('staff_id' => $staff_id));
               $this->members->add($member);
+              $type = array('type' => 'edited', 'key' => 'Members Added');
+              Signal::send('object.edited', $this, $type);
           }
           $member->setAlerts($alerts);
       }
-      if (!$errors && $dropped) {
+
+      if ($errors)
+          return false;
+
+      $this->members->saveAll();
+      if ($dropped) {
+          $type = array('type' => 'edited', 'key' => 'Members Removed');
+          Signal::send('object.edited', $this, $type);
           $this->members
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();
           $this->members->reset();
       }
-      return !$errors;
+
+      return true;
     }
 
     function save($refetch=false) {
@@ -233,6 +283,9 @@ implements TemplateVariable {
         # Remove the team
         if (!parent::delete())
             return false;
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         # Remove members of this team
         $this->members->delete();
@@ -313,7 +366,6 @@ implements TemplateVariable {
     static function __create($vars, &$errors) {
         return self::create($vars)->save();
     }
-
 }
 
 class TeamMember extends VerySimpleModel {

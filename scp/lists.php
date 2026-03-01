@@ -46,21 +46,22 @@ if($_POST) {
                 if (!$errors && ($form = $list->getForm())) {
                     $names = array();
                     $fields = $form->getDynamicFields();
+                    $vars = Format::htmlchars($_POST);
                     foreach ($fields as $field) {
                         $id = $field->get('id');
-                        if ($_POST["delete-prop-$id"] == 'on' && $field->isDeletable()) {
+                        if ($vars["delete-prop-$id"] == 'on' && $field->isDeletable()) {
                             $fields->remove($field);
                             // Don't bother updating the field
                             continue;
                         }
-                        if (isset($_POST["type-$id"]) && $field->isChangeable())
-                            $field->set('type', $_POST["type-$id"]);
-                        if (isset($_POST["name-$id"]) && !$field->isNameForced())
-                            $field->set('name', $_POST["name-$id"]);
+                        if (isset($vars["type-$id"]) && $field->isChangeable())
+                            $field->set('type', $vars["type-$id"]);
+                        if (isset($vars["name-$id"]) && !$field->isNameForced())
+                            $field->set('name', $vars["name-$id"]);
 
                         foreach (array('sort','label') as $f) {
-                            if (isset($_POST["prop-$f-$id"])) {
-                                $field->set($f, $_POST["prop-$f-$id"]);
+                            if (isset($vars["prop-$f-$id"])) {
+                                $field->set($f, $vars["prop-$f-$id"]);
                             }
                         }
                         if (in_array($field->get('name'), $names))
@@ -102,6 +103,8 @@ if($_POST) {
             if ($list=DynamicList::add($_POST, $errors)) {
                  $form = $list->getForm(true);
                  Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
+                 $type = array('type' => 'created');
+                 Signal::send('object.created', $list, $type);
                  // Redirect to list page
                  $redirect = "lists.php?id={$list->id}#items";
             } elseif ($errors) {

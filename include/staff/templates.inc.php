@@ -106,7 +106,7 @@ else
                 if($ids && in_array($row['tpl_id'],$ids))
                     $sel=true;
 
-                $default=($defaultTplId==$row['tpl_id'])?'<small class="fadded">('.__('System Default').')</small>':'';
+                $default=($defaultTplId==$row['tpl_id'])?'<small class="faded">('.__('System Default').')</small>':'';
                 ?>
             <tr id="<?php echo $row['tpl_id']; ?>">
                 <td align="center">

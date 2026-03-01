@@ -40,7 +40,7 @@ if($_POST) {
             case 'delete':
                 foreach ($_POST['ids'] as $id) {
                     if ($p = Plugin::lookup($id)) {
-                        $p->uninstall();
+                        $p->uninstall($errors);
                     }
                 }
                 break;

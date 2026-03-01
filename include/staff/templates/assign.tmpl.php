@@ -28,7 +28,7 @@ $action = $info[':action'] ?: ('#');
 <div style="display:block; margin:5px;">
 <form class="mass-action" method="post"
     name="assign"
-    id="<?php echo $form->getId(); ?>"
+    id="<?php echo $form->getFormId(); ?>"
     action="<?php echo $action; ?>">
     <table width="100%">
         <?php
@@ -44,7 +44,7 @@ $action = $info[':action'] ?: ('#');
         <tbody>
             <tr><td colspan=2>
              <?php
-             $options = array('template' => 'simple', 'form_id' => 'assign');
+             $options = array('template' => 'simple', 'form_id' => 'assign', 'filterVisibility' => true);
              $form->render($options);
              ?>
             </td> </tr>

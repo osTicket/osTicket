@@ -91,9 +91,9 @@ else
                 <div style="padding-left:2px;">
                     <i class="help-tip icon-question-sign" href="#date_span"></i>
                     <?php echo __('Between'); ?>:
-                    <input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
+                    <input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete="off">
                     &nbsp;&nbsp;
-                    <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
+                    <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete="off">
                     &nbsp;<?php echo __('Log Level'); ?>:&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
                     <select name='type'>
                         <option value="" selected><?php echo __('All');?></option>
@@ -156,7 +156,7 @@ else
                 <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
                 <td>&nbsp;<?php echo Format::daydatetime($row['created']); ?></td>
-                <td><?php echo $row['ip_address']; ?></td>
+                <td><?php echo Format::htmlchars($row['ip_address']); ?></td>
             </tr>
             <?php
             } //end of while.

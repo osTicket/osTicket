@@ -15,20 +15,27 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
     function getFormsForHelpTopic($topic_id, $client=false) {
+        if (!$_SERVER['HTTP_REFERER'])
+            Http::response(403, 'Forbidden.');
+
         if (!($topic = Topic::lookup($topic_id)))
             Http::response(404, 'No such help topic');
 
         if ($_GET || isset($_SESSION[':form-data'])) {
             if (!is_array($_SESSION[':form-data']))
                 $_SESSION[':form-data'] = array();
-            $_SESSION[':form-data'] = array_merge($_SESSION[':form-data'], $_GET);
+            $_SESSION[':form-data'] = array_merge($_SESSION[':form-data'],
+                    Format::htmlchars($_GET));
         }
 
         foreach ($topic->getForms() as $form) {
             if (!$form->hasAnyVisibleFields())
                 continue;
             ob_start();
-            $form->getForm($_SESSION[':form-data'])->render(!$client);
+            $form->getForm($_SESSION[':form-data'])->render(array(
+                'staff' => !$client,
+                'mode' => 'create',
+                'filterVisibility' => true));
             $html .= ob_get_clean();
             ob_start();
             print $form->getMedia();
@@ -72,7 +79,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $preserve = $field->flags & $p_mask;
 
         // Set admin-configured flag states
-        $flags = array_reduce($_POST['flags'],
+        $flags = array_reduce($_POST['flags'] ?: array(),
             function($a, $b) { return $a | $b; }, 0);
         $field->flags = $flags | $preserve;
 
@@ -128,29 +135,55 @@ class DynamicFormsAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/list-items.tmpl.php');
     }
 
+    function previewListItem($list_id, $item_id) {
+
+        $list = DynamicList::lookup($list_id);
+        if (!$list)
+            Http::response(404, 'No such list item');
+
+        $list = CustomListHandler::forList($list);
+        if (!($item = $list->getItem( (int) $item_id)))
+            Http::response(404, 'No such list item');
+
+        $form = $list->getListItemBasicForm($item->ht, $item);
+        include(STAFFINC_DIR . 'templates/list-item-preview.tmpl.php');
+    }
+
     function saveListItem($list_id, $item_id) {
         global $thisstaff;
+
+        $errors = array();
 
         if (!$thisstaff)
             Http::response(403, 'Login required');
 
         $list = DynamicList::lookup($list_id);
+        if (!$list)
+            Http::response(404, 'No such list item');
+
+        $list = CustomListHandler::forList($list);
         if (!$list || !($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         $item_form = $list->getListItemBasicForm($_POST, $item);
 
         if ($valid = $item_form->isValid()) {
-            // Update basic information
-            $basic = $item_form->getClean();
-            $item->extra = $basic['extra'];
-            $item->value = $basic['value'];
-
             if ($_item = DynamicListItem::lookup(array(
-                            'list_id' => $list->getId(), 'value'=>$item->value)))
+                'list_id' => $list->getId(), 'value'=>$item->getValue()))
+            ) {
                 if ($_item && $_item->id != $item->id)
                     $item_form->getField('value')->addError(
                         __('Value already in use'));
+            }
+            if ($item_form->isValid()) {
+                // Update basic information
+                $basic = $item_form->getClean();
+                $item->update([
+                    'name' =>   $basic['name'],
+                    'value' =>  $basic['value'],
+                    'abbrev' =>  $basic['extra'],
+                ], $errors);
+            }
         }
 
         // Context
@@ -350,15 +383,32 @@ class DynamicFormsAjaxAPI extends AjaxController {
         if (!$impl instanceof FileUploadField)
             Http::response(400, 'Upload to a non file-field');
 
+        header('Content-Type: application/json; charset=UTF-8');
         return JsonDataEncoder::encode(
             array('id'=>$impl->ajaxUpload())
         );
     }
 
-    function attach() {
+    function attach($object=null) {
+        global $thisstaff;
+
+        $filter = array('type__contains'=>'thread');
+        // Determine if for Ticket/Task/Custom
+        if ($object && is_string($object)) {
+            if ($object == 'ticket')
+                $filter['form_id'] = TicketForm::objects()->one()->id;
+            elseif ($object == 'task')
+                $filter['form_id'] = TaskForm::objects()->one()->id;
+        }
+        $config = DynamicFormField::objects()
+            ->filter($filter)
+            ->order_by('id')
+            ->first()->getConfiguration();
         $field = new FileUploadField();
+        $field->_config = $config;
+        header('Content-Type: application/json; charset=UTF-8');
         return JsonDataEncoder::encode(
-            array('id'=>$field->ajaxUpload())
+            array('id'=>$field->ajaxUpload($thisstaff ? true : false))
         );
     }
 

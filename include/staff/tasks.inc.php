@@ -20,7 +20,7 @@ $refresh_url = $path . '?' . http_build_query($args);
 $sort_options = array(
     'updated' =>            __('Most Recently Updated'),
     'created' =>            __('Most Recently Created'),
-    'due' =>                __('Due Soon'),
+    'due' =>                __('Due Date'),
     'number' =>             __('Task Number'),
     'closed' =>             __('Most Recently Closed'),
     'hot' =>                __('Longest Thread'),
@@ -33,6 +33,11 @@ $queue_columns = array(
         'number' => array(
             'width' => '8%',
             'heading' => __('Number'),
+            ),
+        'ticket' => array(
+            'width' => '16%',
+            'heading' => __('Ticket'),
+            'sort_col'  => 'ticket__number',
             ),
         'date' => array(
             'width' => '20%',
@@ -94,14 +99,6 @@ case 'search':
         )));
         unset($_SESSION[$queue_key]);
         break;
-    } elseif (isset($_SESSION['advsearch:tasks'])) {
-        // XXX: De-duplicate and simplify this code
-        $form = $search->getFormFromSession('advsearch:tasks');
-        $form->loadState($_SESSION['advsearch:tasks']);
-        $tasks = $search->mangleQuerySet($tasks, $form);
-        $results_type=__('Advanced Search')
-            . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
-        break;
     }
     // Fall-through and show open tickets
 case 'open':
@@ -127,19 +124,24 @@ if ($filters)
 // Impose visibility constraints
 // ------------------------------------------------------------
 // -- Open and assigned to me
-$visibility = array(
+$visibility = Q::any(
     new Q(array('flags__hasbit' => TaskModel::ISOPEN, 'staff_id' => $thisstaff->getId()))
 );
+// -- Task for tickets assigned to me
+$visibility->add(new Q( array(
+                'ticket__staff_id' => $thisstaff->getId(),
+                'ticket__status__state' => 'open'))
+        );
 // -- Routed to a department of mine
 if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-    $visibility[] = new Q(array('dept_id__in' => $depts));
+    $visibility->add(new Q(array('dept_id__in' => $depts)));
 // -- Open and assigned to a team of mine
 if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-    $visibility[] = new Q(array(
+    $visibility->add(new Q(array(
         'team_id__in' => array_filter($teams),
         'flags__hasbit' => TaskModel::ISOPEN
-    ));
-$tasks->filter(Q::any($visibility));
+    )));
+$tasks->filter(new Q($visibility));
 
 // Add in annotations
 $tasks->annotate(array(
@@ -160,7 +162,7 @@ $tasks->annotate(array(
 
 $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
         'staff__firstname', 'staff__lastname', 'team__name',
-        'dept__name', 'cdata__title', 'flags');
+        'dept__name', 'cdata__title', 'flags', 'ticket__number', 'ticket__ticket_id');
 // Apply requested quick filter
 
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TASK, $queue_name);
@@ -284,7 +286,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-        require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+        require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
     ?>
    </div>
     <form action="tasks.php" method="get" onsubmit="javascript:
@@ -409,6 +411,11 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                     href="tasks.php?id=<?php echo $T['id']; ?>"
                     data-preview="#tasks/<?php echo $T['id']; ?>/preview"
                     ><?php echo $number; ?></a></td>
+                <td nowrap>
+                  <a class="preview"
+                    href="tickets.php?id=<?php echo $T['ticket__ticket_id']; ?>"
+                    data-preview="#tickets/<?php echo $T['ticket__ticket_id']; ?>/preview"
+                    ><?php echo $T['ticket__number']; ?></a></td>
                 <td align="center" nowrap><?php echo
                 Format::datetime($T[$date_col ?: 'created']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
@@ -435,7 +442,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="6">
+        <td colspan="7">
             <?php if($total && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;

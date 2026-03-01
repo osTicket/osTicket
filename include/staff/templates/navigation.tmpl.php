@@ -1,5 +1,5 @@
 <?php
-if(($tabs=$nav->getTabs()) && is_array($tabs)){
+if($nav && ($tabs=$nav->getTabs()) && is_array($tabs)){
     foreach($tabs as $name =>$tab) {
         if ($tab['href'][0] != '/')
             $tab['href'] = ROOT_PATH . 'scp/' . $tab['href'];

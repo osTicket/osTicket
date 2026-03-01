@@ -49,6 +49,7 @@ class i18nAjaxAPI extends AjaxController {
         $json = JsonDataEncoder::encode($phrases) ?: '{}';
         //Http::cacheable(md5($json), $lm);
 
+        header('Content-Type: application/json; charset=UTF-8');
         return $json;
     }
 
@@ -73,7 +74,7 @@ class i18nAjaxAPI extends AjaxController {
                 }
                 else {
                     // Avoid XSS injection
-                    $p->text = trim(Format::striptags($phrase));
+                    $p->text = trim(Format::sanitize($phrase));
                     $p->agent_id = $thisstaff->getId();
                 }
             }
@@ -124,6 +125,7 @@ class i18nAjaxAPI extends AjaxController {
         $json = JsonDataEncoder::encode($langs);
         Http::cacheable(md5($json), $cfg->lastModified());
 
+        header('Content-Type: application/json; charset=UTF-8');
         return $json;
     }
 
@@ -142,6 +144,7 @@ class i18nAjaxAPI extends AjaxController {
         $json = JsonDataEncoder::encode($langs);
         Http::cacheable(md5($json), $cfg->lastModified());
 
+        header('Content-Type: application/json; charset=UTF-8');
         return $json;
     }
 }

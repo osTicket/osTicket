@@ -7,12 +7,17 @@
             <input type="checkbox" value="<?php echo $id; ?>" class="mass nowarn"/>
         </td>
         <td>
-            <a class="field-config"
+            <a class="field-config preview"
                style="overflow:inherit"
                href="#list/<?php
                 echo $list->getId(); ?>/item/<?php
                 echo $id ?>/update"
                id="item-<?php echo $id; ?>"
+               data-preview="<?php echo
+                sprintf('#/list/%d/items/%d/preview',
+                       $item->getListId(),
+                       $item->getId());
+                ?>"
             ><?php
                 echo sprintf('<i class="icon-edit" %s></i> ',
                         ($prop_fields && !$item->getConfiguration())

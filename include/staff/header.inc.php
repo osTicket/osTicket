@@ -1,5 +1,10 @@
 <?php
 header("Content-Type: text/html; charset=UTF-8");
+header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
+
+$title = ($ost && ($title=$ost->getPageTitle()))
+    ? $title : ('osTicket :: '.__('Staff Control Panel'));
+
 if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html<?php
@@ -10,6 +15,10 @@ if (($lang = Internationalization::getCurrentLanguage())
 if ($lang) {
     echo ' lang="' . Internationalization::rfc1766($lang) . '"';
 }
+
+// Dropped IE Support Warning
+if (osTicket::is_ie())
+    $ost->setWarning(__('osTicket no longer supports Internet Explorer.'));
 ?>>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -17,20 +26,21 @@ if ($lang) {
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="x-pjax-version" content="<?php echo GIT_VERSION; ?>">
-    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title>
+    <title><?php echo Format::htmlchars($title); ?></title>
     <!--[if IE]>
     <style type="text/css">
         .tip_shadow { display:block !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/scp.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/typeahead.css" media="screen">
     <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css"
          rel="stylesheet" media="screen" />
-     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/jquery-ui-timepicker-addon.css" media="all">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
     <!--[if IE 7]>
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome-ie7.min.css">
     <![endif]-->
@@ -40,6 +50,9 @@ if ($lang) {
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/translatable.css"/>
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-16x16.png" sizes="16x16" />
 
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
@@ -90,10 +103,9 @@ if ($lang) {
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
     </ul>
-    <ul id="sub_nav">
-<?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
-    </ul>
-    <div id="content">
+    <?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
+
+        <div id="content">
         <?php if($errors['err']) { ?>
             <div id="msg_error"><?php echo $errors['err']; ?></div>
         <?php }elseif($msg) { ?>

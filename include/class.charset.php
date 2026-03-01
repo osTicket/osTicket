@@ -29,7 +29,8 @@ class Charset {
         // ks_c_5601-1987: Korean alias for cp949
         case preg_match('`^ks_c_5601-1987`i', $charset):
             return 'cp949';
-        case preg_match('`^iso-?(\S+)$`i', $charset, $match):
+        // Remove trailing junk from ISO charset
+        case preg_match('`^iso-?(\S+[^i])(-i)?$`i', $charset, $match):
             return "ISO-".$match[1];
         // GBK superceded gb2312 and is backward compatible
         case preg_match('`^gb2312`i', $charset):
@@ -77,4 +78,32 @@ class Charset {
         return self::transcode($text, $charset, self::UTF8);
     }
 }
+
+class transcode_filter extends php_user_filter {
+  var $from;
+  var $to;
+
+  function filter($in, $out, &$consumed, $closing) {
+      while ($bucket = stream_bucket_make_writeable($in)) {
+        $bucket->data = Charset::transcode($bucket->data, $this->from,
+                $this->to);
+        $consumed += $bucket->datalen;
+        stream_bucket_append($out, $bucket);
+      }
+      return PSFS_PASS_ON;
+  }
+
+  function onCreate() {
+      switch ($this->filtername) {
+      case 'transcode.utf8-ascii':
+          $this->from ='utf-8';
+          $this->to = 'ISO-8859-1';
+          break;
+      default:
+          return false;
+      }
+      return true;
+  }
+}
+stream_filter_register('transcode.*', 'transcode_filter');
 ?>

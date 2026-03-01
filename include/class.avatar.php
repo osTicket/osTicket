@@ -107,10 +107,15 @@ class LocalAvatar
 extends Avatar {
     var $mode;
     var $code;
+    var $size;
 
     function __construct($user, $mode) {
         parent::__construct($user);
         $this->mode = $mode;
+    }
+
+    function setSize($size) {
+        $this->size = $size;
     }
 
     function getUrl($size) {
@@ -124,8 +129,12 @@ extends Avatar {
             // Generate a random string of 0-6 chars for the avatar signature
             $uid = md5(strtolower($this->user->getEmail()));
 
-        return ROOT_PATH . 'avatar.php?'.Http::build_query(array('uid'=>$uid,
-            'mode' => $this->mode));
+        $args = array('uid'=>$uid, 'mode' => $this->mode);
+
+        if ($this->size)
+            $args['size'] = $this->size;
+
+        return ROOT_PATH . 'avatar.php?' . Http::build_query($args);
     }
 
     function toggle() {
@@ -152,7 +161,7 @@ class RandomAvatar {
         $this->mode = $mode;
     }
 
-    function makeAvatar($uid) {
+    function makeAvatar($uid, $size=null) {
         $sprite = self::$sprites[$this->mode];
         if (!$sprite || !is_readable(ROOT_DIR . $sprite['file']) || !extension_loaded('gd'))
             Http::redirect(ROOT_PATH.'images/mystery-oscar.png');
@@ -170,6 +179,11 @@ class RandomAvatar {
         for ($i=0, $k=$height; $i<$k; $i++) {
             $idx = hexdec($uid[$i]) % $width;
             imagecopy($avatar, $source, 0, 0, $idx*$grid, $i*$grid, $grid, $grid);
+        }
+
+        // Resize the avatar (if applicable)
+        if ($size) {
+            $avatar = imagescale($avatar, $size, $size);
         }
 
         return $avatar;

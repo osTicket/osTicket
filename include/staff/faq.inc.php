@@ -4,7 +4,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
     die('Access Denied');
 
 $info = $qs = array();
-if($faq){
+if($faq && $faq->getId()){
     $title=__('Update FAQ').': '.$faq->getQuestion();
     $action='update';
     $submit_text=__('Save Changes');
@@ -41,7 +41,7 @@ if($faq){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $qstr = Http::build_query($qs);
 ?>
-<form action="faq.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
+<form action="faq.php?<?php echo $qstr; ?>" method="post" class="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -63,7 +63,7 @@ $qstr = Http::build_query($qs);
         <option value="<?php echo $C->getId(); ?>" <?php
             if ($C->getId() == $info['category_id']) echo 'selected="selected"';
             ?>><?php echo sprintf('%s (%s)',
-                $C->getName(),
+                Category::getNameById($C->getId()),
                 $C->isPublic() ? __('Public') : __('Private')
             ); ?></option>
 <?php } ?>
@@ -71,13 +71,13 @@ $qstr = Http::build_query($qs);
     <div class="error"><?php echo $errors['category_id']; ?></div>
 
 <?php
-if ($topics = Topic::getAllHelpTopics()) {
+if ($topics = $thisstaff->getTopicNames()) {
     if (!is_array(@$info['topics']))
         $info['topics'] = array();
 ?>
     <div style="padding-top:9px">
         <strong><?php echo __('Help Topics');?></strong>:
-        <div class="faded"><?php echo __('Check all help topics related to this FAQ.');?></div>
+        <div class="faded"><?php echo sprintf(__('Check all help topics related to %s.'), __('this FAQ article'));?></div>
     </div>
     <select multiple="multiple" name="topics[]" class="multiselect"
         data-placeholder="<?php echo __('Help Topics'); ?>"
@@ -250,7 +250,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
     </div>
     <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
 </div>
 
 <p style="text-align:center;">

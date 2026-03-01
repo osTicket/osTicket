@@ -37,7 +37,7 @@ if($page && $_REQUEST['a']!='add'){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="pages.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="pages.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -140,7 +140,7 @@ if ($page && count($langs) > 1) { ?>
 if ($info['type'] == 'landing')
     $width = '565px';
 else
-    $width = '100%';
+    $width = '';
 ?>
     <div id="translations_container">
       <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content"
@@ -184,7 +184,7 @@ else
     <em><strong><?php echo __('Internal Notes'); ?></strong>:
       <?php echo __("Be liberal, they're internal"); ?></em>
     <textarea class="richtext no-bar" name="notes" cols="21"
-      rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+      rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
   </div>
 </div>
 

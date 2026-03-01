@@ -13,6 +13,11 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+status:
+    title: Status
+    content: >
+        If disabled or archived, this <span class="doc-desc-title">Department</span>
+        will not be available.
 type:
     title: Type
     content: >
@@ -49,6 +54,17 @@ sla:
       - title: Manage SLA Plans
         href: /scp/slas.php
 
+schedule:
+    title: Schedule
+    content: >
+        Schedule used by SLA when rendering tickets, routed to this Department,
+        Overdue.
+        <br><br>
+        This setting takes precedence over System and SLA schedule settings.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
+
 manager:
     title: Department Manager
     content: >
@@ -67,15 +83,14 @@ group_membership:
         class="doc-desc-title">Alerts &amp; Notices</span>.
     links:
       - title: Configure Alerts &amp; Notices
-        href: /scp/settings.php?t=alerts
+        href: "/scp/settings.php?t=tickets#alerts"
 
 sandboxing:
     title: Ticket Assignment Restrictions
     content: >
-        Enable this to restrict ticket assignment to include only members
-        of this Department. Department membership can be extended to Groups,
-        if <span class="doc-desc-title">Alerts &amp; Notices
-        Recipients</span> includes groups members.
+        Determine if Tickets can be assigned to all agents,
+        agents with Primary or Extended Department access,
+        or only agents with Primary Department access.
 
 disable_auto_claim:
     title: Disable Auto Claim
@@ -84,6 +99,14 @@ disable_auto_claim:
         this department.
         <br><br>
         Agents can still manually claim unassigned tickets
+
+disable_reopen_auto_assign:
+    title: Disable Auto Assign on Reopen
+    content: >
+        Check this to <strong>disable</strong> auto-assignment of reopened tickets for
+        this department.
+        <br><br>
+        Otherwise, the Ticket will be auto assigned to the last responding Agent
 
 auto_response_settings:
     title: Autoresponder Settings

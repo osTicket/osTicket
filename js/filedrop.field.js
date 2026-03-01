@@ -11,6 +11,7 @@
       progressUpdated: $.proxy(this.progressUpdated, this),
       speedUpdated: $.proxy(this.speedUpdated, this),
       dragOver: $.proxy(this.dragOver, this),
+      dragLeave: $.proxy(this.dragLeave, this),
       drop: $.proxy(this.drop, this),
       beforeSend: $.proxy(this.beforeSend, this),
       beforeEach: $.proxy(this.beforeEach, this),
@@ -29,6 +30,9 @@
   };
 
   FileDropbox.prototype = {
+    dragLeave: function(e) {
+        this.$element.removeAttr('style');
+    },
     drop: function(e) {
         this.$element.removeAttr('style');
     },
@@ -247,7 +251,7 @@
     files: [],
     deletable: true,
     shim: !window.FileReader,
-    queuefiles: 4
+    queuefiles: 1
   };
 
   $.fn.filedropbox.messages = {
@@ -291,8 +295,6 @@
  *
  */
 ;(function($) {
-
-  jQuery.event.props.push("dataTransfer");
 
   var default_opts = {
       fallback_id: '',
@@ -363,9 +365,9 @@
 
     function drop(e) {
       if( opts.drop.call(this, e) === false ) return false;
-      if(!e.dataTransfer)
+      if(!e.originalEvent.dataTransfer)
         return;
-      files = e.dataTransfer.files;
+      files = e.originalEvent.dataTransfer.files;
       if (files === null || files === undefined || files.length === 0) {
         opts.error(errors[0]);
         return false;

@@ -93,8 +93,8 @@ class Installer extends SetupWizard {
         if(!$this->errors) {
             if(!db_connect($vars['dbhost'],$vars['dbuser'],$vars['dbpass']))
                 $this->errors['db']=sprintf(__('Unable to connect to MySQL server: %s'), db_connect_error());
-            elseif(explode('.', db_version()) < explode('.', $this->getMySQLVersion()))
-                $this->errors['db']=sprintf(__('osTicket requires MySQL %s or later!'),$this->getMySQLVersion());
+            elseif(explode('.', db_version()) < explode('.', SetupWizard::getMySQLVersion()))
+                $this->errors['db']=sprintf(__('osTicket requires MySQL %s or later!'),SetupWizard::getMySQLVersion());
             elseif(!db_select_database($vars['dbname']) && !db_create_database($vars['dbname'])) {
                 $this->errors['dbname']=__("Database doesn't exist");
                 $this->errors['db']=__('Unable to create the database.');
@@ -116,6 +116,8 @@ class Installer extends SetupWizard {
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('TABLE_PREFIX',$vars['prefix']); //Table prefix
+        if (!defined('SECRET_SALT'))
+            define('SECRET_SALT',md5(TABLE_PREFIX.ADMIN_EMAIL));
         Bootstrap::defineTables(TABLE_PREFIX);
         Bootstrap::loadCode();
 
@@ -146,7 +148,7 @@ class Installer extends SetupWizard {
                 $schemaFile = INC_DIR."streams/$stream/install-mysql.sql";
                 if (!file_exists($schemaFile) || !($fp2 = fopen($schemaFile, 'rb')))
                     $this->errors['err'] = sprintf(
-                        __('%s: Internal Error - please make sure your download is the latest (#1)'),
+                        __('%s: Internal error occurred - please make sure your download is the latest (#1)'),
                         $stream);
                 elseif (
                         // TODO: Make the hash algo configurable in the streams
@@ -176,6 +178,7 @@ class Installer extends SetupWizard {
         list($sla_id) = Sla::objects()->order_by('id')->values_flat('id')->first();
         list($dept_id) = Dept::objects()->order_by('id')->values_flat('id')->first();
         list($role_id) = Role::objects()->order_by('id')->values_flat('id')->first();
+        list($schedule_id) = Schedule::objects()->order_by('id')->values_flat('id')->first();
 
         $sql='SELECT `tpl_id` FROM `'.TABLE_PREFIX.'email_template_group` ORDER BY `tpl_id` LIMIT 1';
         $template_id_1 = db_result(db_query($sql, false));
@@ -188,8 +191,8 @@ class Installer extends SetupWizard {
             'dept_id' => $dept_id,
             'role_id' => $role_id,
             'email' => $vars['admin_email'],
-            'firstname' => $vars['fname'],
-            'lastname' => $vars['lname'],
+            'firstname' => Format::htmlchars($vars['fname']),
+            'lastname' => Format::htmlchars($vars['lname']),
             'username' => $vars['username'],
         ));
         $staff->updatePerms(array(
@@ -203,12 +206,26 @@ class Installer extends SetupWizard {
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
             Email::PERM_BANLIST,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
         $staff->setPassword($vars['passwd']);
         if (!$staff->save()) {
             $this->errors['err'] = __('Unable to create admin user (#6)');
             return false;
         }
+
+        // Extended Access
+        foreach (Dept::objects()
+                ->filter(Q::not(array('id' => $dept_id)))
+                ->values_flat('id') as $row) {
+            $da = new StaffDeptAccess(array(
+                        'dept_id' => $row[0],
+                        'role_id' => $role_id
+                        ));
+            $staff->dept_access->add($da);
+        }
+        $staff->dept_access->saveAll();
 
         // Create default emails!
         $email = $vars['email'];
@@ -234,7 +251,9 @@ class Installer extends SetupWizard {
         $defaults = array(
             'default_email_id'=>$support_email_id,
             'alert_email_id'=>$alert_email_id,
-            'default_dept_id'=>$dept_id, 'default_sla_id'=>$sla_id,
+            'default_dept_id'=>$dept_id,
+            'default_sla_id'=>$sla_id,
+            'schedule_id'=>$schedule_id,
             'default_template_id'=>$template_id_1,
             'default_timezone' => $vars['timezone'] ?: date_default_timezone_get(),
             'admin_email'=>$vars['admin_email'],

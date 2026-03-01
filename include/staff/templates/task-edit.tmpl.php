@@ -2,7 +2,7 @@
 global $cfg;
 
 if (!$info['title'])
-    $info['title'] = sprintf(__('%s Tasks #%s'),
+    $info['title'] = sprintf(__('%s Task #%s'),
             __('Edit'), $task->getNumber()
             );
 
@@ -29,13 +29,15 @@ if ($info['error']) {
     <div>
     <?php
     if ($forms) {
-        foreach ($forms as $form)
+        foreach ($forms as $form) {
+            $form->addMissingFields();
             echo $form->getForm(false, array('mode' => 'edit'))->asTable(
                     __('Task Information'),
                     array(
-                        'draft-namespace' => $namespace,
+                        'draft-namespace' => $namespace, 'filterVisibility' => true
                         )
                     );
+        }
     }
     ?>
     </div>

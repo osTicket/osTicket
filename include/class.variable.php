@@ -383,8 +383,8 @@ class TextWithExtras {
         return $this->text;
     }
 
-    function getFiles() {
-        return $this->extras[OOBContent::FILES];
+    function getAttachments() {
+        return $this->extras[OOBContent::FILES] ?: array();
     }
 }
 

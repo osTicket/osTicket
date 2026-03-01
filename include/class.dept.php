@@ -13,9 +13,11 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR.'class.role.php';
 
 class Dept extends VerySimpleModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => DEPT_TABLE,
@@ -57,15 +59,33 @@ implements TemplateVariable {
     var $_groupids;
     var $config;
 
+    var $schedule;
+
     var $template;
     var $autorespEmail;
 
     const ALERTS_DISABLED = 2;
+    const DISPLAY_DISABLED = 2;
     const ALERTS_DEPT_AND_EXTENDED = 1;
     const ALERTS_DEPT_ONLY = 0;
+    const ALERTS_ADMIN_ONLY = 3;
 
     const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
     const FLAG_DISABLE_AUTO_CLAIM  = 0x0002;
+    const FLAG_ACTIVE = 0x0004;
+    const FLAG_ARCHIVED = 0x0008;
+    const FLAG_ASSIGN_PRIMARY_ONLY = 0x0010;
+    const FLAG_DISABLE_REOPEN_AUTO_ASSIGN = 0x0020;
+
+    const PERM_DEPT = 'visibility.departments';
+
+    static protected $perms = array(
+        self::PERM_DEPT => array(
+            'title' => /* @trans */ 'Department',
+            'desc'  => /* @trans */ 'Ability to see all Departments',
+            'primary' => true,
+        ),
+    );
 
     function asVar() {
         return $this->getName();
@@ -98,6 +118,21 @@ implements TemplateVariable {
         }
     }
 
+    static function getSearchableFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'label' => __('Name'),
+            )),
+            'manager' => new DepartmentManagerSelectionField(array(
+                'label' => __('Manager'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        return false;
+    }
+
     function getId() {
         return $this->id;
     }
@@ -126,6 +161,45 @@ implements TemplateVariable {
 
     function getFullName() {
         return self::getNameById($this->getId());
+    }
+
+    function getStatus() {
+        if($this->flags & self::FLAG_ACTIVE)
+          return __('Active');
+        elseif($this->flags & self::FLAG_ARCHIVED)
+          return __('Archived');
+        else
+          return __('Disabled');
+    }
+
+    function allowsReopen() {
+      return !($this->flags & self::FLAG_ARCHIVED);
+    }
+
+    function isActive() {
+        return !!($this->flags & self::FLAG_ACTIVE);
+    }
+
+    function clearInactiveDept($dept_id) {
+      global $cfg;
+
+      $topics = Topic::objects()->filter(array('dept_id'=>$dept_id))->values_flat('topic_id');
+      if ($topics) {
+        foreach ($topics as $topic_id) {
+          $topic = Topic::lookup($topic_id[0]);
+          $topic->dept_id = $cfg->getDefaultDeptId();
+          $topic->save();
+        }
+      }
+
+      $emails = Email::objects()->filter(array('dept_id'=>$dept_id))->values_flat('email_id');
+      if ($emails) {
+        foreach ($emails as $email_id) {
+          $email = Email::lookup($email_id[0]);
+          $email->dept_id = $cfg->getDefaultDeptId();
+          $email->save();
+        }
+      }
     }
 
     function getEmailId() {
@@ -160,10 +234,8 @@ implements TemplateVariable {
         return count($this->getMembers());
     }
 
-    function getMembers($criteria=null) {
-        global $cfg;
-
-        if (!$this->_members || $criteria) {
+    function getMembers() {
+        if (!isset($this->_members)) {
             $members = Staff::objects()
                 ->distinct('staff_id')
                 ->constrain(array(
@@ -178,34 +250,23 @@ implements TemplateVariable {
                     'dept_access__dept_id' => $this->getId(),
                 )));
 
-            // TODO: Consider moving this into ::getAvailableMembers
-            if ($criteria && $criteria['available']) {
-                $members->filter(array(
-                    'isactive' => 1,
-                    'onvacation' => 0,
-                ));
-            }
-
-            $members = Staff::nsort($members);
-
-            if ($criteria)
-                return $members;
-
-            $this->_members = $members;
+            $this->_members = Staff::nsort($members);
         }
         return $this->_members;
     }
 
     function getAvailableMembers() {
-        return $this->getMembers(array('available'=>1));
+        $members = clone $this->getMembers();
+        return $members->filter(array(
+            'isactive' => 1,
+            'onvacation' => 0,
+        ));
     }
 
     function getPrimaryMembers() {
-
         if (!isset($this->_primary_members)) {
             $members = clone $this->getMembers();
             $members->filter(array('dept_id' =>$this->getId()));
-            $members = Staff::nsort($members);
             $this->_primary_members = $members->all();
         }
 
@@ -213,21 +274,20 @@ implements TemplateVariable {
     }
 
     function getExtendedMembers() {
-
         if (!isset($this->_exended_members)) {
             // We need a query set so we can sort the names
             $members = StaffDeptAccess::objects();
             $members->filter(array('dept_id' => $this->getId()));
             $members = Staff::nsort($members, 'staff__');
             $extended = array();
-            foreach($members->all() as $member) {
-                if (!$member->staff) continue;
+            foreach($members as $member) {
+                if (!$member->staff)
+                    continue;
                 // Annoted the staff model with alerts and role
-                $extended[] =  new AnnotatedModel($member->staff, array(
-                            'alerts'  => $member->isAlertsEnabled(),
-                            'role_id' => $member->role_id,
-                            )
-                        );
+                $extended[] = AnnotatedModel::wrap($member->staff, array(
+                    'alerts'  => $member->isAlertsEnabled(),
+                    'role_id' => $member->role_id,
+                ));
             }
 
             $this->_extended_members = $extended;
@@ -236,15 +296,27 @@ implements TemplateVariable {
         return $this->_extended_members;
     }
 
-    // Get members  eligible members only
+    // Get eligible members only
     function getAssignees() {
 
-        $members = clone $this->getAvailableMembers();
-        // If restricted then filter to primary members ONLY!
-        if ($this->assignMembersOnly())
-            $members->filter(array('dept_id' => $this->getId()));
+      //this is for if all members is set
+      if (!$this->assignPrimaryOnly() && !$this->assignMembersOnly()) {
+        $members =  Staff::objects()->filter(array(
+            'onvacation' => 0,
+            'isactive' => 1,
+        ));
 
-        return $members;
+        return Staff::nsort($members);
+      }
+
+      //this gets just the members of the dept
+      $members = clone $this->getAvailableMembers();
+
+      //this gets just the primary members of the dept
+      if ($this->assignPrimaryOnly())
+        $members->filter(array('dept_id' => $this->getId()));
+
+      return Staff::nsort($members);
     }
 
     function getMembersForAlerts() {
@@ -269,12 +341,28 @@ implements TemplateVariable {
         return $rv;
     }
 
+    function getNumMembersForAlerts() {
+        return count($this->getMembersForAlerts());
+    }
+
     function getSLAId() {
         return $this->sla_id;
     }
 
     function getSLA() {
         return $this->sla;
+    }
+
+    function getScheduleId() {
+        return $this->schedule_id;
+    }
+
+    function getSchedule() {
+        if (!isset($this->schedule) && $this->getScheduleId())
+            $this->schedule = BusinessHoursSchedule::lookup(
+                        $this->getScheduleId());
+
+        return $this->schedule;
     }
 
     function getTemplateId() {
@@ -316,6 +404,30 @@ implements TemplateVariable {
         return ($this->getSignature() && $this->isPublic());
     }
 
+    // Check if an agent or team is eligible for assignment
+    function canAssign($assignee) {
+
+
+        if ($assignee instanceof Staff) {
+            // Primary members only
+            if ($this->assignPrimaryOnly() && !$this->isPrimaryMember($assignee))
+                return false;
+
+            // Extended members only
+            if ($this->assignMembersOnly() && !$this->isMember($assignee))
+                return false;
+        } elseif (!$assignee instanceof Team) {
+            // Assignee can only be an Agent or a Team
+            return false;
+        }
+
+        // Make sure agent / team  is availabe for assignment
+        if (!$assignee->isAvailable())
+             return false;
+
+        return true;
+    }
+
     function getManagerId() {
         return $this->manager_id;
     }
@@ -324,22 +436,22 @@ implements TemplateVariable {
         return $this->manager;
     }
 
-    function isManager($staff) {
-
-        if(is_object($staff)) $staff=$staff->getId();
+    function isManager(Staff $staff) {
+        $staff = $staff->getId();
 
         return ($this->getManagerId() && $this->getManagerId()==$staff);
     }
 
-    function isMember($staff) {
+    function isMember(Staff $staff) {
+        $staff = $staff->getId();
 
-        if (is_object($staff))
-            $staff = $staff->getId();
+        return $this->getMembers()->findFirst(array(
+            'staff_id' => $staff
+        ));
+    }
 
-        $members = $this->getMembers() ?: $this->members;
-
-        return ($members->findFirst(array(
-                        'staff_id' => $staff)));
+    function isPrimaryMember(Staff $staff) {
+        return ($staff->getDeptId() == $this->getId());
     }
 
     function isPublic() {
@@ -362,8 +474,25 @@ implements TemplateVariable {
         return $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
     }
 
+    function assignPrimaryOnly() {
+        return $this->flags & self::FLAG_ASSIGN_PRIMARY_ONLY;
+    }
+
+    function getAssignmentFlag() {
+        if($this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY)
+          return 'members';
+        elseif($this->flags & self::FLAG_ASSIGN_PRIMARY_ONLY)
+          return 'primary';
+        else
+          return 'all';
+    }
+
     function disableAutoClaim() {
         return $this->flags & self::FLAG_DISABLE_AUTO_CLAIM;
+    }
+
+    function disableReopenAutoAssign() {
+        return $this->flags & self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN;
     }
 
     function isGroupMembershipEnabled() {
@@ -376,8 +505,10 @@ implements TemplateVariable {
             foreach (static::$meta['joins'] as $k => $v)
                 unset($ht[$k]);
 
-        $ht['assign_members_only'] = $this->assignMembersOnly();
         $ht['disable_auto_claim'] =  $this->disableAutoClaim();
+        $ht['status'] = $this->getStatus();
+        $ht['assignment_flag'] = $this->getAssignmentFlag();
+        $ht['disable_reopen_auto_assign'] =  $this->disableReopenAutoAssign();
         return $ht;
     }
 
@@ -399,9 +530,17 @@ implements TemplateVariable {
 
         $id = $this->getId();
         if (parent::delete()) {
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
+
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
             Ticket::objects()
+                ->filter(array('dept_id' => $id))
+                ->update(array('dept_id' => $cfg->getDefaultDeptId()));
+
+            // Move tasks
+            Task::objects()
                 ->filter(array('dept_id' => $id))
                 ->update(array('dept_id' => $cfg->getDefaultDeptId()));
 
@@ -417,18 +556,6 @@ implements TemplateVariable {
             Email::objects()
                 ->filter(array('dept_id' => $id))
                 ->delete();
-
-            foreach(FilterAction::objects()
-                ->filter(array('type' => FA_RouteDepartment::$type)) as $fa
-            ) {
-                $config = $fa->getConfiguration();
-                if ($config && $config['dept_id'] == $id) {
-                    $config['dept_id'] = 0;
-                    // FIXME: Move this code into FilterAction class
-                    $fa->set('configuration', JsonDataEncoder::encode($config));
-                    $fa->save();
-                }
-            }
 
             // Delete extended access entries
             StaffDeptAccess::objects()
@@ -477,7 +604,7 @@ implements TemplateVariable {
      *
      */
 
-    private function setFlag($flag, $val) {
+    public function setFlag($flag, $val) {
 
         if ($val)
             $this->flags |= $flag;
@@ -485,8 +612,27 @@ implements TemplateVariable {
             $this->flags &= ~$flag;
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    function flagChanged($flag, $var) {
+        if (($this->hasFlag($flag) && !$var) ||
+            (!$this->hasFlag($flag) && $var))
+                return true;
+    }
+
+    function export($dept, $criteria=null, $filename='') {
+        include_once(INCLUDE_DIR.'class.error.php');
+        $members = $dept->getMembers();
+
+        //Sort based on name formating
+        $members = Staff::nsort($members);
+        Export::departmentMembers($dept, $members, $filename);
+    }
+
     /*----Static functions-------*/
-	static function getIdByName($name, $pid=null) {
+    static function getIdByName($name, $pid=null) {
         $row = static::objects()
             ->filter(array(
                         'name' => $name,
@@ -497,8 +643,17 @@ implements TemplateVariable {
         return $row ? $row[0] : 0;
     }
 
+    static function getEmailIdById($id) {
+        $row = static::objects()
+            ->filter(array('id' => $id))
+            ->values_flat('email_id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
+
     function getNameById($id) {
-        $names = static::getDepartments();
+        $names = Dept::getDepartments();
         return $names[$id];
     }
 
@@ -512,16 +667,16 @@ implements TemplateVariable {
             : null;
     }
 
-    static function getDepartments( $criteria=null, $localize=true) {
-        static $depts = null;
+    static function getDepartments($criteria=null, $localize=true, $disabled=true) {
+        $depts = null;
 
         if (!isset($depts) || $criteria) {
             // XXX: This will upset the static $depts array
             $depts = array();
             $query = self::objects();
-            if (isset($criteria['publiconly']))
+            if (isset($criteria['publiconly']) && $criteria['publiconly'])
                 $query->filter(array(
-                            'ispublic' => ($criteria['publiconly'] ? 1 : 0)));
+                            'flags__hasbit' => Dept::FLAG_ACTIVE));
 
             if ($manager=$criteria['manager'])
                 $query->filter(array(
@@ -536,10 +691,14 @@ implements TemplateVariable {
             }
 
             $query->order_by('name')
-                ->values('id', 'pid', 'name', 'parent');
+                 ->values('id', 'pid', 'flags', 'name', 'parent');
 
-            foreach ($query as $row)
-                $depts[$row['id']] = $row;
+            foreach ($query as $row) {
+              $display = ($row['flags'] & self::FLAG_ACTIVE);
+
+              $depts[$row['id']] = array('id' => $row['id'], 'pid'=>$row['pid'], 'name'=>$row['name'],
+                  'parent'=>$row['parent'], 'disabled' => !$display);
+            }
 
             $localize_this = function($id, $default) use ($localize) {
                 if (!$localize)
@@ -566,21 +725,32 @@ implements TemplateVariable {
                 // Fetch local names
                 $names[$id] = $localize_this($id, $name);
             }
-            asort($names);
+
+            // Apply requested filters
+            $requested_names = array();
+            foreach ($names as $id=>$n) {
+                $info = $depts[$id];
+                if (!$disabled && $info['disabled'])
+                    continue;
+                if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
+                    $n .= " - ".__("(disabled)");
+
+                $requested_names[$id] = $n;
+            }
+            asort($requested_names);
 
             // TODO: Use locale-aware sorting mechanism
-
             if ($criteria)
-                return $names;
+                return $requested_names;
 
-            $depts = $names;
+            $depts = $requested_names;
         }
 
-        return $depts;
+        return $requested_names;
     }
 
     static function getPublicDepartments() {
-        static $depts =null;
+        $depts =null;
 
         if (!$depts)
             $depts = self::getDepartments(array('publiconly'=>true));
@@ -596,9 +766,12 @@ implements TemplateVariable {
 
     static function __create($vars, &$errors) {
         $dept = self::create($vars);
-        $dept->update($vars, $errors);
+        if (!$dept->update($vars, $errors))
+          return false;
 
-        return isset($dept->id) ? $dept : null;
+       $dept->save();
+
+       return $dept;
     }
 
     function save($refetch=false) {
@@ -613,7 +786,8 @@ implements TemplateVariable {
 
         $id = $this->id;
         if ($id && $id != $vars['id'])
-            $errors['err']=__('Missing or invalid Dept ID (internal error).');
+            $errors['err']=__('Missing or invalid Dept ID.')
+                .' '.__('Internal error occurred');
 
         if (!$vars['name']) {
             $errors['name']=__('Name required');
@@ -628,6 +802,29 @@ implements TemplateVariable {
         if ($vars['pid'] && !($p = static::lookup($vars['pid'])))
             $errors['pid'] = __('Department selection is required');
 
+        $dept = Dept::lookup($vars['pid']);
+        if ($dept) {
+          if (!$dept->isActive())
+            $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Parent Department'));
+          elseif (strpos($dept->getFullPath(), '/'.$this->getId().'/') !== false)
+            $errors['pid'] = sprintf(__('%s cannot contain the current %s'), __('Parent Department'), __('Department'));
+        }
+
+        if ($vars['sla_id'] && !SLA::lookup($vars['sla_id']))
+            $errors['sla_id'] = __('Invalid SLA');
+
+        if ($vars['manager_id'] && !Staff::lookup($vars['manager_id']))
+            $errors['manager_id'] = __('Unknown Staff');
+
+        if ($vars['email_id'] && !Email::lookup($vars['email_id']))
+            $errors['email_id'] = __('Unknown System Email');
+
+        if ($vars['tpl_id'] && !EmailTemplateGroup::lookup($vars['tpl_id']))
+            $errors['tpl_id'] = __('Unknown Template Set');
+
+        if ($vars['autoresp_email_id'] && !Email::lookup($vars['autoresp_email_id']))
+            $errors['autoresp_email_id'] = __('Unkown System Email');
+
         // Format access update as [array(dept_id, role_id, alerts?)]
         $access = array();
         if (isset($vars['members'])) {
@@ -641,21 +838,83 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
+        $vars['disable_auto_claim'] = isset($vars['disable_auto_claim']) ? 1 : 0;
+        if ($this->getId()) {
+            //flags
+            $disableAutoClaim = $this->flagChanged(self::FLAG_DISABLE_AUTO_CLAIM, $vars['disable_auto_claim']);
+            $disableAutoAssign = $this->flagChanged(self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN, $vars['disable_reopen_auto_assign']);
+            $ticketAssignment = ($this->getAssignmentFlag() != $vars['assignment_flag']);
+            foreach ($vars as $key => $value) {
+                if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
+                    $type = array('type' => 'edited', 'status' => ucfirst($value));
+                    Signal::send('object.edited', $this, $type);
+                } elseif ((isset($this->$key) && ($this->$key != $value) && $key != 'members') ||
+                         ($disableAutoClaim && $key == 'disable_auto_claim') ||
+                          $ticketAssignment && $key == 'assignment_flag' ||
+                          $disableAutoAssign && $key == 'disable_reopen_auto_assign') {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
+        }
+        if ($vars['disable_auto_claim'] !== 1)
+            unset($vars['disable_auto_claim']);
+
         $this->pid = $vars['pid'] ?: null;
-        $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
-        $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;
-        $this->tpl_id = isset($vars['tpl_id'])?$vars['tpl_id']:0;
-        $this->sla_id = isset($vars['sla_id'])?$vars['sla_id']:0;
-        $this->autoresp_email_id = isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0;
+        $this->ispublic = isset($vars['ispublic']) ? (int) $vars['ispublic'] : 0;
+        $this->email_id = isset($vars['email_id']) ? (int) $vars['email_id'] : 0;
+        $this->tpl_id = isset($vars['tpl_id']) ? (int) $vars['tpl_id'] : 0;
+        $this->sla_id = isset($vars['sla_id']) ? (int) $vars['sla_id'] : 0;
+        $this->schedule_id = isset($vars['schedule_id']) ? (int) $vars['schedule_id'] : 0;
+        $this->autoresp_email_id = isset($vars['autoresp_email_id']) ? (int) $vars['autoresp_email_id'] : 0;
         $this->manager_id = $vars['manager_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);
         $this->signature = Format::sanitize($vars['signature']);
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
-        $this->flags = 0;
+        $this->flags = $vars['flags'] ?: 0;
+
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+        $this->setFlag(self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN, isset($vars['disable_reopen_auto_assign']));
+
+        $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $this->getId().'}'));
+        if ($filter_actions && $vars['status'] == 'active')
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', false);
+        else
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
+
+        switch ($vars['status']) {
+          case 'active':
+            $this->setFlag(self::FLAG_ACTIVE, true);
+            $this->setFlag(self::FLAG_ARCHIVED, false);
+            break;
+
+          case 'disabled':
+            $this->setFlag(self::FLAG_ACTIVE, false);
+            $this->setFlag(self::FLAG_ARCHIVED, false);
+            break;
+
+          case 'archived':
+            $this->setFlag(self::FLAG_ACTIVE, false);
+            $this->setFlag(self::FLAG_ARCHIVED, true);
+        }
+
+        switch ($vars['assignment_flag']) {
+          case 'all':
+            $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, false);
+            $this->setFlag(self::FLAG_ASSIGN_PRIMARY_ONLY, false);
+            break;
+          case 'members':
+            $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, true);
+            $this->setFlag(self::FLAG_ASSIGN_PRIMARY_ONLY, false);
+            break;
+          case 'primary':
+            $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, false);
+            $this->setFlag(self::FLAG_ASSIGN_PRIMARY_ONLY, true);
+            break;
+        }
 
         $this->path = $this->getFullPath();
 
@@ -706,6 +965,8 @@ implements TemplateVariable {
                   'staff_id' => $staff_id, 'role_id' => $role_id
               ));
               $this->extended->add($da);
+              $type = array('type' => 'edited', 'key' => 'Staff Added');
+              Signal::send('object.edited', $this, $type);
           }
           else {
               $da->role_id = $role_id;
@@ -718,6 +979,8 @@ implements TemplateVariable {
           return false;
 
       if ($dropped) {
+          $type = array('type' => 'edited', 'key' => 'Staff Removed');
+          Signal::send('object.edited', $this, $type);
           $this->extended->saveAll();
           $this->extended
               ->filter(array('staff_id__in' => array_keys($dropped)))
@@ -730,7 +993,12 @@ implements TemplateVariable {
 
       return true;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Dept::getPermissions());
 
 class DepartmentQuickAddForm
 extends Form {
@@ -744,7 +1012,7 @@ extends Form {
                 'default' => 0,
                 'choices' =>
                     array(0 => '— '.__('Top-Level Department').' —')
-                    + Dept::getDepartments()
+                    + Dept::getPublicDepartments()
             )),
             'name' => new TextboxField(array(
                 'required' => true,
@@ -774,7 +1042,7 @@ extends Form {
         );
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         $clean = parent::getClean();
 
         $clean['ispublic'] = !$clean['private'];

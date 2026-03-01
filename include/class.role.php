@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.forms.php';
 
 class RoleModel extends VerySimpleModel {
     static $meta = array(
@@ -132,11 +133,22 @@ class Role extends RoleModel {
     }
 
     private function updatePerms($vars, &$errors=array()) {
-
         $config = array();
         $permissions = $this->getPermission();
+
+        foreach ($vars as $k => $val) {
+            if (!array_key_exists($val, $permissions->perms)) {
+                $type = array('type' => 'edited', 'key' => $val);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach($perms as $k => $v) {
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                    $type = array('type' => 'edited', 'key' => $k);
+                    Signal::send('object.edited', $this, $type);
+                }
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);
             }
         }
@@ -144,7 +156,6 @@ class Role extends RoleModel {
     }
 
     function update($vars, &$errors) {
-
         if (!$vars['name'])
             $errors['name'] = __('Name required');
         elseif (($r=Role::lookup(array('name'=>$vars['name'])))
@@ -183,6 +194,9 @@ class Role extends RoleModel {
 
         if (!parent::delete())
             return false;
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         // Remove dept access entries
         StaffDeptAccess::objects()
@@ -320,6 +334,16 @@ class RolePermission {
     }
 
     static function allPermissions() {
+        static $sorted = false;
+
+        if (!$sorted) {
+            // Sort permissions in alphabetical order
+            foreach (static::$_permissions as $k => $v) {
+                asort(static::$_permissions[$k]);
+            }
+            $sorted = true;
+        }
+
         return static::$_permissions;
     }
 
@@ -376,7 +400,7 @@ extends AbstractForm {
         );
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         $clean = parent::getClean();
         // Index permissions as ['ticket.edit' => 1]
         $clean['perms'] = array_keys($clean['perms']);

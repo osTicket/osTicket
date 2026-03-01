@@ -7,7 +7,7 @@
 #
 ---
 notes: |
-    Sent to agents when a ticket is assigned to them or the team to which
+    Sent to agents when a task is assigned to them or the team to which
     they belong. Use %{assigner} to distinguish who made the assignment.
 
 subject: |

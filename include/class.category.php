@@ -21,9 +21,16 @@ class Category extends VerySimpleModel {
         'pk' => array('category_id'),
         'ordering' => array('name'),
         'joins' => array(
+            'parent' => array(
+                'constraint' => array('category_pid' => 'Category.category_id'),
+                'null' => true,
+                ),
+            'children' => array(
+                'reverse' => 'Category.parent',
+                ),
             'faqs' => array(
                 'reverse' => 'FAQ.category'
-            ),
+                ),
         ),
     );
 
@@ -36,9 +43,21 @@ class Category extends VerySimpleModel {
     /* ------------------> Getter methods <--------------------- */
     function getId() { return $this->category_id; }
     function getName() { return $this->name; }
-    function getNumFAQs() { return  $this->faqs->count(); }
+    function getFullName() {
+        return self::getNameById($this->category_id) ?: $this->getLocalName();
+    }
+    function getNumFAQs($primary=false) {
+        $count = $this->faqs->count();
+        if (!$primary && $this->children)
+            foreach ($this->children as $c)
+                $count += $c->faqs->count();
+
+        return $count;
+    }
     function getDescription() { return $this->description; }
-    function getDescriptionWithImages() { return Format::viewableImages($this->description); }
+    function getDescriptionWithImages() {
+        return Format::viewableImages($this->description);
+    }
     function getNotes() { return $this->notes; }
     function getCreateDate() { return $this->created; }
     function getUpdateDate() { return $this->updated; }
@@ -109,6 +128,37 @@ class Category extends VerySimpleModel {
             ->limit(5);
     }
 
+    function getPublicSubCategories() {
+        return $this->getSubCategories(array('public' => true));
+    }
+
+    function getSubCategories($criteria=array()) {
+
+        $categories = self::objects()
+            ->filter(array('category_pid' => $this->getId()));
+        if (isset($criteria['public']) && $categories) {
+            $categories
+                ->exclude(
+                    Q::any(array(
+                            'ispublic'=>Category::VISIBILITY_PRIVATE,
+                            'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+                            )))
+                ->annotate(array('faq_count' => SqlAggregate::COUNT(
+                                SqlCase::N()
+                                ->when(array(
+                                        'faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
+                                ->otherwise(null)
+                )))
+                ->filter(array('faq_count__gt'=>0));
+        } else {
+            $categories
+                ->annotate(array(
+                            'faq_count'=>SqlAggregate::COUNT('faqs')));
+        }
+
+        return $categories;
+    }
+
     /* ------------------> Setter methods <--------------------- */
     function setName($name) { $this->name=$name; }
     function setNotes($notes) { $this->notes=$notes; }
@@ -128,7 +178,7 @@ class Category extends VerySimpleModel {
             $errors['name'] = __('Category name is required');
         elseif (strlen($vars['name']) < 3)
             $errors['name'] = __('Name is too short. 3 chars minimum');
-        elseif (($cid=self::findIdByName($vars['name'])) && $cid != $vars['id'])
+        elseif (($cid=self::findIdByName($vars['name'], $vars['pid'])) && $cid != $vars['id'])
             $errors['name'] = __('Category already exists');
 
         if (!$vars['description'])
@@ -143,6 +193,7 @@ class Category extends VerySimpleModel {
 
         $this->ispublic = $vars['ispublic'];
         $this->name = $vars['name'];
+        $this->category_pid = $vars['pid'] ?: 0;
         $this->description = Format::sanitize($vars['description']);
         $this->notes = Format::sanitize($vars['notes']);
 
@@ -160,11 +211,13 @@ class Category extends VerySimpleModel {
     function delete() {
         try {
             parent::delete();
-            $this->faqs->expunge();
         }
         catch (OrmException $e) {
             return false;
         }
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return true;
     }
 
@@ -223,24 +276,70 @@ class Category extends VerySimpleModel {
 
     /* ------------------> Static methods <--------------------- */
 
-    static function findIdByName($name) {
+    static function findIdByName($name, $pid=null) {
         $row = self::objects()->filter(array(
-            'name'=>$name
+            'name'=>$name,
+            'category_pid'  => $pid ?: null
         ))->values_flat('category_id')->first();
 
         return ($row) ? $row[0] : null;
     }
 
-    static function findByName($name) {
+    static function findByName($name, $pid=null) {
         return self::objects()->filter(array(
-            'name'=>$name
+            'name'=>$name,
+            'category_pid'  => $pid ?: null
         ))->one();
+    }
+
+    static function getNameById($id) {
+        $names = static::getCategories();
+        return $names[$id] ?: '';
     }
 
     static function getFeatured() {
         return self::objects()->filter(array(
             'ispublic'=>self::VISIBILITY_FEATURED
         ));
+    }
+
+    static function getCategories($criteria=null, $localize=true) {
+        static $categories = null;
+
+        if (!isset($categories) || $criteria) {
+            $categories = array();
+            $query = self::objects();
+            $query->order_by('name')
+                ->values('category_id', 'category_pid', 'name', 'parent');
+
+            foreach ($query as $row)
+                $categories[$row['category_id']] = $row;
+
+            // Resolve parent names
+            $names = array();
+            foreach ($categories as $id=>$info) {
+                $name = $info['name'];
+                $loop = array($id=>true);
+                $parent = false;
+                while ($info['category_pid'] && ($info = $categories[$info['category_pid']])) {
+                    $name = sprintf('%s / %s', $info['name'], $name);
+                    if (isset($loop[$info['category_pid']]))
+                        break;
+                    $loop[$info['category_pid']] = true;
+                    $parent = $info;
+                }
+                // TODO: localize category names
+                $names[$id] = $name;
+            }
+            asort($names);
+
+            if ($criteria)
+                return $names;
+
+            $categories = $names;
+        }
+
+        return $categories;
     }
 
     static function create($vars=false) {

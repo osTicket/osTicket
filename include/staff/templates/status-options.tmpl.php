@@ -1,5 +1,10 @@
 <?php
 global $thisstaff, $ticket;
+
+$role = $ticket ? $ticket->getRole($thisstaff) : $thisstaff->getRole();
+if ($role && !$role->hasPerm(Ticket::PERM_CLOSE))
+    return;
+
 // Map states to actions
 $actions= array(
         'closed' => array(
@@ -14,9 +19,8 @@ $actions= array(
         );
 
 $states = array('open');
-if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(TicketModel::PERM_CLOSE)
-        && (!$ticket || !$ticket->getMissingRequiredFields()))
-    $states = array_merge($states, array('closed'));
+if (!$ticket || $ticket->isCloseable())
+    $states[] = 'closed';
 
 $statusId = $ticket ? $ticket->getStatusId() : 0;
 $nextStatuses = array();
@@ -37,6 +41,7 @@ if (!$nextStatuses)
     data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>">
     <i class="icon-caret-down pull-right"></i>
     <a class="tickets-action"
+        aria-label="<?php echo __('Change Status'); ?>"
         href="#statuses"><i
         class="icon-flag"></i></a>
 </span>

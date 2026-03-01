@@ -1,5 +1,8 @@
 <?php
 
+if (!defined('TICKET_EMAIL_INFO_TABLE'))
+    define('TICKET_EMAIL_INFO_TABLE', TABLE_PREFIX.'ticket_email_info');
+
 /*
  * Drops the `thread_id` primary key on the ticket_email_info table if it
  * exists

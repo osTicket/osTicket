@@ -21,6 +21,10 @@ extends VerySimpleModel {
         'table' => CANNED_TABLE,
         'pk' => array('canned_id'),
         'joins' => array(
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+                'null' => true,
+            ),
             'attachments' => array(
                 'constraint' => array(
                     "'C'" => 'Attachment.type',
@@ -134,7 +138,7 @@ extends VerySimpleModel {
 
                 $resp['files'] = array();
                 foreach ($this->getAttachedFiles(!$html) as $file) {
-                    $_SESSION[':cannedFiles'][$file->id] = 1;
+                    $_SESSION[':cannedFiles'][$file->id] = $file->name;
                     $resp['files'][] = array(
                         'id' => $file->id,
                         'name' => $file->name,
@@ -199,6 +203,9 @@ extends VerySimpleModel {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         $this->attachments->deleteAll();
 
         return true;
@@ -222,10 +229,21 @@ extends VerySimpleModel {
     }
 
     static function getCannedResponses($deptId=0, $explicit=false) {
+        global $thisstaff;
+
         $canned = static::objects()
             ->filter(array('isenabled' => true))
             ->order_by('title')
             ->values_flat('canned_id', 'title');
+
+        if ($thisstaff) {
+            $staffDepts = array();
+
+            $staffDepts = $thisstaff->getDepts();
+            $staffDepts[] = 0;
+
+            $canned->filter(array('dept_id__in' => $staffDepts));
+        }
 
         if ($deptId) {
             $depts = array($deptId);
@@ -260,7 +278,7 @@ extends VerySimpleModel {
 
         $id = isset($this->canned_id) ? $this->canned_id : null;
         if ($id && $id != $vars['id'])
-            $errors['err']=__('Internal error. Try again');
+            $errors['err']=sprintf('%s - %s', __('Internal error occurred'), __('Please try again!'));
 
         if (!$vars['title'])
             $errors['title'] = __('Title required');

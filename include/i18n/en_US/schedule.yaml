@@ -1,0 +1,155 @@
+#  Initial set of schedules and entries
+#
+# Fields:
+# id:
+# flags:
+#   0x01:   FLAG_BIZHRS (Business Hours - Otherwise Holidays is assumed)
+# sort:     Manual sort order
+# name:     Name of the Schedule
+# timezone:   Timezone of the Schedule
+# description:   Description of the Schedule
+# entries:     Schedule Entries
+#
+---
+- id: 1
+  flags: 0x01
+  name: Monday - Friday 8am - 5pm with U.S. Holidays
+  configuration:
+    holidays: [4]
+  entries:
+      - name: Monday
+        repeats: weekly #notrans
+        starts_on: 2019-01-07
+        starts_at: 08:00:00
+        ends_on: 2019-01-07
+        ends_at: 17:00:00
+        day: 1
+      - name: Tuesday
+        repeats: weekly #notrans
+        starts_on: 2019-01-08
+        starts_at: 08:00:00
+        ends_on: 2019-01-08
+        ends_at: 17:00:00
+        day: 2
+      - name: Wednesday
+        repeats: weekly #notrans
+        starts_on: 2019-01-09
+        starts_at: 08:00:00
+        ends_on: 2019-01-09
+        ends_at: 17:00:00
+        day: 3
+      - name: Thursday
+        repeats: weekly #notrans
+        starts_on: 2019-01-10
+        starts_at: 08:00:00
+        ends_on: 2019-01-10
+        ends_at: 17:00:00
+        day: 4
+      - name: Friday
+        repeats: weekly #notrans
+        starts_on: 2019-01-11
+        starts_at: 08:00:00
+        ends_on: 2019-01-11
+        ends_at: 17:00:00
+        day: 5
+- id: 2
+  flags: 0x01
+  name: 24/7
+  entries:
+      - name: Daily
+        repeats: daily #notrans
+        starts_on: 2019-01-01
+        starts_at: 00:00:00
+        ends_on: 2019-01-01
+        ends_at: 23:59:59
+- id: 3
+  flags: 0x01
+  name: 24/5
+  entries:
+      - name: Weekdays
+        repeats: weekdays #notrans
+        starts_on: 2019-01-01
+        starts_at: 00:00:00
+        ends_on: 2019-01-01
+        ends_at: 23:59:59
+- id: 4
+  flags: 0
+  name: U.S. Holidays
+  entries:
+      - name: New Year's Day
+        repeats: yearly #notrans
+        starts_on: 2019-01-01
+        starts_at: 00:00:00
+        ends_on: 2019-01-01
+        ends_at: 23:59:59
+        day: 1
+        month: 1
+      - name: MLK Day
+        repeats: yearly #notrans
+        starts_on: 2019-01-21
+        starts_at: 00:00:00
+        ends_on: 2019-01-21
+        ends_at: 23:59:59
+        day: 1
+        week: 3
+        month: 1
+      - name: Memorial Day
+        repeats: yearly #notrans
+        starts_on: 2019-05-27
+        starts_at: 00:00:00
+        ends_on: 2019-05-27
+        ends_at: 23:59:59
+        day: 1
+        week: -1
+        month: 5
+      - name: Independence Day (4th of July)
+        repeats: yearly #notrans
+        starts_on: 2019-07-04
+        starts_at: 00:00:00
+        ends_on: 2019-07-04
+        ends_at: 23:59:59
+        day: 4
+        month: 7
+      - name: Labor Day
+        repeats: yearly #notrans
+        starts_on: 2019-09-02
+        starts_at: 00:00:00
+        ends_on: 2019-09-02
+        ends_at: 23:59:59
+        day: 1
+        week: 1
+        month: 9
+      - name: Indigenous Peoples' Day (Whodat Columbus)
+        repeats: yearly #notrans
+        starts_on: 2019-10-14
+        starts_at: 00:00:00
+        ends_on: 2019-10-14
+        ends_at: 23:59:59
+        day: 1
+        week: 2
+        month: 10
+      - name: Veterans Day
+        repeats: yearly #notrans
+        starts_on: 2019-11-11
+        starts_at: 00:00:00
+        ends_on: 2019-11-11
+        ends_at: 23:59:59
+        day: 11
+        month: 11
+      - name: Thanksgiving Day
+        repeats: yearly #notrans
+        starts_on: 2019-11-28
+        starts_at: 00:00:00
+        ends_on: 2019-11-28
+        ends_at: 23:59:59
+        day: 4
+        week: 4
+        month: 11
+      - name: Christmas Day
+        repeats: yearly #notrans
+        starts_on: 2019-11-25
+        starts_at: 00:00:00
+        ends_on: 2019-11-25
+        ends_at: 23:59:59
+        day: 25
+        month: 12

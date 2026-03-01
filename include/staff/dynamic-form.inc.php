@@ -31,7 +31,7 @@ if($form && $_REQUEST['a']!='add') {
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form class="manage-form" action="<?php echo $url ?>" method="post" id="save">
+<form class="manage-form" action="<?php echo $url ?>" method="post" class="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo $action; ?>">
@@ -191,7 +191,7 @@ if ($form && count($langs) > 1) { ?>
                 </font>
             </td>
             <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
-                if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
+                if (!$fi->isChangeable() || !$f->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
