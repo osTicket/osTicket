@@ -83,14 +83,60 @@ if (!$sorted) {
 
 // Apply pagination
 
-$page = (isset($_GET['p']) && is_numeric($_GET['p']))?$_GET['p']:1;
+$page = (isset($_GET['p']) && is_numeric($_GET['p'])) ? (int)$_GET['p'] : 1;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
-$tickets = $pageNav->paginateSimple($tickets);
+
+// Step 1: Get ticket IDs for current page only
+$idQuery = clone $tickets;
+$idQuery->annotations = $idQuery->related = $idQuery->aggregated = 
+    $idQuery->ordering = [];
+
+if (isset($sort['col'])) {
+    foreach ($columns as $C) {
+        if ($sort['col'] == $C->id) {
+            $C->applySort($idQuery, $sort['dir']);
+        }
+    }
+} elseif (isset($sort['queuesort'])) {
+    $sort['queuesort']->applySort($idQuery, $sort['dir']);
+} else {
+    try {
+        $idQuery->order_by('-closed');
+    } catch (Exception $e) {
+        $idQuery->order_by('-created');
+    }
+}
+
+$count = max(0, (int) $idQuery->count());
+$idQuery->limit(PAGE_LIMIT);
+$idQuery->offset(($page - 1) * PAGE_LIMIT);
+$ticketIds = $idQuery->values_flat('ticket_id');
+
+
+// Step 2: Fetch full details for those IDs only
+if (!empty($ticketIds)) {
+    $tickets = $tickets->filter(['ticket_id__in' => $ticketIds]);
+    if (isset($sort['col'])) {
+        foreach ($columns as $C) {
+            if ($sort['col'] == $C->id) {
+                $C->applySort($tickets, $sort['dir']);
+            }
+        }
+    } elseif (isset($sort['queuesort'])) {
+        $sort['queuesort']->applySort($tickets, $sort['dir']);
+    } else {
+        try {
+            $tickets->order_by('-closed');
+        } catch (Exception $e) {
+            $tickets->order_by('-created');
+        }
+    }
+} else {
+    $tickets = $tickets->filter(['ticket_id__in' => [0]]);
+    $count = max(0, (int) $tickets->count());
+}
 
 if (isset($tickets->extra['tables'])) {
-    // Creative twist here. Create a new query copying the query criteria, sort, limit,
-    // and offset. Then join this new query to the $tickets query and clear the
-    // criteria, sort, limit, and offset from the outer query.
     $criteria = clone $tickets;
     $criteria->limit(500);
     $criteria->annotations = $criteria->related = $criteria->aggregated =
@@ -100,10 +146,10 @@ if (isset($tickets->extra['tables'])) {
     $tickets = $tickets->filter(['ticket_id__in' =>
             $criteria->values_flat('ticket_id')]);
     $tickets->order_by(new SqlCode('relevance'), QuerySet::DESC);
-    # Index hint should be used on the $criteria query only
     $tickets->clearOption(QuerySet::OPT_INDEX_HINT);
 }
 
+$tickets->limit(PAGE_LIMIT);
 $tickets->distinct('ticket_id');
 $Q = $queue->getBasicQuery();
 
