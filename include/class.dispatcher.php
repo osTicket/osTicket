@@ -28,10 +28,13 @@ class Dispatcher {
 
     function resolve($url, $args=null) {
         if ($this->file) { $this->lazy_load(); }
-        # Support HTTP method emulation with the _method GET argument
-        if (isset($_GET['_method'])) {
-            $_SERVER['REQUEST_METHOD'] = strtoupper($_GET['_method']);
-            unset($_GET['_method']);
+        # Support HTTP method emulation with the _method POST argument.
+        # Only accept from POST body (not GET query string) so that the
+        # CSRF token check — which runs before the dispatcher — already
+        # covers the request.
+        if (isset($_POST['_method'])) {
+            $_SERVER['REQUEST_METHOD'] = strtoupper($_POST['_method']);
+            unset($_POST['_method']);
         }
         // Decode URL for accurate matching
         $url = urldecode($url);
