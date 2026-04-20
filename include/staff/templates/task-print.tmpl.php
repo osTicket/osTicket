@@ -115,12 +115,12 @@ div.hr {
 <htmlpagefooter name="def" style="display:none">
     <div class="hr">&nbsp;</div>
     <table width="100%"><tr><td class="flush-left">
-        Task #<?php echo $task->getNumber(); ?> printed by
-        <?php echo $thisstaff->getUserName(); ?> on
+        <?php echo __('Task #'); ?><?php echo $task->getNumber(); ?> <?php echo __('printed by'); ?>
+        <?php echo $thisstaff->getUserName(); ?> <?php echo __('on'); ?>
         <?php echo Format::daydatetime(Misc::gmtime()); ?>
     </td>
     <td class="flush-right">
-        Page {PAGENO}
+        <?php echo __('Page'); ?> {PAGENO}
     </td>
     </tr></table>
 </htmlpagefooter>
