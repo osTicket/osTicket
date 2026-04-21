@@ -132,7 +132,7 @@ acl:
     content: >
         Enter a comma separated list of IP addresses to allow access to the system.
         There are four options to choose which panel(s) to apply the ACL to.
-        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin:7px 0 7px"
             ><tbody style="vertical-align:top;">
             <tr><th>Apply To</th>
                 <th>Description</th></tr>
