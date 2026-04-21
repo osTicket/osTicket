@@ -146,7 +146,8 @@ acl:
             <tr><td>Staff Panel</td>
                 <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr>
         </tbody></table>
-        The IP addresses provided also work to hide the login link for the user regardless of the option enabled.
+        The IP addresses provided also work to hide the backend login link from
+        the user regardless of the option enabled.
 
 embedded_domain_whitelist:
     title: Embedded Domain Whitelist
