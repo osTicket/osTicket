@@ -54,10 +54,24 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
     <?php echo __('Not yet registered?'); ?> <a href="account.php?do=create"><?php echo __('Create an account'); ?></a>
     </div>
 <?php } ?>
-    <div>
-    <b><?php echo __("I'm an agent"); ?></b> —
-    <a href="<?php echo ROOT_PATH; ?>scp/"><?php echo __('sign in here'); ?></a>
-    </div>
+    <?php
+	$client_ip = $_SERVER['REMOTE_ADDR'];
+	$acl_ips = $cfg->getACL();
+	$show_agent_link = false;
+
+	if (empty($acl_ips)) {
+		$show_agent_link = true;
+	}
+	elseif (in_array($client_ip, $acl_ips)) {
+		$show_agent_link = true;
+	}
+	?>
+	<?php if ($show_agent_link) { ?>
+	<div>
+		<b><?php echo __("I'm an agent"); ?></b> —
+		<a href="<?php echo ROOT_PATH; ?>scp/"><?php echo __('sign in here'); ?></a>
+	</div>
+	<?php } ?>
     </div>
 </div>
 </form>
