@@ -66,6 +66,10 @@ if ($_POST) {
 
 }
 if ($_POST && isset($_POST['userid'])) {
+    // Clear any stale user-space session token so an expired token from a
+    // previous session does not cause isValid() to return false right after
+    // successful authentication.
+    unset($_SESSION[':token']['staff']);
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if (Validator::is_userid($username, $errors['err'], false)
@@ -130,6 +134,18 @@ elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
 }
 elseif ($thisstaff && $thisstaff->isValid()) {
     Http::redirect($dest);
+}
+
+// Always rotate the CSRF token when rendering the login form so that a
+// reloaded page (e.g. after session expiry) always carries a valid token.
+if (!$_POST) {
+    // If the session has no CSRF data it is either brand-new or was cleared
+    // by the expired-session handler in DatabaseSessionStorageBackend.
+    // Force a new session ID so the replacement session starts unexpired
+    // and can persist the rotated token across the GET→POST cycle.
+    if (empty($_SESSION['csrf']))
+        session_regenerate_id(true);
+    $ost->getCSRF()->rotate();
 }
 
 define("OSTSCPINC",TRUE); //Make includes happy!
