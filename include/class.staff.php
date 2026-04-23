@@ -1608,7 +1608,7 @@ extends AbstractForm {
         // required for agents.
         if (isset($_SESSION['_staff']['reset-token'])) {
             unset($fields['current']);
-            $fields['passwd1']->set('configuration', array('autofocus' => true));
+            $fields['passwd1']->set('configuration', array('autofocus' => true, 'length' => '128'));
         }
         else {
             $fields['passwd1']->set('layout',
