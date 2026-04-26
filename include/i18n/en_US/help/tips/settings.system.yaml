@@ -58,7 +58,7 @@ force_https:
         will be redirected to the HTTPS protocol. Note, this will only work if you
         have an SSL certificate installed and have HTTPS configured on the server.
         <br/><br/>
-        <b>Note:</b><rb/>
+        <b>Note:</b><br/>
         This might affect remote piping scripts. Reference new scripts included in
         <code>setup/scripts/</code> for updates.
 
