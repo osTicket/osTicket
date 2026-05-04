@@ -85,7 +85,16 @@ abstract class TwoFactorAuthenticationBackend extends ServiceRegistry {
     // Called on a successfull validation for house keeping e.g clear 2fa
     // flags
     protected function onValidate($user) {
-         $user->clear2FA();
+        if (($user instanceof UserAccount || $user instanceof ClientAccount) && !method_exists($user, 'clear2FA')) {
+            global $thisclient;
+            if ($thisclient && $thisclient->getId() == $user->getId()) {
+                $user = $thisclient;
+            }
+        }
+
+        if (method_exists($user, 'clear2FA')) {
+             $user->clear2FA();
+        }
     }
 
     // Get a form the user uses to setup 2fa
@@ -116,7 +125,8 @@ abstract class TwoFactorAuthenticationBackend extends ServiceRegistry {
     }
 
     static function allRegistered() {
-        return array_merge(self::$registry, parent::getRegistry());
+        $holder = array_merge(self::$registry, parent::getRegistry());
+        return $holder;
     }
 
     static function getBackend($id) {
