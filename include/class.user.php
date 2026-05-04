@@ -232,7 +232,7 @@ implements TemplateVariable, Searchable {
                 list($name) = explode('@', $vars['email'], 2);
 
             $user = new User(array(
-                'name' => trim(Format::htmldecode(Format::sanitize($name, false))),
+                'name' => Format::htmldecode(Format::sanitize($name, false)),
                 'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
                 //XXX: Do plain create once the cause
@@ -589,7 +589,7 @@ implements TemplateVariable, Searchable {
                         $type = array('type' => 'edited', 'key' => 'Name');
                         Signal::send('object.edited', $this, $type);
                     }
-                    $this->name = trim($name);
+                    $this->name = $name;
                 }
 
                 // Email address field
@@ -722,6 +722,7 @@ implements TemplateVariable, Searchable {
 
         return $this->_queue;
     }
+
 }
 
 class EmailAddress
@@ -1082,6 +1083,7 @@ class UserAccount extends VerySimpleModel {
 
     var $_status;
     var $_extra;
+    var $_config;
 
     function getStatus() {
         if (!isset($this->_status))
@@ -1432,6 +1434,59 @@ class UserAccount extends VerySimpleModel {
 
     static function checkPassword($new, $current=null) {
         osTicketClientAuthentication::checkPassword($new, $current);
+    }
+
+    function getConfig() {
+        if (!isset($this->_config) && $this->getUserId()) {
+            $_config = new Config('user.'.$this->getUserId(),
+                    // Defaults
+                    array(
+                        'default_from_name' => '',
+                        'datetime_format'   => '',
+                        'thread_view_order' => '',
+                        'default_ticket_queue_id' => 0,
+                        'reply_redirect' => 'Ticket',
+                        'img_att_view' => 'download',
+                        'editor_spacing' => 'double',
+                        ));
+            $this->_config = $_config->getInfo();
+        }
+
+        return $this->_config;
+    }
+
+    function force2faConfig() {
+        global $cfg;
+
+        $id = $this->get2FABackendId();
+        $config = $this->get2FAConfig($id);
+        return ($cfg->require2FAForUsers() && !$id || ($id && empty($config)));
+    }
+
+    function get2FABackendId() {
+        $config = $this->getConfig();
+        return isset($config['default_2fa']) ? $config['default_2fa'] : '';
+    }
+
+    function get2FABackend() {
+        return User2FABackend::getBackend($this->get2FABackendId());
+    }
+
+    // gets configured backends
+    function get2FAConfig($id) {
+        $config =  $this->getConfig();
+        return isset($config[$id]) ?
+            JsonDataParser::decode($config[$id]) : array();
+    }
+
+    function getConfigObj() {
+        return new Config('user.'.$this->getUser()->getId());
+    }
+
+    function updateConfig($vars) {
+        $config = $this->getConfigObj();
+        $config->updateAll($vars);
+        $this->_config = null;
     }
 
 }
