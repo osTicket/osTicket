@@ -109,6 +109,19 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 				<i class="help-tip icon-question-sign" href="#client_password_policy"></i>
 			</td>
 		</tr>
+        <tr>
+            <td><?php echo __('Multifactor Authentication'); ?>:</td>
+            <td>
+                <input type="checkbox" name="require_user_2fa" <?php
+                echo $config['require_user_2fa'] ? 'checked="checked"' : ''; ?>>
+                &nbsp;
+                <?php
+                echo __('Require Users to turn on 2FA');
+                ?>
+                &nbsp;<i class="help-tip icon-question-sign"
+                href="#require_user_2fa"></i>
+            </td>
+        </tr>
         <tr><td><?php echo __('User Excessive Logins'); ?>:</td>
             <td>
                 <select name="client_max_logins">
