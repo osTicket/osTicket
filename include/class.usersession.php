@@ -223,8 +223,19 @@ class ClientSession extends EndUser {
         return $this->user;
     }
 
+    function clear2FA() {
+        unset($_SESSION['_auth']['client']['2fa']);
+        $_SESSION['_auth']['client']['2fa'] = null;
+        return true;
+    }
+
+    // If 2fa is set then it means it's pending
+    function is2FAPending() {
+        return isset($_SESSION['_auth']['client']['2fa']);
+    }
+
     function isValid() {
-        return $this->isValidSession();
+        return (!$this->is2FAPending() && $this->isValidSession());
     }
 }
 
