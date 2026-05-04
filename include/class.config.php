@@ -497,6 +497,10 @@ class OsticketConfig extends Config {
          return $this->get('require_agent_2fa');
     }
 
+    function require2FAForUsers() {
+         return $this->get('require_user_2fa');
+    }
+
     function isRichTextEnabled() {
         return $this->get('enable_richtext');
     }
@@ -1395,6 +1399,7 @@ class OsticketConfig extends Config {
 
         return $this->updateAll(array(
             'client_passwd_policy'=>$vars['client_passwd_policy'],
+            'require_user_2fa'=> isset($vars['require_user_2fa']) ? 1 : 0,
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],

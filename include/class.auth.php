@@ -322,7 +322,6 @@ abstract class AuthenticationBackend extends ServiceRegistry {
     }
 
     static function process($username, $password=null, &$errors=array()) {
-
         if (!$username)
             return false;
 
@@ -354,7 +353,6 @@ abstract class AuthenticationBackend extends ServiceRegistry {
                 break;
             }
         }
-
         if (!$result)
             $result = new AccessDenied(__('Access denied'));
 
@@ -850,6 +848,15 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 throw new AccessDenied(__('Account is administratively locked'));
         }
 
+        // Check if the user has 2fa enabled
+        $auth2fa = null;
+        if ($acct && ($_2fa = $acct->get2FABackend())
+                && ($token=$_2fa->send($acct))) {
+            $auth2fa = sprintf('%s:%s:%s',
+                    $_2fa->getId(), md5($token.$user->getId()), time());
+        }
+        $_SESSION['_auth']['client']['2fa'] = $auth2fa;
+
         // Tag the user and associated ticket in the SESSION
         $this->setAuthKey($user, $bk, $authkey);
         // Set Session Token
@@ -863,7 +870,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
-        $u = $user->getSessionUser()->getUser();
+        $u = $user->getSessionUser();
         $type = array('type' => 'login');
         Signal::send('person.login', $u, $type);
 
@@ -906,7 +913,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
 
-        $u = $user->getSessionUser()->getUser();
+        $u = $user->getSessionUser();
         $type = array('type' => 'logout');
         Signal::send('person.logout', $u, $type);
     }

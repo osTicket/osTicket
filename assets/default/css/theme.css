@@ -1282,3 +1282,157 @@ img.avatar {
     margin-bottom: 0.3em;
     font-size: 1.1em;
 }
+
+.dialog {
+    position:fixed;
+    padding:1em;
+    width:500px;
+    height:250px;
+    height:auto !important;
+    background:#f8f8f8;
+    border:2px solid #2a67ac;
+    display:none;
+    z-index:2000;
+    box-shadow: 0 5px 60px #001;
+    border-radius: 5px;
+    max-height: 72%;
+    min-height: 50px;
+    overflow-y: auto;
+}
+
+.dialog .table td:not(:empty) {
+    background-color:#f8f8f8!IMPORTANT;
+}
+.dialog#popup {
+    width:650px;
+}
+
+.dialog.size-normal {
+    width:650px !important;
+}
+
+.dialog.size-large {
+    width:750px !important;
+}
+
+.dialog.size-xl {
+    width:940px !important;
+}
+
+.dialog #popup-loading {
+    position:absolute;
+    text-align:center;
+    background:rgba(255,255,255,0.8);
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    z-index:11;
+}
+
+.dialog#advanced-search {
+    width:640px !important;
+    height:360px;
+}
+
+.dialog hr {
+    height: 1px;
+    border: 0;
+    background: #aaa;
+    background: -moz-linear-gradient(left, rgba(170,170,170,0) 0%, rgba(170,170,170,1) 10%, rgba(170,170,170,1) 90%, rgba(170,170,170,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(170,170,170,0)), color-stop(10%,rgba(170,170,170,1)), color-stop(90%,rgba(170,170,170,1)), color-stop(100%,rgba(170,170,170,0))); /* Chrome,Safari4+ */
+    background: -o-linear-gradient(left, rgba(170,170,170,0) 0%,rgba(170,170,170,1) 10%,rgba(170,170,170,1) 90%,rgba(170,170,170,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, rgba(170,170,170,0) 0%,rgba(170,170,170,1) 10%,rgba(170,170,170,1) 90%,rgba(170,170,170,0) 100%); /* IE10+ */
+    background: linear-gradient(to right, rgba(170,170,170,0) 0%,rgba(170,170,170,1) 10%,rgba(170,170,170,1) 90%,rgba(170,170,170,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00aaaaaa', endColorstr='#00aaaaaa',GradientType=1 ); /* IE6-9 */
+}
+
+.dialog h3 {
+    color:#2a67ac;
+    font-size:20px;
+    margin:0;
+    padding:0;
+    position: relative;
+    padding-right: 3em;
+}
+
+.dialog a {
+        color:#184E81;
+}
+
+
+.dialog a.close {
+    position: absolute;
+    display:inline-block;
+    right: 1em;
+    top: 1em;
+    font-size:16px;
+    color:#777;
+}
+
+.dialog form {
+    clear:both;
+    width:100%;
+}
+
+.dialog label.fixed-size {
+    width:100px;
+    display:inline-block;
+    text-align:right;
+    padding:10px;
+}
+
+.dialog fieldset input:not([type=checkbox]) {
+    border:1px solid #ccc;
+    background:#fff;
+    padding: 3px;
+}
+
+.dialog fieldset span.between {
+    width:50px;
+    display:inline-block;
+    text-align:center;
+    color:#777;
+    font-size:0.75em;
+}
+
+.dialog ul.tabs, .dialog ul.tabs * {
+    box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+}
+
+.dialog.draggable h3.drag-handle:hover {
+    cursor: move;
+}
+
+.dialog th, .tip_box th {
+    text-align: left;
+}
+
+.dialog th {
+    background-color: #eee;
+    border: 1px dotted #bbb;
+    padding: 0.3em;
+    padding-left: 0.3em;
+}
+
+.dialog form .quick-add {
+  min-height: 150px;
+}
+
+.table tr:not(:last-child):not(.header) {
+    border-bottom:1px dotted #ddd;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 3px;
+}
+
+.table td:not(:empty) {
+    padding: 4px;
+    background-color: #fff;
+}
+

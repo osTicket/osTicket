@@ -59,16 +59,18 @@ if (isset($_GET['lang']) && $_GET['lang']) {
 // to sign on the agent
 TextDomain::configureForUser($thisclient);
 
+$thisuser = null;
 //is the user logged in?
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();
+     $thisuser = $thisclient->getUser(true);
 } else {
     $thisclient = null;
 }
 
 /******* CSRF Protectin *************/
 // Enforce CSRF protection for POSTS
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$ost->checkCSRFToken()) {
+if ($_POST  && !$ost->checkCSRFToken()) {
     Http::redirect('index.php');
     //just incase redirect fails
     die('Action denied (400)!');
@@ -87,10 +89,16 @@ $nav = new UserNav($thisclient, 'home');
 
 $exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php', 'upgrade.php'));
 
+
 if (!$exempt && $thisclient && ($acct = $thisclient->getAccount())
         && $acct->isPasswdResetForced()) {
     $warn = __('Password change required to continue');
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
+    exit;
+} elseif (!$exempt && $thisclient && ($acct = $thisclient->getAccount())
+        && !empty($thisuser) && $thisuser->getAccount()->force2faConfig()) {
+    $warn = __('Two Factor Authentication configuration required to continue');
+    require('profile.php');
     exit;
 }
 ?>

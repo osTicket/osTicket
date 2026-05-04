@@ -10,6 +10,26 @@
     <h4><?php echo __('Please Wait!');?></h4>
     <p><?php echo __('Please wait... it will take a second!');?></p>
 </div>
+<div class="dialog draggable" style="display:none;" id="popup">
+    <div id="popup-loading">
+        <h1 style="margin-bottom: 20px;"><i class="icon-spinner icon-spin icon-large"></i>
+        <?php echo __('Loading ...');?></h1>
+    </div>
+    <div class="body"></div>
+</div>
+<div style="display:none;" class="dialog" id="alert">
+    <h3><i class="icon-warning-sign"></i> <span id="title"></span></h3>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <hr/>
+    <div id="body" style="min-height: 20px;"></div>
+    <hr style="margin-top:3em"/>
+    <p class="full-width">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('OK');?>" class="close ok">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>
 <?php
 if (($lang = Internationalization::getCurrentLanguage()) && $lang != 'en_US') { ?>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>ajax.php/i18n/<?php

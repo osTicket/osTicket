@@ -336,8 +336,8 @@ class EndUser extends BaseAuthenticatedUser {
         return $this->_account;
     }
 
-    function getUser() {
-        if ($this->user === false)
+    function getUser(?bool $require = false) {
+        if ($this->user === false || $require)
             $this->user = User::lookup($this->getId());
 
         return $this->user;
@@ -442,7 +442,6 @@ class ClientAccount extends UserAccount {
 
     function update($vars, &$errors) {
         global $cfg;
-
         // FIXME: Updates by agents should go through UserAccount::update()
         global $thisstaff, $thisclient;
         if ($thisstaff)
@@ -509,6 +508,21 @@ class ClientAccount extends UserAccount {
             // Clean sessions
             Signal::send('auth.clean', $this->getUser(), $thisclient);
         }
+
+        // Update the config information
+        $_config = new Config('user.'.$this->getUserId());
+        $_config->updateAll(array(
+                    'datetime_format' => $vars['datetime_format'],
+                    'default_from_name' => $vars['default_from_name'],
+                    'default_2fa' => $vars['default_2fa'],
+                    'thread_view_order' => $vars['thread_view_order'],
+                    'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
+                    'reply_redirect' => ($vars['reply_redirect'] == 'Queue') ? 'Queue' : 'Ticket',
+                    'img_att_view' => ($vars['img_att_view'] == 'inline') ? 'inline' : 'download',
+                    'editor_spacing' => ($vars['editor_spacing'] == 'double') ? 'double' : 'single'
+                    )
+                );
+        $this->_config = $_config->getInfo();
 
         return $this->save();
     }

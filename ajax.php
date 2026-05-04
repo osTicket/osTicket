@@ -45,7 +45,12 @@ $dispatcher = patterns('',
     )),
     url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
         url_get('(?P<tag>\w+)$', 'getLanguageFile')
-    ))
+    )),
+    url('^/users', patterns('ajax.client.php:ClientAjaxAPI',
+        url('^/(?P<id>\d+)/2fa/configure(?:/(?P<mfid>.+))?$', 'configure2FA'),
+        url('^/(?P<id>\d+)/reset-2fa', 'reset2fA')
+    )),
+
 );
 Signal::send('ajax.client', $dispatcher);
 print $dispatcher->resolve(Osticket::get_path_info());

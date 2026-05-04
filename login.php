@@ -44,13 +44,17 @@ if ($_POST) {
     // Rotate the CSRF token (original cannot be reused)
     $ost->getCSRF()->rotate();
 }
+// client.inc.php nulls $thisclient if valid() is false (e.g. 2fa pending).
+// We need to recover it to process 2fa.
+if ((!$thisclient || !$thisclient->getId()) && defined('OSTCLIENTINC')) {
+    $thisclient = UserAuthenticationBackend::getUser();
+}
 
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
         $errors['err'] = __('Valid username or email address is required');
-    elseif (Validator::is_userid(trim($_POST['luser']), $errors['err'], false)
-            && ($user = UserAuthenticationBackend::process(trim($_POST['luser']),
-                substr($_POST['lpasswd'], 0, 128), $errors))) {
+    elseif (($user = UserAuthenticationBackend::process(trim($_POST['luser']),
+            substr($_POST['lpasswd'], 0, 128), $errors))) {
         if ($user instanceof ClientCreateRequest) {
             if ($cfg && $cfg->isClientRegistrationEnabled()) {
                 // Attempt to automatically register
@@ -67,6 +71,10 @@ if ($_POST && isset($_POST['luser'])) {
             }
         }
         else {
+            if ($user->is2FAPending()) {
+               // Perform redirect to self to show 2FA form
+               Http::redirect('login.php');
+            }
             Http::redirect($_SESSION['_client']['auth']['dest']
                 ?: 'tickets.php');
         }
@@ -74,6 +82,26 @@ if ($_POST && isset($_POST['luser'])) {
         $errors['err'] = sprintf('%s - %s', __('Invalid username or password'), __('Please try again!'));
     }
     $suggest_pwreset = true;
+}
+elseif ($_POST
+        && !strcmp($_POST['do'], '2fa')
+        && $thisclient
+        && $thisclient->is2FAPending()
+        && ($acct=$thisclient->getAccount())
+        && ($auth=$acct->get2FABackend())) {
+
+    try {
+        $form = $auth->getInputForm($_POST);
+        if ($form->isValid() && $auth->validate($form, $thisclient)) {
+             Http::redirect($_SESSION['_client']['auth']['dest'] ?: 'tickets.php');
+        }
+    } catch (ExpiredOTP $ex) {
+        // Expired or too many attempts
+        $thisclient->logOut();
+        Http::redirect('login.php');
+    }
+
+    $errors['err'] = __('Invalid Code');
 }
 elseif ($_POST && isset($_POST['lticket'])) {
     if (!Validator::is_email($_POST['lemail']))
@@ -138,9 +166,17 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
         }
     }
     elseif ($user instanceof AuthenticatedUser) {
+        if ($user->is2FAPending()) {
+             Http::redirect('login.php');
+        }
         Http::redirect($_SESSION['_client']['auth']['dest']
                 ?: 'tickets.php');
     }
+}
+
+
+if ($thisclient && $thisclient->is2FAPending()) {
+    $inc = 'login-2fa.inc.php';
 }
 
 if (!$nav) {

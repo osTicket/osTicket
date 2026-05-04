@@ -89,6 +89,65 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 </tr>
 <?php } ?>
 <?php } ?>
+<?php 
+    $hasAuth2FAPlugin = false;
+    if (class_exists('Auth2FAPlugin')) {
+        foreach (PluginManager::allActive() as $plugin) {
+            if ($plugin instanceof Auth2FAPlugin) {
+                $hasAuth2FAPlugin = true;
+                break;
+            }
+        }
+    }
+?>
+<?php if($hasAuth2FAPlugin && $bks=User2FABackend::allRegistered()) {
+    $account = $user->getAccount();
+    $current = $account->get2FABackendId();
+    $required2fa = $cfg->require2FAForUsers();
+    $_config = $account->getConfig();
+?>
+<tr>
+    <td colspan="2">
+        <div><hr><h3 <?php if ($required2fa) echo 'class="required"'; ?>><?php echo __('Default 2FA'); ?></h3></div>
+    </td>
+</tr>
+<tr>
+    <td width="180">
+        <select name="default_2fa" id="default2fa-selection"
+            style="width:300px">
+            <?php
+            if (!$required2fa) :?>
+                <option value="">&mdash; <?php echo __('Disable'); ?> &mdash;</option>
+            <?php endif; ?>
+            <?php foreach ($bks as $bk): ?>
+                <?php
+                $configuration = $account->get2FAConfig($bk->getId());
+                $configured = $configuration['verified'];
+                ?>
+            <option id="<?php echo $bk->getId(); ?>" value="<?php echo $bk->getId(); ?>" 
+            <?php
+            if ($current == $bk->getId() && $configured)
+                echo ' selected="selected" '; ?>
+            <?php
+            if (!$configured)
+                echo ' disabled="disabled" '; ?>
+                ><?php
+            echo $bk->getName(); ?></option>
+            <?php endforeach; ?>
+        </select>
+    </td>
+    <td>
+        <button type="button" id="config2fa-button" class="action-button" onclick="javascript:
+        $.dialog('ajax.php/users/'+<?php echo $account->getId();
+                ?>+'/2fa/configure', 201);">
+            <i class="icon-gear"></i> <?php echo __('Configure Options'); ?>
+        </button>
+        <i class="offset help-tip icon-question-sign" href="#config2fa"></i>
+        <div class="error"><?php echo $errors['default_2fa']; ?></div>
+
+    </td>
+</tr>
+<?php }?>
 </table>
 <hr>
 <p style="text-align: center;">
