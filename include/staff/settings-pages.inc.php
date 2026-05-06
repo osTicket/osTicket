@@ -123,9 +123,9 @@ $pages = Page::getPages();
                 <table style="width:100%">
                     <thead>
                         <tr>
-                            <th>Client</th>
-                            <th>Staff</th>
-                            <th>Logo</th>
+                            <th><?php echo __('Client'); ?></th>
+                            <th><?php echo __('Staff'); ?></th>
+                            <th><?php echo __('Logo'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -144,12 +144,12 @@ $pages = Page::getPages();
                             </td>
                             <td>
                                 <img src="<?php echo ROOT_PATH; ?>assets/default/images/logo.png"
-                                     alt="Default Logo" valign="middle"
+                                     alt="<?php echo __('Default Logo'); ?>" valign="middle"
                                      style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
                                             margin: 0.5em; height: 5em;
                                             vertical-align: middle"/>
                                 <img src="<?php echo ROOT_PATH; ?>scp/images/ost-logo.png"
-                                     alt="Default Logo" valign="middle"
+                                     alt="<?php echo __('Default Logo'); ?>" valign="middle"
                                      style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
                                             margin: 0.5em; height: 5em;
                                             vertical-align: middle"/>
@@ -181,7 +181,7 @@ $pages = Page::getPages();
                             </td>
                             <td>
                                 <img src="<?php echo $logo->getDownloadUrl(); ?>"
-                                     alt="Custom Logo" valign="middle"
+                                     alt="<?php echo __('Custom Logo'); ?>" valign="middle"
                                      style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
                                             margin: 0.5em; height: 5em;
                                             vertical-align: middle;"/>
@@ -221,8 +221,8 @@ $pages = Page::getPages();
                 <table style="width:100%">
                     <thead>
                         <tr>
-                            <th>Staff</th>
-                            <th>Backdrop</th>
+                            <th><?php echo __('Staff'); ?></th>
+                            <th><?php echo __('Backdrop'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -235,7 +235,7 @@ $pages = Page::getPages();
                             </td>
                             <td>
                                 <img src="<?php echo ROOT_PATH; ?>scp/images/login-headquarters.jpg"
-                                     alt="Default Backdrop" valign="middle"
+                                     alt="<?php echo __('Default Backdrop'); ?>" valign="middle"
                                      style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
                                             margin: 0.5em; height: 6em;
                                             vertical-align: middle"/>
