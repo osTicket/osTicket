@@ -199,7 +199,7 @@ foreach ($tickets as $t) {
     <label class="inline checkbox">
         <?php echo __('Parent Status');?>
         <select id="parentStatusId" name="parentStatusId">
-        <option value="">— Select —</option>
+        <option value="">&mdash; <?php echo __('Select'); ?> &mdash;</option>
         <?php
         $states = array('open', 'closed');
         foreach (TicketStatusList::getStatuses(
@@ -219,7 +219,7 @@ foreach ($tickets as $t) {
 
 <div>
     <hr>
-    <?php echo ($title == 'merge') ? __('Merge Type: ') : ''; ?>
+    <?php echo ($title == 'merge') ? __('Merge Type:') . ' ' : ''; ?>
     <?php echo ($title == 'merge') ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : ''; ?><br>
     <input <?php echo ($title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="1"
            <?php echo ($ticket->getMergeType() == 'combine' || ($title == 'merge' && !$parent))?'checked="checked"':''; ?>>
