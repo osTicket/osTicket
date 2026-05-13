@@ -11,7 +11,7 @@
     }
     $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
 ?>
-<h3 class="drag-handle"><i class="<?php echo $title == 'link' ? 'icon-link' : 'icon-code-fork' ?>"></i> <?php echo sprintf(__('%s Tickets'), ucfirst($title)); ?></i></h3>
+<h3 class="drag-handle"><i class="<?php echo $title == 'link' ? 'icon-link' : 'icon-code-fork' ?>"></i> <?php $translatedTitle = ($title == 'link') ? __('link') : __('merge'); echo sprintf(__('%s Tickets'), $translatedTitle); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo sprintf(__(
 'Choose which Tickets to %s. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
