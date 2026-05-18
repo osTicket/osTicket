@@ -25,7 +25,7 @@ $plots = $report->getPlotData();
                     ?>" />
             </label>
             <label>
-                <?php echo __('period');?>:
+                <?php echo __('Period');?>:
                 <select name="period">
                     <?php foreach ($report::$end_choices as $val=>$desc)
                             echo "<option value='$val'>" . __($desc) . "</option>"; ?>
