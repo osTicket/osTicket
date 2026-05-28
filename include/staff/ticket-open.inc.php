@@ -305,8 +305,7 @@ if ($_POST)
                 $duedateField->render();
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time
-                        zone');?>&nbsp;(<?php echo $cfg->getTimezone($thisstaff); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?>&nbsp;(<?php echo $cfg->getTimezone($thisstaff); ?>)</em>
             </td>
         </tr>
 
