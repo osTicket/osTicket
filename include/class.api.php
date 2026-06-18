@@ -186,7 +186,8 @@ class ApiController extends Controller {
     }
 
     protected function getRemoteAddr() {
-       return $_SERVER['REMOTE_ADDR'];
+       // Use osTicket's get_client_ip() to support trusted proxies
+       return osTicket::get_client_ip();
     }
 
     protected function getApiKey() {

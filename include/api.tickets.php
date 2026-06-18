@@ -2,6 +2,7 @@
 
 include_once INCLUDE_DIR.'class.api.php';
 include_once INCLUDE_DIR.'class.ticket.php';
+include_once INCLUDE_DIR.'class.json.php';
 
 class TicketApiController extends ApiController {
 
@@ -25,8 +26,8 @@ class TicketApiController extends ApiController {
         # Fetch dynamic form field names for the given help topic and add
         # the names to the supported request structure
         if (isset($data['topicId'])
-                && ($topic = Topic::lookup($data['topicId']))
-                && ($forms = $topic->getForms())) {
+            && ($topic = Topic::lookup($data['topicId']))
+            && ($forms = $topic->getForms())) {
             foreach ($forms as $form)
                 foreach ($form->getDynamicFields() as $field)
                     $supported[] = $field->get('name');
@@ -109,6 +110,39 @@ class TicketApiController extends ApiController {
         return true;
     }
 
+    /**
+     * Serialize ticket status for JSON API response
+     * Decodes properties field to prevent double JSON encoding
+     */
+    private function serializeStatus($status) {
+        if (!$status) {
+            return null;
+        }
+        
+        $statusData = array(
+            'id' => $status->getId(),
+            'name' => $status->getName(),
+            'state' => $status->getState(),
+        );
+        
+        // Get additional fields from database fields
+        $ht = $status->getDbFields();
+        if (isset($ht['mode'])) $statusData['mode'] = $ht['mode'];
+        if (isset($ht['flags'])) $statusData['flags'] = $ht['flags'];
+        if (isset($ht['sort'])) $statusData['sort'] = $ht['sort'];
+        if (isset($ht['created'])) $statusData['created'] = $ht['created'];
+        if (isset($ht['updated'])) $statusData['updated'] = $ht['updated'];
+        
+        // Decode properties if it's a JSON string to prevent double encoding
+        if (isset($ht['properties']) && is_string($ht['properties'])) {
+            $decoded = JsonDataParser::decode($ht['properties'], true);
+            $statusData['properties'] = $decoded ?: $ht['properties'];
+        } elseif (isset($ht['properties'])) {
+            $statusData['properties'] = $ht['properties'];
+        }
+        
+        return $statusData;
+    }
 
     function create($format) {
 
@@ -133,6 +167,318 @@ class TicketApiController extends ApiController {
 
     }
 
+    function list($format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        global $ost;
+
+        $order = isset($_GET['order']) && $_GET['order'] == 'asc' ? 'ASC' : 'DESC';
+        
+        // Build query with optional status filtering
+        $query = Ticket::objects();
+        
+        // Status filtering options:
+        // ?status=open / ?status=closed / ?status=1,2,3 / ?state=open
+        if (isset($_GET['status'])) {
+            $status = $_GET['status'];
+            if (is_numeric($status)) {
+                // Filter by status ID
+                $query = $query->filter(array('status_id' => (int) $status));
+            } elseif (strtolower($status) === 'open') {
+                // Filter by open state
+                $query = $query->filter(array('status__state' => 'open'));
+            } elseif (strtolower($status) === 'closed') {
+                // Filter by closed state  
+                $query = $query->filter(array('status__state' => 'closed'));
+            } else {
+                // Filter by status name (case insensitive)
+                $query = $query->filter(array('status__name__icontains' => $status));
+            }
+        }
+        
+        // Alternative state filtering: ?state=open
+        if (isset($_GET['state'])) {
+            $state = strtolower($_GET['state']);
+            if (in_array($state, ['open', 'closed'])) {
+                $query = $query->filter(array('status__state' => $state));
+            }
+        }
+        
+        // Filter by updated_since: ?updated_since=2024-01-01T00:00:00Z
+        $use_updated_sort = false;
+        if (isset($_GET['updated_since'])) {
+            global $cfg;
+            $updated_since = $_GET['updated_since'];
+            $datetime = Format::parseDateTime($updated_since);
+            
+            if (!$datetime) {
+                // Invalid date format - return 400 error
+                return $this->exerr(400, sprintf(__('Invalid date format for updated_since: %s'), $updated_since));
+            }
+            
+            // Convert to database timezone
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+            $datetime->setTimezone($dbtz);
+            // Filter tickets with lastupdate >= updated_since
+            $query = $query->filter(array('lastupdate__gte' => $datetime->format('Y-m-d H:i:s')));
+            // When filtering by updated_since, sort by lastupdate instead of created
+            $use_updated_sort = true;
+        }
+        
+        // Pagination parameters
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $per_page = isset($_GET['per_page']) ? min(200, max(1, (int) $_GET['per_page'])) : 100;
+        $offset = ($page - 1) * $per_page;
+        
+        // Get total count BEFORE applying limit/offset
+        $total_count = $query->count();
+        
+        // Apply pagination with appropriate sorting
+        $sort_field = $use_updated_sort ? 'lastupdate' : 'created';
+        $tickets = $query
+            ->order_by($order == 'ASC' ? $sort_field : '-' . $sort_field)
+            ->limit($per_page)
+            ->offset($offset);
+
+        $results = array();
+        foreach ($tickets as $ticket) {
+            try {
+                $results[] = array(
+                    'id' => $ticket->getId(),
+                    'number' => $ticket->getNumber(),
+                    'subject' => $ticket->getSubject(),
+                    'created' => $ticket->getCreateDate(),
+                    'updated' => $ticket->getEffectiveDate(),
+                    'status' => $this->serializeStatus($ticket->getStatus()),
+                );
+            } catch (Exception $e) {
+                // Continue if individual ticket fails
+                continue;
+            }
+        }
+
+        // Calculate pagination metadata
+        $total_pages = ceil($total_count / $per_page);
+        $has_next = $page < $total_pages;
+        $has_previous = $page > 1;
+        
+        // Build paginated response
+        $response = array(
+            'tickets' => $results,
+            'pagination' => array(
+                'current_page' => $page,
+                'per_page' => $per_page,
+                'total' => $total_count,
+                'total_pages' => $total_pages,
+                'has_next' => $has_next,
+                'has_previous' => $has_previous,
+                'showing_from' => $offset + 1,
+                'showing_to' => min($offset + $per_page, $total_count)
+            )
+        );
+
+        Http::response(200, Format::json_encode($response), 'application/json');
+        exit;
+    }
+
+    function details($id, $format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        $ticket = Ticket::lookup($id);
+        if (!$ticket) {
+            Http::response(404, Format::json_encode(array('error' => 'Ticket not found')), 'application/json');
+            exit;
+        }
+
+        // Get user information safely
+        $userInfo = null;
+        try {
+            $owner = $ticket->getOwner();
+            if ($owner) {
+                $userInfo = array(
+                    'id' => $ticket->getUserId(),
+                    'name' => $owner->getName() ?: null,
+                    'email' => $owner->getEmail() ? (string)$owner->getEmail() : null,
+                );
+            }
+        } catch (Exception $e) {
+            // If user info fails, continue without it
+        }
+
+        $result = array(
+            'id' => $ticket->getId(),
+            'number' => $ticket->getNumber(),
+            'subject' => $ticket->getSubject(),
+            'created' => $ticket->getCreateDate(),
+            'status' => $this->serializeStatus($ticket->getStatus()),
+            'department' => array(
+                'id' => $ticket->getDeptId(),
+                'name' => $ticket->getDept()->getName()
+            ),
+            'user' => $userInfo,
+            'thread' => array(),
+        );
+
+        // Thread entries with author information
+        foreach ($ticket->getThread()->getEntries() as $entry) {
+            // Safe author information
+            $author = array('type' => 'unknown', 'name' => 'Unknown');
+
+            try {
+                if ($entry->getStaff()) {
+                    $staff = $entry->getStaff();
+                    $author = array(
+                        'type' => 'staff',
+                        'name' => $staff->getName() ?: 'Staff'
+                    );
+                } elseif ($entry->getUser()) {
+                    $user = $entry->getUser();
+                    $author = array(
+                        'type' => 'user',
+                        'name' => $user->getName() ?: 'User'
+                    );
+                } elseif ($entry->getPoster()) {
+                    $author = array(
+                        'type' => 'guest',
+                        'name' => $entry->getPoster()
+                    );
+                }
+            } catch (Exception $e) {
+                // If something goes wrong, use default author
+            }
+
+            // Determine entry properties safely
+            $isInternal = ($entry->getType() == 'N'); // Note = internal note
+            $isResponse = ($entry->getType() == 'R'); // Response = staff response
+            $isMessage = ($entry->getType() == 'M');  // Message = customer message
+            $isSystem = !in_array($entry->getType(), ['M', 'R', 'N']); // System entry
+            
+            // Get attachments safely
+            $attachments = array();
+            try {
+                foreach ($entry->getAttachments() as $attachment) {
+                    if ($attachment && $attachment->getFile()) {
+                        $attachments[] = array(
+                            'id' => $attachment->getId(),
+                            'name' => $attachment->getName() ?: 'Attachment',
+                            'size' => $attachment->getFile()->getSize() ?: 0,
+                            'type' => $attachment->getFile()->getType() ?: 'unknown',
+                            'is_inline' => (bool) $attachment->inline
+                        );
+                    }
+                }
+            } catch (Exception $e) {
+                // If attachments fail, continue with empty array
+            }
+            
+            // Determine display type for frontend
+            $displayType = 'unknown';
+            if ($isSystem) {
+                $displayType = 'system'; // System messages
+            } elseif ($isInternal) {
+                $displayType = 'internal_note'; // Internal notes
+            } elseif ($isResponse) {
+                $displayType = 'staff_response'; // Staff response to customer
+            } elseif ($isMessage) {
+                $displayType = 'customer_message'; // Customer message
+            }
+            
+            // Get body content safely
+            $bodyText = '';
+            $bodyHtml = '';
+            try {
+                $body = $entry->getBody();
+                if ($body) {
+                    $bodyText = method_exists($body, 'getClean') ? $body->getClean() : (string) $body;
+                    $bodyHtml = method_exists($body, 'toHtml') ? $body->toHtml() : (string) $body;
+                }
+            } catch (Exception $e) {
+                $bodyText = (string) $entry->getBody();
+                $bodyHtml = (string) $entry->getBody();
+            }
+            
+            $result['thread'][] = array(
+                'id' => $entry->getId(),
+                'type' => $entry->getType(), // M/R/N
+                'type_name' => method_exists($entry, 'getTypeName') ? $entry->getTypeName() : $entry->getType(),
+                'display_type' => $displayType, // For frontend styling
+                'title' => method_exists($entry, 'getTitle') ? $entry->getTitle() : '',
+                'body' => $bodyText, // Clean text without HTML
+                'body_html' => $bodyHtml, // HTML version with formatting
+                'created' => $entry->getCreateDate(),
+                'updated' => method_exists($entry, 'getUpdateDate') ? $entry->getUpdateDate() : null,
+                'source' => method_exists($entry, 'getSource') ? $entry->getSource() : null,
+                'poster' => $entry->getPoster() ?: null,
+                'is_internal' => $isInternal,
+                'is_system' => $isSystem,
+                'is_edited' => method_exists($entry, 'isEdited') ? $entry->isEdited() : false,
+                'is_response' => $isResponse,
+                'is_message' => $isMessage,
+                'attachments' => $attachments,
+                'author' => $author
+            );
+        }
+
+        Http::response(200, Format::json_encode($result), 'application/json');
+        exit;
+    }
+
+    function attachmentUrl($id, $format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        // Find attachment safely
+        $attachment = Attachment::lookup($id);
+        if (!$attachment) {
+            Http::response(404, Format::json_encode(array('error' => 'Attachment not found')), 'application/json');
+            exit;
+        }
+
+        // Generate authorized URL with temporary key
+        $expires = time() + (24 * 3600); // Valid for 24 hours
+        $signature = hash_hmac('sha256',
+            $attachment->getId() . '|' . $expires,
+            $key->getKey()
+        );
+
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        $auth_url = sprintf(
+            '%s://%s/api/file.php?id=%d&expires=%d&signature=%s&disposition=inline',
+            $protocol,
+            $host,
+            $attachment->getId(),
+            $expires,
+            $signature
+        );
+
+        $result = array(
+            'attachment_id' => $attachment->getId(),
+            'filename' => $attachment->getName() ?: 'Attachment',
+            'size' => 0,
+            'type' => 'unknown',
+            'url' => $auth_url,
+            'expires' => date('Y-m-d H:i:s', $expires),
+            'expires_timestamp' => $expires
+        );
+
+        // Get file info safely
+        try {
+            if ($attachment->getFile()) {
+                $result['size'] = $attachment->getFile()->getSize() ?: 0;
+                $result['type'] = $attachment->getFile()->getType() ?: 'unknown';
+            }
+        } catch (Exception $e) {
+            // Continue with defaults if file info fails
+        }
+
+        Http::response(200, Format::json_encode($result), 'application/json');
+        exit;
+    }
+
     /* private helper functions */
 
     function createTicket($data, $source = 'API') {
@@ -147,7 +493,7 @@ class TicketApiController extends ApiController {
         // Create the ticket with the data (attempt to anyway)
         $errors = array();
         if (($ticket = Ticket::create($data, $errors, $data['source'],
-                        $autorespond, $alert)) &&  !$errors)
+                $autorespond, $alert)) &&  !$errors)
             return $ticket;
 
         // Ticket create failed Bigly - got errors?
@@ -159,7 +505,7 @@ class TicketApiController extends ApiController {
             if (isset($errors['errno']) && $errors['errno'] == 403) {
                 $title = _S('Ticket denied');
                 $error = sprintf("%s: %s\n\n%s",
-                        $title, $data['email'], $errors['err']);
+                    $title, $data['email'], $errors['err']);
             } else {
                 // unpack the errors
                 $error = Format::array_implode("\n", "\n", $errors);
@@ -170,7 +516,7 @@ class TicketApiController extends ApiController {
         }
 
         $error = sprintf('%s :%s',
-                _S('Unable to create new ticket'), $error);
+            _S('Unable to create new ticket'), $error);
         return $this->exerr($errors['errno'] ?: 500, $error, $title);
     }
 
@@ -272,8 +618,8 @@ class PipeApiController extends TicketApiController {
     static function process($sapi=null) {
         $pipe = new PipeApiController($sapi);
         if (($ticket=$pipe->processEmail()))
-           return $pipe->response(201,
-                   is_object($ticket) ? $ticket->getNumber() : $ticket);
+            return $pipe->response(201,
+                is_object($ticket) ? $ticket->getNumber() : $ticket);
 
         return $pipe->exerr(416, __('Request failed - retry again!'));
     }
@@ -293,5 +639,3 @@ class TicketApiError extends Exception {
 
 class TicketDenied extends Exception {}
 class EmailParseError extends Exception {}
-
-?>
