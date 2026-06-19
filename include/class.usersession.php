@@ -216,7 +216,7 @@ class ClientSession extends EndUser {
         // XXX: Change the key to user-id
         $this->session = new UserSession($user->getUserId());
         $this->setSessionToken();
-        $this->maxidletime = $cfg->getClientTimeout();
+        $this->maxidletime = $cfg->getClientTimeout()*60;
     }
 
     function getSessionUser() {
@@ -237,7 +237,7 @@ class StaffSession extends Staff {
             $staff->class = 'staff';
             $staff->session = new UserSession($staff->getId());
             $staff->setSessionToken();
-            $staff->maxidletime = $cfg->getStaffTimeout();
+            $staff->maxidletime = $cfg->getStaffTimeout()*60;
             $staff->checkip = $cfg->enableStaffIPBinding();
         }
         return $staff;
