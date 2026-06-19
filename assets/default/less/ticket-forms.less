@@ -1,27 +1,25 @@
 #ticketForm, #clientLogin {
-  div {
+  div.clear {
     clear: both;
     padding: 3px 0;
     overflow: hidden;
-
+  }
+  div {
     label {
       display: block;
-      width: 140px;
-      float: left;
     }
 
+    span.required,
     label.required {
-        font-weight: bold;
         text-align: left;
+        font-weight: bold;
     }
 
     input, textarea {
       width: auto;
       border: 1px solid #aaa;
       background: #fff;
-      margin-right: 10px;
       display: block;
-      float: left;
     }
 
     input[type=file] {
@@ -40,7 +38,18 @@
         top: 6px;
       }
     }
+  }
 
+  > table {
+    table-layout: fixed;
+
+    td {
+      width: 160px;
+    
+      + td {
+        width: auto;
+      }
+    }
   }
 
   td, div {
@@ -79,7 +88,7 @@
 
 #ticketTable {
   th {
-    width: 160px;
+    padding-left: 3px;
     font-weight: normal;
     text-align: left;
   }
@@ -89,49 +98,80 @@
   }
 }
 
+.rtl {
+  #clientLogin {
+    background-position: 5% 50%;
+  
+    .instructions {
+      padding-left: 0;
+      padding-right:0;
+      padding-right: 2em;
+      padding-left:90px;
+    }
+  }
+}
+
 #clientLogin {
-  width: 400px;
+  display: block;
   margin-top: 20px;
-  padding: 10px 100px 10px 10px;
+  padding: 20px;
   border: 1px solid #ccc;
-  background: url('../images/lock.png?1319655200') 440px 50% no-repeat #f6f6f6;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  background: url('../images/lock.png?1319655200') 95% 50% no-repeat #f6f6f6;
+
+  .instructions {
+    display:table-cell;
+    padding-left: 2em;
+    padding-right:90px;
+  }
 
   p {
     clear: both;
-    text-align: center;
   }
 
   strong {
     font-size: 11px;
     color: #d00;
     display: block;
-    padding-left: 140px;
   }
 
-  #email {
-    width: 250px;
-    margin-right: 0;
-  }
-
+  #email,
   #ticketno {
-    width: 120px;
     margin-right: 0;
+  }
+
+  input[type=text],
+  input[type=password],
+  input[type=submit] {
+    border-radius: 4px;
+  }
+  input[type=text],
+  input[type=password] {
+    padding: 5px;
+    margin-bottom: 15px;
+  }
+  input[type=submit] {
+    padding: 3px 10px;
   }
 }
 
 #reply {
-  margin-top: 20px;
-  padding: 10px 5px;
+  margin-top: 5px;
+  padding: 10px;
   background: #f9f9f9;
   border: 1px solid #ccc;
 
   h2 {
     margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px dotted rgba(0,0,0,0.1);
   }
 
+  > table {
+    width: auto;
+  }
   table {
-    width: 800px;
-
     td {
       vertical-align: top;
     }
@@ -147,10 +187,12 @@
   }
 
   .attachments .uploads div {
+    /* TO CHECK */
     display: inline-block;
     padding-right: 20px;
   }
   .file {
+    /* TO CHECK */
     display: inline-block;
     padding-left: 20px;
     margin-right: 20px;
@@ -159,10 +201,12 @@
 }
 
 .uploads {
+  /* TO CHECK */
   display:inline-block;
   padding-right:20px;
 
   label {
+    /* TO CHECK */
     padding:3px;
     padding-right:10px;
     width: auto !important

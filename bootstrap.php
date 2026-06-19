@@ -24,7 +24,7 @@ class Bootstrap {
         $error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
         if (defined('E_DEPRECATED')) # 5.3.0
             $error_reporting &= ~(E_DEPRECATED | E_USER_DEPRECATED);
-        error_reporting($error_reporting); //Respect whatever is set in php.ini (sysadmin knows better??)
+        error_reporting(0); //Respect whatever is set in php.ini (sysadmin knows better??)
 
         #Don't display errors
         ini_set('display_errors', 1);

@@ -4,7 +4,8 @@ body {
 
 #container {
   background: #fff;
-  width: 840px;
+  width: 90%;
+  min-width: 840px;
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
@@ -15,20 +16,31 @@ body {
   position: relative;
   height: 71px;
   padding: 0 20px;
+}
+#logo {
+    height: 100%;
+}
 
-  #logo {
-    width: 220px;
-    height: 71px;
-    float: left;
+#header {
+  #logo img {
+    max-height: 65px;
+    max-width: 380px;
+    width: auto;
+    height: auto;
+    vertical-align: middle;
   }
 
   p {
     width: 400px;
-    text-align: right;
     margin: 0;
-    padding: 10px 0;
-    float: right;
+    padding: 10px 0 0;
   }
+}
+
+.valign-helper {
+  height: 100%;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 #nav {
@@ -40,6 +52,7 @@ body {
   box-shadow:0 3px 2px rgba(0, 0, 0, 0.4);
   -moz-box-shadow:0 3px 2px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow:0 3px 2px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
 
   li {
     margin: 0;
@@ -47,9 +60,8 @@ body {
     list-style: none;
     display: inline;
     a {
-      display: block;
+      display: inline-block;
       width: auto;
-      float: left;
       height: 20px;
       line-height: 20px;
       text-align: center;
@@ -79,6 +91,13 @@ body {
     a.status  { background-image: url('../images/icons/status.png'); }
     a.tickets { background-image: url('../images/icons/tix.png'); }
   }
+}
+.rtl #nav li a {
+  background-position: calc(100% - 10px) center;
+  padding-left: 10px;
+  padding-right: 32px;
+  margin-right: 10px;
+  margin-left: 0;
 }
 
 #content {
@@ -110,5 +129,9 @@ body {
     text-indent: -9999px;
     margin: 0 auto;
     background: url('../images/poweredby.png') top left no-repeat;
+    background-size: auto 20px;
   }
+}
+.main-content {
+  width: auto;
 }

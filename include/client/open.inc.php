@@ -36,7 +36,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
-  <table width="800" cellpadding="1" cellspacing="0" border="0">
+  <table width="100%" cellpadding="1" cellspacing="0" border="0">
     <tbody>
 <?php
         if (!$thisclient) {
