@@ -1,5 +1,11 @@
 
 <h2><?php echo __('Install a new plugin'); ?></h2>
+<form method="post" action="?a=add" enctype="multipart/form-data">
+    <?php echo csrf_token(); ?>
+    <input type="hidden" name="do" value="upload"/>
+    <input name="plugin" type="file">
+    <button class="button" type="submit">Upload</button>
+</form>
 <p><?php echo __(
 'To add a plugin into the system, download and place the plugin into the <code>include/plugins</code> folder. Once in the plugin is in the <code>plugins/</code> folder, it will be shown in the list below.'
 ); ?>

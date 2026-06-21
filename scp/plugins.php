@@ -115,6 +115,23 @@ if ($_POST) {
             $msg = sprintf(__('Successfully installed %s'),
                 __('a plugin'));
         break;
+    case 'upload':
+          $response = $ost->plugins->upload($_FILES);
+
+          if($response['error'] == 'PERMISSION_ERROR') {
+            $warn = sprintf(__('Permission Error'));
+          } else if($response['error'] == 'PHAR_ERROR') {
+            $warn = sprintf(__('Invalid format'));
+          } else if($response['error'] == 'UPLOAD_ERROR') {
+            $warn = sprintf(__('Unable to Upload'));
+          } else if($response['error'] == 'INVALID_PACKAGE') {
+            $warn = sprintf(__('Invalid Package'));
+          } else {
+            $msg = sprintf(__('Successfully uploaded %s'),
+                __('a plugin'));
+          }
+          
+        break;
     }
 }
 

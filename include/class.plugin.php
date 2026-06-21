@@ -360,6 +360,44 @@ class PluginManager {
         return $p->getImpl() ?: $p;
     }
 
+    /**
+     * upload
+     *
+     * Used to upload a plugin that is in-place on the filesystem, but not
+     * registered in the plugin registry -- the %plugin table.
+     */
+
+    function upload($file) {
+        $file_name = $file['plugin']['name'];
+        $file_tmp_name = $file['plugin']['tmp_name'];
+        $file_ext = substr($file_name, strlen($file_name) - 5);
+        $is_phar = $file_ext == '.phar';
+
+        $uploaddir = INCLUDE_DIR . 'plugins/';
+        $uploadfile = $uploaddir . basename($file_name);
+
+        if (!is_writable($uploaddir)) {
+            return array('error'=>'PERMISSION_ERROR');
+        }
+
+        if (!$is_phar) {
+            return array('error'=>'PHAR_ERROR');
+        }
+
+       $status =  move_uploaded_file($file_tmp_name, $uploadfile);
+       if(!$status) {
+            return array('error'=>'UPLOAD_ERROR');
+       }
+
+       //delete uploaded file if its not a valid plugin
+       if (!($info = $this->getInfoForPath($uploaddir . $file_name, $is_phar))) {
+            unlink($uploaddir . $file_name);
+            return array('error'=>'INVALID_PACKAGE');
+       }
+        
+        return true;
+    }
+
 
     /**
      * install
