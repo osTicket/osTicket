@@ -127,12 +127,10 @@ img.avatar {
 <htmlpagefooter name="def" style="display:none">
     <div class="hr">&nbsp;</div>
     <table width="100%"><tr><td class="flush-left">
-        Ticket #<?php echo $ticket->getNumber(); ?> printed by
-        <?php echo $thisstaff->getUserName(); ?> on
-        <?php echo Format::daydatetime(Misc::gmtime()); ?>
+        <?php echo sprintf(__('Ticket #%s printed by %s on %s'), $ticket->getNumber(), $thisstaff->getName(), Format::daydatetime(Misc::gmtime()) ); ?>
     </td>
     <td class="flush-right">
-        Page {PAGENO}
+        <?php echo __('Page'); ?> {PAGENO}
     </td>
     </tr></table>
 </htmlpagefooter>
