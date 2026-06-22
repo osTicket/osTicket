@@ -1,0 +1,21 @@
+version: '3.5'
+
+services:
+
+  osticket:
+    build: .
+    volumes:
+      - ./:/var/www/html:z
+    ports:
+      - 80:80
+
+  osticket-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticket
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - ./../osticket-db:/var/lib/mysql:z
