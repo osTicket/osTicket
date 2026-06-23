@@ -132,7 +132,7 @@ class ClientCreateRequest {
     }
 
     function attemptAutoRegister() {
-        global $cfg;
+        global $cfg, $ost;
 
         if (!$cfg || $cfg->isClientRegistrationMode(['disabled']))
             return false;
@@ -156,6 +156,16 @@ class ClientCreateRequest {
                 && ($cl = new ClientSession(new EndUser($U)))
                 && ($bk->login($cl, $bk)))
             return $cl;
+
+        if ($ost) {
+            $errors = $this_form->errors();
+            $ost->logWarning('Client Auto-Registration Failed',
+                sprintf('Unable to auto-register user "%s" via %s backend. %s',
+                    $this->getUsername(), $bk->getBkId(),
+                    $errors ? 'Form errors: '.json_encode($errors)
+                        : 'Account creation, confirmation, or session login failed.'),
+                false);
+        }
     }
 }
 
