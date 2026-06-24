@@ -385,7 +385,7 @@ class Format {
         $text = self::localizeInlineImages($text);
 
         //balance and neutralize unsafe tags.
-        $text = Format::safe_html($text, array('spec' => $spec));
+        $text = Format::safe_html($text, array('spec' => $spec, 'decode' => false));
 
         //If requested - strip tags with decoding disabled.
         return $striptags?Format::striptags($text, false):$text;
