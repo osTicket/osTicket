@@ -21,7 +21,7 @@ if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__)) || !defined
     die('kwaheri rafiki!');
 
 #Install flag
-define('OSTINSTALLED',FALSE);
+define('OSTINSTALLED', (bool) ($_SERVER['OSTINSTALLED'] ?? $_ENV['OSTINSTALLED'] ?? FALSE));
 if(OSTINSTALLED!=TRUE){
     if(!file_exists(ROOT_DIR.'setup/install.php')) die('Error: Contact system admin.'); //Something is really wrong!
     //Invoke the installer.
@@ -30,10 +30,10 @@ if(OSTINSTALLED!=TRUE){
 }
 
 # Encrypt/Decrypt secret key - randomly generated during installation.
-define('SECRET_SALT','%CONFIG-SIRI');
+define('SECRET_SALT', $_SERVER['SECRET_SALT'] ?? $_ENV['SECRET_SALT'] ?? '%CONFIG-SIRI');
 
 #Default admin email. Used only on db connection issues and related alerts.
-define('ADMIN_EMAIL','%ADMIN-EMAIL');
+define('ADMIN_EMAIL', $_SERVER['ADMIN_EMAIL'] ?? $_ENV['ADMIN_EMAIL'] ?? '%ADMIN-EMAIL');
 
 # Database Options
 # ====================================================
@@ -41,17 +41,17 @@ define('ADMIN_EMAIL','%ADMIN-EMAIL');
 #
 define('DBTYPE','mysql');
 #  DBHOST can have comma separated hosts (e.g db1:6033,db2:6033)
-define('DBHOST','%CONFIG-DBHOST');
-define('DBNAME','%CONFIG-DBNAME');
-define('DBUSER','%CONFIG-DBUSER');
-define('DBPASS','%CONFIG-DBPASS');
+define('DBHOST', $_SERVER['DBHOST'] ?? $_ENV['DBHOST'] ?? '%CONFIG-DBHOST');
+define('DBNAME', $_SERVER['DBNAME'] ?? $_ENV['DBNAME'] ?? '%CONFIG-DBNAME');
+define('DBUSER', $_SERVER['DBUSER'] ?? $_ENV['DBUSER'] ?? '%CONFIG-DBUSER');
+define('DBPASS', $_SERVER['DBPASS'] ?? $_ENV['DBPASS'] ?? '%CONFIG-DBPASS');
 
 # Database TCP/IP Connect Timeout (default: 3 seconds)
 # Timeout is important when DBHOST has multiple proxies to try
 # define('DBCONNECT_TIMEOUT', 3);
 
 # Table prefix
-define('TABLE_PREFIX','%CONFIG-PREFIX');
+define('TABLE_PREFIX', $_SERVER['TABLE_PREFIX'] ?? $_ENV['TABLE_PREFIX'] ?? '%CONFIG-PREFIX');
 
 #
 # SSL Options
@@ -133,7 +133,7 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 # http://en.wikipedia.org/wiki/X-Forwarded-For
 #
 
-define('TRUSTED_PROXIES', '');
+define('TRUSTED_PROXIES', $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? '');
 
 
 # Option: LOCAL_NETWORKS (default: 127.0.0.0/24)

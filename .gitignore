@@ -1,3 +1,4 @@
+.idea
 .htaccess
 php53.cgi
 include/ost-config.php
@@ -20,3 +21,7 @@ stage
 include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
+
+/.env
+/.docker/mysql/init-auth.sql
+/compose.override.yaml
