@@ -141,6 +141,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <?php echo __('Automatically add collaborators from email fields'); ?>&nbsp;
             <i class="help-tip icon-question-sign" href="#accept_email_collaborators"></i>
         </tr>
+        <tr>
+            <td width="180"><?php echo __('Add Forms'); ?>:</td>
+            <td><input type="checkbox" name="add_email_forms" <?php
+            echo $config['add_email_forms'] ? 'checked="checked"' : ''; ?>/>
+            <?php echo __('Add forms associated with the Help Topic to the ticket'); ?>&nbsp;
+            <i class="help-tip icon-question-sign" href="#add_email_forms"></i>
+        </tr>
         <tr><th colspan=2><em><strong><?php echo __('Outgoing Email');?></strong>: <?php echo __('Default email only applies to outgoing emails without SMTP setting.');?></em></th></tr>
         <tr><td width="180"><?php echo __('Default MTA'); ?>:</td>
             <td>
