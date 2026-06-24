@@ -26,6 +26,12 @@
                             <?php echo __( 'Disable'); ?>
                         </a>
                     </li>
+                    <li>
+                        <a class="confirm" data-name="update-install-info" href="plugins.php?a=update-install-info">
+                            <i class="icon-refresh icon-fixed-width"></i>
+                            <?php echo __('Update installation info'); ?>
+                        </a>
+                    </li>
                     <li class="danger">
                         <a class="confirm" data-name="delete" href="plugins.php?a=delete">
                             <i class="icon-trash icon-fixed-width"></i>
@@ -78,9 +84,15 @@ foreach ($ost->plugins->allInstalled() as $p) {
                 $p->getNumInstances());
         ?>
         </a>
-        <?php if ($p->isDefunct())
-            echo sprintf('&nbsp;<span class="error">(%s)</span>',
-                    __('defunct — missing')); ?>
+        <?php if ($p->isDefunct()) {
+            $message = __('defunct — missing');
+            $alternative = PluginManager::findAlternativePath($p);
+            if ($alternative) {
+                $message .= sprintf(', %s', __('update installation info'));
+            }
+
+            echo sprintf('&nbsp;<span class="error">(%s)</span>', $message);
+        } ?>
 
         </td>
         <td><?php echo $p->getVersion(); ?></td>
@@ -133,6 +145,13 @@ if ($count) //Show options..
         <font color="red"><?php echo sprintf(
         __('Are you sure you want to <b>disable</b> %s?'),
         _N('selected plugin', 'selected plugins', 2)); ?></font>
+    </p>
+    <p class="confirm-action" style="display:none;" id="update-install-info-confirm">
+        <font color="blue"><?php echo sprintf(
+        __('Are you sure you want to <b>update installation info</b> for %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></font>
+        <br><br><?php echo __(
+        'This will update the plugin path, installation type, and version based on the filesystem.'); ?>
     </p>
     <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>

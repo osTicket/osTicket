@@ -103,6 +103,27 @@ if ($_POST) {
                 foreach ($plugins as $p)
                     $p->uninstall($errors);
                 break;
+            case 'update-install-info':
+                $updated = 0;
+                foreach ($plugins as /** @var Plugin $p */ $p) {
+                    $installPath = $p->getInstallPath();
+                    if (!$installPath) {
+                        continue;
+                    }
+                    
+                    $info = PluginManager::findAlternativePath($p);
+                    if (!$info) {
+                        continue;
+                    }
+                    
+                    $newPath = $info['install_path'];
+                    $newIsPhar = $info['isphar'];
+                    $newVersion = $info['version'];
+                    if ($newPath !== (int) $p->isPhar() || $newIsPhar !== $p->isPhar() || $newVersion !== $p->getVersion()) {
+                        $plugins->update(['install_path' => $newPath, 'isphar' => $newIsPhar, 'version' => $newVersion]);
+                    }
+                }
+                break;
             }
             // reset cached list
             PluginManager::clearCache();
