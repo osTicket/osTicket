@@ -308,6 +308,26 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
         </tr>
         <tr>
             <td width="180">
+                <?php echo __('Closed Ticket');?>:
+            </td>
+            <td>
+                <span>
+                <input type="checkbox" name="closed_auto_response" value="0" <?php echo !$info['closed_auto_response']?'checked="checked"':''; ?> >  
+                <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                <i class="help-tip icon-question-sign" href="#closed_auto_response"></i>
+                </span>
+            </td>
+        </tr>
+         <tr>
+            <td><?php echo __('Auto-Close Tickets After'); ?>:</td>  
+            <td>  
+                <input type="text" name="autoclose_grace_period" size=4 value="<?php echo $info['autoclose_grace_period']; ?>">&nbsp;Day(s)&nbsp;  
+                <font class="error"><?php echo $errors['autoclose_grace_period']; ?></font>  
+                <i class="help-tip icon-question-sign" href="#autoclose_grace_period"></i>  
+            </td>  
+        </tr>
+        <tr>
+            <td width="180">
                 <?php echo __('Auto-Response Email'); ?>:
             </td>
             <td>

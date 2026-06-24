@@ -1,0 +1,30 @@
+#
+# Email template: ticket.autoclose.yaml
+#
+# Ticket Name - Closed Ticket Auto-reply
+#
+# Sent to a user when a ticket is closed by an agent or automatically by the system
+#
+---
+notes: |
+    Sent to a user when a ticket is closed by the system.
+
+    Available variables for replacement: %{ticket.*}, %{response}
+
+subject: |
+    Re: %{ticket.subject} [#%{ticket.number}] Closed
+body: |
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
+    Thank you for contacting the %{ticket.dept}.<br>
+    This message is to confirm that we have resolved and closed your ticket <strong>%{ticket.number}</strong> on your behalf.
+    <br>
+    <br>
+    <div style="color: rgb(127, 127, 127);">Your %{company.name} Team,<br>
+    %{signature}</div>
+    <hr>
+    <div style="color: rgb(127, 127, 127); font-size: small;"><em>We hope
+    we have sufficiently answered your questions.  If you wish to provide 
+    additional comments or information, please reply to this email
+    or <a href="%{recipient.ticket_link}"><span
+    style="color: rgb(84, 141, 212);" >login to your account</span></a> for
+    a complete archive of your support requests.</em></div>
