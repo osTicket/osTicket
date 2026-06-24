@@ -3389,8 +3389,10 @@ implements RestrictedAccess, Threadable, Searchable {
         Signal::send('object.created', $this, $type);
 
         /* email the user??  - if disabled - then bail out */
-        if (!$alert)
+        if (!$alert) {
+            $this->markUnAnswered();
             return $response;
+        }
 
         //allow agent to send from different dept email
         if (!$vars['from_email_id']
