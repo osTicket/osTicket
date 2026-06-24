@@ -258,7 +258,7 @@ class Deployment extends Unpacker {
         $this->readManifest($this->destination.'/.MANIFEST');
 
         $exclusions = array("$rootPattern/include/*", "$rootPattern/.git*",
-            "*.sw[a-z]","*.md", "*.txt");
+            "*.sw[a-z]","*.md", "*.txt", "$rootPattern/.phpstan*", "$rootPattern/phpstan.neon");
         if (!$options['setup'])
             $exclusions[] = "$rootPattern/setup/*";
 
