@@ -333,7 +333,7 @@ var scp_prep = function() {
         onselect: function (obj) {
             var fObj=$('.staff-username.typeahead').closest('form');
             $.each(['first','last','email','phone','mobile'], function(i,k) {
-                if (obj[k]) $('.auto.'+k, fObj).val(obj[k]);
+                $('.auto.'+k, fObj).val(obj[k] ? obj[k] : '');
             });
         },
         property: "username"
@@ -1402,7 +1402,7 @@ $(document).on('click.inline-edit', 'a.inline-edit', function(e) {
                 $('#msg-txt').text(obj.msg);
                 $('div#msg_notice').show();
             }
-            // If Help Topic was set and statuses are returned 
+            // If Help Topic was set and statuses are returned
             if (obj.statuses) {
                 var reply = $('select[name=reply_status_id]');
                 var note = $('select[name=note_status_id]');
