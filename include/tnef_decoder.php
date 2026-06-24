@@ -346,9 +346,7 @@ class TnefAttributeStreamReader extends TnefStreamReader {
 
         case self::TypeInt64:
             // 8-byte signed integer= INT64.
-            $x = $this->_getx(8);
-            if (phpversion() >= '5.6.3')
-                list($x) = unpack('P', $x);
+            list($x) = unpack('P', $this->_getx(8));
             return $x;
 
         case self::TypeAppTime:
