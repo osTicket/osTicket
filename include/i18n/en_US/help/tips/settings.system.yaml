@@ -92,6 +92,11 @@ enable_richtext:
         If enabled, this will permit the use of rich text formatting between
         Clients and Agents.
 
+remove_staff_login_link:
+    title: Remove Staff Login Link
+    content: >
+        If enabled, this will remove the Staff Login Link from the client login page.
+
 enable_avatars:
     title: Enable Avatars on Thread View
     content: >
