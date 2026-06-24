@@ -326,6 +326,11 @@ var ticket_onload = function($) {
         e.preventDefault();
         $('#overlay').show();
         $('.dialog#print-options').show();
+        var w = $(window);
+        $('.dialog#print-options').css({
+            top : (w.innerHeight() / 7),
+            left : (w.width() - $('.dialog#print-options').outerWidth()) / 2
+        });
         return false;
     });
 
