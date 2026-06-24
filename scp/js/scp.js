@@ -593,6 +593,13 @@ jQuery.fn.exists = function() { return this.length>0; };
 $.pjax.defaults.timeout = 30000;
 $(document).keydown(function(e) {
 
+   if (e.keyCode == 13 && !$('#overlay').is(':hidden')) {
+        $('div.dialog input[type=button].confirm').click();
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
     if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
         $('div.dialog').hide();
         $.toggleOverlay(false);
