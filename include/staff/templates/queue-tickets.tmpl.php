@@ -197,7 +197,7 @@ return false;">
                         </li>
 <?php
 
-if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
+if (intval($queue->id) > 0 && $queue->isOwner($thisstaff)) { ?>
                         <li class="danger">
                             <a class="no-pjax confirm-action" href="#"
                                 data-dialog="ajax.php/queue/<?php
