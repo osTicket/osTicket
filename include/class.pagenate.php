@@ -23,6 +23,7 @@ class PageNate {
     var $isrealtotal;
     var $page;
     var $pages;
+    var $url;
     var $approx=false;
 
 

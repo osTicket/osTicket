@@ -18,6 +18,12 @@ require_once INCLUDE_DIR.'class.setup.php';
 require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader {
+
+    var $streams;
+    var $state;
+    var $mode;
+    var $current;
+
     function __construct($prefix, $basedir) {
         global $ost;
 
@@ -137,9 +143,13 @@ class StreamUpgrader extends SetupWizard {
     var $prefix;
     var $sqldir;
     var $signature;
+    var $target;
 
     var $state;
     var $mode;
+    var $upgrader;
+    var $name;
+    var $migrater;
 
     var $phash;
 

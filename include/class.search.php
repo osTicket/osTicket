@@ -147,7 +147,7 @@ class SearchInterface {
 
         case $model instanceof User:
             $cdata = array();
-            foreach ($model->getDynamicData($false) as $e)
+            foreach ($model->getDynamicData(false) as $e)
                 foreach ($e->getAnswers() as $tag=>$a)
                     if ($tag != 'subject' && ($v = $a->getSearchable()))
                         $cdata[] = $v;
@@ -245,6 +245,7 @@ class MysqlSearchBackend extends SearchBackend {
     var $max_batches = 60;
     var $_reindexed = 0;
     var $SEARCH_TABLE;
+    var $config;
 
     function __construct() {
         $this->SEARCH_TABLE = TABLE_PREFIX . '_search';

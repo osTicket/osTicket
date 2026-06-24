@@ -28,6 +28,7 @@ class Mail_Parse {
 
     var $struct;
     var $headers;
+    var $notes;
 
     var $charset ='UTF-8'; //Default charset.
 

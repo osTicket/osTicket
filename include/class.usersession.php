@@ -112,6 +112,8 @@ class UserSession {
 trait UserSessionTrait {
     // User Session Object
     var $session;
+    // Session ID
+    var $session_id;
     // Session Token
     var $token;
     // Maximum idle time before session is considered invalid

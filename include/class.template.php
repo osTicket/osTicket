@@ -277,7 +277,7 @@ class EmailTemplateGroup {
     }
 
     function getTemplates() {
-        if (!$this->_tempates) {
+        if (!$this->_templates) {
             $this->_templates = array();
             $sql = 'SELECT id, code_name FROM '.EMAIL_TEMPLATE_TABLE
                 .' WHERE tpl_id='.db_input($this->getId())
@@ -516,6 +516,7 @@ class EmailTemplateGroup {
 class EmailTemplate {
 
     var $id;
+    var $attachments;
     var $ht;
     var $_group;
 

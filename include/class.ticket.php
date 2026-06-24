@@ -836,10 +836,10 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getLastUserRespondent() {
-        if (!isset($this->$lastuserrespondent)) {
+        if (!isset($this->lastuserrespondent)) {
             if (!$this->getThread() || !$this->getThread()->entries)
-                return $this->$lastuserrespondent = false;
-            $this->$lastuserrespondent = User::objects()
+                return $this->lastuserrespondent = false;
+            $this->lastuserrespondent = User::objects()
                 ->filter(array(
                 'id' => $this->getThread()->entries
                     ->filter(array(
@@ -852,7 +852,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 ->first()
                 ?: false;
         }
-        return $this->$lastuserrespondent;
+        return $this->lastuserrespondent;
     }
 
     function getLastMessageDate() {

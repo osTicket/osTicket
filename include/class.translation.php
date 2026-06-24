@@ -66,6 +66,9 @@ class gettext_reader {
   var $originals = NULL;      // offset of original table
   var $translations = NULL;    // offset of translation table
   var $pluralheader = NULL;    // cache header field for plural forms
+  var $plural_expression = NULL;
+  var $plural_total = NULL;
+  var $revision = NULL;
   var $total = 0;          // total string count
   var $table_originals = NULL;  // table for original strings (offsets)
   var $table_translations = NULL;  // table for translated strings (offsets)
@@ -463,6 +466,7 @@ class FileReader {
   var $_pos;
   var $_fd;
   var $_length;
+  var $error;
 
   function __construct($filename) {
     if (is_resource($filename)) {
