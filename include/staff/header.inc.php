@@ -55,6 +55,7 @@ if (osTicket::is_ie())
     <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-16x16.png" sizes="16x16" />
 
     <?php
+    Signal::send('staff.header.extra', null);
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }

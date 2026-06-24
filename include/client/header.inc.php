@@ -63,6 +63,7 @@ if (osTicket::is_ie())
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
     <?php
+    Signal::send('client.header.extra', null);
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
