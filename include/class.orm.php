@@ -865,6 +865,12 @@ trait WriteableAnnotatedModelTrait {
     }
 }
 
+/**
+ * @property string func
+ * @property array<int,mixed> args
+ *
+ * @method static static NOW()
+ */
 class SqlFunction {
     var $alias;
 

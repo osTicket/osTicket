@@ -556,11 +556,17 @@ class Plugin extends VerySimpleModel {
      * Configuration manager for the plugin. Should be the name of a class
      * that inherits from PluginConfig. This is abstract and must be defined
      * by the plugin subclass.
+     *
+     * @var class-string<PluginConfig>|null
      */
     var $config_class = null;
     //  plugin subclass impl
     var $_impl;
-    // config instance
+    /**
+     * config instance
+     *
+     * @var PluginConfig|null
+     */
     var $config;
     // active instances
     var $active_instances;
@@ -992,7 +998,7 @@ class Plugin extends VerySimpleModel {
     }
 
     static function create($vars=false) {
-        $p = new Static($vars);
+        $p = new static($vars);
         $p->installed = SqlFunction::NOW();
         return $p;
     }
@@ -1016,10 +1022,20 @@ class PluginInstance extends VerySimpleModel {
         ),
     );
 
-    // Config class that plugin can set.
+    /**
+     * Config class that plugin can set
+     *
+     * @var class-string<PluginConfig>|null
+     */
     private $config_class = null;
-    // Plugin Config for the instance
+    /**
+     * Plugin Config for the instance
+     * @var PluginConfig|null
+     */
     var $_config;
+    /**
+     * @var Form
+     */
     var $_form;
     var $_data;
 

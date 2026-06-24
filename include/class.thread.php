@@ -3401,6 +3401,10 @@ abstract class ThreadEntryAction {
 
 interface Threadable {
     function getThreadId();
+    
+    /**
+     * @return Thread|null
+     */
     function getThread();
     function postThreadEntry($type, $vars, $options=array());
     function addCollaborator($user, $vars, &$errors, $event=true);
