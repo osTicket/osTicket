@@ -170,7 +170,7 @@ class Net_SMTP
         // Turn off peer name verification by default
         if (!$socket_options)
             $socket_options = array(
-                    'ssl' => array('verify_peer_name' => false)
+                    'ssl' => array('verify_peer' => false, 'verify_peer_name' => false)
                     );
 
         $this->socket_options = $socket_options;
