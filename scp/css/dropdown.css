@@ -29,7 +29,8 @@
   margin: 0;
   line-height: 18px;
 }
-.action-dropdown ul li > a, .noclick-dropdown ul li > a {
+.action-dropdown ul li > a, .noclick-dropdown ul li > a,
+.action-dropdown ul li > span, .noclick-dropdown ul li > span{
   display: block;
   color: #555;
   text-decoration: none;

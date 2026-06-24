@@ -108,6 +108,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_CREATE   = 'ticket.create';
     const PERM_EDIT     = 'ticket.edit';
     const PERM_ASSIGN   = 'ticket.assign';
+    const PERM_CLAIM    = 'ticket.claim';
     const PERM_RELEASE  = 'ticket.release';
     const PERM_TRANSFER = 'ticket.transfer';
     const PERM_REFER    = 'ticket.refer';
@@ -139,6 +140,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Assign',
                 'desc'  =>
                 /* @trans */ 'Ability to assign tickets to agents or teams'),
+            self::PERM_CLAIM => array(
+                'title' =>
+                /* @trans */ 'Claim',
+                'desc'  =>
+                /* @trans */ 'Ability to claim tickets for themself'),
             self::PERM_RELEASE => array(
                 'title' =>
                 /* @trans */ 'Release',
