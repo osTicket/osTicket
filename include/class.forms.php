@@ -1619,11 +1619,11 @@ class TextareaField extends FormField {
     function getConfigurationOptions() {
         return array(
             'cols'  =>  new TextboxField(array(
-                'id'=>1, 'label'=>__('Width').' '.__('(chars)'), 'required'=>true, 'default'=>40)),
+                'id'=>1, 'label'=>__('Width').' '.__('(chars)'), 'required'=>true, 'default'=>40, 'validator' => 'number')),
             'rows'  =>  new TextboxField(array(
-                'id'=>2, 'label'=>__('Height').' '.__('(rows)'), 'required'=>false, 'default'=>4)),
-            'length' => new TextboxField(array(
-                'id'=>3, 'label'=>__('Max Length'), 'required'=>false, 'default'=>0)),
+                'id'=>2, 'label'=>__('Height').' '.__('(rows)'), 'required'=>false, 'default'=>4, 'validator' => 'number')),
+            'maxlength' => new TextboxField(array(
+                'id'=>3, 'label'=>__('Max Length'), 'required'=>false, 'default'=>0, 'validator' => 'number')),
             'html' => new BooleanField(array(
                 'id'=>4, 'label'=>__('HTML'), 'required'=>false, 'default'=>true,
                 'configuration'=>array('desc'=>__('Allow HTML input in this box')))),
@@ -1644,6 +1644,8 @@ class TextareaField extends FormField {
         $validators = array(
             '' =>       array(array('Validator', 'is_formula'),
                 __('Content cannot start with the following characters: = - + @')),
+            'number' => array(array('Validator', 'is_numeric'),
+            __('Enter a number')),
             'choices' => array(
                 function($val) {
                     $val = str_replace('"', '', JsonDataEncoder::encode($val));
