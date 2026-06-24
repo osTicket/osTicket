@@ -23,7 +23,7 @@ class Application {
     private static $staff_apps;
     private static $admin_apps;
 
-    function registerStaffApp($desc, $href, $info=array()) {
+    static function registerStaffApp($desc, $href, $info=array()) {
         self::$staff_apps[] = array_merge($info,
             array('desc'=>$desc, 'href'=>$href));
     }
@@ -32,7 +32,7 @@ class Application {
         return self::$staff_apps;
     }
 
-    function registerClientApp($desc, $href, $info=array()) {
+    static function registerClientApp($desc, $href, $info=array()) {
         self::$client_apps[] = array_merge($info,
             array('desc'=>$desc, 'href'=>$href));
     }
@@ -41,7 +41,7 @@ class Application {
         return self::$client_apps;
     }
 
-    function registerAdminApp($desc, $href, $info=array()) {
+    static function registerAdminApp($desc, $href, $info=array()) {
         self::$admin_apps[] = array_merge($info,
             array('desc'=>$desc, 'href'=>$href));
     }
