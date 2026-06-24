@@ -88,10 +88,6 @@ class Headers implements Countable, Iterator
      */
     public static function fromString($string, $eol = self::EOL)
     {
-        // PATCH: Strip UTF-8 BOM
-        if (preg_match("/^\xEF\xBB\xBF/", $string))
-            $string = preg_replace('/^\xEF\xBB\xBF/', '', $string);
-
         $headers     = new static();
         $currentLine = '';
         $emptyLine   = 0;
