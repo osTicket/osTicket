@@ -193,6 +193,12 @@ if ($stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 }
 
+$nav->addSubMenu(array('desc' => __('Any').' ('.number_format($stats['open'] + $stats['closed']).')',
+                       'title'=>__('Any Task'),
+                       'href'=>'tasks.php?status=any',
+                       'iconclass'=>'closedTickets'),
+                    ($_REQUEST['status']=='any'));
+
 if ($thisstaff->hasPerm(TaskModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Task'),
                            'title'=> __('Open a New Task'),
