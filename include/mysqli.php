@@ -316,7 +316,7 @@ function db_real_escape($val, $quote=false) {
     //Magic quotes crap is taken care of in main.inc.php
     $val=$__db->real_escape_string($val);
 
-    return ($quote)?"'$val'":$val;
+    return ($quote && !empty($val))?"'$val'":$val;
 }
 
 function db_input($var, $quote=true) {
