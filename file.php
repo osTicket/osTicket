@@ -51,6 +51,18 @@ if ($cfg->isAuthRequiredForFiles()
     } else {
         require 'secure.inc.php';
     }
+} elseif ($cfg->isAuthRequiredForFiles() && $thisclient) {
+    // If the file is a ticket attachment, only let Users associated with the
+    // ticket view the file. Helps prevent shared XSS attachments.
+    $attachment = $file->attachments->findFirst();
+    if (($thread = $attachment->getObject()->getThread()) && $thread->getObjectType() == 'T') {
+        $recipients = $thread->getObject()->getRecipients();
+        foreach($recipients as $r) {
+            $allowed[] = $r->getEmail();
+        }
+        if (!in_array($thisclient->getEmail(), $allowed))
+            return Http::response(401, __('Unauthorized: You do not have permission to view this file.'));
+    }
 }
 
 
