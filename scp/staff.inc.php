@@ -103,6 +103,8 @@ define('SESSION_MAXLIFE', $thisstaff->getMaxIdleTime());
 //Keep the session activity alive
 $thisstaff->refreshSession();
 
+global $ost, $cfg;
+
 /******* CSRF Protectin *************/
 // Enforce CSRF protection for state-changing methods
 if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])
