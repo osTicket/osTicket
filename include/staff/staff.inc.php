@@ -221,7 +221,13 @@ if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend())
             <input type="checkbox" name="onvacation"
               <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Vacation Mode'); ?>
-            </label>
+	    </label>
+            <?php if ($action=='create') { ?>
+               <label class="checkbox">
+                 <input type="checkbox" name="welcome_email" id="welcome-email" checked="checked"/>
+                 <?php echo __('Send Welcome Email'); ?>
+               </label>
+            <?php } ?>
             <br/>
         </tr>
       </tbody>
