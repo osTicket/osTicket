@@ -245,7 +245,7 @@ foreach ($columns as $C) {
         $args['dir'] = $sort['col'] != $C->id ?: (int) !$sort['dir'];
         $args['sort'] = $C->id;
         $heading = sprintf('<a href="?%s" class="%s">%s</a>',
-            Http::build_query($args), $dir, $heading);
+            Http::build_query($args), $dir, __($heading));
     }
     echo sprintf('<th width="%s" data-id="%d">%s</th>',
         $C->getWidth(), $C->id, $heading);
