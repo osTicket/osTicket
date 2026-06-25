@@ -4,13 +4,14 @@ class Option {
 
     var $default = false;
 
-    function __construct($options=false) {
+    function __construct($options=false, $name='') {
         list($this->short, $this->long) = array_slice($options, 0, 2);
+        $this->name = $name ?: $this->long;
         $this->help = (isset($options['help'])) ? $options['help'] : "";
         $this->action = (isset($options['action'])) ? $options['action']
             : "store";
         $this->dest = (isset($options['dest'])) ? $options['dest']
-            : substr($this->long, 2);
+            : ($this->name ?: substr($this->long, 2));
         $this->type = (isset($options['type'])) ? $options['type']
             : 'string';
         $this->const = (isset($options['const'])) ? $options['const']
@@ -25,7 +26,8 @@ class Option {
 
     function hasArg() {
         return $this->action != 'store_true'
-            && $this->action != 'store_false';
+            && $this->action != 'store_false'
+            && $this->action != 'store_const';
     }
 
     function handleValue(&$destination, $args) {
@@ -111,7 +113,7 @@ class Module {
     var $arguments = array();
     var $prologue = "";
     var $epilog = "";
-    var $usage = '$script [options] $args [arguments]';
+    var $usage = '$script [options] $args [arguments ...]';
     var $autohelp = true;
     var $module_name;
 
@@ -125,8 +127,8 @@ class Module {
         $this->options['help'] = array("-h","--help",
             'action'=>'store_true',
             'help'=>"Display this help message");
-        foreach ($this->options as &$opt)
-            $opt = new Option($opt);
+        foreach ($this->options as $name=>&$opt)
+            $opt = new Option($opt, $name);
         $this->stdout = new OutputStream('php://output');
         $this->stderr = new OutputStream('php://stderr');
     }
@@ -138,10 +140,17 @@ class Module {
         global $argv;
         $manager = @$argv[0];
 
+        $args = array();
+        foreach ($this->arguments as $name=>$info) {
+            if (isset($info['required']) && !$info['required'])
+                $name = "[$name]";
+            $args[] = $name;
+        }
+
         echo "Usage:\n";
         echo "    " . str_replace(
                 array('$script', '$args'),
-                array($manager ." ". $this->module_name, implode(' ', array_keys($this->arguments))),
+                array($manager ." ". $this->module_name, implode(' ', $args)),
             $this->usage) . "\n";
 
         ksort($this->options);
