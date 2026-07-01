@@ -16,7 +16,9 @@ if (($subs=$category->getSubCategories(array('public' => true)))) {
                 <a href="faq.php?cid=%d">%s (%d)</a></div>',
                 $c->getId(),
                 $c->getLocalName(),
-                $c->getNumFAQs()
+                // getSubCategories(public) annotates a published-filtered faq_count;
+                // getNumFAQs() counts ALL faqs incl. internal/unpublished ones.
+                $c->faq_count
                 );
     }
     echo '</div>';
