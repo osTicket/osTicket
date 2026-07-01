@@ -11,18 +11,24 @@
                     ))
         )))
         //->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs__ispublished')));
+        // The query joins both `faqs` (direct) and `children__faqs` (sub-category)
+        // FAQs. Counting plain rows here multiplies the two one-to-many joins into
+        // a cartesian product, inflating both counts (bug #5559). Count DISTINCT FAQ
+        // ids instead so the duplicated rows collapse.
         ->annotate(array('faq_count' => SqlAggregate::COUNT(
                         SqlCase::N()
                         ->when(array(
-                                'faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
-                        ->otherwise(null)
-        )))
+                                'faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE),
+                                new SqlField('faqs__faq_id'))
+                        ->otherwise(null),
+                        true)))
         ->annotate(array('children_faq_count' => SqlAggregate::COUNT(
                         SqlCase::N()
                         ->when(array(
-                                'children__faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
-                        ->otherwise(null)
-        )));
+                                'children__faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE),
+                                new SqlField('children__faqs__faq_id'))
+                        ->otherwise(null),
+                        true)));
 
        // ->filter(array('faq_count__gt' => 0));
     if ($categories->exists(true)) { ?>
