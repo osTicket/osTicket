@@ -15,7 +15,7 @@ export interface Fixture {
   graceHours: number;
   start: string;
   scheduleId: number;
-  expected: string | null;
+  expected?: string | null;
 }
 
 export interface ParityReport {

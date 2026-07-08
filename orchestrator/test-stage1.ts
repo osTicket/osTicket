@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { cartographer } from "./agents/cartographer";
 
-const ticketId = process.argv[2] || "MOD-1";
+const ticketId = process.argv[2] || "MOD-25";
 
 process.stderr.write(`Starting cartographer for ${ticketId}...\n`);
 

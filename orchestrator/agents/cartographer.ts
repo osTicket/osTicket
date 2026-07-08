@@ -2,7 +2,9 @@ import { createCloudAgent, parseJsonResult, streamRunWithProgress } from "../lib
 import type { SeamManifest } from "../lib/types";
 import * as fs from "fs";
 
-const STATE_PATH = "orchestrator/.state/MOD-1-manifest.json";
+function manifestPath(ticketId: string): string {
+  return `orchestrator/.state/${ticketId}-manifest.json`;
+}
 
 export async function cartographer(
   ticketId: string,
@@ -10,9 +12,10 @@ export async function cartographer(
   fromCache: boolean = process.argv.includes("--from-cache") ||
     process.argv.includes("--from-stage")
 ): Promise<SeamManifest> {
-  if (fromCache && fs.existsSync(STATE_PATH)) {
-    process.stderr.write("Using cached manifest from a previous run (--from-cache flag).\n");
-    return JSON.parse(fs.readFileSync(STATE_PATH, "utf-8"));
+  const statePath = manifestPath(ticketId);
+  if (fromCache && fs.existsSync(statePath)) {
+    process.stderr.write(`Using cached manifest for ${ticketId}.\n`);
+    return JSON.parse(fs.readFileSync(statePath, "utf-8"));
   }
 
   const agent = await createCloudAgent();
@@ -69,6 +72,6 @@ determine how the next stage is allowed to build the extraction.
     throw new Error(result.error?.message ?? "Cartographer run failed");
   }
   const manifest = { ticketId, ...parseJsonResult(result.result, {} as Partial<SeamManifest>) } as SeamManifest;
-  fs.writeFileSync(STATE_PATH, JSON.stringify(manifest, null, 2));
+  fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
   return manifest;
 }

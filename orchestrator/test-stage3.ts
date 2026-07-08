@@ -4,7 +4,7 @@ import { cartographer } from "./agents/cartographer";
 import { extractor } from "./agents/extractor";
 import { strangler } from "./agents/strangler";
 
-const ticketId = process.argv[2] || "MOD-1";
+const ticketId = process.argv[2] || "MOD-25";
 const SLA_PATH = "include/class.sla.php";
 
 async function main() {

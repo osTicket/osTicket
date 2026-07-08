@@ -10,7 +10,7 @@ export async function verifier(): Promise<ParityReport> {
 
   for (const file of files) {
     const fixture: Fixture = JSON.parse(fs.readFileSync(path.join(fixtureDir, file), "utf-8"));
-    if (fixture.expected === null) {
+    if (fixture.expected === undefined) {
       mismatches.push({ name: fixture.name, expected: null, actual: "SKIPPED — no expected value captured yet" });
       continue;
     }

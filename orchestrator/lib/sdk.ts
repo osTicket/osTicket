@@ -81,54 +81,80 @@ function summarizeToolName(name: string, args: unknown): string | undefined {
   }
 }
 
-function handleStreamEvent(event: SDKMessage, label: string): void {
-  const prefix = `[${label}] `;
+interface StreamState {
+  inText: boolean;
+  endedWithNewline: boolean;
+}
 
+const streamStates = new Map<string, StreamState>();
+
+function getStreamState(label: string): StreamState {
+  let state = streamStates.get(label);
+  if (!state) {
+    state = { inText: false, endedWithNewline: true };
+    streamStates.set(label, state);
+  }
+  return state;
+}
+
+function endTextLine(label: string): void {
+  const state = getStreamState(label);
+  if (state.inText && !state.endedWithNewline) {
+    process.stderr.write("\n");
+  }
+  state.inText = false;
+  state.endedWithNewline = true;
+}
+
+function writePrefixedLine(label: string, text: string): void {
+  endTextLine(label);
+  process.stderr.write(`[${label}] ${text}\n`);
+}
+
+function writeAssistantText(label: string, text: string): void {
+  const state = getStreamState(label);
+  if (!state.inText) {
+    process.stderr.write(`[${label}] `);
+    state.inText = true;
+  }
+  process.stderr.write(text);
+  state.endedWithNewline = text.endsWith("\n");
+}
+
+function flushStream(label: string): void {
+  endTextLine(label);
+  streamStates.delete(label);
+}
+
+function handleStreamEvent(event: SDKMessage, label: string): void {
   switch (event.type) {
     case "assistant": {
-      let wrotePrefix = false;
-      let wroteText = false;
-
       for (const block of event.message.content) {
         if (block.type === "text") {
           const text = block.text;
           if (!text || looksLikeJsonOutput(text)) continue;
-          if (!wrotePrefix) {
-            process.stderr.write(prefix);
-            wrotePrefix = true;
-          }
-          process.stderr.write(text);
-          wroteText = true;
+          writeAssistantText(label, text);
         } else if (block.type === "tool_use") {
           const detail = summarizeToolUseBlock(block);
-          if (detail) process.stderr.write(`${prefix}${detail}\n`);
-        }
-      }
-
-      if (wroteText && wrotePrefix) {
-        const lastText = [...event.message.content]
-          .reverse()
-          .find((block): block is { type: "text"; text: string } => block.type === "text");
-        if (lastText && !lastText.text.endsWith("\n")) {
-          process.stderr.write("\n");
+          if (detail) writePrefixedLine(label, detail);
         }
       }
       break;
     }
     case "tool_call": {
       const detail = summarizeToolCall(event);
-      if (detail) process.stderr.write(`${prefix}${detail}\n`);
+      if (detail) writePrefixedLine(label, detail);
       break;
     }
     case "status": {
       if (event.message) {
-        process.stderr.write(`${prefix}${event.status}: ${event.message}\n`);
+        writePrefixedLine(label, `${event.status}: ${event.message}`);
       }
       break;
     }
     case "task": {
       if (event.text) {
-        process.stderr.write(`${prefix}${event.text}\n`);
+        writePrefixedLine(label, event.text);
       }
       break;
     }
@@ -137,10 +163,19 @@ function handleStreamEvent(event: SDKMessage, label: string): void {
 
 /** Stream human-friendly progress to stderr, then return the terminal result. */
 export async function streamRunWithProgress(run: Run, label: string): Promise<RunResult> {
-  for await (const event of run.stream()) {
-    handleStreamEvent(event, label);
+  try {
+    for await (const event of run.stream()) {
+      handleStreamEvent(event, label);
+    }
+  } finally {
+    flushStream(label);
   }
   return run.wait();
+}
+
+/** Stream a run to completion and return the terminal result. */
+export async function streamAndWait(run: Run, label: string = "agent"): Promise<RunResult> {
+  return streamRunWithProgress(run, label);
 }
 
 export function parseJsonResult<T>(raw: string | undefined, fallback: T): T {
