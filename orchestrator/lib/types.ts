@@ -11,6 +11,7 @@ export interface SeamManifest {
 
 export interface Fixture {
   name: string;
+  branch?: string;
   graceHours: number;
   start: string;
   scheduleId: number;

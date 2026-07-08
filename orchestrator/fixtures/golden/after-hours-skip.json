@@ -1,0 +1,8 @@
+{
+  "name": "after-hours-skip",
+  "branch": "BusinessHours::addWorkingHours lines 117-118: after-hours continue to next working day",
+  "graceHours": 2,
+  "start": "2024-01-15T18:00:00-05:00",
+  "scheduleId": 1,
+  "expected": "2024-01-16T10:00:00"
+}

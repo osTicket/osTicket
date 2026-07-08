@@ -1,0 +1,8 @@
+{
+  "name": "backtrack-multi-day",
+  "branch": "BusinessHours::addWorkingHours lines 166-175: backtrack when accumulated seconds exceed requested hours",
+  "graceHours": 10,
+  "start": "2024-01-15T08:00:00-05:00",
+  "scheduleId": 1,
+  "expected": "2024-01-16T09:00:00"
+}

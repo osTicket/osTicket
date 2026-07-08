@@ -1,0 +1,8 @@
+{
+  "name": "guard-empty-schedule",
+  "branch": "BusinessHours::addWorkingHours lines 95-96: empty schedule returns false",
+  "graceHours": 2,
+  "start": "2024-01-15T10:00:00-05:00",
+  "scheduleId": 5,
+  "expected": null
+}

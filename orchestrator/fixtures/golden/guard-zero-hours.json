@@ -1,0 +1,8 @@
+{
+  "name": "guard-zero-hours",
+  "branch": "BusinessHours::addWorkingHours lines 90-91: zero/non-numeric hours early return",
+  "graceHours": 0,
+  "start": "2024-01-15T10:00:00-05:00",
+  "scheduleId": 1,
+  "expected": "2024-01-15T10:00:00"
+}
