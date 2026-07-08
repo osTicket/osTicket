@@ -1,0 +1,27 @@
+{
+  "name": "osticket-strangler-demo",
+  "version": "1.0.0",
+  "description": "osTicket ======== <a href=\"https://osticket.com\"><img height=\"80px\" width=\"80px\" src=\"images/favicon.png\" align=\"left\" hspace=\"10\" vspace=\"6\"></a>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jazneb23/osTicket.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jazneb23/osTicket/issues"
+  },
+  "homepage": "https://github.com/jazneb23/osTicket#readme",
+  "dependencies": {
+    "@cursor/sdk": "^1.0.23",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3"
+  }
+}

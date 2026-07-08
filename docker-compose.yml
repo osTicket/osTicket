@@ -1,0 +1,16 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: osticket
+      MYSQL_DATABASE: osticket
+    ports:
+      - "3306:3306"
+  web:
+    image: php:8.4-apache
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - db

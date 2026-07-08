@@ -20,3 +20,5 @@ stage
 include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
+.env
+node_modules/
