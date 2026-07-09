@@ -2,9 +2,9 @@
 /*********************************************************************
     SlaPriorityEscalationResolver.php
 
-    Delegates SLA priority-escalation flag evaluation to the existing
-    SLA::priorityEscalation() expression. Flag loading and facade concerns
-    stay with the caller.
+    Inline lift of the SLA::priorityEscalation() flag expression. Reads the
+    bound SLA instance's in-memory flags property only; flag loading and
+    facade concerns stay with the caller.
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
     See LICENSE.TXT for details.
@@ -15,14 +15,14 @@
 class SlaPriorityEscalationResolver {
 
     /**
-     * Evaluate whether priority escalation is enabled for the bound SLA.
+     * Evaluate priority escalation for a hydrated SLA instance.
      *
-     * Lifts the legacy `$this->flags && self::FLAG_ESCALATE` expression from
-     * SLA::priorityEscalation(). Does not call priorityEscalation() — the
-     * strangler stage routes the facade method here.
+     * Preserves the legacy `$this->flags && self::FLAG_ESCALATE` expression
+     * (logical AND with 0x0002, not bitwise AND or hasFlag()). Does not call
+     * priorityEscalation() — the strangler stage routes the facade method here.
      *
-     * @param SLA $sla Hydrated SLA instance with flags already loaded
-     * @return int|bool Raw expression result (truthy/falsy contract)
+     * @param SLA $sla Hydrated SLA with flags already loaded on the instance
+     * @return int|bool Raw expression result (0/2); callers treat as falsy/truthy
      */
     public function resolve($sla) {
         return $sla->flags && SLA::FLAG_ESCALATE;

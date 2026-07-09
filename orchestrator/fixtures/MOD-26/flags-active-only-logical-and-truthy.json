@@ -1,6 +1,6 @@
 {
   "name": "flags-active-only-logical-and-truthy",
-  "branch": "flags=1 (FLAG_ACTIVE only, no FLAG_ESCALATE bit) is non-zero so logical AND returns 2 — truthy here but falsy in getInfo()['enable_priority_escalation'] which uses bitwise AND",
+  "branch": "flags=1 (FLAG_ACTIVE only, escalate bit unset) is non-zero so logical AND returns 2 — truthy here but falsy in getInfo() bitwise path",
   "input": {
     "flags": 1
   },

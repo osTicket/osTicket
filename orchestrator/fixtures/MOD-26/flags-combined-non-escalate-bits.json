@@ -1,8 +1,0 @@
-{
-  "name": "flags-combined-non-escalate-bits",
-  "branch": "flags=9 (FLAG_ACTIVE|FLAG_TRANSIENT) combines multiple non-escalation bits; any non-zero flags value triggers the truthy branch returning FLAG_ESCALATE (2)",
-  "input": {
-    "flags": 9
-  },
-  "expected": true
-}

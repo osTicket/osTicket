@@ -1,0 +1,8 @@
+{
+  "name": "flags-seed-default-active-and-escalate",
+  "branch": "flags=3 (FLAG_ACTIVE|FLAG_ESCALATE) matches install seed data; non-zero left operand evaluates to FLAG_ESCALATE constant 2",
+  "input": {
+    "flags": 3
+  },
+  "expected": true
+}

@@ -1,6 +1,6 @@
 {
   "name": "flags-escalate-bit-only",
-  "branch": "flags=2 (FLAG_ESCALATE alone, inactive SLA) is non-zero; logical AND evaluates to FLAG_ESCALATE (2) even without FLAG_ACTIVE",
+  "branch": "flags=2 (FLAG_ESCALATE alone) non-zero left operand evaluates to FLAG_ESCALATE constant 2",
   "input": {
     "flags": 2
   },
