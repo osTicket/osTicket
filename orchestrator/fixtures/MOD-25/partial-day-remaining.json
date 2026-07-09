@@ -1,6 +1,6 @@
 {
   "name": "partial-day-remaining",
-  "branch": "BusinessHours::addWorkingHours lines 122-123, 156: partial-day diffTime instead of full diff",
+  "branch": "Mid-business-day start sets partial=true and uses ScheduleEntry::diffTime for remaining hours instead of full-day ScheduleEntry::diff",
   "graceHours": 2,
   "start": "2024-01-15T10:00:00-05:00",
   "scheduleId": 1,

@@ -1,6 +1,6 @@
 {
   "name": "holiday-full-day-skip",
-  "branch": "BusinessHours::addWorkingHours lines 133-143: full-day holiday skip",
+  "branch": "Full-day holiday occurrence moves DateTime to holiday end and continues without adding working hours, deferring grace to the next business day",
   "graceHours": 2,
   "start": "2024-07-04T10:00:00-05:00",
   "scheduleId": 1,

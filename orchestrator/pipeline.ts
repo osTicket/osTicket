@@ -7,6 +7,7 @@ import {
   updateTicketStatus,
 } from "./lib/linear";
 import { notifyPrOpened } from "./lib/slack";
+import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
 import { extractor } from "./agents/extractor";
@@ -28,6 +29,7 @@ export async function runPipeline(
 
   if (fromStage <= 2) {
     await fixtureGenerator(manifest);
+    await baselineCapture(ticketId);
   }
 
   if (fromStage <= 3) {

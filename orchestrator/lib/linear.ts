@@ -5,6 +5,14 @@ const LINEAR_GRAPHQL_URL = "https://api.linear.app/graphql";
 const SLA_MODERNIZATION_PROJECT = "SLA Modernization";
 const READY_STATUS = "Ready";
 
+const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 520, 522, 524, 525]);
+const MAX_RETRIES = 4;
+const BASE_DELAY_MS = 1000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** Modernize (MOD) team workflow states — verified via list_issue_statuses */
 export const STATUS_IN_PROGRESS = "In Progress";
 export const STATUS_IN_REVIEW = "In Review";
@@ -33,28 +41,56 @@ async function linearGraphQL<T>(
   query: string,
   variables?: Record<string, unknown>
 ): Promise<T> {
-  const response = await fetch(LINEAR_GRAPHQL_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: requireApiKey(),
-    },
-    body: JSON.stringify({ query, variables }),
-  });
+  let lastError: Error | undefined;
 
-  if (!response.ok) {
-    throw new Error(`Linear API error: ${response.status} ${response.statusText}`);
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(LINEAR_GRAPHQL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: requireApiKey(),
+        },
+        body: JSON.stringify({ query, variables }),
+      });
+
+      if (!response.ok) {
+        const err = new Error(
+          `Linear API error: ${response.status} ${response.statusText}`
+        );
+        if (RETRYABLE_STATUS.has(response.status) && attempt < MAX_RETRIES) {
+          lastError = err;
+          await sleep(BASE_DELAY_MS * 2 ** attempt);
+          continue;
+        }
+        throw err;
+      }
+
+      const json = (await response.json()) as GraphQLResponse<T>;
+      if (json.errors?.length) {
+        throw new Error(json.errors.map((error) => error.message).join("; "));
+      }
+      if (!json.data) {
+        throw new Error("Linear API returned no data");
+      }
+
+      return json.data;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      const retryable =
+        error.message.includes("fetch failed") ||
+        error.message.includes("ECONNRESET") ||
+        error.message.includes("ETIMEDOUT");
+      if (retryable && attempt < MAX_RETRIES) {
+        lastError = error;
+        await sleep(BASE_DELAY_MS * 2 ** attempt);
+        continue;
+      }
+      throw error;
+    }
   }
 
-  const json = (await response.json()) as GraphQLResponse<T>;
-  if (json.errors?.length) {
-    throw new Error(json.errors.map((error) => error.message).join("; "));
-  }
-  if (!json.data) {
-    throw new Error("Linear API returned no data");
-  }
-
-  return json.data;
+  throw lastError ?? new Error("Linear API request failed after retries");
 }
 
 export async function getLinearTicket(ticketId: string): Promise<LinearTicket> {

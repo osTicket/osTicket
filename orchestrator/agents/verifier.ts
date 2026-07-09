@@ -1,6 +1,6 @@
-import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import { runHarness } from "../lib/harness";
 import { fixtureDir } from "./fixtureGenerator";
 import type { Fixture, ParityReport } from "../lib/types";
 
@@ -19,12 +19,11 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
       continue;
     }
     try {
-      const raw = execSync(
-        `docker compose exec -T web php legacy/harness/sla_capture.php '${JSON.stringify({
-          start: fixture.start, hours: fixture.graceHours, schedule_id: fixture.scheduleId,
-        })}'`
-      ).toString();
-      const { output } = JSON.parse(raw);
+      const output = runHarness({
+        start: fixture.start,
+        hours: fixture.graceHours,
+        schedule_id: fixture.scheduleId,
+      });
       if (output !== fixture.expected) {
         mismatches.push({ name: fixture.name, expected: fixture.expected, actual: output ?? "null" });
       }

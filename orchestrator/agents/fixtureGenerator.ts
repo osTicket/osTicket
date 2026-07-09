@@ -31,9 +31,9 @@ For each fixture provide:
 - start: ISO 8601 datetime positioned to trigger the branch (include timezone offset)
 - scheduleId: schedule identifier relevant to the harness (1 = normal business-hours
   schedule; 5 = empty-schedule seed used for fallback testing when applicable)
-- expected: null (always null — expected outputs are captured manually later)
 
-Do NOT invent or guess expected output datetimes. Every expected field must be null.
+Do NOT include an expected field — baseline outputs are captured automatically
+by the pipeline after fixture generation.
 
 Respond with ONLY a valid JSON array of fixture objects. No prose before or after.
   `);
@@ -53,7 +53,7 @@ Respond with ONLY a valid JSON array of fixture objects. No prose before or afte
     }
 
     for (const fixture of fixtures) {
-      fixture.expected = null;
+      delete fixture.expected;
       const filePath = path.join(dir, `${fixture.name}.json`);
       fs.writeFileSync(filePath, JSON.stringify(fixture, null, 2) + "\n");
       process.stderr.write(`[fixture-generator] wrote ${filePath}\n`);

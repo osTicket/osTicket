@@ -1,0 +1,44 @@
+import * as fs from "fs";
+import * as path from "path";
+import { runHarness } from "../lib/harness";
+import type { Fixture } from "../lib/types";
+import { fixtureDir } from "./fixtureGenerator";
+
+export async function baselineCapture(ticketId: string): Promise<void> {
+  const dir = fixtureDir(ticketId);
+  if (!fs.existsSync(dir)) {
+    throw new Error(`Fixture directory not found: ${dir}`);
+  }
+
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
+  let captured = 0;
+
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const fixture: Fixture = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+
+    // null means "not yet captured" from fixtureGenerator; re-run harness to fill in.
+    if (typeof fixture.expected === "string") {
+      continue;
+    }
+
+    const output = runHarness({
+      start: fixture.start,
+      hours: fixture.graceHours,
+      schedule_id: fixture.scheduleId,
+    });
+
+    fixture.expected = output;
+    fs.writeFileSync(filePath, JSON.stringify(fixture, null, 2) + "\n");
+    process.stderr.write(
+      `[baseline-capture] ${fixture.name}: expected ${output ?? "null"}\n`
+    );
+    captured++;
+  }
+
+  if (captured === 0) {
+    process.stderr.write(`[baseline-capture] all fixtures already have expected values\n`);
+  } else {
+    process.stderr.write(`[baseline-capture] captured ${captured} baseline(s)\n`);
+  }
+}
