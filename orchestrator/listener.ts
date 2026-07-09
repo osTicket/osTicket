@@ -1,5 +1,10 @@
 import "dotenv/config";
-import { findReadyTicket, getLinearTicket } from "./lib/linear";
+import {
+  findReadyTicket,
+  getLinearTicket,
+  STATUS_IN_PROGRESS,
+  updateTicketStatus,
+} from "./lib/linear";
 import { runPipeline } from "./pipeline";
 
 const POLL_INTERVAL_MS = 5000;
@@ -13,6 +18,7 @@ async function poll(): Promise<void> {
     }
 
     processed.add(ticketId);
+    await updateTicketStatus(ticketId, STATUS_IN_PROGRESS);
     console.log(`Starting pipeline for ticket ${ticketId}`);
     const ticket = await getLinearTicket(ticketId);
     await runPipeline(ticketId, ticket.description);

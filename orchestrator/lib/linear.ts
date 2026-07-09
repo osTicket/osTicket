@@ -5,6 +5,10 @@ const LINEAR_MCP_URL = "https://mcp.linear.app/mcp";
 const SLA_MODERNIZATION_PROJECT = "SLA Modernization";
 const READY_STATUS = "Ready";
 
+/** Modernize (MOD) team workflow states — verified via list_issue_statuses */
+export const STATUS_IN_PROGRESS = "In Progress";
+export const STATUS_IN_REVIEW = "In Review";
+
 export interface LinearTicket {
   title: string;
   description: string;
@@ -95,4 +99,8 @@ export async function findReadyTicket(): Promise<string | null> {
     limit: 1,
   });
   return result.issues[0]?.id ?? null;
+}
+
+export async function updateTicketStatus(ticketId: string, status: string): Promise<void> {
+  await callLinearTool("save_issue", { id: ticketId, state: status });
 }

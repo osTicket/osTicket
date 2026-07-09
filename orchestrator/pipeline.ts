@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { STATUS_IN_PROGRESS, STATUS_IN_REVIEW, updateTicketStatus } from "./lib/linear";
 import { cartographer } from "./agents/cartographer";
 import { extractor } from "./agents/extractor";
 import { strangler } from "./agents/strangler";
@@ -31,10 +32,16 @@ export async function runPipeline(
   );
 
   if (!report.gatePassed) {
-    console.error("Parity gate failed — mismatches:");
+    console.error("=".repeat(72));
+    console.error(`PARITY GATE FAILED for ${ticketId} — pipeline halted, no PR opened`);
+    console.error(
+      `Ticket remains in "${STATUS_IN_PROGRESS}" (no Blocked state in this workspace)`
+    );
+    console.error(`${report.failed} mismatch(es) of ${report.totalCases} cases:`);
     for (const m of report.mismatches) {
       console.error(`  ${m.name}: expected ${m.expected}, got ${m.actual}`);
     }
+    console.error("=".repeat(72));
     return;
   }
 
@@ -48,6 +55,8 @@ export async function runPipeline(
 
   const { prUrl } = await prAgent(manifest, report);
   console.log(`PR URL: ${prUrl}`);
+  await updateTicketStatus(ticketId, STATUS_IN_REVIEW);
+  console.log(`Linear ticket ${ticketId} moved to ${STATUS_IN_REVIEW}`);
 }
 
 function parseArgs(): {
