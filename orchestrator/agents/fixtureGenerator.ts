@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
+import { requireHarnessScript } from "../lib/manifest";
 import type { Fixture, SeamManifest } from "../lib/types";
 
 export function fixtureDir(ticketId: string): string {
@@ -8,6 +9,7 @@ export function fixtureDir(ticketId: string): string {
 }
 
 export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[]> {
+  const harnessScript = requireHarnessScript(manifest);
   const dir = fixtureDir(manifest.ticketId);
   fs.mkdirSync(dir, { recursive: true });
 
@@ -20,17 +22,16 @@ Propose 4-6 fixture input definitions that exercise the real distinct behavioral
 branches described in coreLogic and sideEffects above — not generic placeholders,
 but cases grounded in this ticket's actual logic paths.
 
+Harness script: ${harnessScript}
+Harness input shape: ${manifest.harnessInputShape ?? "(see inputShape in manifest)"}
+
 Each fixture must cover a different branch (guards, fallbacks, normal path, edge
-cases such as after-hours skip, partial days, holidays, backtracking, empty
-schedule / no-schedule fallback — only where this manifest documents them).
+cases — only where this manifest documents them).
 
 For each fixture provide:
 - name: kebab-case identifier unique within this ticket
 - branch: one-line description of which behavioral branch this exercises
-- graceHours: hours/grace-period input appropriate for this seam (0 for guard cases)
-- start: ISO 8601 datetime positioned to trigger the branch (include timezone offset)
-- scheduleId: schedule identifier relevant to the harness (1 = normal business-hours
-  schedule; 5 = empty-schedule seed used for fallback testing when applicable)
+- input: JSON object with the fields the harness expects (per harnessInputShape)
 
 Do NOT include an expected field — baseline outputs are captured automatically
 by the pipeline after fixture generation.

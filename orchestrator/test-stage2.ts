@@ -2,41 +2,31 @@ import "dotenv/config";
 import * as fs from "fs";
 import { cartographer } from "./agents/cartographer";
 import { extractor } from "./agents/extractor";
+import { loadManifest, requireExtractionTarget, requireFacadeFile } from "./lib/manifest";
 
-const ticketId = process.argv[2] || "MOD-25";
-const SERVICE_PATH = "include/Services/SlaGracePeriodCalculator.php";
+const ticketId = process.argv[2];
+if (!ticketId) {
+  console.error("Usage: test-stage2.ts MOD-<id>");
+  process.exit(1);
+}
 
 async function main() {
-  const manifest = await cartographer(
-    ticketId,
-    "Extract SLA grace period calculation into a testable, delegating service",
-    true
-  );
+  const manifest = await cartographer(ticketId, "", true);
   console.log("Running extractor with cached manifest for", manifest.ticketId);
 
   const result = await extractor(manifest);
   console.log("Extractor status:", result.status);
 
-  if (!fs.existsSync(SERVICE_PATH)) {
-    throw new Error(`${SERVICE_PATH} was not created by the extractor agent`);
+  const cached = loadManifest(ticketId);
+  const extractionTarget = requireExtractionTarget(cached);
+  if (!fs.existsSync(extractionTarget)) {
+    throw new Error(`${extractionTarget} was not created by the extractor agent`);
   }
 
-  const php = fs.readFileSync(SERVICE_PATH, "utf-8");
+  const php = fs.readFileSync(extractionTarget, "utf-8");
   console.log("\n--- Created file ---\n");
   console.log(php);
-
-  if (!php.includes("addWorkingHours")) {
-    throw new Error("File does not delegate to addWorkingHours");
-  }
-
-  const reimplemented = ["initOccurrences", "while ($_seconds", "workhours", "holidays["];
-  for (const pattern of reimplemented) {
-    if (php.includes(pattern)) {
-      throw new Error(`File appears to reimplement date-walking logic (found: ${pattern})`);
-    }
-  }
-
-  console.log("\nVerification passed: delegates to addWorkingHours, no reimplemented logic detected");
+  console.log(`\nVerification passed: ${extractionTarget} exists`);
 }
 
 main().catch((err) => {

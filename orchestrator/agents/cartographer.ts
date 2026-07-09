@@ -1,10 +1,7 @@
 import { parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
+import { applyHarnessDefaults, manifestPath } from "../lib/manifest";
 import type { SeamManifest } from "../lib/types";
 import * as fs from "fs";
-
-function manifestPath(ticketId: string): string {
-  return `orchestrator/.state/${ticketId}-manifest.json`;
-}
 
 export async function cartographer(
   ticketId: string,
@@ -15,7 +12,7 @@ export async function cartographer(
   const statePath = manifestPath(ticketId);
   if (fromCache && fs.existsSync(statePath)) {
     process.stderr.write(`Using cached manifest for ${ticketId}.\n`);
-    return JSON.parse(fs.readFileSync(statePath, "utf-8"));
+    return applyHarnessDefaults(JSON.parse(fs.readFileSync(statePath, "utf-8")));
   }
 
   return withCloudAgent(async (agent) => {
@@ -38,30 +35,54 @@ When investigation is complete, your FINAL message must contain ONLY valid
 JSON matching the seam-manifest schema. No prose before or after the JSON in
 that final message.
 
-Investigate the SLA grace-period seam:
-1. Read include/class.sla.php, function addGracePeriod. Trace it precisely:
-   does it read the global $cfg? Does it call getSchedule(), and does that
-   perform a database lookup? Does it mutate the DateTime object it's given
-   in place, or return a new one?
-2. addGracePeriod does not call BusinessHours::addWorkingHours directly; it
-   calls $schedule->addWorkingHours(), where $schedule is a
-   BusinessHoursSchedule. Trace BusinessHoursSchedule::addWorkingHours in
-   include/class.schedule.php first, then follow it into
-   BusinessHours::addWorkingHours in include/class.businesshours.php. Trace
-   every branch: partial days, holidays, backtracking. Does IT write to the
-   database or read global state, separately from addGracePeriod?
-3. Find every call site of addGracePeriod in include/class.ticket.php and
-   confirm what consumes its return value (due-date calc, overdue flagging).
+From the acceptance criteria above, identify and trace:
+
+1. **Facade entry point** — the class/method/file callers use today (the seam
+   surface that will eventually delegate to extracted code).
+2. **Core logic** — the functions/classes that perform the real work, including
+   every function in the delegation chain below the facade.
+3. **Consumers** — every call site of the entry point and how return values are used.
+4. **Input/output contract** — parameter types, in-place mutation vs new objects,
+   return shape, by-reference parameters.
+5. **Side effects** — DB reads/writes, global state ($cfg etc.), lazy-loading,
+   caching, file I/O. List each one precisely; do not summarize them away.
+6. **Constraints** — behavioral rules that must be preserved during extraction
+   (precedence order, fallbacks, guards, timezone handling, etc.).
+
+Also determine pipeline tooling paths for later stages:
+
+- **facadeFile** — PHP file path (e.g. include/class.sla.php) containing the
+  entry-point method to patch in the strangler stage.
+- **extractionTarget** — suggested path for the new extracted service class
+  (e.g. include/Services/SomeCalculator.php).
+- **harnessScript** — path to a legacy/harness/*.php script for parity testing.
+  For MOD-25 ONLY: always set to "legacy/harness/sla_capture.php" (the existing
+  proven harness — do not suggest a new script for this ticket).
+  For all other tickets: use an existing harness only if it fully exercises this
+  seam; otherwise suggest a new path like legacy/harness/<seam-name>_capture.php
+  that can test facade paths, fallbacks, and edge branches (the script must be
+  created manually before baseline capture runs).
+- **harnessInputShape** — plain-English description of the JSON input fields the
+  harness expects (field names, types, and what each controls). For MOD-25, match
+  sla_capture.php: start, hours, schedule_id.
 
 Respond with ONLY valid JSON matching:
 {
-  "entryPoint": string, "coreLogic": string, "consumers": string[],
-  "inputShape": string, "outputShape": string,
-  "sideEffects": string[], "constraints": string[]
+  "entryPoint": string,
+  "coreLogic": string,
+  "consumers": string[],
+  "inputShape": string,
+  "outputShape": string,
+  "sideEffects": string[],
+  "constraints": string[],
+  "facadeFile": string,
+  "extractionTarget": string,
+  "harnessScript": string,
+  "harnessInputShape": string
 }
 
-List every side effect you find precisely, do not summarize them away, they
-determine how the next stage is allowed to build the extraction.
+List every side effect you find precisely — they determine how the next stage
+is allowed to build the extraction.
   `);
 
     process.stderr.write(`[cartographer] run ${run.id} started\n`);
@@ -70,7 +91,11 @@ determine how the next stage is allowed to build the extraction.
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Cartographer run failed");
     }
-    const manifest = { ticketId, ...parseJsonResult(result.result, {} as Partial<SeamManifest>) } as SeamManifest;
+    const manifest = applyHarnessDefaults({
+      ticketId,
+      ...parseJsonResult(result.result, {} as Partial<SeamManifest>),
+    } as SeamManifest);
+    fs.mkdirSync("orchestrator/.state", { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
     return manifest;
   });

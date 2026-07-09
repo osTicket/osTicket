@@ -1,10 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 import { runHarness } from "../lib/harness";
+import { fixtureHarnessInput, loadManifest, requireHarnessScript } from "../lib/manifest";
 import type { Fixture } from "../lib/types";
 import { fixtureDir } from "./fixtureGenerator";
 
 export async function baselineCapture(ticketId: string): Promise<void> {
+  const manifest = loadManifest(ticketId);
+  const harnessScript = requireHarnessScript(manifest);
   const dir = fixtureDir(ticketId);
   if (!fs.existsSync(dir)) {
     throw new Error(`Fixture directory not found: ${dir}`);
@@ -22,11 +25,7 @@ export async function baselineCapture(ticketId: string): Promise<void> {
       continue;
     }
 
-    const output = runHarness({
-      start: fixture.start,
-      hours: fixture.graceHours,
-      schedule_id: fixture.scheduleId,
-    });
+    const output = runHarness(harnessScript, fixtureHarnessInput(fixture));
 
     fixture.expected = output;
     fs.writeFileSync(filePath, JSON.stringify(fixture, null, 2) + "\n");

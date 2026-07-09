@@ -3,16 +3,16 @@ import * as fs from "fs";
 import { cartographer } from "./agents/cartographer";
 import { extractor } from "./agents/extractor";
 import { strangler } from "./agents/strangler";
+import { loadManifest, requireExtractionTarget, requireFacadeFile } from "./lib/manifest";
 
-const ticketId = process.argv[2] || "MOD-25";
-const SLA_PATH = "include/class.sla.php";
+const ticketId = process.argv[2];
+if (!ticketId) {
+  console.error("Usage: test-stage3.ts MOD-<id>");
+  process.exit(1);
+}
 
 async function main() {
-  const manifest = await cartographer(
-    ticketId,
-    "Extract SLA grace period calculation into a testable, delegating service",
-    true
-  );
+  const manifest = await cartographer(ticketId, "", true);
   console.log("Running extractor with cached manifest for", manifest.ticketId);
 
   const extractorResult = await extractor(manifest);
@@ -23,26 +23,19 @@ async function main() {
   const stranglerResult = await strangler(manifest);
   console.log("Strangler status:", stranglerResult.status);
 
-  const php = fs.readFileSync(SLA_PATH, "utf-8");
-  console.log("\n--- Patched addGracePeriod region ---\n");
+  const cached = loadManifest(ticketId);
+  const facadeFile = requireFacadeFile(cached);
+  const extractionTarget = requireExtractionTarget(cached);
+  const php = fs.readFileSync(facadeFile, "utf-8");
+  console.log(`\n--- Patched facade: ${facadeFile} ---\n`);
+  console.log(php.slice(0, 2000) + (php.length > 2000 ? "\n...(truncated)" : ""));
 
-  const match = php.match(/function addGracePeriod[\s\S]*?^    \}/m);
-  console.log(match?.[0] ?? "(could not extract addGracePeriod block)");
-
-  if (!php.includes("SlaGracePeriodCalculator")) {
-    throw new Error(`${SLA_PATH} does not reference SlaGracePeriodCalculator`);
-  }
-  if (!php.includes("calculate(")) {
-    throw new Error(`${SLA_PATH} does not call calculate()`);
-  }
-  if (!php.includes("getDefaultSchedule()")) {
-    throw new Error(`${SLA_PATH} no longer preserves $cfg default schedule fallback`);
-  }
-  if (php.includes("$schedule->addWorkingHours")) {
-    throw new Error(`${SLA_PATH} still delegates inline to $schedule->addWorkingHours`);
+  const serviceName = extractionTarget.split("/").pop()?.replace(".php", "");
+  if (serviceName && !php.includes(serviceName)) {
+    throw new Error(`${facadeFile} does not reference ${serviceName}`);
   }
 
-  console.log("\nVerification passed: class.sla.php patched to use SlaGracePeriodCalculator");
+  console.log(`\nVerification passed: ${facadeFile} patched to use ${extractionTarget}`);
 }
 
 main().catch((err) => {

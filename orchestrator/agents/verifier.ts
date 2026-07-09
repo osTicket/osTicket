@@ -1,10 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 import { runHarness } from "../lib/harness";
+import { fixtureHarnessInput, loadManifest, requireHarnessScript } from "../lib/manifest";
 import { fixtureDir } from "./fixtureGenerator";
 import type { Fixture, ParityReport } from "../lib/types";
 
 export async function verifier(ticketId: string): Promise<ParityReport> {
+  const manifest = loadManifest(ticketId);
+  const harnessScript = requireHarnessScript(manifest);
   const dir = fixtureDir(ticketId);
   if (!fs.existsSync(dir)) {
     throw new Error(`Fixture directory not found: ${dir}`);
@@ -19,11 +22,7 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
       continue;
     }
     try {
-      const output = runHarness({
-        start: fixture.start,
-        hours: fixture.graceHours,
-        schedule_id: fixture.scheduleId,
-      });
+      const output = runHarness(harnessScript, fixtureHarnessInput(fixture));
       if (output !== fixture.expected) {
         mismatches.push({ name: fixture.name, expected: fixture.expected, actual: output ?? "null" });
       }

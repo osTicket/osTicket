@@ -22,3 +22,6 @@ include/mpdf/tmp
 nbproject/
 .env
 node_modules/
+
+# Pipeline runtime cache (seam manifests per ticket)
+orchestrator/.state/
