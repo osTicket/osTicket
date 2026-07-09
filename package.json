@@ -20,6 +20,7 @@
   "homepage": "https://github.com/jazneb23/osTicket#readme",
   "dependencies": {
     "@cursor/sdk": "^1.0.23",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "dotenv": "^17.4.2",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3"
