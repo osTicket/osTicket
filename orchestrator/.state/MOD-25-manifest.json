@@ -1,5 +1,4 @@
 {
-  "ticketId": "MOD-25",
   "entryPoint": "SLA::addGracePeriod in include/class.sla.php",
   "coreLogic": "BusinessHours::addWorkingHours in include/class.businesshours.php (delegated via SlaGracePeriodCalculator::calculate in include/Services/SlaGracePeriodCalculator.php and BusinessHoursSchedule::addWorkingHours in include/class.schedule.php)",
   "consumers": [
