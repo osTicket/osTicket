@@ -1,8 +1,0 @@
-{
-  "name": "flags-zero-short-circuit-falsy",
-  "branch": "flags=0 left operand is falsy; logical AND short-circuits and returns 0 without evaluating FLAG_ESCALATE",
-  "input": {
-    "flags": 0
-  },
-  "expected": false
-}

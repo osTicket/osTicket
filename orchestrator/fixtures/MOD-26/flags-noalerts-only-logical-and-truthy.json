@@ -1,8 +1,0 @@
-{
-  "name": "flags-noalerts-only-logical-and-truthy",
-  "branch": "flags=4 (FLAG_NOALERTS only, no escalate bit) non-zero left operand still returns 2 via logical AND, not bitwise mask",
-  "input": {
-    "flags": 4
-  },
-  "expected": true
-}

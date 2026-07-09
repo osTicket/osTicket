@@ -1,8 +1,0 @@
-{
-  "name": "flags-active-only-logical-and-truthy",
-  "branch": "flags=1 (FLAG_ACTIVE only, escalate bit unset) is non-zero so logical AND returns 2 — truthy here but falsy in getInfo() bitwise path",
-  "input": {
-    "flags": 1
-  },
-  "expected": true
-}

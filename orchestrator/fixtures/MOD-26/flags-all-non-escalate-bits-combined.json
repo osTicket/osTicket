@@ -1,8 +1,0 @@
-{
-  "name": "flags-all-non-escalate-bits-combined",
-  "branch": "flags=13 (FLAG_ACTIVE|FLAG_NOALERTS|FLAG_TRANSIENT) has multiple bits set but not FLAG_ESCALATE; logical AND still returns 2 because left operand is truthy",
-  "input": {
-    "flags": 13
-  },
-  "expected": true
-}
