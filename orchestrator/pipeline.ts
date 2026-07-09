@@ -88,9 +88,13 @@ function parseArgs(): {
   };
 }
 
-const { ticketId, acceptanceCriteria, fromStage } = parseArgs();
+const isMain = process.argv[1]?.includes("pipeline") ?? false;
 
-runPipeline(ticketId, acceptanceCriteria, fromStage).catch((err) => {
-  console.error("Pipeline failed:", err);
-  process.exit(1);
-});
+if (isMain) {
+  const { ticketId, acceptanceCriteria, fromStage } = parseArgs();
+
+  runPipeline(ticketId, acceptanceCriteria, fromStage).catch((err) => {
+    console.error("Pipeline failed:", err);
+    process.exit(1);
+  });
+}
