@@ -1,7 +1,7 @@
 {
   "ticketId": "MOD-25",
   "entryPoint": "SLA::addGracePeriod in include/class.sla.php",
-  "coreLogic": "BusinessHours::addWorkingHours in include/class.businesshours.php (delegated via BusinessHoursSchedule::addWorkingHours in include/class.schedule.php)",
+  "coreLogic": "BusinessHours::addWorkingHours in include/class.businesshours.php (delegated via SlaGracePeriodCalculator::calculate in include/Services/SlaGracePeriodCalculator.php and BusinessHoursSchedule::addWorkingHours in include/class.schedule.php)",
   "consumers": [
     "Ticket::getSLADueDate in include/class.ticket.php (sole direct call site at line 557; receives mutated DateTime, calls setTimezone to DB timezone, returns formatted 'Y-m-d H:i:s' string or implicit null when SLA inactive/missing)",
     "Ticket::updateEstDueDate in include/class.ticket.php (calls getSLADueDate(true) bypassing est_duedate cache, assigns result to $this->est_duedate, persists via Ticket::save())",
@@ -17,8 +17,9 @@
     "OsticketConfig::getDefaultSchedule() lazy-loads BusinessHoursSchedule via BusinessHoursSchedule::lookup($this->getDefaultScheduleId()) database SELECT when default schedule_id is set, caching on OsticketConfig::$defaultSchedule",
     "BusinessHoursSchedule::lookup() delegates to Schedule::lookup() parent::lookup() database SELECT filtered by Schedule::FLAG_BIZHRS",
     "Reads SLA grace_period hours from SLA model instance property via $this->getGracePeriod()",
-    "Mutates input DateTime $date in place on schedule-success path via downstream addWorkingHours chain",
-    "Mutates input DateTime $date in place on wall-clock fallback path via $date->add(DateInterval) using round(grace_period * 3600) whole seconds",
+    "SLA::addGracePeriod delegates date math to SlaGracePeriodCalculator::calculate() constructing a new SlaGracePeriodCalculator instance per call",
+    "SlaGracePeriodCalculator::calculate mutates input DateTime $date in place on schedule-success path via downstream addWorkingHours chain",
+    "SlaGracePeriodCalculator::calculate mutates input DateTime $date in place on wall-clock fallback path via $date->add(DateInterval) using round(graceHours * 3600) whole seconds",
     "Populates caller &$timeline array by reference when schedule path succeeds: BusinessHoursSchedule::addWorkingHours assigns $timeline = $bhrs->getTimeline() after BusinessHours::addWorkingHours returns truthy",
     "BusinessHoursSchedule::addWorkingHours constructs ephemeral BusinessHours($this) instance; no persistence of that object",
     "BusinessHoursSchedule::addWorkingHours does not pass &$timeline into BusinessHours::addWorkingHours; audit strings accumulate on BusinessHours internal $timeline property and are copied to caller &$timeline only after success",
@@ -42,7 +43,7 @@
     "Backtrack branch: when $_seconds > $seconds after adding a day's time, subtracts intval(round($_seconds - $seconds)) seconds via DateInterval and breaks the foreach loop",
     "When grace_period hours is zero or non-numeric, BusinessHours::addWorkingHours returns $date immediately without adding time (truthy return), so addGracePeriod returns early without wall-clock fallback",
     "When schedule has zero entries, BusinessHours::addWorkingHours returns false causing BusinessHoursSchedule::addWorkingHours to return false and addGracePeriod to fall through to wall-clock fallback",
-    "No database writes anywhere in SLA::addGracePeriod, BusinessHoursSchedule::addWorkingHours, or BusinessHours::addWorkingHours call chain"
+    "No database writes anywhere in SLA::addGracePeriod, SlaGracePeriodCalculator::calculate, BusinessHoursSchedule::addWorkingHours, or BusinessHours::addWorkingHours call chain"
   ],
   "constraints": [
     "Schedule resolution precedence in addGracePeriod: caller-provided BusinessHoursSchedule argument, then SLA::getSchedule(), then global $cfg->getDefaultSchedule() (PHP elvis ?: is left-associative)",
