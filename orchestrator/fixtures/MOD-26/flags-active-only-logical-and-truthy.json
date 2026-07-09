@@ -1,0 +1,8 @@
+{
+  "name": "flags-active-only-logical-and-truthy",
+  "branch": "flags=1 sets FLAG_ACTIVE only (no FLAG_ESCALATE bit); logical AND still returns 2, diverging from getInfo() bitwise enable_priority_escalation which would be falsy",
+  "input": {
+    "flags": 1
+  },
+  "expected": true
+}

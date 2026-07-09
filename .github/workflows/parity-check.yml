@@ -1,0 +1,40 @@
+name: Parity Check
+
+on:
+  pull_request:
+    branches:
+      - demo/sla-strangler
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  parity:
+    name: Golden fixture parity
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out PR code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mysqli
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Bootstrap Docker services
+        run: bash scripts/ci-docker-bootstrap.sh
+
+      - name: Run parity verifier
+        run: npx tsx orchestrator/ci-parity-check.ts
