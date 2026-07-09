@@ -13,6 +13,16 @@ export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[
   const dir = fixtureDir(manifest.ticketId);
   fs.mkdirSync(dir, { recursive: true });
 
+  const existing = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
+  if (existing.length > 0) {
+    process.stderr.write(
+      `[fixture-generator] ${existing.length} fixture(s) exist in ${dir}, skipping\n`
+    );
+    return existing.map((f) =>
+      JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8")) as Fixture
+    );
+  }
+
   return withCloudAgent(async (agent) => {
     const run = await agent.send(`
 Seam manifest for ticket ${manifest.ticketId}:

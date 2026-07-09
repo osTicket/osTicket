@@ -10,6 +10,7 @@ import { notifyPrOpened } from "./lib/slack";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
+import { harnessBuilder } from "./agents/harnessBuilder";
 import { extractor } from "./agents/extractor";
 import { strangler } from "./agents/strangler";
 import { verifier } from "./agents/verifier";
@@ -28,6 +29,7 @@ export async function runPipeline(
   console.log("Manifest side effects:", manifest.sideEffects);
 
   if (fromStage <= 2) {
+    await harnessBuilder(manifest);
     await fixtureGenerator(manifest);
     await baselineCapture(ticketId);
   }

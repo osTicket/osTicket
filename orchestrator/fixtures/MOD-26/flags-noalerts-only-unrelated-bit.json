@@ -1,0 +1,8 @@
+{
+  "name": "flags-noalerts-only-unrelated-bit",
+  "branch": "flags=4 (FLAG_NOALERTS only) has no escalation bit but is non-zero; logical AND still returns 2, unlike hasFlag(FLAG_ESCALATE) or getInfo() which would be falsy",
+  "input": {
+    "flags": 4
+  },
+  "expected": true
+}

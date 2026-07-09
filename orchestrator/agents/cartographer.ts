@@ -60,8 +60,8 @@ Also determine pipeline tooling paths for later stages:
   proven harness — do not suggest a new script for this ticket).
   For all other tickets: use an existing harness only if it fully exercises this
   seam; otherwise suggest a new path like legacy/harness/<seam-name>_capture.php
-  that can test facade paths, fallbacks, and edge branches (the script must be
-  created manually before baseline capture runs).
+  that can test facade paths, fallbacks, and edge branches (the harness builder
+  stage creates the script automatically from this manifest).
 - **harnessInputShape** — plain-English description of the JSON input fields the
   harness expects (field names, types, and what each controls). For MOD-25, match
   sla_capture.php: start, hours, schedule_id.
