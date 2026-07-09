@@ -1,4 +1,4 @@
-import { createCloudAgent, parseJsonResult, streamRunWithProgress } from "../lib/sdk";
+import { parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
 import type { SeamManifest } from "../lib/types";
 import * as fs from "fs";
 
@@ -18,9 +18,8 @@ export async function cartographer(
     return JSON.parse(fs.readFileSync(statePath, "utf-8"));
   }
 
-  const agent = await createCloudAgent();
-
-  const run = await agent.send(`
+  return withCloudAgent(async (agent) => {
+    const run = await agent.send(`
 Ticket ${ticketId}: ${acceptanceCriteria}
 
 You investigate legacy PHP code to confirm and document a strangler-fig seam
@@ -65,13 +64,14 @@ List every side effect you find precisely, do not summarize them away, they
 determine how the next stage is allowed to build the extraction.
   `);
 
-  process.stderr.write(`[cartographer] run ${run.id} started\n`);
-  const result = await streamRunWithProgress(run, "cartographer");
-  process.stderr.write(`[cartographer] run finished (${result.status})\n`);
-  if (result.status === "error") {
-    throw new Error(result.error?.message ?? "Cartographer run failed");
-  }
-  const manifest = { ticketId, ...parseJsonResult(result.result, {} as Partial<SeamManifest>) } as SeamManifest;
-  fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
-  return manifest;
+    process.stderr.write(`[cartographer] run ${run.id} started\n`);
+    const result = await streamRunWithProgress(run, "cartographer");
+    process.stderr.write(`[cartographer] run finished (${result.status})\n`);
+    if (result.status === "error") {
+      throw new Error(result.error?.message ?? "Cartographer run failed");
+    }
+    const manifest = { ticketId, ...parseJsonResult(result.result, {} as Partial<SeamManifest>) } as SeamManifest;
+    fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
+    return manifest;
+  });
 }

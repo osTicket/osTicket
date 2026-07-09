@@ -1,10 +1,9 @@
-import { createLocalAgent, streamRunWithProgress } from "../lib/sdk";
+import { streamRunWithProgress, withLocalAgent } from "../lib/sdk";
 import type { SeamManifest } from "../lib/types";
 
 export async function strangler(manifest: SeamManifest) {
-  const agent = await createLocalAgent();
-
-  const run = await agent.send(`
+  return withLocalAgent(async (agent) => {
+    const run = await agent.send(`
 Seam: ${JSON.stringify(manifest)}
 
 Patch include/class.sla.php to delegate date-math to the existing
@@ -33,11 +32,12 @@ CRITICAL constraints from investigation: ${manifest.constraints.join("\n")}
 Known side effects to preserve, do not introduce NEW ones: ${manifest.sideEffects.join("\n")}
   `);
 
-  process.stderr.write(`[strangler] run ${run.id} started\n`);
-  const result = await streamRunWithProgress(run, "strangler");
-  process.stderr.write(`[strangler] run finished (${result.status})\n`);
-  if (result.status === "error") {
-    throw new Error(result.error?.message ?? "Strangler run failed");
-  }
-  return result;
+    process.stderr.write(`[strangler] run ${run.id} started\n`);
+    const result = await streamRunWithProgress(run, "strangler");
+    process.stderr.write(`[strangler] run finished (${result.status})\n`);
+    if (result.status === "error") {
+      throw new Error(result.error?.message ?? "Strangler run failed");
+    }
+    return result;
+  });
 }

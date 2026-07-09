@@ -1,13 +1,12 @@
 import * as fs from "fs";
-import { createLocalAgent, streamRunWithProgress } from "../lib/sdk";
+import { streamRunWithProgress, withLocalAgent } from "../lib/sdk";
 import type { SeamManifest } from "../lib/types";
 
 const SERVICE_PATH = "include/Services/SlaGracePeriodCalculator.php";
 
 export async function extractor(manifest: SeamManifest) {
-  const agent = await createLocalAgent();
-
-  const run = await agent.send(`
+  return withLocalAgent(async (agent) => {
+    const run = await agent.send(`
 Seam: ${JSON.stringify(manifest)}
 
 Create include/Services/SlaGracePeriodCalculator.php:
@@ -31,14 +30,15 @@ CRITICAL constraints from investigation: ${manifest.constraints.join("\n")}
 Known side effects to respect, do not introduce NEW ones: ${manifest.sideEffects.join("\n")}
   `);
 
-  process.stderr.write(`[extractor] run ${run.id} started\n`);
-  const result = await streamRunWithProgress(run, "extractor");
-  process.stderr.write(`[extractor] run finished (${result.status})\n`);
-  if (result.status === "error") {
-    throw new Error(result.error?.message ?? "Extractor run failed");
-  }
-  if (!fs.existsSync(SERVICE_PATH)) {
-    throw new Error(`${SERVICE_PATH} was not created by the extractor agent`);
-  }
-  return result;
+    process.stderr.write(`[extractor] run ${run.id} started\n`);
+    const result = await streamRunWithProgress(run, "extractor");
+    process.stderr.write(`[extractor] run finished (${result.status})\n`);
+    if (result.status === "error") {
+      throw new Error(result.error?.message ?? "Extractor run failed");
+    }
+    if (!fs.existsSync(SERVICE_PATH)) {
+      throw new Error(`${SERVICE_PATH} was not created by the extractor agent`);
+    }
+    return result;
+  });
 }

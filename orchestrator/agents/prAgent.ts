@@ -1,10 +1,9 @@
-import { createCloudAgent, streamAndWait } from "../lib/sdk";
+import { streamAndWait, withCloudAgent } from "../lib/sdk";
 import type { SeamManifest, ParityReport } from "../lib/types";
 
 export async function prAgent(manifest: SeamManifest, report: ParityReport) {
-  const agent = await createCloudAgent();
-
-  const run = await agent.send(`
+  return withCloudAgent(async (agent) => {
+    const run = await agent.send(`
 Open a pull request for the SLA grace-period strangler extraction.
 
 The PR should include the delegating extraction changes:
@@ -37,11 +36,12 @@ logic rather than reimplementing date-math.
 Create the PR with gh pr create and ensure it is opened against the base branch.
   `);
 
-  process.stderr.write(`[pr-agent] run ${run.id} started\n`);
-  const result = await streamAndWait(run, "pr-agent");
-  process.stderr.write(`[pr-agent] run finished (${result.status})\n`);
-  if (result.status === "error") {
-    throw new Error(result.error?.message ?? "PR agent run failed");
-  }
-  return { prUrl: result.git?.branches?.[0]?.prUrl ?? "" };
+    process.stderr.write(`[pr-agent] run ${run.id} started\n`);
+    const result = await streamAndWait(run, "pr-agent");
+    process.stderr.write(`[pr-agent] run finished (${result.status})\n`);
+    if (result.status === "error") {
+      throw new Error(result.error?.message ?? "PR agent run failed");
+    }
+    return { prUrl: result.git?.branches?.[0]?.prUrl ?? "" };
+  });
 }

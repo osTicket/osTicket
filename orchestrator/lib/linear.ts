@@ -1,7 +1,7 @@
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { ParityReport, SeamManifest } from "./types";
+import { paritySummary, passedFixtureNames } from "./slack";
 
-const LINEAR_MCP_URL = "https://mcp.linear.app/mcp";
+const LINEAR_GRAPHQL_URL = "https://api.linear.app/graphql";
 const SLA_MODERNIZATION_PROJECT = "SLA Modernization";
 const READY_STATUS = "Ready";
 
@@ -14,93 +14,192 @@ export interface LinearTicket {
   description: string;
 }
 
-interface GetIssueResult {
-  title: string;
-  description?: string | null;
+interface GraphQLResponse<T> {
+  data?: T;
+  errors?: Array<{ message: string }>;
 }
 
-interface ListIssuesResult {
-  issues: Array<{ id: string }>;
-}
-
-type ToolCallResult = {
-  content?: Array<{ type: string; text?: string }>;
-  structuredContent?: unknown;
-  isError?: boolean;
-};
-
-function linearAuthHeader(): string {
+function requireApiKey(): string {
   const apiKey = process.env.LINEAR_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "LINEAR_API_KEY is required to call Linear MCP tools (Settings → Security & access in Linear)"
+      "LINEAR_API_KEY is required (Settings → Account → Security & access in Linear)"
     );
   }
-  return `Bearer ${apiKey}`;
+  return apiKey;
 }
 
-async function withLinearClient<T>(fn: (client: Client) => Promise<T>): Promise<T> {
-  const transport = new StreamableHTTPClientTransport(new URL(LINEAR_MCP_URL), {
-    requestInit: {
-      headers: {
-        Authorization: linearAuthHeader(),
-      },
+async function linearGraphQL<T>(
+  query: string,
+  variables?: Record<string, unknown>
+): Promise<T> {
+  const response = await fetch(LINEAR_GRAPHQL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: requireApiKey(),
     },
+    body: JSON.stringify({ query, variables }),
   });
 
-  const client = new Client({ name: "osticket-strangler-orchestrator", version: "1.0.0" });
-  await client.connect(transport);
-  try {
-    return await fn(client);
-  } finally {
-    await transport.close();
-  }
-}
-
-function parseToolResult<T>(result: ToolCallResult): T {
-  if (result.isError) {
-    const message =
-      result.content?.find((block) => block.type === "text")?.text ??
-      "Linear MCP tool call failed";
-    throw new Error(message);
+  if (!response.ok) {
+    throw new Error(`Linear API error: ${response.status} ${response.statusText}`);
   }
 
-  if (result.structuredContent !== undefined) {
-    return result.structuredContent as T;
+  const json = (await response.json()) as GraphQLResponse<T>;
+  if (json.errors?.length) {
+    throw new Error(json.errors.map((error) => error.message).join("; "));
+  }
+  if (!json.data) {
+    throw new Error("Linear API returned no data");
   }
 
-  const text = result.content?.find((block) => block.type === "text")?.text;
-  if (!text) {
-    throw new Error("Linear MCP tool returned no content");
-  }
-
-  return JSON.parse(text) as T;
-}
-
-async function callLinearTool<T>(name: string, arguments_: Record<string, unknown>): Promise<T> {
-  return withLinearClient(async (client) => {
-    const result = await client.callTool({ name, arguments: arguments_ });
-    return parseToolResult<T>(result);
-  });
+  return json.data;
 }
 
 export async function getLinearTicket(ticketId: string): Promise<LinearTicket> {
-  const issue = await callLinearTool<GetIssueResult>("get_issue", { id: ticketId });
+  const data = await linearGraphQL<{
+    issue: { title: string; description: string | null } | null;
+  }>(
+    `query GetIssue($id: String!) {
+      issue(id: $id) {
+        title
+        description
+      }
+    }`,
+    { id: ticketId }
+  );
+
+  if (!data.issue) {
+    throw new Error(`Linear issue not found: ${ticketId}`);
+  }
+
   return {
-    title: issue.title,
-    description: issue.description ?? "",
+    title: data.issue.title,
+    description: data.issue.description ?? "",
   };
 }
 
 export async function findReadyTicket(): Promise<string | null> {
-  const result = await callLinearTool<ListIssuesResult>("list_issues", {
-    project: SLA_MODERNIZATION_PROJECT,
-    state: READY_STATUS,
-    limit: 1,
-  });
-  return result.issues[0]?.id ?? null;
+  const data = await linearGraphQL<{
+    issues: { nodes: Array<{ identifier: string }> };
+  }>(
+    `query FindReadyTicket($project: String!, $state: String!) {
+      issues(
+        filter: {
+          project: { name: { eq: $project } }
+          state: { name: { eq: $state } }
+        }
+        first: 1
+      ) {
+        nodes {
+          identifier
+        }
+      }
+    }`,
+    { project: SLA_MODERNIZATION_PROJECT, state: READY_STATUS }
+  );
+
+  return data.issues.nodes[0]?.identifier ?? null;
 }
 
 export async function updateTicketStatus(ticketId: string, status: string): Promise<void> {
-  await callLinearTool("save_issue", { id: ticketId, state: status });
+  const issueData = await linearGraphQL<{
+    issue: {
+      team: {
+        states: { nodes: Array<{ id: string; name: string }> };
+      };
+    } | null;
+  }>(
+    `query IssueStates($id: String!) {
+      issue(id: $id) {
+        team {
+          states {
+            nodes {
+              id
+              name
+            }
+          }
+        }
+      }
+    }`,
+    { id: ticketId }
+  );
+
+  if (!issueData.issue) {
+    throw new Error(`Linear issue not found: ${ticketId}`);
+  }
+
+  const state = issueData.issue.team.states.nodes.find((node) => node.name === status);
+  if (!state) {
+    throw new Error(`Workflow state not found for ${ticketId}: ${status}`);
+  }
+
+  const result = await linearGraphQL<{
+    issueUpdate: { success: boolean };
+  }>(
+    `mutation UpdateIssueState($id: String!, $stateId: String!) {
+      issueUpdate(id: $id, input: { stateId: $stateId }) {
+        success
+      }
+    }`,
+    { id: ticketId, stateId: state.id }
+  );
+
+  if (!result.issueUpdate.success) {
+    throw new Error(`Failed to update ${ticketId} to ${status}`);
+  }
+}
+
+export function buildInReviewComment(
+  manifest: SeamManifest,
+  report: ParityReport,
+  prUrl: string
+): string {
+  const fixtureList = passedFixtureNames(manifest.ticketId, report)
+    .map((name) => `- ${name}`)
+    .join("\n");
+  const prLine = prUrl
+    ? `[View pull request](${prUrl})`
+    : "_PR URL not returned by agent_";
+
+  return [
+    "## Pipeline complete",
+    "",
+    "The strangler extraction pipeline finished successfully.",
+    "",
+    "### Completed stages",
+    "",
+    `- **Cartography** — Seam mapped at \`${manifest.entryPoint}\``,
+    "- **Fixture generation** — Parity inputs proposed from manifest branches",
+    "- **Extraction** — `include/Services/SlaGracePeriodCalculator.php` created",
+    "- **Strangler** — `include/class.sla.php` patched to delegate date-math",
+    `- **Verification** — ${paritySummary(report)}`,
+    "- **Pull request** — Opened for review",
+    "",
+    "### Parity verification",
+    "",
+    fixtureList,
+    "",
+    "### Pull request",
+    "",
+    prLine,
+  ].join("\n");
+}
+
+export async function addIssueComment(ticketId: string, body: string): Promise<void> {
+  const result = await linearGraphQL<{
+    commentCreate: { success: boolean };
+  }>(
+    `mutation CreateComment($input: CommentCreateInput!) {
+      commentCreate(input: $input) {
+        success
+      }
+    }`,
+    { input: { issueId: ticketId, body } }
+  );
+
+  if (!result.commentCreate.success) {
+    throw new Error(`Failed to add comment on ${ticketId}`);
+  }
 }

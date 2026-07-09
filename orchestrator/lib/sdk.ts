@@ -1,5 +1,12 @@
 import { Agent } from "@cursor/sdk";
-import type { Run, RunResult, SDKMessage, SDKToolUseMessage, ToolUseBlock } from "@cursor/sdk";
+import type {
+  Run,
+  RunResult,
+  SDKAgent,
+  SDKMessage,
+  SDKToolUseMessage,
+  ToolUseBlock,
+} from "@cursor/sdk";
 
 export function createCloudAgent(model: string = "composer-2.5") {
   return Agent.create({
@@ -17,6 +24,39 @@ export function createLocalAgent(model: string = "composer-2.5") {
     model: { id: model },
     local: { cwd: process.cwd() },
   });
+}
+
+/** Create a local agent, run `fn`, then release executor leases via asyncDispose. */
+export async function withLocalAgent<T>(
+  fn: (agent: SDKAgent) => Promise<T>,
+  model: string = "composer-2.5"
+): Promise<T> {
+  const agent = await createLocalAgent(model);
+  try {
+    return await fn(agent);
+  } finally {
+    await agent[Symbol.asyncDispose]();
+  }
+}
+
+/** Create a cloud agent, run `fn`, then release SDK resources via asyncDispose. */
+export async function withCloudAgent<T>(
+  fn: (agent: SDKAgent) => Promise<T>,
+  model: string = "composer-2.5"
+): Promise<T> {
+  const agent = await createCloudAgent(model);
+  try {
+    return await fn(agent);
+  } finally {
+    await agent[Symbol.asyncDispose]();
+  }
+}
+
+function isTerminalStreamStatus(status: string): boolean {
+  return status === "FINISHED"
+    || status === "ERROR"
+    || status === "CANCELLED"
+    || status === "EXPIRED";
 }
 
 function looksLikeJsonOutput(text: string): boolean {
@@ -161,16 +201,45 @@ function handleStreamEvent(event: SDKMessage, label: string): void {
   }
 }
 
-/** Stream human-friendly progress to stderr, then return the terminal result. */
+/**
+ * Stream human-friendly progress to stderr, then return the terminal result.
+ *
+ * Starts run.wait() immediately and races it against stream consumption so a
+ * stuck stream iterator cannot block returning once the run has finished.
+ */
 export async function streamRunWithProgress(run: Run, label: string): Promise<RunResult> {
+  const waitPromise = run.wait();
+  const iterator = run.stream()[Symbol.asyncIterator]();
+
   try {
-    for await (const event of run.stream()) {
-      handleStreamEvent(event, label);
+    while (true) {
+      const raced = await Promise.race([
+        iterator.next().then((r) => ({ kind: "event" as const, r })),
+        waitPromise.then((result) => ({ kind: "wait" as const, result })),
+      ]);
+
+      if (raced.kind === "wait") {
+        await iterator.return?.().catch(() => {});
+        return raced.result;
+      }
+
+      const { value, done } = raced.r;
+      if (done) break;
+
+      handleStreamEvent(value, label);
+
+      if (value.type === "status" && isTerminalStreamStatus(value.status)) {
+        break;
+      }
     }
+  } catch (err) {
+    await iterator.return?.().catch(() => {});
+    throw err;
   } finally {
     flushStream(label);
   }
-  return run.wait();
+
+  return waitPromise;
 }
 
 /** Stream a run to completion and return the terminal result. */

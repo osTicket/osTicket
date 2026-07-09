@@ -1,6 +1,14 @@
 import "dotenv/config";
-import { STATUS_IN_PROGRESS, STATUS_IN_REVIEW, updateTicketStatus } from "./lib/linear";
+import {
+  STATUS_IN_PROGRESS,
+  STATUS_IN_REVIEW,
+  addIssueComment,
+  buildInReviewComment,
+  updateTicketStatus,
+} from "./lib/linear";
+import { notifyPrOpened } from "./lib/slack";
 import { cartographer } from "./agents/cartographer";
+import { fixtureGenerator } from "./agents/fixtureGenerator";
 import { extractor } from "./agents/extractor";
 import { strangler } from "./agents/strangler";
 import { verifier } from "./agents/verifier";
@@ -19,14 +27,18 @@ export async function runPipeline(
   console.log("Manifest side effects:", manifest.sideEffects);
 
   if (fromStage <= 2) {
-    await extractor(manifest);
+    await fixtureGenerator(manifest);
   }
 
   if (fromStage <= 3) {
+    await extractor(manifest);
+  }
+
+  if (fromStage <= 4) {
     await strangler(manifest);
   }
 
-  const report = await verifier();
+  const report = await verifier(ticketId);
   console.log(
     `Parity: ${report.passed}/${report.totalCases} passed, ${report.failed} failed`
   );
@@ -55,6 +67,8 @@ export async function runPipeline(
 
   const { prUrl } = await prAgent(manifest, report);
   console.log(`PR URL: ${prUrl}`);
+  await notifyPrOpened(ticketId, report, prUrl);
+  await addIssueComment(ticketId, buildInReviewComment(manifest, report, prUrl));
   await updateTicketStatus(ticketId, STATUS_IN_REVIEW);
   console.log(`Linear ticket ${ticketId} moved to ${STATUS_IN_REVIEW}`);
 }

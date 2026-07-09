@@ -1,15 +1,19 @@
 import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import { fixtureDir } from "./fixtureGenerator";
 import type { Fixture, ParityReport } from "../lib/types";
 
-export async function verifier(): Promise<ParityReport> {
-  const fixtureDir = "orchestrator/fixtures/golden";
-  const files = fs.readdirSync(fixtureDir).filter(f => f.endsWith(".json"));
+export async function verifier(ticketId: string): Promise<ParityReport> {
+  const dir = fixtureDir(ticketId);
+  if (!fs.existsSync(dir)) {
+    throw new Error(`Fixture directory not found: ${dir}`);
+  }
+  const files = fs.readdirSync(dir).filter(f => f.endsWith(".json"));
   const mismatches: ParityReport["mismatches"] = [];
 
   for (const file of files) {
-    const fixture: Fixture = JSON.parse(fs.readFileSync(path.join(fixtureDir, file), "utf-8"));
+    const fixture: Fixture = JSON.parse(fs.readFileSync(path.join(dir, file), "utf-8"));
     if (fixture.expected === undefined) {
       mismatches.push({ name: fixture.name, expected: null, actual: "SKIPPED — no expected value captured yet" });
       continue;
