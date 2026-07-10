@@ -1061,24 +1061,21 @@ class ScheduleEntry extends VerySimpleModel {
     }
 
     static function getWeeks() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$weeks as $k=>$v)
-                static::$weeks[$k] = __($v);
-        }
-
-        return static::$weeks;
+       return self::$weeks;
     }
 
     static function getMonths() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$months as $k=>$v)
-                static::$months[$k] = __($v);
-        }
-
-        return static::$months;
+        return self::$months;
     }
+
+    static function getTranslatedMonths() {
+        static $translated = null;
+        if (!isset($translated))
+            $translated = array_map(function ($d) { return __($d); }, static::getMonths());
+
+        return $translated;
+    }
+
     static function create($ht=false) {
         $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
@@ -1255,7 +1252,7 @@ extends AbstractForm {
                     'default' => 0,
                     'layout' => new GridFluidCell(4),
                     'label' => __('In'),
-                    'choices' => ScheduleEntry::getMonths(),
+                    'choices' => ScheduleEntry::getTranslatedMonths(),
                     'validator-error' => __('Selection required'),
                     'configuration'=>array('prompt'=>__('Month')),
                     'visibility' => new VisibilityConstraint(
