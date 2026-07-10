@@ -15,7 +15,8 @@ export async function cartographer(
     return applyHarnessDefaults(JSON.parse(fs.readFileSync(statePath, "utf-8")));
   }
 
-  return withCloudAgent(async (agent) => {
+  return withCloudAgent(
+    async (agent) => {
     const run = await agent.send(`
 Ticket ${ticketId}: ${acceptanceCriteria}
 
@@ -98,5 +99,7 @@ is allowed to build the extraction.
     fs.mkdirSync("orchestrator/.state", { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
     return manifest;
-  });
+    },
+    { model: "claude-opus-4-8", name: `cartographer · ${ticketId}` }
+  );
 }

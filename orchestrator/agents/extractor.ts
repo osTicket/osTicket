@@ -5,7 +5,8 @@ import type { SeamManifest } from "../lib/types";
 
 export async function extractor(manifest: SeamManifest) {
   const extractionTarget = requireExtractionTarget(manifest);
-  return withLocalAgent(async (agent) => {
+  return withLocalAgent(
+    async (agent) => {
     const run = await agent.send(`
 Seam manifest for ticket ${manifest.ticketId}:
 ${JSON.stringify(manifest, null, 2)}
@@ -64,5 +65,7 @@ ${manifest.sideEffects.join("\n")}
       );
     }
     return result;
-  });
+    },
+    { model: "claude-sonnet-5", name: `extractor · ${manifest.ticketId}` }
+  );
 }

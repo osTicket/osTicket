@@ -30,7 +30,8 @@ export async function harnessBuilder(manifest: SeamManifest): Promise<void> {
 
   fs.mkdirSync(path.dirname(harnessScript), { recursive: true });
 
-  await withLocalAgent(async (agent) => {
+  await withLocalAgent(
+    async (agent) => {
     const run = await agent.send(`
 Seam manifest for ticket ${manifest.ticketId}:
 ${JSON.stringify(manifest, null, 2)}
@@ -71,7 +72,9 @@ ${manifest.outputShape}
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Harness builder run failed");
     }
-  });
+    },
+    { model: "composer-2.5", name: `harness-builder · ${manifest.ticketId}` }
+  );
 
   if (!fs.existsSync(harnessScript)) {
     throw new Error(

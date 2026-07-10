@@ -5,7 +5,8 @@ import type { SeamManifest } from "../lib/types";
 export async function strangler(manifest: SeamManifest) {
   const facadeFile = requireFacadeFile(manifest);
   const extractionTarget = requireExtractionTarget(manifest);
-  return withLocalAgent(async (agent) => {
+  return withLocalAgent(
+    async (agent) => {
     const run = await agent.send(`
 Seam manifest for ticket ${manifest.ticketId}:
 ${JSON.stringify(manifest, null, 2)}
@@ -42,5 +43,7 @@ ${manifest.sideEffects.join("\n")}
       throw new Error(result.error?.message ?? "Strangler run failed");
     }
     return result;
-  });
+    },
+    { model: "composer-2.5", name: `strangler · ${manifest.ticketId}` }
+  );
 }

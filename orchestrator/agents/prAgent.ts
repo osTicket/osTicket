@@ -5,7 +5,8 @@ import type { SeamManifest, ParityReport } from "../lib/types";
 export async function prAgent(manifest: SeamManifest, report: ParityReport) {
   const extractionTarget = requireExtractionTarget(manifest);
   const facadeFile = requireFacadeFile(manifest);
-  return withCloudAgent(async (agent) => {
+  return withCloudAgent(
+    async (agent) => {
     const run = await agent.send(`
 Open a pull request for the strangler extraction for ticket ${manifest.ticketId}.
 
@@ -46,5 +47,7 @@ Create the PR with gh pr create and ensure it is opened against the base branch.
       throw new Error(result.error?.message ?? "PR agent run failed");
     }
     return { prUrl: result.git?.branches?.[0]?.prUrl ?? "" };
-  });
+    },
+    { model: "composer-2.5", name: `pr-agent · ${manifest.ticketId}` }
+  );
 }

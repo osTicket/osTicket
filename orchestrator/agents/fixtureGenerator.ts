@@ -23,7 +23,8 @@ export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[
     );
   }
 
-  return withCloudAgent(async (agent) => {
+  return withCloudAgent(
+    async (agent) => {
     const run = await agent.send(`
 Seam manifest for ticket ${manifest.ticketId}:
 ${JSON.stringify(manifest, null, 2)}
@@ -71,5 +72,7 @@ Respond with ONLY a valid JSON array of fixture objects. No prose before or afte
     }
 
     return fixtures;
-  });
+    },
+    { model: "claude-sonnet-5", name: `fixture-generator · ${manifest.ticketId}` }
+  );
 }

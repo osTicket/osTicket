@@ -8,20 +8,29 @@ import type {
   ToolUseBlock,
 } from "@cursor/sdk";
 
-export function createCloudAgent(model: string = "composer-2.5") {
+export type AgentRunOptions = {
+  model?: string;
+  name?: string;
+};
+
+export function createCloudAgent(options: AgentRunOptions = {}) {
+  const { model = "composer-2.5", name } = options;
   return Agent.create({
     apiKey: process.env.CURSOR_API_KEY!,
     model: { id: model },
+    ...(name ? { name } : {}),
     cloud: {
       repos: [{ url: process.env.GITHUB_REPO_URL!, startingRef: process.env.GITHUB_DEMO_BRANCH! }],
     },
   });
 }
 
-export function createLocalAgent(model: string = "composer-2.5") {
+export function createLocalAgent(options: AgentRunOptions = {}) {
+  const { model = "composer-2.5", name } = options;
   return Agent.create({
     apiKey: process.env.CURSOR_API_KEY!,
     model: { id: model },
+    ...(name ? { name } : {}),
     local: { cwd: process.cwd() },
   });
 }
@@ -29,9 +38,9 @@ export function createLocalAgent(model: string = "composer-2.5") {
 /** Create a local agent, run `fn`, then release executor leases via asyncDispose. */
 export async function withLocalAgent<T>(
   fn: (agent: SDKAgent) => Promise<T>,
-  model: string = "composer-2.5"
+  options: AgentRunOptions = {}
 ): Promise<T> {
-  const agent = await createLocalAgent(model);
+  const agent = await createLocalAgent(options);
   try {
     return await fn(agent);
   } finally {
@@ -42,9 +51,9 @@ export async function withLocalAgent<T>(
 /** Create a cloud agent, run `fn`, then release SDK resources via asyncDispose. */
 export async function withCloudAgent<T>(
   fn: (agent: SDKAgent) => Promise<T>,
-  model: string = "composer-2.5"
+  options: AgentRunOptions = {}
 ): Promise<T> {
-  const agent = await createCloudAgent(model);
+  const agent = await createCloudAgent(options);
   try {
     return await fn(agent);
   } finally {
