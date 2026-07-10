@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - demo/sla-strangler
+      - develop
     types:
       - opened
       - synchronize
