@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { streamRunWithProgress, withLocalAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, streamRunWithProgress, withLocalAgent } from "../lib/sdk";
 import { requireExtractionTarget } from "../lib/manifest";
 import type { SeamManifest } from "../lib/types";
 
@@ -53,9 +53,9 @@ Known side effects to respect, do not introduce NEW ones:
 ${manifest.sideEffects.join("\n")}
   `);
 
-    process.stderr.write(`[extractor] run ${run.id} started\n`);
+    logRunStart("extractor");
     const result = await streamRunWithProgress(run, "extractor");
-    process.stderr.write(`[extractor] run finished (${result.status})\n`);
+    logRunEnd("extractor", result.status);
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Extractor run failed");
     }

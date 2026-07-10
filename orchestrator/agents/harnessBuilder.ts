@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { streamRunWithProgress, withLocalAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, streamRunWithProgress, withLocalAgent } from "../lib/sdk";
 import { requireHarnessScript } from "../lib/manifest";
+import { logAgentLine } from "../lib/terminal";
 import type { SeamManifest } from "../lib/types";
 
 const REFERENCE_HARNESS = `<?php
@@ -22,9 +23,7 @@ echo json_encode([
 export async function harnessBuilder(manifest: SeamManifest): Promise<void> {
   const harnessScript = requireHarnessScript(manifest);
   if (fs.existsSync(harnessScript)) {
-    process.stderr.write(
-      `[harness-builder] harness exists at ${harnessScript}, skipping\n`
-    );
+    logAgentLine("harness-builder", `harness exists at ${harnessScript}, skipping`);
     return;
   }
 
@@ -66,9 +65,9 @@ Output shape (for formatting $result if needed):
 ${manifest.outputShape}
     `);
 
-    process.stderr.write(`[harness-builder] run ${run.id} started\n`);
+    logRunStart("harness-builder");
     const result = await streamRunWithProgress(run, "harness-builder");
-    process.stderr.write(`[harness-builder] run finished (${result.status})\n`);
+    logRunEnd("harness-builder", result.status);
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Harness builder run failed");
     }
@@ -82,5 +81,5 @@ ${manifest.outputShape}
     );
   }
 
-  process.stderr.write(`[harness-builder] wrote ${harnessScript}\n`);
+  logAgentLine("harness-builder", `wrote ${harnessScript}`);
 }

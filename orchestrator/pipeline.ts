@@ -7,6 +7,8 @@ import {
   updateTicketStatus,
 } from "./lib/linear";
 import { notifyPrOpened } from "./lib/slack";
+import { writeStageBanner } from "./lib/sdk";
+import { logPipelineLine } from "./lib/terminal";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
@@ -21,27 +23,36 @@ export async function runPipeline(
   acceptanceCriteria: string,
   fromStage = 1
 ): Promise<void> {
+  writeStageBanner("cartographer", ticketId);
   const manifest = await cartographer(
     ticketId,
     acceptanceCriteria,
     fromStage > 1
   );
-  console.log("Manifest side effects:", manifest.sideEffects);
+  logPipelineLine(
+    `Manifest ready · ${manifest.sideEffects.length} side effects · facade ${manifest.facadeFile ?? "(unknown)"}`
+  );
 
   if (fromStage <= 2) {
+    writeStageBanner("harness-builder", ticketId);
     await harnessBuilder(manifest);
+    writeStageBanner("fixture-generator", ticketId);
     await fixtureGenerator(manifest);
+    writeStageBanner("baseline-capture", ticketId);
     await baselineCapture(ticketId);
   }
 
   if (fromStage <= 3) {
+    writeStageBanner("extractor", ticketId);
     await extractor(manifest);
   }
 
   if (fromStage <= 4) {
+    writeStageBanner("strangler", ticketId);
     await strangler(manifest);
   }
 
+  writeStageBanner("verifier", ticketId);
   const report = await verifier(ticketId);
   console.log(
     `Parity: ${report.passed}/${report.totalCases} passed, ${report.failed} failed`
@@ -69,6 +80,7 @@ export async function runPipeline(
       "This is unverified — the pause is manual for the live demo.)"
   );
 
+  writeStageBanner("pr-agent", ticketId);
   const { prUrl } = await prAgent(manifest, report);
   console.log(`PR URL: ${prUrl}`);
   await notifyPrOpened(ticketId, report, prUrl);

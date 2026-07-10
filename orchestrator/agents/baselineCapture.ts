@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { runHarness } from "../lib/harness";
 import { fixtureHarnessInput, loadManifest, requireHarnessScript } from "../lib/manifest";
+import { logAgentLine } from "../lib/terminal";
 import type { Fixture } from "../lib/types";
 import { fixtureDir } from "./fixtureGenerator";
 
@@ -29,15 +30,13 @@ export async function baselineCapture(ticketId: string): Promise<void> {
 
     fixture.expected = output;
     fs.writeFileSync(filePath, JSON.stringify(fixture, null, 2) + "\n");
-    process.stderr.write(
-      `[baseline-capture] ${fixture.name}: expected ${output ?? "null"}\n`
-    );
+    logAgentLine("baseline-capture", `${fixture.name}: expected ${output ?? "null"}`);
     captured++;
   }
 
   if (captured === 0) {
-    process.stderr.write(`[baseline-capture] all fixtures already have expected values\n`);
+    logAgentLine("baseline-capture", "all fixtures already have expected values");
   } else {
-    process.stderr.write(`[baseline-capture] captured ${captured} baseline(s)\n`);
+    logAgentLine("baseline-capture", `captured ${captured} baseline(s)`);
   }
 }

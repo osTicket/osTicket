@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
 import { requireHarnessScript } from "../lib/manifest";
+import { logAgentLine } from "../lib/terminal";
 import type { Fixture, SeamManifest } from "../lib/types";
 
 export function fixtureDir(ticketId: string): string {
@@ -15,8 +16,9 @@ export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[
 
   const existing = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
   if (existing.length > 0) {
-    process.stderr.write(
-      `[fixture-generator] ${existing.length} fixture(s) exist in ${dir}, skipping\n`
+    logAgentLine(
+      "fixture-generator",
+      `${existing.length} fixture(s) exist in ${dir}, skipping`
     );
     return existing.map((f) =>
       JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8")) as Fixture
@@ -50,9 +52,9 @@ by the pipeline after fixture generation.
 Respond with ONLY a valid JSON array of fixture objects. No prose before or after.
   `);
 
-    process.stderr.write(`[fixture-generator] run ${run.id} started\n`);
+    logRunStart("fixture-generator");
     const result = await streamRunWithProgress(run, "fixture-generator");
-    process.stderr.write(`[fixture-generator] run finished (${result.status})\n`);
+    logRunEnd("fixture-generator", result.status);
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Fixture generator run failed");
     }
@@ -68,7 +70,7 @@ Respond with ONLY a valid JSON array of fixture objects. No prose before or afte
       delete fixture.expected;
       const filePath = path.join(dir, `${fixture.name}.json`);
       fs.writeFileSync(filePath, JSON.stringify(fixture, null, 2) + "\n");
-      process.stderr.write(`[fixture-generator] wrote ${filePath}\n`);
+      logAgentLine("fixture-generator", `wrote ${filePath}`);
     }
 
     return fixtures;

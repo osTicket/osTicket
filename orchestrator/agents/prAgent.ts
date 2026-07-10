@@ -1,4 +1,4 @@
-import { streamAndWait, withCloudAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, streamAndWait, withCloudAgent } from "../lib/sdk";
 import { requireExtractionTarget, requireFacadeFile } from "../lib/manifest";
 import type { SeamManifest, ParityReport } from "../lib/types";
 
@@ -40,9 +40,9 @@ rather than reimplementing it.
 Create the PR with gh pr create and ensure it is opened against the base branch.
   `);
 
-    process.stderr.write(`[pr-agent] run ${run.id} started\n`);
+    logRunStart("pr-agent");
     const result = await streamAndWait(run, "pr-agent");
-    process.stderr.write(`[pr-agent] run finished (${result.status})\n`);
+    logRunEnd("pr-agent", result.status);
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "PR agent run failed");
     }

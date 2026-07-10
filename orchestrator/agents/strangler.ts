@@ -1,4 +1,4 @@
-import { streamRunWithProgress, withLocalAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, streamRunWithProgress, withLocalAgent } from "../lib/sdk";
 import { requireExtractionTarget, requireFacadeFile } from "../lib/manifest";
 import type { SeamManifest } from "../lib/types";
 
@@ -36,9 +36,9 @@ Known side effects to preserve, do not introduce NEW ones:
 ${manifest.sideEffects.join("\n")}
   `);
 
-    process.stderr.write(`[strangler] run ${run.id} started\n`);
+    logRunStart("strangler");
     const result = await streamRunWithProgress(run, "strangler");
-    process.stderr.write(`[strangler] run finished (${result.status})\n`);
+    logRunEnd("strangler", result.status);
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Strangler run failed");
     }

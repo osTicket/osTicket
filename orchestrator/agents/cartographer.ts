@@ -1,5 +1,6 @@
-import { parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
 import { applyHarnessDefaults, manifestPath } from "../lib/manifest";
+import { logAgentLine } from "../lib/terminal";
 import type { SeamManifest } from "../lib/types";
 import * as fs from "fs";
 
@@ -11,7 +12,7 @@ export async function cartographer(
 ): Promise<SeamManifest> {
   const statePath = manifestPath(ticketId);
   if (fromCache && fs.existsSync(statePath)) {
-    process.stderr.write(`Using cached manifest for ${ticketId}.\n`);
+    logAgentLine("cartographer", `Using cached manifest for ${ticketId}.`);
     return applyHarnessDefaults(JSON.parse(fs.readFileSync(statePath, "utf-8")));
   }
 
@@ -86,9 +87,9 @@ List every side effect you find precisely — they determine how the next stage
 is allowed to build the extraction.
   `);
 
-    process.stderr.write(`[cartographer] run ${run.id} started\n`);
+    logRunStart("cartographer");
     const result = await streamRunWithProgress(run, "cartographer");
-    process.stderr.write(`[cartographer] run finished (${result.status})\n`);
+    logRunEnd("cartographer", result.status);
     if (result.status === "error") {
       throw new Error(result.error?.message ?? "Cartographer run failed");
     }
