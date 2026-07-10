@@ -1,0 +1,28 @@
+---
+description: Harness and fixture conventions for parity capture — bootstrap via main.inc.php, real baselines only
+globs: legacy/harness/**, orchestrator/fixtures/**, orchestrator/agents/harnessBuilder.ts, orchestrator/agents/fixtureGenerator.ts, orchestrator/agents/baselineCapture.ts, orchestrator/agents/verifier.ts, orchestrator/lib/harness.ts
+alwaysApply: false
+---
+
+# Harness and fixtures
+
+## Harnesses are tools, not product code
+
+Scripts under `legacy/harness/` exist to capture and compare behavior for parity testing. Keep them focused on that job.
+
+## Bootstrap correctly
+
+Harness scripts must bootstrap through `main.inc.php` (or the project's equivalent full bootstrap).
+
+**Never** load individual class files in isolation — that fails on `INCLUDE_DIR` and missing database context.
+
+## Real baseline expected values
+
+Fixtures under `orchestrator/fixtures/` need **real** `expected` values captured by actually running the legacy code (baseline capture).
+
+- Never invent or guess expected outputs.
+- Never edit fixtures solely to make the verifier pass.
+
+## Prefer an existing harness
+
+If an existing, already-working harness fully covers the seam, reuse it. Only create a new `legacy/harness/<seam>_capture.php` when the current harness cannot exercise the needed paths.

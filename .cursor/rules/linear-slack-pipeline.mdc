@@ -1,0 +1,20 @@
+---
+description: Linear status and Slack notifications only after a genuine parity pass; keep helper payload formats
+globs: orchestrator/lib/linear.ts, orchestrator/lib/slack.ts, orchestrator/pipeline.ts
+alwaysApply: false
+---
+
+# Linear / Slack / pipeline notifications
+
+## Gate first
+
+Only trigger Linear status transitions and Slack notifications **after** the parity gate has genuinely passed (`report.gatePassed === true`).
+
+- No PR open → no Slack "PR opened" notify → no Linear **In Review** move on a failed gate.
+- On failure, leave the ticket in progress and halt; do not invent a success path.
+
+## Keep existing formats
+
+Use the existing helpers and payload/comment builders already in these files (e.g. `buildInReviewComment`, `notifyPrOpened`, `updateTicketStatus`, `addIssueComment`).
+
+Do **not** introduce a new comment or Slack payload format alongside them.

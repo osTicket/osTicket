@@ -1,0 +1,23 @@
+---
+description: Conventions for orchestrator TypeScript agents, SDK wrappers, and pipeline state
+globs: orchestrator/**/*.ts
+alwaysApply: false
+---
+
+# Orchestrator TypeScript
+
+## Keep stage agents thin
+
+Stage agents under `orchestrator/agents/` should stay thin wrappers around prompts and I/O. Prefer existing helpers over duplicating logic:
+
+- `withLocalAgent` / `withCloudAgent` from `orchestrator/lib/sdk.ts`
+- `streamRunWithProgress` (and related streaming helpers) for run lifecycle
+- Manifest helpers from `orchestrator/lib/manifest.ts` (`loadManifest`, `requireFacadeFile`, `requireExtractionTarget`, etc.)
+
+## State and caching
+
+Persist pipeline state under `orchestrator/.state/` (e.g. seam manifests keyed by ticket id). Do not invent a parallel state location.
+
+## MOD-25 special cases
+
+Do **not** hardcode MOD-25-specific paths (e.g. `legacy/harness/sla_capture.php`) except where the code already deliberately special-cases MOD-25. New tickets should use manifest-driven paths.

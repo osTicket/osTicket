@@ -1,0 +1,27 @@
+---
+description: Repo-wide context for the strangler-fig demo — parity gate, scope, and what not to touch
+alwaysApply: true
+---
+
+# Strangler-fig demo context
+
+This repository is a **strangler-fig migration demo** (Cursor SDK orchestrator + osTicket), not a general osTicket contribution fork.
+
+## Prefer these areas
+
+- `orchestrator/` — pipeline stages, agents, SDK wrappers, Linear/Slack
+- `include/Services/` — extracted service classes
+- `legacy/harness/` and `orchestrator/fixtures/` — parity capture/compare
+- Seam patches named by the current ticket's seam manifest (`facadeFile`, `extractionTarget`)
+
+Do **not** treat the upstream osTicket README or contribution guidance as the source of truth for how to work in this repo.
+
+## Parity gate is sacred
+
+- Never skip, weaken, or bypass the verifier.
+- Do not open a PR or move a Linear ticket to **In Review** if parity fails.
+- Never invent expected values or edit fixtures just to make a run pass.
+
+## Leave unrelated trees alone
+
+Do not edit `include/*/vendor/`, mpdf/laminas vendor trees, or unrelated osTicket files unless the current ticket's seam manifest **explicitly** names them.

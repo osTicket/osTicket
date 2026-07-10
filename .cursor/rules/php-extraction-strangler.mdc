@@ -1,0 +1,33 @@
+---
+description: PHP extraction and strangler-fig facade patch rules — smallest patch, anti-recursion, manifest-scoped files only
+globs: include/Services/**/*.php, include/class.sla.php
+alwaysApply: false
+---
+
+# PHP extraction and strangler patches
+
+## Smallest possible facade patch
+
+When patching a facade (e.g. `include/class.sla.php`):
+
+- Preserve the existing entry-point **method signature** exactly.
+- Preserve existing **side effects** and facade-level orchestration (globals, schedule resolution, caching, caller-visible contracts).
+- Move only the core logic delegation into the extracted service.
+
+## Anti-recursion
+
+The extracted service must **never** call back into the facade entry point it replaces. That causes infinite recursion after the strangler patch.
+
+Choose one pattern:
+
+- **Lifted logic** — hold the exact inline expression/operators from the original method body.
+- **Forward delegation** — call deeper, unrelated methods/classes only (never the facade entry point).
+
+## Touch only manifest-named files
+
+Only modify files named in the current seam manifest:
+
+- `extractionTarget` — new or updated service under `include/Services/`
+- `facadeFile` — facade to patch
+
+Do not refactor unrelated PHP in the same change.
