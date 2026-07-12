@@ -1,0 +1,8 @@
+{
+  "name": "guard-empty-schedule",
+  "branch": "Empty schedule entries cause BusinessHoursSchedule::addWorkingHours to return false, triggering SlaGracePeriodCalculator wall-clock DateInterval fallback via round(graceHours * 3600) seconds",
+  "graceHours": 2,
+  "start": "2024-01-15T10:00:00-05:00",
+  "scheduleId": 5,
+  "expected": null
+}
