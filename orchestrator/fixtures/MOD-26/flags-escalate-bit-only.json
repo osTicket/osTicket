@@ -1,8 +1,0 @@
-{
-  "name": "flags-escalate-bit-only",
-  "branch": "flags=2 sets only FLAG_ESCALATE; non-zero left operand returns the right-hand FLAG_ESCALATE value (2)",
-  "input": {
-    "flags": 2
-  },
-  "expected": true
-}

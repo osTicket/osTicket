@@ -14,8 +14,6 @@
 **********************************************************************/
 include_once INCLUDE_DIR.'class.businesshours.php';
 include_once INCLUDE_DIR.'class.schedule.php';
-include_once INCLUDE_DIR.'Services/SlaGracePeriodCalculator.php';
-include_once INCLUDE_DIR.'Services/SlaPriorityEscalationResolver.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -52,11 +50,19 @@ implements TemplateVariable {
 
         // Requested schedule takes precedence, then local and lastly the
         // system default as a fall-back
-        $schedule = $schedule ?: $this->getSchedule() ?:
-                $cfg->getDefaultSchedule();
+        if (($schedule = $schedule ?: $this->getSchedule() ?:
+                    $cfg->getDefaultSchedule())) {
+            if (($schedule->addWorkingHours($date,
+                            $this->getGracePeriod(), $timeline)))
+                return $date;
+        }
 
-        return (new SlaGracePeriodCalculator())->calculate(
-                $date, $this->getGracePeriod(), $schedule, $timeline);
+        // No schedule, no problem - just add the hours and call ot a day.
+        $time = round($this->getGracePeriod()*3600);
+        $interval = new DateInterval('PT'.$time.'S');
+        $date->add($interval);
+
+        return $date;
     }
 
     function getScheduleId() {
@@ -115,7 +121,7 @@ implements TemplateVariable {
     }
 
     function priorityEscalation() {
-        return (new SlaPriorityEscalationResolver())->resolve($this);
+        return $this->flags && self::FLAG_ESCALATE;
     }
 
     function getTranslateTag($subtag) {

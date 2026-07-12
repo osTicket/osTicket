@@ -1,8 +1,0 @@
-{
-  "name": "flags-noalerts-only-non-escalate-bit",
-  "branch": "flags=4 sets FLAG_NOALERTS without FLAG_ESCALATE; any non-zero flags value still yields truthy 2 via logical AND, not bitwise mask semantics",
-  "input": {
-    "flags": 4
-  },
-  "expected": true
-}

@@ -1,8 +1,0 @@
-{
-  "name": "flags-transient-only-non-escalate-bit",
-  "branch": "flags=8 sets FLAG_TRANSIENT alone; confirms logical AND truthiness is driven solely by non-zero flags, independent of which bits are set",
-  "input": {
-    "flags": 8
-  },
-  "expected": true
-}

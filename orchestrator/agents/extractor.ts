@@ -36,7 +36,7 @@ Choose the pattern that matches coreLogic:
 
 A) Sub-method delegation — when coreLogic calls OTHER classes or methods
    (not the facade entry point itself), delegate to those implementations.
-   Reference: include/Services/SlaGracePeriodCalculator.php delegates to
+   Example: a grace-period calculator that delegates to
    BusinessHoursSchedule::addWorkingHours, not to SLA::addGracePeriod().
 
 B) Inline expression lift — when coreLogic IS the entry-point method body

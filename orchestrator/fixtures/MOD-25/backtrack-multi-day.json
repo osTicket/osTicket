@@ -1,8 +1,0 @@
-{
-  "name": "backtrack-multi-day",
-  "branch": "Multi-day grace accumulation exceeding requested seconds triggers DateTime::sub backtrack to land exactly on the grace-hour quota",
-  "graceHours": 10,
-  "start": "2024-01-15T08:00:00-05:00",
-  "scheduleId": 1,
-  "expected": "2024-01-16T09:00:00"
-}
