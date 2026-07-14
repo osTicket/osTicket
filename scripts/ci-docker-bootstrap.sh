@@ -7,13 +7,18 @@ cd "$ROOT"
 echo "Starting Docker services from docker-compose.yml..."
 docker compose up -d
 
-echo "Waiting for MySQL..."
+# mysqladmin ping only checks that mysqld accepts connections — it can succeed
+# during first-boot init before root/osticket auth works. Wait until a real
+# authenticated query succeeds to avoid ERROR 1045 race failures in CI.
+echo "Waiting for MySQL (authenticated)..."
 for i in $(seq 1 60); do
-  if docker compose exec -T db mysqladmin ping -h localhost -uroot -posticket --silent 2>/dev/null; then
+  if docker compose exec -T db mysql -uroot -posticket -e "SELECT 1" >/dev/null 2>&1; then
+    echo "MySQL is ready."
     break
   fi
   if [ "$i" -eq 60 ]; then
-    echo "MySQL did not become ready in time" >&2
+    echo "MySQL did not become ready in time (auth check failed)" >&2
+    docker compose logs db >&2 || true
     exit 1
   fi
   sleep 2

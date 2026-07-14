@@ -32,8 +32,9 @@ docker compose up -d
 # web: PHP 8.4 Apache on 8080, repo mounted at /var/www/html
 ```
 
-CI uses `scripts/ci-docker-bootstrap.sh` to wait for MySQL, import schema if
-needed, and create `include/ost-config.php` when missing.
+CI uses `scripts/ci-docker-bootstrap.sh` to wait for MySQL with an authenticated
+`SELECT 1` check (not just `mysqladmin ping`), import schema if needed, and
+create `include/ost-config.php` when missing.
 
 `include/ost-config.php` is gitignored — local/CI generate it; do not commit secrets.
 
