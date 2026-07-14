@@ -1,3 +1,4 @@
+import { execSync } from "child_process";
 import { Agent } from "@cursor/sdk";
 import type {
   Run,
@@ -32,14 +33,33 @@ const VAGUE_TOOL_SUMMARIES = new Set([
   "finding files",
 ]);
 
+/** Current git branch for cloud startingRef; falls back to GITHUB_DEMO_BRANCH. */
+export function getCurrentBranch(): string {
+  try {
+    return execSync("git rev-parse --abbrev-ref HEAD", {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    const fallback = process.env.GITHUB_DEMO_BRANCH;
+    if (!fallback) {
+      throw new Error(
+        "Could not determine current git branch (git rev-parse failed) and GITHUB_DEMO_BRANCH is not set"
+      );
+    }
+    return fallback;
+  }
+}
+
 export function createCloudAgent(options: AgentRunOptions = {}) {
   const { model = "composer-2.5", name } = options;
+  const startingRef = getCurrentBranch();
   return Agent.create({
     apiKey: process.env.CURSOR_API_KEY!,
     model: { id: model },
     ...(name ? { name } : {}),
     cloud: {
-      repos: [{ url: process.env.GITHUB_REPO_URL!, startingRef: process.env.GITHUB_DEMO_BRANCH! }],
+      repos: [{ url: process.env.GITHUB_REPO_URL!, startingRef }],
     },
   });
 }

@@ -17,7 +17,7 @@ Document **names only**. Typical keys in `.env` (gitignored):
 |------|----------|
 | `CURSOR_API_KEY` | Cursor SDK agents |
 | `GITHUB_REPO_URL` | Cloud agent repo URL |
-| `GITHUB_DEMO_BRANCH` | Cloud agent starting ref |
+| `GITHUB_DEMO_BRANCH` | Optional fallback if `git rev-parse` fails; cloud `startingRef` normally comes from the current checkout |
 | `LINEAR_API_KEY` | Ticket poll / status / comments |
 | `SLACK_WEBHOOK_URL` | PR-opened notification (optional; warns and skips if unset) |
 | `LEGACY_APP_URL` | Legacy app URL for local demo context |
