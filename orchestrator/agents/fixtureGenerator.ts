@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { listGoldenFixtureFiles } from "../lib/fixtures";
 import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
 import { requireHarnessScript } from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
@@ -14,7 +15,7 @@ export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[
   const dir = fixtureDir(manifest.ticketId);
   fs.mkdirSync(dir, { recursive: true });
 
-  const existing = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
+  const existing = listGoldenFixtureFiles(dir);
   if (existing.length > 0) {
     logAgentLine(
       "fixture-generator",

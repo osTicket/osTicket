@@ -1,6 +1,7 @@
 import { execFileSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import { hasGoldenFixtures } from "./fixtures";
 import type { SeamManifest } from "./types";
 
 const FIXTURES_ROOT = "orchestrator/fixtures";
@@ -117,7 +118,7 @@ export function discoverTicketIds(): string[] {
     .filter((ticketId) => /^MOD-\d+$/.test(ticketId))
     .filter((ticketId) => {
       const dir = path.join(FIXTURES_ROOT, ticketId);
-      return fs.readdirSync(dir).some((f) => f.endsWith(".json"));
+      return hasGoldenFixtures(dir);
     })
     .sort();
 }

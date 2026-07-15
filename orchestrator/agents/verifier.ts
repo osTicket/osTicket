@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { listGoldenFixtureFiles, PARITY_REPORT_FILENAME } from "../lib/fixtures";
 import { runHarness } from "../lib/harness";
 import { fixtureHarnessInput, loadManifest, requireHarnessScript } from "../lib/manifest";
 import { fixtureDir } from "./fixtureGenerator";
@@ -12,7 +13,7 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
   if (!fs.existsSync(dir)) {
     throw new Error(`Fixture directory not found: ${dir}`);
   }
-  const files = fs.readdirSync(dir).filter(f => f.endsWith(".json"));
+  const files = listGoldenFixtureFiles(dir);
   const mismatches: ParityReport["mismatches"] = [];
 
   for (const file of files) {
@@ -39,7 +40,7 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
     gatePassed: mismatches.length === 0,
   };
   fs.writeFileSync(
-    path.join(dir, "parity.json"),
+    path.join(dir, PARITY_REPORT_FILENAME),
     JSON.stringify(report, null, 2)
   );
   return report;
