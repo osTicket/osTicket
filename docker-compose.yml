@@ -7,7 +7,8 @@ services:
     ports:
       - "3306:3306"
   web:
-    image: php:8.4-apache
+    build:
+      context: docker/php
     volumes:
       - ./:/var/www/html
     ports:
