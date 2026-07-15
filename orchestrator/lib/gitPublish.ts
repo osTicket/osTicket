@@ -31,9 +31,28 @@ export function stranglerBranchName(ticketId: string): string {
   return `strangler/${ticketId}`;
 }
 
+function currentBranchName(): string {
+  try {
+    return git(["rev-parse", "--abbrev-ref", "HEAD"]);
+  } catch {
+    return "";
+  }
+}
+
+function workingTreeDirty(): boolean {
+  return (
+    execFileSync("git", ["status", "--porcelain"], { encoding: "utf-8" }).trim()
+      .length > 0
+  );
+}
+
 /**
  * Create or resume a per-ticket branch from the demo base branch.
  * Pushes an empty branch early when new so cloud agents can use startingRef.
+ *
+ * Preserves uncommitted local work when already on the ticket branch (resume /
+ * `--from-stage`), and fetches the strangler head explicitly so fresh checkouts
+ * see an existing remote branch.
  */
 export function ensureStranglerBranch(ticketId: string): string {
   const base = getBaseBranch();
@@ -41,12 +60,35 @@ export function ensureStranglerBranch(ticketId: string): string {
 
   execFileSync("git", ["fetch", "origin", base], { stdio: "inherit" });
 
+  // Fetch the ticket head so origin/<branch> exists locally on shallow/single-branch clones.
   let remoteExists = false;
   try {
+    execFileSync("git", ["fetch", "origin", branch], { stdio: "inherit" });
     git(["rev-parse", "--verify", `origin/${branch}`]);
     remoteExists = true;
   } catch {
     remoteExists = false;
+  }
+
+  const alreadyOnBranch = currentBranchName() === branch;
+  const dirty = workingTreeDirty();
+
+  if (alreadyOnBranch) {
+    // Resume / --from-stage: never reset the tree over local seam artifacts.
+    if (remoteExists && !dirty) {
+      try {
+        execFileSync("git", ["pull", "--ff-only", "origin", branch], {
+          stdio: "inherit",
+        });
+      } catch {
+        // Diverged local commits; publish will push or surface the conflict.
+      }
+    } else if (!remoteExists) {
+      execFileSync("git", ["push", "-u", "origin", branch], {
+        stdio: "inherit",
+      });
+    }
+    return branch;
   }
 
   if (remoteExists) {

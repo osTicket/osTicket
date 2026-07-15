@@ -16,6 +16,15 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
   const files = listGoldenFixtureFiles(dir);
   const mismatches: ParityReport["mismatches"] = [];
 
+  if (files.length === 0) {
+    // parity.json alone is not a golden case — never pass with 0/0.
+    mismatches.push({
+      name: "(no golden fixtures)",
+      expected: "≥1 golden fixture JSON file",
+      actual: "0 golden fixtures (parity-only or empty directory)",
+    });
+  }
+
   for (const file of files) {
     const fixture: Fixture = JSON.parse(fs.readFileSync(path.join(dir, file), "utf-8"));
     if (fixture.expected === undefined) {
@@ -34,10 +43,11 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
 
   const report: ParityReport = {
     totalCases: files.length,
-    passed: files.length - mismatches.length,
+    passed: Math.max(0, files.length - mismatches.length),
     failed: mismatches.length,
     mismatches,
-    gatePassed: mismatches.length === 0,
+    // Sacred gate: require at least one golden case and zero mismatches.
+    gatePassed: files.length > 0 && mismatches.length === 0,
   };
   fs.writeFileSync(
     path.join(dir, PARITY_REPORT_FILENAME),

@@ -12,9 +12,12 @@ const processed = new Set<string>();
 let pipelineBusy = false;
 
 async function poll(): Promise<void> {
+  // Claim the lock before any await so overlapping setInterval ticks cannot
+  // both pass the guard and interleave ensureStranglerBranch checkouts.
   if (pipelineBusy) {
     return;
   }
+  pipelineBusy = true;
 
   try {
     const ticketId = await findReadyTicket();
@@ -26,15 +29,11 @@ async function poll(): Promise<void> {
     await updateTicketStatus(ticketId, STATUS_IN_PROGRESS);
     console.log(`Starting pipeline for ticket ${ticketId}`);
     const ticket = await getLinearTicket(ticketId);
-    pipelineBusy = true;
-    try {
-      await runPipeline(ticketId, ticket.description);
-    } finally {
-      pipelineBusy = false;
-    }
+    await runPipeline(ticketId, ticket.description);
   } catch (err) {
-    pipelineBusy = false;
     console.error("Poll failed:", err);
+  } finally {
+    pipelineBusy = false;
   }
 }
 
