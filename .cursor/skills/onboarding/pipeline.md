@@ -27,7 +27,8 @@ After verifier:
 
 **Pass** (`report.gatePassed === true`):
 
-1. Log pause for human review (demo notes production would use `Agent.resume`)
+1. Hands-off by default: publish artifacts (`gitPublish`) then open PR
+   (set `PIPELINE_PAUSE_FOR_REVIEW=1` only for legacy demo pause **logs**)
 2. `prAgent` opens PR
 3. Slack `notifyPrOpened`
 4. Linear comment + status → **In Review**
@@ -38,6 +39,7 @@ After verifier:
 - Leave ticket **In Progress**
 - **No** PR, **no** Slack success notify, **no** In Review
 - Print mismatches (`expected` vs `actual`)
+- Linear comment via `buildParityFailedComment`
 
 Never skip, weaken, or bypass the verifier. Never invent expecteds or edit
 fixtures just to pass.
@@ -85,10 +87,12 @@ fixtures just to pass.
 ## Entry points
 
 ```bash
-# Full pipeline for a ticket
+# Prod: Cursor Automation on Linear Ready (cloud VM + Compose) — no listener
+
+# Full pipeline for a ticket (local debug or cloud agent shell)
 npx tsx orchestrator/pipeline.ts MOD-<id> --criteria "<acceptance text>" [--from-stage N]
 
-# Linear listener (poll Ready every 5s → In Progress → runPipeline)
+# Deprecated local Linear poller (do not run alongside the Automation)
 npx tsx orchestrator/listener.ts
 
 # Capture baselines then verify one ticket
@@ -105,12 +109,15 @@ npx tsx orchestrator/test-stage3.ts
 
 ## Listener flow
 
-`orchestrator/listener.ts`:
+`orchestrator/listener.ts` is a **legacy local poller**. Prefer the Cursor
+Automation (Linear status → Ready). If you use the listener for debug:
 
 1. Poll Linear for a Ready ticket
 2. Mark In Progress
 3. `runPipeline(ticketId, ticket.description)`
 4. Deduplicate with an in-memory `processed` set
+
+Do not run listener + Automation at the same time.
 
 ## Manifest + state locations
 
@@ -129,5 +136,6 @@ state manifests exist (copying from `orchestrator/manifests/` when needed).
 - `withLocalAgent` / `withCloudAgent`, streaming helpers — `lib/sdk.ts`
 - `loadManifest`, `requireFacadeFile`, `requireExtractionTarget`, `requireHarnessScript`, `fixtureHarnessInput` — `lib/manifest.ts`
 - `runHarness` — `lib/harness.ts`
+- `publishArtifactsForPr` — `lib/gitPublish.ts` (before nested cloud PR agent)
 - Linear/Slack helpers — `lib/linear.ts`, `lib/slack.ts`
 - Keep agents **thin**: prompts + I/O only

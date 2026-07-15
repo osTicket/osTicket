@@ -223,6 +223,30 @@ export function buildInReviewComment(
   ].join("\n");
 }
 
+/** Comment body when the parity gate fails — no PR, ticket stays In Progress. */
+export function buildParityFailedComment(
+  ticketId: string,
+  report: ParityReport
+): string {
+  const mismatches = report.mismatches
+    .map((m) => `- \`${m.name}\`: expected \`${m.expected}\`, got \`${m.actual}\``)
+    .join("\n");
+
+  return [
+    "## Parity gate failed",
+    "",
+    `Pipeline halted for **${ticketId}**. No pull request opened.`,
+    "",
+    `Result: **${report.passed}/${report.totalCases}** passed, **${report.failed}** failed.`,
+    "",
+    "Ticket remains **In Progress**.",
+    "",
+    "### Mismatches",
+    "",
+    mismatches || "_No mismatch details available._",
+  ].join("\n");
+}
+
 export async function addIssueComment(ticketId: string, body: string): Promise<void> {
   const result = await linearGraphQL<{
     commentCreate: { success: boolean };

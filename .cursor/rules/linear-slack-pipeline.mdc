@@ -8,13 +8,13 @@ alwaysApply: false
 
 ## Gate first
 
-Only trigger Linear status transitions and Slack notifications **after** the parity gate has genuinely passed (`report.gatePassed === true`).
+Only trigger Linear status transitions and Slack **success** notifications **after** the parity gate has genuinely passed (`report.gatePassed === true`).
 
 - No PR open → no Slack "PR opened" notify → no Linear **In Review** move on a failed gate.
-- On failure, leave the ticket in progress and halt; do not invent a success path.
+- On failure, leave the ticket in progress, halt, and post `buildParityFailedComment` — do not invent a success path.
 
 ## Keep existing formats
 
-Use the existing helpers and payload/comment builders already in these files (e.g. `buildInReviewComment`, `notifyPrOpened`, `updateTicketStatus`, `addIssueComment`).
+Use the existing helpers and payload/comment builders already in these files (e.g. `buildInReviewComment`, `buildParityFailedComment`, `notifyPrOpened`, `updateTicketStatus`, `addIssueComment`).
 
 Do **not** introduce a new comment or Slack payload format alongside them.
