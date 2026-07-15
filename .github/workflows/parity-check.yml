@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out PR code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -27,17 +29,34 @@ jobs:
           node-version: "22"
           cache: npm
 
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Evaluate parity scope
+        id: parity
+        env:
+          CI: "true"
+          PARITY_DIFF_BASE: origin/${{ github.base_ref }}
+        run: echo "run=$(npx tsx orchestrator/ci-parity-check.ts --evaluate)" >> "$GITHUB_OUTPUT"
+
       - name: Set up PHP
+        if: steps.parity.outputs.run == 'run'
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.4"
           extensions: mysqli
 
-      - name: Install Node dependencies
-        run: npm ci
-
       - name: Bootstrap Docker services
+        if: steps.parity.outputs.run == 'run'
         run: bash scripts/ci-docker-bootstrap.sh
 
       - name: Run parity verifier
+        if: steps.parity.outputs.run == 'run'
+        env:
+          CI: "true"
+          PARITY_DIFF_BASE: origin/${{ github.base_ref }}
         run: npx tsx orchestrator/ci-parity-check.ts
+
+      - name: Parity skipped
+        if: steps.parity.outputs.run != 'run'
+        run: echo "Parity check skipped — no seam changes and/or no runtime manifest in checkout."

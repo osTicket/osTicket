@@ -1,47 +1,10 @@
-import * as fs from "fs";
-import * as path from "path";
 import { verifier } from "./agents/verifier";
+import {
+  discoverTicketIds,
+  ensureManifestInState,
+  evaluateCiParity,
+} from "./lib/parityScope";
 import type { ParityReport } from "./lib/types";
-
-const FIXTURES_ROOT = "orchestrator/fixtures";
-
-function discoverTicketIds(): string[] {
-  if (!fs.existsSync(FIXTURES_ROOT)) {
-    return [];
-  }
-
-  return fs
-    .readdirSync(FIXTURES_ROOT, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((ticketId) => {
-      const dir = path.join(FIXTURES_ROOT, ticketId);
-      const fixtureFiles = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
-      if (fixtureFiles.length === 0) {
-        console.log(`Skipping ${ticketId}: no fixture files in ${dir}`);
-        return false;
-      }
-      console.log(`Found ${fixtureFiles.length} fixture(s) for ${ticketId}`);
-      return true;
-    })
-    .sort();
-}
-
-function ensureManifest(ticketId: string): void {
-  const stateDir = "orchestrator/.state";
-  const statePath = path.join(stateDir, `${ticketId}-manifest.json`);
-  const committedPath = path.join(
-    "orchestrator/manifests",
-    `${ticketId}-manifest.json`
-  );
-
-  fs.mkdirSync(stateDir, { recursive: true });
-
-  if (!fs.existsSync(statePath) && fs.existsSync(committedPath)) {
-    fs.copyFileSync(committedPath, statePath);
-    console.log(`Copied manifest from ${committedPath}`);
-  }
-}
 
 function printReport(ticketId: string, report: ParityReport): void {
   console.log("=".repeat(72));
@@ -67,23 +30,50 @@ function printReport(ticketId: string, report: ParityReport): void {
 }
 
 async function main(): Promise<void> {
-  const ticketIds = discoverTicketIds();
+  const evaluateOnly = process.argv.includes("--evaluate");
 
-  if (ticketIds.length === 0) {
-    console.log("No non-empty ticket fixture folders found — nothing to verify.");
+  const decision = evaluateCiParity();
+  if (evaluateOnly) {
+    process.stdout.write(decision.action);
     return;
   }
 
-  console.log(`Tickets to verify: ${ticketIds.join(", ")}\n`);
+  if (decision.action === "skip") {
+    console.log(`Parity check skipped: ${decision.reason}`);
+    return;
+  }
+
+  const ticketIds = discoverTicketIds();
+  if (ticketIds.length === 0) {
+    console.log("No MOD-* fixture folders found — nothing to verify.");
+    return;
+  }
+
+  console.log(`Parity scope: ${decision.reason}`);
+  console.log(`Tickets to verify: ${decision.verifiableTicketIds.join(", ")}\n`);
 
   const results: { ticketId: string; report: ParityReport }[] = [];
 
-  for (const ticketId of ticketIds) {
-    ensureManifest(ticketId);
+  for (const ticketId of decision.verifiableTicketIds) {
+    const manifestPath = ensureManifestInState(ticketId);
+    if (!manifestPath) {
+      console.log(
+        `Skipping ${ticketId}: no manifest in checkout (runtime cartographer output; pipeline parity is authoritative).`
+      );
+      continue;
+    }
+
     const report = await verifier(ticketId);
     printReport(ticketId, report);
     results.push({ ticketId, report });
     console.log("");
+  }
+
+  if (results.length === 0) {
+    console.log(
+      "Parity check skipped: seam changes detected but no manifest available in checkout."
+    );
+    return;
   }
 
   const failed = results.filter((r) => !r.report.gatePassed);
