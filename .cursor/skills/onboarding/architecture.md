@@ -60,7 +60,7 @@ orchestrator/
 │   ├── slack.ts         # PR-opened notify
 │   └── terminal.ts      # Pipeline/agent log helpers
 ├── manifests/           # Committed MOD-*-manifest.json
-├── fixtures/            # MOD-*/**.json golden cases + parity.json
+├── fixtures/            # MOD-*/**.json golden cases + per-ticket parity.json
 └── .state/              # Runtime cache (gitignored)
 ```
 

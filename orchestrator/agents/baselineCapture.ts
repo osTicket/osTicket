@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { listGoldenFixtureFiles } from "../lib/fixtures";
 import { runHarness } from "../lib/harness";
 import { fixtureHarnessInput, loadManifest, requireHarnessScript } from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
@@ -14,7 +15,7 @@ export async function baselineCapture(ticketId: string): Promise<void> {
     throw new Error(`Fixture directory not found: ${dir}`);
   }
 
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
+  const files = listGoldenFixtureFiles(dir);
   let captured = 0;
 
   for (const file of files) {

@@ -9,8 +9,16 @@ import { runPipeline } from "./pipeline";
 
 const POLL_INTERVAL_MS = 5000;
 const processed = new Set<string>();
+let pipelineBusy = false;
 
 async function poll(): Promise<void> {
+  // Claim the lock before any await so overlapping setInterval ticks cannot
+  // both pass the guard and interleave ensureStranglerBranch checkouts.
+  if (pipelineBusy) {
+    return;
+  }
+  pipelineBusy = true;
+
   try {
     const ticketId = await findReadyTicket();
     if (!ticketId || processed.has(ticketId)) {
@@ -24,10 +32,14 @@ async function poll(): Promise<void> {
     await runPipeline(ticketId, ticket.description);
   } catch (err) {
     console.error("Poll failed:", err);
+  } finally {
+    pipelineBusy = false;
   }
 }
 
-console.log("Listener started — polling Linear for Ready tickets every 5s");
+console.log(
+  "Listener started — polling Linear for Ready tickets every 5s (one pipeline at a time)"
+);
 
 setInterval(() => {
   void poll();

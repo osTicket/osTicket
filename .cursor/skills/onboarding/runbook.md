@@ -11,12 +11,25 @@ cloud VM** built from [`.cursor/environment.json`](../../environment.json) +
 
 Flow:
 
-1. Move a `MOD-*` ticket to **Ready**
-2. Automation sets **In Progress** and runs
+1. Move one or more `MOD-*` tickets to **Ready** (2–3 concurrent runs are supported)
+2. Each Automation sets its ticket **In Progress** and runs
    `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
-3. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
-4. On parity pass: commit/push artifacts → PR → Slack → Linear **In Review**
-5. On fail: Linear failure comment; ticket stays **In Progress**; no PR
+3. Pipeline checks out `strangler/<TICKET>` from `GITHUB_DEMO_BRANCH` and pushes early
+4. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
+5. On parity pass: commit/push artifacts on the ticket branch → PR → Slack → Linear **In Review**
+6. On fail: Linear failure comment; ticket stays **In Progress**; no PR
+
+### Multi-ticket concurrency
+
+Each Ready ticket gets its own cloud VM and `strangler/MOD-*` branch. The base
+branch (`GITHUB_DEMO_BRANCH`, e.g. `demo/sla-strangler`) is the PR target only —
+the orchestrator does not push to it.
+
+Move several tickets to Ready at once; each finishes independently with its own
+PR. If two tickets touch the same facade file, merge their PRs one at a time and
+rebase the second onto the updated base.
+
+GitHub prerequisites: see [`.github/MULTI_TICKET_SETUP.md`](../../.github/MULTI_TICKET_SETUP.md).
 
 You do **not** need `listener.ts`, local Docker, or a laptop left on for this
 path. Mirror secrets from local `.env` into the Cloud Agents / Automation
@@ -53,7 +66,7 @@ names into Cloud Agent secrets:
 |------|----------|
 | `CURSOR_API_KEY` | Cursor SDK agents |
 | `GITHUB_REPO_URL` | Cloud agent repo URL |
-| `GITHUB_DEMO_BRANCH` | Optional fallback if `git rev-parse` fails; cloud `startingRef` normally comes from the current checkout |
+| `GITHUB_DEMO_BRANCH` | **Required** — PR base branch; per-ticket work branches are `strangler/MOD-*` |
 | `LINEAR_API_KEY` | Ticket status / comments |
 | `SLACK_WEBHOOK_URL` | PR-opened notification (optional; warns and skips if unset) |
 | `LEGACY_APP_URL` | Legacy app URL for local demo context |
@@ -108,6 +121,8 @@ npx tsx orchestrator/listener.ts
 ```
 
 Do **not** run the listener while the Automation is Active — double starts.
+The listener processes one pipeline at a time in a single checkout; use
+Automation for concurrent Ready tickets.
 
 ### Re-capture baselines and verify one seam
 
@@ -141,7 +156,8 @@ Parity failure fails the job. Do not weaken the check.
 | Manifest I/O helpers | `orchestrator/lib/manifest.ts` |
 | SDK agent wiring | `orchestrator/lib/sdk.ts` |
 | Harness execution | `orchestrator/lib/harness.ts`, `legacy/harness/*.php` |
-| Publish before cloud PR | `orchestrator/lib/gitPublish.ts` |
+| Publish before PR | `orchestrator/lib/gitPublish.ts` (per-ticket branch + scoped paths) |
+| Multi-ticket GitHub setup | `.github/MULTI_TICKET_SETUP.md` |
 | Fixtures | `orchestrator/fixtures/MOD-*/` |
 | Extracted services | `include/Services/` |
 | Facade patches | Paths in manifest `facadeFile` (often `include/class.sla.php`) |

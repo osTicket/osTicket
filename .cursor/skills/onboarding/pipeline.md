@@ -13,7 +13,7 @@ Confirm stage order against `orchestrator/pipeline.ts` before briefing.
 | 3 | extractor | `agents/extractor.ts` | Local | Create thin service at `extractionTarget` |
 | 4 | strangler | `agents/strangler.ts` | Local | Smallest facade patch at `facadeFile` |
 | 5 | verifier | `agents/verifier.ts` | Local (harness) | Compare harness output to fixture expecteds → `ParityReport` |
-| 6 | prAgent | `agents/prAgent.ts` | Cloud | Open PR **only if** `gatePassed` |
+| 6 | prAgent | `agents/prAgent.ts` | Local (`gh`) | Open PR **only if** `gatePassed` |
 
 `fromStage` in `runPipeline(ticketId, criteria, fromStage)` skips earlier work
 (e.g. `--from-stage 3` reuses harness/fixtures/baseline).
@@ -27,9 +27,10 @@ After verifier:
 
 **Pass** (`report.gatePassed === true`):
 
-1. Hands-off by default: publish artifacts (`gitPublish`) then open PR
+1. Hands-off by default: checkout `strangler/<ticket>` from `GITHUB_DEMO_BRANCH`,
+   publish scoped artifacts on that branch, then open PR with `gh`
    (set `PIPELINE_PAUSE_FOR_REVIEW=1` only for legacy demo pause **logs**)
-2. `prAgent` opens PR
+2. `prAgent` opens PR against the base branch (`--base` / `--head` explicit)
 3. Slack `notifyPrOpened`
 4. Linear comment + status → **In Review**
 
@@ -82,7 +83,19 @@ fixtures just to pass.
 ### PR agent
 
 - Runs only after gate pass
-- Scoped to facade + extraction target from manifest
+- Uses `gh pr create --base <GITHUB_DEMO_BRANCH> --head strangler/<ticket>`
+- Scoped to facade + extraction target + ticket fixtures from manifest
+
+## Multi-ticket Ready
+
+Move 2–3 tickets to **Ready** concurrently (Cursor Automation). Each run:
+
+1. Creates or resumes `strangler/MOD-*` from the base branch
+2. Publishes only that ticket's paths
+3. Opens its own PR
+
+Do not run `listener.ts` alongside Automation. Overlapping facade PRs: merge one
+at a time and rebase the rest. See `.github/MULTI_TICKET_SETUP.md`.
 
 ## Entry points
 
@@ -116,8 +129,9 @@ Automation (Linear status → Ready). If you use the listener for debug:
 2. Mark In Progress
 3. `runPipeline(ticketId, ticket.description)`
 4. Deduplicate with an in-memory `processed` set
+5. **One pipeline at a time** — `pipelineBusy` gate prevents overlapping polls
 
-Do not run listener + Automation at the same time.
+Do not run listener + Automation at the same time. Use Automation for concurrent Ready tickets.
 
 ## Manifest + state locations
 
@@ -126,7 +140,7 @@ Do not run listener + Automation at the same time.
 | `orchestrator/manifests/MOD-*-manifest.json` | Committed source of truth for known seams |
 | `orchestrator/.state/MOD-*-manifest.json` | Runtime cache (gitignored); cartographer/CI may copy committed → state |
 | `orchestrator/fixtures/MOD-*/` | One JSON file per case |
-| `orchestrator/fixtures/parity.json` | Aggregate parity artifact if present |
+| `orchestrator/fixtures/MOD-*/parity.json` | Per-ticket parity report from verifier |
 
 `ci-parity-check.ts` discovers ticket ids from fixture directories and ensures
 state manifests exist (copying from `orchestrator/manifests/` when needed).
@@ -136,6 +150,6 @@ state manifests exist (copying from `orchestrator/manifests/` when needed).
 - `withLocalAgent` / `withCloudAgent`, streaming helpers — `lib/sdk.ts`
 - `loadManifest`, `requireFacadeFile`, `requireExtractionTarget`, `requireHarnessScript`, `fixtureHarnessInput` — `lib/manifest.ts`
 - `runHarness` — `lib/harness.ts`
-- `publishArtifactsForPr` — `lib/gitPublish.ts` (before nested cloud PR agent)
+- `publishArtifactsForPr`, `ensureStranglerBranch`, `openPullRequest` — `lib/gitPublish.ts`
 - Linear/Slack helpers — `lib/linear.ts`, `lib/slack.ts`
 - Keep agents **thin**: prompts + I/O only

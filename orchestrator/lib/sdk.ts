@@ -33,7 +33,7 @@ const VAGUE_TOOL_SUMMARIES = new Set([
   "finding files",
 ]);
 
-/** Current git branch for cloud startingRef; falls back to GITHUB_DEMO_BRANCH. */
+/** Current git branch for cloud startingRef (per-ticket strangler/* after pipeline start). */
 export function getCurrentBranch(): string {
   try {
     return execSync("git rev-parse --abbrev-ref HEAD", {
