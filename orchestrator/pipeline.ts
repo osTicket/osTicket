@@ -4,11 +4,13 @@ import {
   STATUS_IN_REVIEW,
   addIssueComment,
   buildInReviewComment,
+  buildParityFailedComment,
   updateTicketStatus,
 } from "./lib/linear";
 import { notifyPrOpened } from "./lib/slack";
 import { writeStageBanner } from "./lib/sdk";
 import { logPipelineLine } from "./lib/terminal";
+import { publishArtifactsForPr } from "./lib/gitPublish";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
@@ -17,6 +19,11 @@ import { extractor } from "./agents/extractor";
 import { strangler } from "./agents/strangler";
 import { verifier } from "./agents/verifier";
 import { prAgent } from "./agents/prAgent";
+
+/** Default hands-off: skip demo pause messaging unless PIPELINE_PAUSE_FOR_REVIEW=1. */
+function shouldPauseForReview(): boolean {
+  return process.env.PIPELINE_PAUSE_FOR_REVIEW === "1";
+}
 
 export async function runPipeline(
   ticketId: string,
@@ -69,16 +76,37 @@ export async function runPipeline(
       console.error(`  ${m.name}: expected ${m.expected}, got ${m.actual}`);
     }
     console.error("=".repeat(72));
+    try {
+      await addIssueComment(ticketId, buildParityFailedComment(ticketId, report));
+      console.error(`Posted parity-failure comment on ${ticketId}`);
+    } catch (err) {
+      console.error(`Failed to comment parity failure on Linear: ${err}`);
+    }
     return;
   }
 
-  console.log(
-    "Parity gate passed. Pausing for human review before opening a PR."
-  );
-  console.log(
-    "(In a full production version, Agent.resume would pause here for approval. " +
-      "This is unverified — the pause is manual for the live demo.)"
-  );
+  if (shouldPauseForReview()) {
+    console.log(
+      "Parity gate passed. PIPELINE_PAUSE_FOR_REVIEW=1 — demo pause messaging only; continuing to PR."
+    );
+    console.log(
+      "(Historical demo note: production hands-off skips this path. Set PIPELINE_PAUSE_FOR_REVIEW=1 for the log only.)"
+    );
+  } else {
+    console.log("Parity gate passed — publishing artifacts and opening PR (hands-off).");
+  }
+
+  const publish = publishArtifactsForPr({
+    ticketId,
+    paths: [manifest.facadeFile, manifest.extractionTarget].filter(
+      (p): p is string => typeof p === "string" && p.length > 0
+    ),
+  });
+  if (publish.published) {
+    logPipelineLine(`Published artifacts · ${publish.sha}`);
+  } else {
+    logPipelineLine("No new artifacts to publish (working tree clean for staged paths)");
+  }
 
   writeStageBanner("pr-agent", ticketId);
   const { prUrl } = await prAgent(manifest, report);

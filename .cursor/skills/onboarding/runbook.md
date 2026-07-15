@@ -2,29 +2,66 @@
 
 Confirm commands and env names against the tree. Never print secret values.
 
-## Prerequisites
+## Hands-off production path (preferred)
 
-- Node.js 22+ (CI uses 22); `npm ci` / `npm install`
-- Docker + Docker Compose (MySQL 8 + PHP 8.4 Apache)
-- PHP 8.4 with `mysqli` for harness runs outside the web container (as in CI)
-- Cursor API key and (for full pipeline) Linear / Slack / GitHub settings
+Prod trigger is the Cursor Automation **Linear Ready -> Strangler Pipeline**
+(Linear status change in Modernize / SLA Modernization). It runs on a **Cursor
+cloud VM** built from [`.cursor/environment.json`](../../environment.json) +
+[`.cursor/Dockerfile`](../../Dockerfile).
+
+Flow:
+
+1. Move a `MOD-*` ticket to **Ready**
+2. Automation sets **In Progress** and runs
+   `npx tsx orchestrator/pipeline.ts <TICKET> --criteria "<description>"`
+3. Cloud `start` script brings up Compose + bootstrap so baseline/verifier work
+4. On parity pass: commit/push artifacts → PR → Slack → Linear **In Review**
+5. On fail: Linear failure comment; ticket stays **In Progress**; no PR
+
+You do **not** need `listener.ts`, local Docker, or a laptop left on for this
+path. Mirror secrets from local `.env` into the Cloud Agents / Automation
+environment (names only in docs — never commit values).
+
+**If you previously saved an interactive cloud snapshot for this repo**, delete
+it in the Cloud Agents dashboard so Dockerfile-based builds are used.
+
+### Cloud environment files
+
+| Path | Role |
+|------|------|
+| `.cursor/environment.json` | `build` / `install` / `start` for cloud agents |
+| `.cursor/Dockerfile` | Node 22 + Docker CE / Compose (DinD) |
+| `.cursor/install.sh` | `npm ci` |
+| `.cursor/start.sh` | Start Docker daemon + `scripts/ci-docker-bootstrap.sh` |
+
+Install `PIPELINE_PAUSE_FOR_REVIEW=1` only if you want the old demo pause
+log lines; hands-off default proceeds straight to the PR agent after a pass.
+
+## Local optional (debug / UI)
+
+- Node.js 22+; `npm ci` / `npm install`
+- Docker + Docker Compose if you want parity **on this machine** or the product UI
+- Port `:8080` is **optional product UI** — not required for hands-off cloud runs
+- PHP 8.4 + `mysqli` only if you run harness outside Compose (CI installs it; cloud uses container PHP)
 
 ## Environment variables
 
-Document **names only**. Typical keys in `.env` (gitignored):
+Document **names only**. Typical keys in `.env` (gitignored) — mirror the same
+names into Cloud Agent secrets:
 
 | Name | Used for |
 |------|----------|
 | `CURSOR_API_KEY` | Cursor SDK agents |
 | `GITHUB_REPO_URL` | Cloud agent repo URL |
 | `GITHUB_DEMO_BRANCH` | Optional fallback if `git rev-parse` fails; cloud `startingRef` normally comes from the current checkout |
-| `LINEAR_API_KEY` | Ticket poll / status / comments |
+| `LINEAR_API_KEY` | Ticket status / comments |
 | `SLACK_WEBHOOK_URL` | PR-opened notification (optional; warns and skips if unset) |
 | `LEGACY_APP_URL` | Legacy app URL for local demo context |
+| `PIPELINE_PAUSE_FOR_REVIEW` | Set to `1` for demo pause log only (default hands-off skips) |
 
 Load via `dotenv/config` in pipeline/listener entrypoints.
 
-## Local Docker bootstrap
+## Local Docker bootstrap (optional)
 
 ```bash
 docker compose up -d
@@ -32,23 +69,25 @@ docker compose up -d
 # web: PHP 8.4 Apache on 8080, repo mounted at /var/www/html
 ```
 
-CI uses `scripts/ci-docker-bootstrap.sh` to wait for MySQL with an authenticated
-`SELECT 1` check (not just `mysqladmin ping`), import schema if needed, and
-create `include/ost-config.php` when missing.
+CI and cloud `start` use `scripts/ci-docker-bootstrap.sh` to wait for MySQL with
+an authenticated `SELECT 1` check, import schema if needed, and create
+`include/ost-config.php` when missing.
 
-`include/ost-config.php` is gitignored — local/CI generate it; do not commit secrets.
+`include/ost-config.php` is gitignored — local/CI/cloud generate it; do not
+commit secrets.
 
 ## Day-to-day commands
 
-### First-time setup
+### First-time local setup (optional)
 
 ```bash
 npm ci
 # Create .env with required keys (see table above; file is gitignored)
 docker compose up -d
-bash scripts/ci-docker-bootstrap.sh   # optional; useful to mirror CI DB/config
+bash scripts/ci-docker-bootstrap.sh
 ```
-### Run the full migration pipeline for a ticket
+
+### Run the full migration pipeline for a ticket (local debug)
 
 ```bash
 npx tsx orchestrator/pipeline.ts MOD-26 --criteria "Extract SLA::priorityEscalation into a service"
@@ -60,11 +99,15 @@ Resume from a later stage (reuse earlier artifacts):
 npx tsx orchestrator/pipeline.ts MOD-26 --criteria "..." --from-stage 3
 ```
 
-### Auto-pick work from Linear
+### Deprecated: local Linear poller
+
+Prefer the Cursor Automation. Keep only for offline debug:
 
 ```bash
 npx tsx orchestrator/listener.ts
 ```
+
+Do **not** run the listener while the Automation is Active — double starts.
 
 ### Re-capture baselines and verify one seam
 
@@ -98,10 +141,12 @@ Parity failure fails the job. Do not weaken the check.
 | Manifest I/O helpers | `orchestrator/lib/manifest.ts` |
 | SDK agent wiring | `orchestrator/lib/sdk.ts` |
 | Harness execution | `orchestrator/lib/harness.ts`, `legacy/harness/*.php` |
+| Publish before cloud PR | `orchestrator/lib/gitPublish.ts` |
 | Fixtures | `orchestrator/fixtures/MOD-*/` |
 | Extracted services | `include/Services/` |
 | Facade patches | Paths in manifest `facadeFile` (often `include/class.sla.php`) |
 | Linear / Slack | `orchestrator/lib/linear.ts`, `slack.ts` |
+| Cloud VM env | `.cursor/environment.json`, `.cursor/Dockerfile`, `.cursor/start.sh` |
 | Process rules | `.cursor/rules/*.mdc` |
 
 ## Suggested first week for a new engineer
@@ -109,9 +154,9 @@ Parity failure fails the job. Do not weaken the check.
 1. Read `.cursor/rules/repo-context.mdc` and this skill's references.
 2. Skim `orchestrator/pipeline.ts` and one agent (e.g. `verifier.ts`).
 3. Open one manifest + its fixture dir + harness script; run
-   `capture-and-verify` for that ticket.
+   `capture-and-verify` for that ticket (local Docker optional).
 4. Trace one extraction: service in `include/Services/` ↔ facade method.
-5. Run `ci-parity-check.ts` locally with Docker up.
+5. Run `ci-parity-check.ts` locally with Docker up, or rely on CI.
 6. Only then change orchestrator or add a new seam — manifest-first.
 
 ## Package notes

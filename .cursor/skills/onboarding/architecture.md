@@ -36,8 +36,8 @@ in a small set of surfaces.
 
 ```
 orchestrator/
-├── pipeline.ts          # Full stage runner (CLI entry)
-├── listener.ts          # Polls Linear Ready → runPipeline
+├── pipeline.ts          # Full stage runner (CLI / Automation entry)
+├── listener.ts          # Deprecated local Linear poller (prefer Automation)
 ├── capture-and-verify.ts
 ├── ci-parity-check.ts   # CI: all fixture suites
 ├── test-stage1.ts … test-stage3.ts
@@ -55,6 +55,7 @@ orchestrator/
 │   ├── sdk.ts           # withLocalAgent / withCloudAgent, streaming
 │   ├── manifest.ts      # load/require facade, harness, extraction target
 │   ├── harness.ts       # Run PHP harness scripts
+│   ├── gitPublish.ts    # Commit/push artifacts before nested cloud PR
 │   ├── linear.ts        # Ticket status / comments
 │   ├── slack.ts         # PR-opened notify
 │   └── terminal.ts      # Pipeline/agent log helpers
@@ -62,6 +63,9 @@ orchestrator/
 ├── fixtures/            # MOD-*/**.json golden cases + parity.json
 └── .state/              # Runtime cache (gitignored)
 ```
+
+Cloud Automation environment (repo root `.cursor/`): `environment.json`, `Dockerfile`,
+`install.sh`, `start.sh` — Compose + bootstrap for hands-off parity.
 
 ## Key types (`orchestrator/lib/types.ts`)
 
