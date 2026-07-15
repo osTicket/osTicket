@@ -9,8 +9,13 @@ import { runPipeline } from "./pipeline";
 
 const POLL_INTERVAL_MS = 5000;
 const processed = new Set<string>();
+let pipelineBusy = false;
 
 async function poll(): Promise<void> {
+  if (pipelineBusy) {
+    return;
+  }
+
   try {
     const ticketId = await findReadyTicket();
     if (!ticketId || processed.has(ticketId)) {
@@ -21,13 +26,21 @@ async function poll(): Promise<void> {
     await updateTicketStatus(ticketId, STATUS_IN_PROGRESS);
     console.log(`Starting pipeline for ticket ${ticketId}`);
     const ticket = await getLinearTicket(ticketId);
-    await runPipeline(ticketId, ticket.description);
+    pipelineBusy = true;
+    try {
+      await runPipeline(ticketId, ticket.description);
+    } finally {
+      pipelineBusy = false;
+    }
   } catch (err) {
+    pipelineBusy = false;
     console.error("Poll failed:", err);
   }
 }
 
-console.log("Listener started — polling Linear for Ready tickets every 5s");
+console.log(
+  "Listener started — polling Linear for Ready tickets every 5s (one pipeline at a time)"
+);
 
 setInterval(() => {
   void poll();

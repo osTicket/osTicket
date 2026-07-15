@@ -10,7 +10,11 @@ import {
 import { notifyPrOpened } from "./lib/slack";
 import { writeStageBanner } from "./lib/sdk";
 import { logPipelineLine } from "./lib/terminal";
-import { publishArtifactsForPr } from "./lib/gitPublish";
+import {
+  ensureStranglerBranch,
+  publishArtifactsForPr,
+  stranglerBranchName,
+} from "./lib/gitPublish";
 import { baselineCapture } from "./agents/baselineCapture";
 import { cartographer } from "./agents/cartographer";
 import { fixtureGenerator } from "./agents/fixtureGenerator";
@@ -30,6 +34,9 @@ export async function runPipeline(
   acceptanceCriteria: string,
   fromStage = 1
 ): Promise<void> {
+  const branch = ensureStranglerBranch(ticketId);
+  logPipelineLine(`Working branch · ${branch} (base ${process.env.GITHUB_DEMO_BRANCH})`);
+
   writeStageBanner("cartographer", ticketId);
   const manifest = await cartographer(
     ticketId,
@@ -98,9 +105,11 @@ export async function runPipeline(
 
   const publish = publishArtifactsForPr({
     ticketId,
+    branch: stranglerBranchName(ticketId),
     paths: [manifest.facadeFile, manifest.extractionTarget].filter(
       (p): p is string => typeof p === "string" && p.length > 0
     ),
+    harnessScript: manifest.harnessScript,
   });
   if (publish.published) {
     logPipelineLine(`Published artifacts · ${publish.sha}`);

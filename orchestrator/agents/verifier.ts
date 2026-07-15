@@ -38,6 +38,9 @@ export async function verifier(ticketId: string): Promise<ParityReport> {
     mismatches,
     gatePassed: mismatches.length === 0,
   };
-  fs.writeFileSync("orchestrator/fixtures/parity.json", JSON.stringify(report, null, 2));
+  fs.writeFileSync(
+    path.join(dir, "parity.json"),
+    JSON.stringify(report, null, 2)
+  );
   return report;
 }
