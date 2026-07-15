@@ -178,7 +178,7 @@ CREATE TABLE `%TABLE_PREFIX%list` (
     `sort_mode` enum('Alpha', '-Alpha', 'SortCol') NOT NULL DEFAULT 'Alpha',
     `masks` int(11) unsigned NOT NULL DEFAULT 0,
     `type` VARCHAR( 16 ) NULL DEFAULT NULL,
-    `configuration` text NOT NULL DEFAULT '',
+    `configuration` text NOT NULL DEFAULT (''),
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
@@ -284,7 +284,7 @@ CREATE TABLE `%TABLE_PREFIX%email_account` (
   `last_error` datetime DEFAULT NULL,
   `last_activity` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
-  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `email_id` (`email_id`),
   KEY `type` (`type`)
@@ -536,8 +536,8 @@ CREATE TABLE `%TABLE_PREFIX%note` (
   `body` text,
   `status` int(11) unsigned NOT NULL DEFAULT 0,
   `sort` int(11) unsigned NOT NULL DEFAULT 0,
-  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `ext_id` (`ext_id`)
 ) DEFAULT CHARSET=utf8;

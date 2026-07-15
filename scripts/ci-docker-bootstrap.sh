@@ -57,6 +57,7 @@ fi
 SCHEDULE_COUNT="$(
   docker compose exec -T db mysql -uroot -posticket -N -e \
     "SELECT COUNT(*) FROM ost_schedule WHERE id=1" \
+    osticket \
     2>/dev/null | tr -d '\r'
 )"
 

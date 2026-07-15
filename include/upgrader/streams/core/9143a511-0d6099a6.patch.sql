@@ -77,7 +77,7 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
 
 -- Retire %config[namespace=list.x, key=configuration]
 ALTER TABLE `%TABLE_PREFIX%list`
-  ADD `configuration` text NOT NULL DEFAULT '' AFTER `type`;
+  ADD `configuration` text NOT NULL DEFAULT ('') AFTER `type`;
 
 UPDATE `%TABLE_PREFIX%list` A1
   JOIN `%TABLE_PREFIX%config` A2
