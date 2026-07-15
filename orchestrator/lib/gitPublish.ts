@@ -146,6 +146,37 @@ export function buildPrBody(manifest: SeamManifest, report: ParityReport): strin
   ].join("\n");
 }
 
+/**
+ * Look up an open PR for a head branch via server-side list query.
+ * Prefer this over `gh pr view <branch>`, which often false-negatives
+ * (including when that branch is currently checked out).
+ */
+function findOpenPrUrl(headBranch: string): string | undefined {
+  try {
+    const raw = execFileSync(
+      "gh",
+      [
+        "pr",
+        "list",
+        "--head",
+        headBranch,
+        "--state",
+        "open",
+        "--limit",
+        "1",
+        "--json",
+        "url",
+      ],
+      { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] }
+    ).trim();
+    const rows = JSON.parse(raw) as Array<{ url?: string }>;
+    const url = rows[0]?.url?.trim();
+    return url || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Open (or return existing) PR with explicit base/head branches. */
 export function openPullRequest(options: {
   ticketId: string;
@@ -156,25 +187,37 @@ export function openPullRequest(options: {
   const base = getBaseBranch();
   const { branch, title, body } = options;
 
-  try {
-    const existing = execFileSync(
-      "gh",
-      ["pr", "view", branch, "--json", "url", "-q", ".url"],
-      { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] }
-    ).trim();
-    if (existing) {
-      return { prUrl: existing };
-    }
-  } catch {
-    // No existing PR for this head branch.
+  const existing = findOpenPrUrl(branch);
+  if (existing) {
+    return { prUrl: existing };
   }
 
-  const output = execFileSync(
-    "gh",
-    ["pr", "create", "--base", base, "--head", branch, "--title", title, "--body", body],
-    { encoding: "utf-8", stdio: ["ignore", "pipe", "inherit"] }
-  ).trim();
+  try {
+    const output = execFileSync(
+      "gh",
+      [
+        "pr",
+        "create",
+        "--base",
+        base,
+        "--head",
+        branch,
+        "--title",
+        title,
+        "--body",
+        body,
+      ],
+      { encoding: "utf-8", stdio: ["ignore", "pipe", "inherit"] }
+    ).trim();
 
-  const urlMatch = output.match(/https:\/\/github\.com\/\S+/);
-  return { prUrl: urlMatch?.[0] ?? output };
+    const urlMatch = output.match(/https:\/\/github\.com\/\S+/);
+    return { prUrl: urlMatch?.[0] ?? output };
+  } catch (err) {
+    // Resume race / residual false-negative: PR already exists after parity.
+    const recovered = findOpenPrUrl(branch);
+    if (recovered) {
+      return { prUrl: recovered };
+    }
+    throw err;
+  }
 }
