@@ -101,6 +101,6 @@ is allowed to build the extraction.
     fs.writeFileSync(statePath, JSON.stringify(manifest, null, 2));
     return manifest;
     },
-    { model: "claude-opus-4-8", name: `cartographer · ${ticketId}` }
+    { model: "claude-sonnet-5", name: `cartographer · ${ticketId}` }
   );
 }

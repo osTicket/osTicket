@@ -76,6 +76,6 @@ Respond with ONLY a valid JSON array of fixture objects. No prose before or afte
 
     return fixtures;
     },
-    { model: "claude-sonnet-5", name: `fixture-generator · ${manifest.ticketId}` }
+    { model: "composer-2.5", name: `fixture-generator · ${manifest.ticketId}` }
   );
 }

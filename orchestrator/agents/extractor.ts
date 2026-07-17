@@ -66,6 +66,6 @@ ${manifest.sideEffects.join("\n")}
     }
     return result;
     },
-    { model: "claude-sonnet-5", name: `extractor · ${manifest.ticketId}` }
+    { model: "composer-2.5", name: `extractor · ${manifest.ticketId}` }
   );
 }
