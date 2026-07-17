@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { listGoldenFixtureFiles } from "../lib/fixtures";
-import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withCloudAgent } from "../lib/sdk";
+import { logRunEnd, logRunStart, parseJsonResult, streamRunWithProgress, withLocalAgent } from "../lib/sdk";
 import { requireHarnessScript } from "../lib/manifest";
 import { logAgentLine } from "../lib/terminal";
 import type { Fixture, SeamManifest } from "../lib/types";
@@ -26,7 +26,7 @@ export async function fixtureGenerator(manifest: SeamManifest): Promise<Fixture[
     );
   }
 
-  return withCloudAgent(
+  return withLocalAgent(
     async (agent) => {
     const run = await agent.send(`
 Seam manifest for ticket ${manifest.ticketId}:
