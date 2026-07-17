@@ -8,7 +8,7 @@ Confirm stage order against `orchestrator/pipeline.ts` before briefing.
 |---|-------|------------|---------|---------|
 | 1 | cartographer | `agents/cartographer.ts` | Cloud | Investigate legacy PHP; write seam manifest JSON (no implementation) |
 | 2a | harnessBuilder | `agents/harnessBuilder.ts` | Local | Create/reuse `legacy/harness/<seam>_capture.php` |
-| 2b | fixtureGenerator | `agents/fixtureGenerator.ts` | Cloud | Propose fixture cases under `orchestrator/fixtures/<ticket>/` |
+| 2b | fixtureGenerator | `agents/fixtureGenerator.ts` | Local | Propose fixture cases under `orchestrator/fixtures/<ticket>/` |
 | 2c | baselineCapture | `agents/baselineCapture.ts` | Local (harness) | Run harness; fill real `expected` values |
 | 3 | extractor | `agents/extractor.ts` | Local | Create thin service at `extractionTarget` |
 | 4 | strangler | `agents/strangler.ts` | Local | Smallest facade patch at `facadeFile` |
