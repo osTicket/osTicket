@@ -126,6 +126,18 @@ class Fetcher {
             $messages = range(1, min($max, $messageCount));
         }
 
+        // Process in DESCENDING sequence order. Some servers remove a
+        // message from the folder as soon as it is marked \Deleted (Gmail
+        // drops it from the label-folder immediately, regardless of its
+        // Auto-Expunge setting), renumbering every message above it
+        // mid-loop - the removeMessage() override in class.mail.php only
+        // protects against client-side expunge. In ascending order the loop
+        // then fetches or flags the wrong messages ("the single id was not
+        // found in response") and can move a message out of the fetch folder
+        // without ever processing it. Counting down, a removal only ever
+        // shifts sequence numbers the loop is already done with.
+        rsort($messages);
+
         $defaults = [
             'emailId' => $this->getEmailId()
         ];
