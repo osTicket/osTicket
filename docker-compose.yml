@@ -1,0 +1,68 @@
+name: osticket
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    # osTicket creates its tables as utf8mb3 explicitly and does not cope well
+    # with STRICT_TRANS_TABLES, so the server defaults are relaxed to match.
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --sql-mode=NO_ENGINE_SUBSTITUTION
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MARIADB_DATABASE: ${MYSQL_DATABASE:-osticket}
+      MARIADB_USER: ${MYSQL_USER:-osticket}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+    volumes:
+      - ./data/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    image: osticket-app:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PHP_TIMEZONE: ${PHP_TIMEZONE:-UTC}
+      PHP_MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-256M}
+      PHP_MAX_EXECUTION_TIME: ${PHP_MAX_EXECUTION_TIME:-60}
+      PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE:-20M}
+      PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE:-24M}
+      OSTICKET_REMOVE_SETUP: ${OSTICKET_REMOVE_SETUP:-false}
+    ports:
+      - "${HTTP_PORT:-8100}:80"
+    volumes:
+      - ./data/osticket:/data
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1/') === false ? 1 : 0);"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  cron:
+    image: osticket-app:local
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+    environment:
+      PHP_TIMEZONE: ${PHP_TIMEZONE:-UTC}
+      PHP_MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-256M}
+      OSTICKET_CRON_INTERVAL: ${OSTICKET_CRON_INTERVAL:-60}
+    volumes:
+      - ./data/osticket:/data
+    command: ["osticket-cron.sh"]
