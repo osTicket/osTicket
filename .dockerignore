@@ -1,0 +1,23 @@
+.git
+.gitignore
+.github
+.env
+.env.example
+data
+stage
+nbproject
+*.code-workspace
+.DS_Store
+._.DS_Store
+Vagrantfile
+.vagrant
+
+# Never bake a local install's secrets or state into the image.
+include/ost-config.php
+include/plugins/*.phar
+include/i18n/*.phar
+include/mpdf/tmp
+include/mpdf/ttfontdata
+
+# IIS only; the container runs Apache.
+web.config

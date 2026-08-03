@@ -20,3 +20,7 @@ stage
 include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
+
+# Docker Compose environment and mapped volumes
+.env
+data/

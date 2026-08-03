@@ -1,0 +1,12 @@
+# Container tooling must keep LF endings. On a Windows checkout with
+# core.autocrlf=true, CRLF breaks a script's shebang and leaves a trailing \r
+# on every .dockerignore pattern.
+*.sh              text eol=lf
+Dockerfile        text eol=lf
+docker-compose.yml text eol=lf
+.dockerignore     text eol=lf
+docker/**         text eol=lf
+
+# A trailing \r would end up inside compose variable values (passwords, ports).
+.env              text eol=lf
+.env.example      text eol=lf
