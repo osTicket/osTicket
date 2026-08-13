@@ -126,22 +126,11 @@ class Fetcher {
             $messages = range(1, min($max, $messageCount));
         }
 
-        // Process in DESCENDING sequence order. Some servers remove a
-        // message from the folder as soon as it is marked \Deleted (Gmail
-        // drops it from the label-folder immediately, regardless of its
-        // Auto-Expunge setting), renumbering every message above it
-        // mid-loop - the removeMessage() override in class.mail.php only
-        // protects against client-side expunge. In ascending order the loop
-        // then fetches or flags the wrong messages ("the single id was not
-        // found in response") and can move a message out of the fetch folder
-        // without ever processing it. Counting down, a removal only ever
-        // shifts sequence numbers the loop is already done with.
-        rsort($messages);
-
         $defaults = [
             'emailId' => $this->getEmailId()
         ];
         $msgs = $errors = 0;
+        $processed = [];
         // TODO: Use message UIDs instead of ids
         foreach ($messages as $i) {
             try {
@@ -149,11 +138,15 @@ class Fetcher {
                 if (($result=$this->processMessage($i, $defaults))) {
                     // Mark the message as "Seen" (IMAP only)
                     $this->mbox->markAsSeen($i);
-                    // Attempt to move the message if archive folder is set or
-                    if ($archiveFolder)
-                        $this->mbox->moveMessage($i, $archiveFolder);
-                    elseif ($deleteFetched)  // else delete if deletion is desired
-                        $this->mbox->removeMessage($i);
+                    // Defer the move/delete to the second pass below: some
+                    // servers (e.g. Gmail) remove the message from the
+                    // folder immediately - regardless of client-side
+                    // expunge - renumbering every message above it
+                    // mid-loop, which makes the loop fetch or flag the
+                    // wrong messages ("the single id was not found in
+                    // response") and can move a message out of the Fetch
+                    // Folder without ever processing it.
+                    $processed[] = $i;
                     $msgs++;
                     $errors = 0; // We are only interested in consecutive errors.
                 } else {
@@ -166,6 +159,27 @@ class Fetcher {
                     $errors++;
                 // log the exception as a debug message
                 $this->logDebug($t->getMessage());
+            }
+        }
+
+        // Second pass: archive or delete the processed messages in
+        // DESCENDING sequence order, so a server-side removal only ever
+        // renumbers messages this pass is already done with. A message
+        // that fails to move here is refetched on the next run, recognized
+        // by its Message-ID and moved again - never ticketed twice.
+        if ($archiveFolder || $deleteFetched) {
+            rsort($processed);
+            foreach ($processed as $i) {
+                try {
+                    // Attempt to move the message if archive folder is set or
+                    if ($archiveFolder)
+                        $this->mbox->moveMessage($i, $archiveFolder);
+                    else  // else delete if deletion is desired
+                        $this->mbox->removeMessage($i);
+                } catch (\Throwable $t) {
+                    // log the exception as a debug message
+                    $this->logDebug($t->getMessage());
+                }
             }
         }
 
