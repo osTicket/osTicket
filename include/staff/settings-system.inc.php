@@ -144,7 +144,7 @@ $gmtime = Misc::gmtime();
         <tr>
             <td><?php echo __('Allow System iFrame'); ?>:</td>
             <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>"
-                    placeholder="eg. https://domain.tld, *.domain.tld">
+                    placeholder="<?php echo __('eg. https://domain.tld, *.domain.tld'); ?>">
                 <i class="help-tip icon-question-sign" href="#allow_iframes"></i>
             <?php if ($errors['allow_iframes']) { ?>
                 <br>
@@ -156,7 +156,7 @@ $gmtime = Misc::gmtime();
             <td><?php echo __('Embedded Domain Whitelist'); ?>:</td>
             <td><input type="text" size="40" name="embedded_domain_whitelist"
                     value="<?php echo $config['embedded_domain_whitelist']; ?>"
-                    placeholder="eg. domain.tld, sub.domain.tld">
+                    placeholder="<?php echo __('eg. domain.tld, sub.domain.tld'); ?>">
                 <i class="help-tip icon-question-sign" href="#embedded_domain_whitelist"></i>
             <?php if ($errors['embedded_domain_whitelist']) { ?>
                 <br>
@@ -167,8 +167,8 @@ $gmtime = Misc::gmtime();
         <tr>
             <td><?php echo __('ACL'); ?>:</td>
             <td><input type="text" size="40" name="acl" value="<?php echo $config['acl']; ?>"
-                    placeholder="eg. 192.168.1.1, 192.168.2.2, 192.168.3.3">
-                &nbsp;Apply To:
+                    placeholder="<?php echo __('eg. 192.168.1.1, 192.168.2.2, 192.168.3.3'); ?>">
+                &nbsp;<?php echo __('Apply To'); ?>:
                 <select name="acl_backend">
                     <?php foreach($cfg->getACLBackendOpts() as $k=>$v) { ?>
                     <option <?php if ($cfg->getACLBackend() == $k) echo 'selected="selected"'; ?>
@@ -381,7 +381,7 @@ $gmtime = Misc::gmtime();
                         $selected = $config['default_storage_bk'] == $char
                             ? 'selected="selected"' : '';
                         ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
-                        ><?php echo $class::$desc; ?></option><?php
+                        ><?php echo __($class::$desc); ?></option><?php
                     }
                 } else {
                  echo sprintf('<option value="">%s</option>',

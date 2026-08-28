@@ -375,7 +375,7 @@ abstract class  ServiceRegistry {
                 && is_a($this->config, 'PluginConfig'))
              return $this->config->getName();
 
-        return static::$name;
+        return __(static::$name);
     }
 
     static function register($obj) {
