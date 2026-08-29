@@ -646,7 +646,7 @@ class AttachmentFile extends VerySimpleModel
         try {
             return parent::lookup(array('key' => $hash));
         } catch (ObjectNotUnique $e) {
-            // TODO: Figure out why key collission might be happening AND
+            // TODO: Figure out why key collision might be happening AND
             // make key (hash) unique field in the file table as a
             // protection measure. For now we're returning null to avoid possible wrong file
             // being displayed.
