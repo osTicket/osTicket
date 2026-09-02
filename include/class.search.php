@@ -1506,8 +1506,8 @@ class MergedField extends FormField {
         $query->annotate(array(
                 'merged' => new SqlExpr(new Q(array(
                     Q::any(array(
-                        'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
-                        'flags__hasbit' => Ticket::FLAG_COMBINE_THREADS,
+                        new Q(array('flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS)),
+                        new Q(array('flags__hasbit' => Ticket::FLAG_COMBINE_THREADS)),
                 )))
             ))));
 

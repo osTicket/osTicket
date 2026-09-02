@@ -412,7 +412,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     function getMissingRequiredFields() {
 
         return $this->getDynamicFields(array(
-                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
+                    new Q(array('answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED)),
                     'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
                     'answers__value__isnull' => true,
                     ));

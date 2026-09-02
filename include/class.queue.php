@@ -1439,8 +1439,8 @@ class CustomQueue extends VerySimpleModel {
                         ->when(array('sort' => 0), 999)
                         ->otherwise(new SqlField('sort'))))
             ->filter(Q::any(array(
-                'flags__hasbit' => self::FLAG_PUBLIC,
-                'flags__hasbit' => static::FLAG_QUEUE,
+                new Q(array('flags__hasbit' => self::FLAG_PUBLIC)),
+                new Q(array('flags__hasbit' => static::FLAG_QUEUE)),
                 'staff_id' => $staff->getId(),
             )))
             ->exclude(['flags__hasbit' => self::FLAG_DISABLED])
