@@ -491,7 +491,7 @@ class AttachmentFile extends VerySimpleModel
         // not have a valid backend configured yet. ::getBackendForFile()
         // will consider the system configuration for storing the file
         $bks = array(self::getBackendForFile($f));
-        if (!$bks[0]->getBkChar() !== 'D')
+        if ($bks[0]->getBkChar() !== 'D')
             $bks[] = new AttachmentChunkedData($f);
 
         // Consider the selected backen first and then save to database
