@@ -508,10 +508,18 @@ class AttachmentFile extends VerySimpleModel
                     $succeeded = true; break;
                 }
             } catch (Throwable $t) {
-                // Try next backend
-                // Backends can throw an exception or error.
-                // TODO: Log any exceptions and errors for debugging
-                // purposes.
+                // Try the next backend, but leave a trace of why this one
+                // was skipped. Without it a misconfigured backend -- an S3
+                // bucket that rejects writes, say -- silently falls back to
+                // the database with nothing to explain the reason.
+                global $ost;
+                if ($ost)
+                    $ost->logWarning(
+                            sprintf(_S('Attachment storage backend "%s" failed'),
+                                $bk->getBkChar()),
+                            sprintf(_S("Falling back to the next backend for \"%s\".\n\n%s"),
+                                $f->getName(), $t->getMessage()),
+                            false);
             }
             // Fallthrough to default backend if different?
         }
