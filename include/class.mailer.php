@@ -536,13 +536,20 @@ class Mailer {
             // Format content-ids with the domain, and add the inline images
             // to the email attachment list
             $self = $this;
+            $inlined = array();
             $body = preg_replace_callback('/cid:([\w.-]{32})/',
-                function($match) use ($domain, $message, $self) {
+                function($match) use ($domain, $message, $self, &$inlined) {
                     if (!($file=$self->getFile($match[1])))
                         return $match[0];
 
+                    // The same image can be referenced several times in the
+                    // body. Attach it once, but rewrite every reference.
+                    if (isset($inlined[$match[1]]))
+                        return $match[0].$domain;
+
                     try {
                         $message->addInlineImage($match[1].$domain, $file);
+                        $inlined[$match[1]] = true;
                         // Don't re-attach the image below
                         unset($self->attachments[$file->getUId()]);
                         return $match[0].$domain;
@@ -551,6 +558,9 @@ class Mailer {
                                      _S("Unable to retrieve email inline image"),
                                      $match[1].$domain,
                                      $ex->getMessage()));
+                         // Returning nothing replaces the reference with an
+                         // empty string and loses the image for good.
+                         return $match[0];
                     }
                 }, $body);
             // Add an HTML body
