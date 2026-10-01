@@ -638,7 +638,7 @@ namespace osTicket\Mail {
             try {
                 if (!$this->isConnected() && parent::connect())
                     $this->connected = true;
-                return $this->isConnected();
+                return $this->getConnection();
             } catch (\Throwable $ex) {
                 // Smtp protocol throws an Exception via error handler
                 // resulting in unrestored handler on socket error
