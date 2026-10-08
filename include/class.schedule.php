@@ -1061,21 +1061,20 @@ class ScheduleEntry extends VerySimpleModel {
     }
 
     static function getWeeks() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$weeks as $k=>$v)
-                static::$weeks[$k] = __($v);
-        }
+        static $translated = null;
+        if (!isset($translated))
+            $translated = array_map(function ($w) { return __($w); }, static::$weeks);
 
-        return static::$weeks;
+        return $translated;
     }
 
     static function getMonths() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$months as $k=>$v)
-                static::$months[$k] = __($v);
-        }
+        static $translated = null;
+        if (!isset($translated))
+            $translated = array_map(function ($m) { return __($m); }, static::$months);
+
+        return $translated;
+    }
 
         return static::$months;
     }
