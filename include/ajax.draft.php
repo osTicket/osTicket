@@ -415,4 +415,3 @@ class DraftAjaxAPI extends AjaxController {
     }
 
 }
-?>

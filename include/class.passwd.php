@@ -40,4 +40,3 @@ class Passwd {
         return ($hasher && ($hash=$hasher->HashPassword($passwd)))?$hash:null;
     }
 }
-?>

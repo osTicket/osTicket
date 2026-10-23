@@ -59,5 +59,3 @@ $ticket_id = (int) $result;
 
 # Continue onward here if necessary. $ticket_id has the ID number of the
 # newly-created ticket
-
-?>

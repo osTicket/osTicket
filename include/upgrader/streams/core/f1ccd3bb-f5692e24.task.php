@@ -26,5 +26,3 @@ class DropTicketEmailInfoPk extends MigrationTask {
 }
 
 return 'DropTicketEmailInfoPk';
-
-?>

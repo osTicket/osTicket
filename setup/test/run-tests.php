@@ -67,4 +67,3 @@ if (!strcasecmp(basename($argv[0]), basename(__file__)))
     exit(count($fails));
 else
     return count($fails);
-?>

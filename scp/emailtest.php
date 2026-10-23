@@ -136,4 +136,3 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 </form>
 <?php
 include(STAFFINC_DIR.'footer.inc.php');
-?>

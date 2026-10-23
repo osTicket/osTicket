@@ -54,5 +54,3 @@ class TaskLoader extends MigrationTask {
 }
 
 return 'TaskLoader';
-
-?>

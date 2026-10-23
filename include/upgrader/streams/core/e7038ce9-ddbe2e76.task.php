@@ -116,5 +116,3 @@ class AddIndexMigration extends MigrationTask {
     }
 }
 return 'AddIndexMigration';
-
-?>

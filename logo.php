@@ -26,4 +26,3 @@ if (($logo = $ost->getConfig()->getClientLogo())) {
 header("Cache-Control: private, max-age=$ttl");
 header('Pragma: private');
 header('Location: '.ASSETS_PATH.'images/logo.png');
-?>

@@ -133,4 +133,3 @@ class SetupWizard {
        return $this->setError($error);
     }
 }
-?>

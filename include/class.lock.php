@@ -147,4 +147,3 @@ class Lock extends VerySimpleModel {
         ))->delete();
     }
 }
-?>

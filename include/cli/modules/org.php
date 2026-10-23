@@ -67,4 +67,3 @@ class OrganizationManager extends Module {
     }
 }
 Module::register('org', 'OrganizationManager');
-?>

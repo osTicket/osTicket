@@ -117,4 +117,4 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     <?php }
 if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 </tbody>
-<?php } ?>
+<?php }

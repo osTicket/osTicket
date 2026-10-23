@@ -3659,4 +3659,3 @@ class Q implements Serializable {
         list($this->negated, $this->ored, $this->constraints) = $data;
     }
 }
-?>

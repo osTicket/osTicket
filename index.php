@@ -79,4 +79,4 @@ if ($cats->all()) { ?>
 </div>
 </div>
 
-<?php require(CLIENTINC_DIR.'footer.inc.php'); ?>
+<?php require(CLIENTINC_DIR.'footer.inc.php');

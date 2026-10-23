@@ -657,5 +657,3 @@ class DataTemplate {
         return $this->lang;
     }
 }
-
-?>

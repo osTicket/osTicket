@@ -79,4 +79,3 @@ class EmailSettingMigrater extends MigrationTask {
     }
 }
 return 'EmailSettingMigrater';
-?>

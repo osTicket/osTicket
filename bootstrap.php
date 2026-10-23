@@ -397,5 +397,3 @@ define('THISPAGE', Http::url());
 
 define('DEFAULT_MAX_FILE_UPLOADS', ini_get('max_file_uploads') ?: 5);
 define('DEFAULT_PRIORITY_ID', 1);
-
-?>

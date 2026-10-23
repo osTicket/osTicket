@@ -691,5 +691,3 @@ class osTicket {
         return $ost;
     }
 }
-
-?>

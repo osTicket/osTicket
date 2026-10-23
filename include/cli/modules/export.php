@@ -91,4 +91,3 @@ class CliExporter extends Module {
 }
 
 Module::register('export', 'CliExporter');
-?>

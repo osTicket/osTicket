@@ -32,5 +32,3 @@ define('APICALL', true);
 require_once('../main.inc.php');
 require_once(INCLUDE_DIR.'class.http.php');
 require_once(INCLUDE_DIR.'class.api.php');
-
-?>

@@ -194,4 +194,3 @@ require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 print $canned_form->getMedia();
 include(STAFFINC_DIR.'footer.inc.php');
-?>

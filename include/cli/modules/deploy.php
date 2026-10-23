@@ -289,4 +289,3 @@ class Deployment extends Unpacker {
 }
 
 Module::register('deploy', 'Deployment');
-?>

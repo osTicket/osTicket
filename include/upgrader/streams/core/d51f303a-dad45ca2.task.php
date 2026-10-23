@@ -20,5 +20,3 @@ class NewHtmlTemplate extends MigrationTask {
     }
 }
 return 'NewHtmlTemplate';
-
-?>

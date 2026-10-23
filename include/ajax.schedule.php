@@ -127,4 +127,3 @@ class ScheduleAjaxAPI extends AjaxController {
         Http::response(200, $this->encode(array('success' => $count)));
     }
 }
-?>

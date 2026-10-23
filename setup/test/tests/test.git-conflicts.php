@@ -24,4 +24,3 @@ class GitConflicts extends Test {
     }
 }
 return 'GitConflicts';
-?>

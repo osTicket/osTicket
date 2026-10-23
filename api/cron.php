@@ -21,4 +21,3 @@ if (!osTicket::is_cli())
 
 require_once(INCLUDE_DIR.'api.cron.php');
 LocalCronApiController::call();
-?>

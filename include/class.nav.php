@@ -363,5 +363,3 @@ class UserNav {
     }
 
 }
-
-?>

@@ -190,5 +190,3 @@ class Draft extends VerySimpleModel {
         return db_query($sql);
     }
 }
-
-?>

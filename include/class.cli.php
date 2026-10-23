@@ -305,5 +305,3 @@ class Module {
 }
 
 $registered_modules = array();
-
-?>

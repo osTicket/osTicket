@@ -15,4 +15,4 @@ echo Format::display($body); ?>
 ); ?>
 </p>
 <p><em><?php echo __('Your friendly support center'); ?></em></p>
-<?php } ?>
+<?php }

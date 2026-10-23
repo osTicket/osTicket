@@ -35,4 +35,3 @@ class SignalsTest extends Test {
 }
 
 return 'SignalsTest';
-?>

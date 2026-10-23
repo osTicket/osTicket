@@ -24,4 +24,3 @@ class VarDump extends Test {
     }
 }
 return 'VarDump';
-?>

@@ -1472,4 +1472,3 @@ class BasicAuthConfigForm extends AbstractForm {
         );
     }
 }
-?>

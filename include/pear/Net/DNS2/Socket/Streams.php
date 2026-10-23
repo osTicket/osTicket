@@ -390,4 +390,3 @@ class Net_DNS2_Socket_Streams extends Net_DNS2_Socket
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

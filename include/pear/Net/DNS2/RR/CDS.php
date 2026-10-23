@@ -74,4 +74,3 @@ class Net_DNS2_RR_CDS extends Net_DNS2_RR_DS
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

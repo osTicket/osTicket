@@ -116,4 +116,4 @@ if (osTicket::is_ie())
         foreach (Messages::getMessages() as $M) { ?>
             <div class="<?php echo strtolower($M->getLevel()); ?>-banner"><?php
                 echo (string) $M; ?></div>
-<?php   } ?>
+<?php   }

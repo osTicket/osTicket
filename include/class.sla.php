@@ -295,4 +295,3 @@ implements TemplateVariable {
         return $sla;
     }
 }
-?>

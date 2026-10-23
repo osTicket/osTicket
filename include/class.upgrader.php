@@ -441,4 +441,3 @@ class StreamUpgrader extends SetupWizard {
         return 0;
     }
 }
-?>

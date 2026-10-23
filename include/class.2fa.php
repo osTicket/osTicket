@@ -260,4 +260,3 @@ class Email2FABackend extends TwoFactorAuthenticationBackend {
 }
 // Register email2fa for both agents and users (parent class)
 TwoFactorAuthenticationBackend::register('Email2FABackend');
-?>

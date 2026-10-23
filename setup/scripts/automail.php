@@ -80,4 +80,3 @@ if ($code == 66) {
     echo "HTTPS protocol required. Please update the URL in automail.php to include 'https'.\r\n";
 }
 exit($code);
-?>

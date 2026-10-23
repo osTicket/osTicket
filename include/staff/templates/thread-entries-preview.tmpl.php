@@ -56,4 +56,4 @@ foreach ($entries as $entry) {
     </div>
 </div>
 <?php
-} ?>
+}

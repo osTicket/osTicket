@@ -537,4 +537,3 @@ class Net_DNS2_Lookups
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

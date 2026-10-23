@@ -446,4 +446,3 @@ class Net_DNS2_Packet
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

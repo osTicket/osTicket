@@ -203,4 +203,3 @@ function url_get($regex, $func, $args=false) {
 function url_delete($regex, $func, $args=false) {
     return url($regex, $func, $args, "DELETE");
 }
-?>

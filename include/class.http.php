@@ -202,4 +202,3 @@ class Http {
         return $refresh_url;
     }
 }
-?>

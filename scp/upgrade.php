@@ -86,4 +86,3 @@ $ost->addExtraHeader('<script type="text/javascript" src="./js/upgrader.js"></sc
 require(STAFFINC_DIR.'header.inc.php');
 require(UPGRADE_DIR.$inc);
 require(STAFFINC_DIR.'footer.inc.php');
-?>

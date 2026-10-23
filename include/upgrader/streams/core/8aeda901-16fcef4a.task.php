@@ -35,4 +35,3 @@ class CryptoMigrater extends MigrationTask {
     }
 }
 return 'CryptoMigrater';
-?>

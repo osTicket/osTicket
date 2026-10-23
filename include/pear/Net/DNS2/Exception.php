@@ -129,4 +129,3 @@ class Net_DNS2_Exception extends Exception
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

@@ -68,4 +68,3 @@ class Auth_SASL_Anonymous extends Auth_SASL_Common
         return $token;
     }
 }
-?>

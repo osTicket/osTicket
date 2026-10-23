@@ -363,4 +363,3 @@ class Page extends VerySimpleModel {
         return $context[$type];
     }
 }
-?>

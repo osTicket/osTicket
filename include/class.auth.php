@@ -1638,4 +1638,3 @@ extends PasswordPolicy {
     }
 }
 PasswordPolicy::register('osTicketPasswordPolicy');
-?>

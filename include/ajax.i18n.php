@@ -148,4 +148,3 @@ class i18nAjaxAPI extends AjaxController {
         return $json;
     }
 }
-?>

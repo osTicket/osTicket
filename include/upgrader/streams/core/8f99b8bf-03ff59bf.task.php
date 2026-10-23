@@ -28,5 +28,3 @@ class SequenceLoader extends MigrationTask {
 }
 
 return 'SequenceLoader';
-
-?>

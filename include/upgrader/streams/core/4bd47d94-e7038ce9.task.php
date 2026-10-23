@@ -150,5 +150,3 @@
      }
  }
  return 'ThreadEntryEmailMigration';
-
-?>

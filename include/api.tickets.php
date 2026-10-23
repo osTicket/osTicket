@@ -293,5 +293,3 @@ class TicketApiError extends Exception {
 
 class TicketDenied extends Exception {}
 class EmailParseError extends Exception {}
-
-?>

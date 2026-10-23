@@ -179,5 +179,3 @@ class Net_DNS2_RR_URI extends Net_DNS2_RR
         return null;
     }
 }
-
-?>

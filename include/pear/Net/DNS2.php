@@ -1226,4 +1226,3 @@ class Net_DNS2
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

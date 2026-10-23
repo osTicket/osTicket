@@ -402,4 +402,3 @@ interface TemplateVariable {
     // function getVar($name, $parser); — not absolutely required
     static function getVarScope();
 }
-?>

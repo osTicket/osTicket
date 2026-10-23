@@ -636,4 +636,3 @@ class CryptoPHPSecLib extends CryptoAlgo {
         return  class_exists('Crypt_AES');
     }
 }
-?>

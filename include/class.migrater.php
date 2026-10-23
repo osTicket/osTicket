@@ -161,5 +161,3 @@ class MigrationTask {
         $this->status = $message;
     }
 }
-
-?>

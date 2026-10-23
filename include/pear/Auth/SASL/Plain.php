@@ -60,4 +60,3 @@ class Auth_SASL_Plain extends Auth_SASL_Common
         return $authzid . chr(0) . $authcid . chr(0) . $pass;
     }
 }
-?>

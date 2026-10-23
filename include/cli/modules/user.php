@@ -211,4 +211,3 @@ class UserManager extends Module {
     }
 }
 Module::register('user', 'UserManager');
-?>

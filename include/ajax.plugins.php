@@ -59,4 +59,3 @@ class PluginsAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/plugin-instance-modal.tmpl.php');
     }
 }
-?>

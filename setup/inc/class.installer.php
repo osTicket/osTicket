@@ -335,4 +335,3 @@ class Installer extends SetupWizard {
         return true;
     }
 }
-?>

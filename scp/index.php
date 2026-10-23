@@ -15,4 +15,3 @@
 **********************************************************************/
 //Nothing for now...simply redirect to tickets page.
 require('tickets.php');
-?>

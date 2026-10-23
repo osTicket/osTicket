@@ -68,4 +68,3 @@ class ObjectModel {
         return $model;
     }
 }
-?>

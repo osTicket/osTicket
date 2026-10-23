@@ -34,4 +34,3 @@ class StaticMethods extends Test {
 }
 
 return 'StaticMethods';
-?>

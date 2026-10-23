@@ -97,4 +97,3 @@ class TestCrypto extends Test {
     }
 }
 return 'TestCrypto';
-?>

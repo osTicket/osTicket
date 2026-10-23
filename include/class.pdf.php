@@ -136,5 +136,3 @@ class Task2PDF extends mPDFWithLocalImages {
 
     }
 }
-
-?>

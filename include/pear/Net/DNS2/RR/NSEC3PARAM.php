@@ -217,4 +217,3 @@ class Net_DNS2_RR_NSEC3PARAM extends Net_DNS2_RR
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

@@ -59,4 +59,3 @@ print $selected_page->getBodyWithImages();
 
 <?php
 require(CLIENTINC_DIR.'footer.inc.php');
-?>

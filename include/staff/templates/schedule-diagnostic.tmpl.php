@@ -49,4 +49,3 @@ $action = "#schedule/{$schedule->getId()}/diagnostic";
 </form>
 <?php
 // echo $form->emitJavascript();
-?>

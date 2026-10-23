@@ -91,5 +91,3 @@ class XmlDataParser {
         $this->content[":text"] .= trim($data);
     }
 }
-
-?>

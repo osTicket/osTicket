@@ -510,4 +510,3 @@ class ApiEmailDataParser extends EmailDataParser {
         return $data;
     }
 }
-?>

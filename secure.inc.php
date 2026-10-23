@@ -34,4 +34,3 @@ if(!$thisclient || !$thisclient->getId() || !$thisclient->isValid()){
     exit;
 }
 $thisclient->refreshSession();
-?>

@@ -131,4 +131,3 @@ class EventEnumRemoval extends MigrationTask {
     }
 }
 return 'EventEnumRemoval';
-?>

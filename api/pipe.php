@@ -24,4 +24,3 @@ if (!osTicket::is_cli())
 
 require_once(INCLUDE_DIR.'api.tickets.php');
 PipeApiController::process('cli');
-?>

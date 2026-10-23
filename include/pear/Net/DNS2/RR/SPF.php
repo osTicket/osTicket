@@ -72,4 +72,3 @@ class Net_DNS2_RR_SPF extends Net_DNS2_RR_TXT
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

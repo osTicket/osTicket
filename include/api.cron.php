@@ -45,4 +45,3 @@ class LocalCronApiController extends CronApiController {
         $cron->run();
     }
 }
-?>

@@ -348,4 +348,3 @@ class Category extends VerySimpleModel {
         return $category;
     }
 }
-?>

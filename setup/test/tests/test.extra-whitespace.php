@@ -23,5 +23,3 @@ class ExtraWhitespace extends Test {
     }
 }
 return 'ExtraWhitespace';
-
-?>

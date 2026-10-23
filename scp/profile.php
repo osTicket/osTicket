@@ -64,4 +64,3 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.my_profile" 
 require_once(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');
-?>

@@ -60,4 +60,3 @@ class Auth_SASL_External extends Auth_SASL_Common
         return $authzid;
     }
 }
-?>

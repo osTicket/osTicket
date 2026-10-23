@@ -526,4 +526,3 @@ interface ITicketUser {
     function getTicket();
  */
 }
-?>

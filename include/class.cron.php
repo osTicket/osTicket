@@ -122,4 +122,3 @@ class Cron {
         Signal::send('cron', null, $data);
     }
 }
-?>

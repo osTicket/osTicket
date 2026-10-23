@@ -63,4 +63,3 @@ class UpgraderAjaxAPI extends AjaxController {
         Http::response(200, $upgrader->getNextAction());
     }
 }
-?>

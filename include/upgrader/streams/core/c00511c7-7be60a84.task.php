@@ -12,4 +12,3 @@ class MigrateDbSession extends MigrationTask {
 }
 
 return 'MigrateDbSession';
-?>

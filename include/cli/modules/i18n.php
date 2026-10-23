@@ -781,4 +781,3 @@ class i18n_Compiler extends Module {
 }
 
 Module::register('i18n', 'i18n_Compiler');
-?>

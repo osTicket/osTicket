@@ -216,4 +216,3 @@ implements EmailContact, ITicketUser {
     }
 
 }
-?>

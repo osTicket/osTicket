@@ -88,4 +88,3 @@ function csrf_token() {
     if($ost && $ost->getCSRF())
         echo $ost->getCSRFFormInput();
 }
-?>
