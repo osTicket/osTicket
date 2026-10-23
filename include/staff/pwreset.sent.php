@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var osTicket $ost
+ */
 include_once(INCLUDE_DIR.'staff/login.header.php');
 defined('OSTSCPINC') or die('Invalid path');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();

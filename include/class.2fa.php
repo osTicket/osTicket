@@ -217,6 +217,8 @@ class Email2FABackend extends TwoFactorAuthenticationBackend {
     }
 
     function send($user) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         // Get backend configuration for this user

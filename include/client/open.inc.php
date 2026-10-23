@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var ClientSession|null $thisclient
+ */
 if(!defined('OSTCLIENTINC')) die('Access Denied!');
 $info=array();
 if($thisclient && $thisclient->isValid()) {

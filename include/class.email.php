@@ -247,6 +247,7 @@ class Email extends VerySimpleModel {
     }
 
    function delete() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         //Make sure we are not trying to delete default emails.
         if(!$cfg || $this->getId()==$cfg->getDefaultEmailId() || $this->getId()==$cfg->getAlertEmailId()) //double...double check.
@@ -287,6 +288,7 @@ class Email extends VerySimpleModel {
     }
 
     function update($vars, &$errors=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // very basic checks

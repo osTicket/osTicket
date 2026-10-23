@@ -19,13 +19,25 @@
 /**
  * URL resolver and dispatcher. It's meant to be quite lightweight, so the
  * functions aren't separated
+ *
+ * @property UrlMatcher[] $urls
+ * @property false|string $file
  */
+#[AllowDynamicProperties]
 class Dispatcher {
+    /**
+     * @param string|false $file
+     */
     function __construct($file=false) {
         $this->urls = array();
         $this->file = $file;
     }
 
+    /**
+     * @param string $url
+     * @param array $args
+     * @return mixed|void
+     */
     function resolve($url, $args=null) {
         if ($this->file) { $this->lazy_load(); }
         # Support HTTP method emulation with the _method GET argument
@@ -49,8 +61,13 @@ class Dispatcher {
      * aren't declared, but will be handled
      */
     function reverse($func) { }
+
     /**
      * Add the url to the list of supported URLs
+     *
+     * @param UrlMatcher $url
+     * @param bool $prefix
+     * @return void
      */
     function append($url, $prefix=false) {
         if ($prefix) { $url->setPrefix($prefix); }
@@ -84,7 +101,21 @@ class Dispatcher {
     }
 }
 
+/**
+ * @property string $regex
+ * @property callable|Dispatcher $func
+ * @property array $args
+ * @property bool $prefix
+ * @property string|false $method
+ */
+#[AllowDynamicProperties]
 class UrlMatcher {
+    /**
+     * @param string $regex
+     * @param callable|Dispatcher $func
+     * @param array|false $args
+     * @param string|false $method
+     */
     function __construct($regex, $func, $args=false, $method=false) {
         # Add the slashes for the Perl syntax
         $this->regex = "@" . $regex . "@";
@@ -96,6 +127,10 @@ class UrlMatcher {
 
     function setPrefix($prefix) { $this->prefix = $prefix; }
 
+    /**
+     * @param string $url
+     * @return bool
+     */
     function matches($url) {
         if ($this->method && $_SERVER['REQUEST_METHOD'] != $this->method) {
             return false;
@@ -103,6 +138,11 @@ class UrlMatcher {
         return preg_match($this->regex, $url, $this->matches) == 1;
     }
 
+    /**
+     * @param string $url
+     * @param array|null $prev_args
+     * @return mixed
+     */
     function dispatch($url, $prev_args=null) {
 
         # Remove named values from the match array
@@ -176,6 +216,10 @@ class UrlMatcher {
     }
 }
 
+/**
+ * @param $prefix
+ * @return Dispatcher
+ */
 function patterns($prefix) {
     $disp = new Dispatcher();
     for ($i=1, $k=func_num_args(); $i<$k; $i++) {
@@ -188,18 +232,43 @@ function patterns($prefix) {
     return $disp;
 }
 
+/**
+ * @param string $regex
+ * @param callable|Dispatcher $func
+ * @param array|false $args
+ * @param string|false $method
+ * @return UrlMatcher
+ */
 function url($regex, $func, $args=false, $method=false) {
     return new UrlMatcher($regex, $func, $args, $method);
 }
 
+/**
+ * @param string $regex
+ * @param callable|Dispatcher $func
+ * @param array|false $args
+ * @return UrlMatcher
+ */
 function url_post($regex, $func, $args=false) {
     return url($regex, $func, $args, "POST");
 }
 
+/**
+ * @param string $regex
+ * @param callable|Dispatcher $func
+ * @param array|false $args
+ * @return UrlMatcher
+ */
 function url_get($regex, $func, $args=false) {
     return url($regex, $func, $args, "GET");
 }
 
+/**
+ * @param string $regex
+ * @param callable|Dispatcher $func
+ * @param array|false $args
+ * @return UrlMatcher
+ */
 function url_delete($regex, $func, $args=false) {
     return url($regex, $func, $args, "DELETE");
 }

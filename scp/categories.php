@@ -14,6 +14,11 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 include_once(INCLUDE_DIR.'class.category.php');
 
 /* check permission */

@@ -1,5 +1,8 @@
 <?php
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ */
 require_once INCLUDE_DIR.'class.schedule.php';
 require_once INCLUDE_DIR.'class.businesshours.php';
 

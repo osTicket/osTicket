@@ -12,6 +12,11 @@
 **********************************************************************/
 
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.export.php');
 

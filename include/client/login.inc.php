@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ */
 if(!defined('OSTCLIENTINC')) die('Access Denied');
 
 $email=Format::input($_POST['luser']?:$_GET['e']);

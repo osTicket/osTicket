@@ -267,6 +267,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function fromForm($form, $create=true) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if(!$form) return null;
@@ -301,6 +302,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getAvatar($size=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $source = $cfg->getClientAvatarSource();
         $avatar = $source->getAvatar($this);
@@ -336,6 +338,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getTimezone() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (($acct = $this->getAccount()) && ($tz = $acct->getTimezone())) {
@@ -690,6 +693,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function getLink($id) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$id || !$thisstaff)
@@ -699,6 +703,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getTicketsQueue($collabs=true) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$this->_queue) {
@@ -1034,6 +1039,7 @@ implements TemplateVariable {
 
 class AgentsName extends PersonsName {
     function __construct($name, $format=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$format && $cfg)
@@ -1045,6 +1051,7 @@ class AgentsName extends PersonsName {
 
 class UsersName extends PersonsName {
     function __construct($name, $format=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         if (!$format && $cfg)
             $format = $cfg->getClientNameFormat();
@@ -1239,6 +1246,8 @@ class UserAccount extends VerySimpleModel {
     }
 
     protected function sendUnlockEmail($template) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         $token = Misc::randCode(48); // 290-bits

@@ -18,6 +18,8 @@ if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); 
 if(!file_exists('../main.inc.php')) die('Fatal error... Get technical help!');
 
 require_once('../main.inc.php');
+/** @var osTicket $ost */
+/** @var OsticketConfig $cfg */
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');
 
@@ -61,6 +63,7 @@ if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the fu
     }
 }
 
+/** @var Staff|null $thisstaff */
 $thisstaff = StaffAuthenticationBackend::getUser();
 
 // Bootstrap gettext translations as early as possible, but after attempting
@@ -132,6 +135,7 @@ if($ost->isUpgradePending() && !$exempt) {
 }
 
 if (!defined('AJAX_REQUEST'))
+    /** @var StaffNav $nav */
     $nav = new StaffNav($thisstaff);
 
 //Check for forced password change.

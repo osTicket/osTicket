@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ */
 global $cfg;
 
 $form = $form ?: AssignmentForm::instantiate($info);

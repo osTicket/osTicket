@@ -16,6 +16,7 @@
         <tr>
             <td>
                 <input type="checkbox" name="ticket_alert_admin" <?php echo $config['ticket_alert_admin']?'checked':''; ?>>
+                <?php /** @var OsticketConfig $cfg */ ?>
                 <?php echo __('Admin Email'); ?> <em>(<?php echo $cfg->getAdminEmail(); ?>)</em>
             </td>
         </tr>

@@ -35,6 +35,7 @@ class Cron {
     }
 
     static function PurgeLogs() {
+        /** @var osTicket $ost */
         global $ost;
         // Once a day on a 5-minute cron
         if (rand(1,300) == 42)
@@ -103,6 +104,7 @@ class Cron {
     }
 
     static function run(){ //called by outside cron NOT autocron
+        /** @var osTicket $ost */
         global $ost;
         if (!$ost || $ost->isUpgradePending())
             return;

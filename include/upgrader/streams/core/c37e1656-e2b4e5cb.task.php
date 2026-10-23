@@ -12,6 +12,7 @@ class OldPluginConfig extends Config {
 class PluginMigration extends MigrationTask {
     var $description = "Migrate Plugins to multi-instance";
     function run($time) {
+        /** @var osTicket $ost */
         global $ost;
         // Migrate old config to Plugin Instance store
         foreach (Plugin::objects() as $plugin) {

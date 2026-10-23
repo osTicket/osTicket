@@ -183,6 +183,7 @@ extends VerySimpleModel {
 
     // Clean password reset tokens that have expired
     static function cleanPwResets() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$cfg || !($period = $cfg->getPwResetWindow())) // In seconds
@@ -293,6 +294,7 @@ class OsticketConfig extends Config {
     }
 
     function isKnowledgebaseEnabled() {
+        /** @var ClientSession|null $thisclient */
         global $thisclient;
 
         if ($this->get('restrict_kb', false)
@@ -349,6 +351,8 @@ class OsticketConfig extends Config {
     }
 
     function getTimezone($user=false) {
+        /** @var Staff $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient;
 
         $user = $user ?: $thisstaff;
@@ -374,6 +378,7 @@ class OsticketConfig extends Config {
 
     /* Date & Time Formats */
     function getTimeFormat($propogate=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($this->get('date_formats') == 'custom')
@@ -1617,6 +1622,7 @@ class OsticketConfig extends Config {
     }
 
     function updatePagesSettings($vars, &$errors) {
+        /** @var osTicket $ost */
         global $ost;
 
         $f=array();

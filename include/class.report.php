@@ -34,6 +34,7 @@ class OverviewReport {
     var $format;
 
     function __construct($start, $end='now', $format=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $this->start = Format::sanitize($start);
@@ -147,6 +148,7 @@ class OverviewReport {
     }
 
     function getTabularData($group='dept') {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $event_ids = Event::getIds();

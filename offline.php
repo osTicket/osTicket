@@ -14,6 +14,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once('client.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ */
 if(is_object($ost) && $ost->isSystemOnline()) {
     @header('Location: index.php'); //Redirect if the system is online.
     include('index.php');

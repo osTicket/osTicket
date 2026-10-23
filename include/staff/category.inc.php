@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 if (!defined('OSTSCPINC') || !$thisstaff
         || !$thisstaff->hasPerm(FAQ::PERM_MANAGE))
     die('Access Denied');

@@ -168,6 +168,8 @@ implements Searchable {
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if (!$user)
@@ -201,6 +203,7 @@ implements Searchable {
     }
 
     function updateCollaborators($vars, &$errors) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$thisstaff) return;
@@ -877,6 +880,7 @@ implements TemplateVariable {
     }
 
     function postEmail($mailinfo) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!($thread = $this->getThread()))
@@ -961,6 +965,7 @@ implements TemplateVariable {
     }
 
     function setBody($body) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$body instanceof ThreadEntryBody) {
@@ -1535,6 +1540,7 @@ implements TemplateVariable {
      * *DEPRECATED* use osTicket\Mail\Mailer::decodeMessageId() instead
      */
     function lookupByRefMessageId($mid, $from) {
+        /** @var osTicket $ost */
         global $ost;
 
         $mid = trim($mid, '<>');
@@ -1638,6 +1644,7 @@ implements TemplateVariable {
 
     //new entry ... we're trusting the caller to check validity of the data.
     static function create($vars=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         assert(is_array($vars));
@@ -2091,6 +2098,8 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function template($description, $mode=self::MODE_STAFF) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         $self = $this;
@@ -2185,6 +2194,8 @@ class ThreadEvent extends VerySimpleModel {
         $inst = new static($ht);
         $inst->timestamp = SqlFunction::NOW();
 
+        /** @var Staff $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient;
         $user = (is_object($user) ? $user : $thisstaff) ?: $thisclient;
         if ($user instanceof Staff) {
@@ -2200,6 +2211,7 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     static function forTicket($ticket, $state, $user=false) {
+      /** @var Staff $thisstaff */
       global $thisstaff;
 
       if($thisstaff && !$ticket->getStaffId())
@@ -2341,6 +2353,8 @@ class ThreadEvents extends InstrumentedList {
      *      this event
      */
     function log($object, $state, $data=null, $user=null, $annul=null) {
+        /** @var Staff $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient;
 
         if ($object && ($object instanceof Ticket))
@@ -2836,6 +2850,7 @@ class ThreadEntryBody /* extends SplString */ {
     }
 
     static function clean($text, $format=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $format = $format ?: ($cfg->isRichTextEnabled() ? 'html' : 'text');
         $body = static::fromFormattedText($text, $format);
@@ -2896,6 +2911,8 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
+        /** @var ClientSession|null $thisclient */
+        /** @var Staff $thisstaff */
         global $thisclient, $thisstaff;
 
         $clean = ($thisstaff || $thisclient)

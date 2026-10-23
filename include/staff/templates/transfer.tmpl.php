@@ -1,4 +1,5 @@
 <?php
+/** @var OsticketConfig $cfg */
 global $cfg;
 
 $form = $form ?: TransferForm::instantiate($info);

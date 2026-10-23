@@ -28,6 +28,7 @@ class AddIndexMigration extends MigrationTask {
     );
 
     function run($max_time) {
+        /** @var osTicket $ost */
         global $ost;
 
         foreach ($this->indexes as $index) {

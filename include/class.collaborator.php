@@ -100,6 +100,7 @@ implements EmailContact, ITicketUser {
 
     // VariableReplacer interface
     function getVar($what) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         switch (strtolower($what)) {

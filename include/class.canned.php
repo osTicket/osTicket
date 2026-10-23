@@ -229,6 +229,7 @@ extends VerySimpleModel {
     }
 
     static function getCannedResponses($deptId=0, $explicit=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $canned = static::objects()

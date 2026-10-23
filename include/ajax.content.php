@@ -13,6 +13,11 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
+
 if(!defined('INCLUDE_DIR')) die('!');
 
 require_once INCLUDE_DIR.'class.ajax.php';

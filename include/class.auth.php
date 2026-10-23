@@ -132,6 +132,7 @@ class ClientCreateRequest {
     }
 
     function attemptAutoRegister() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$cfg || $cfg->isClientRegistrationMode(['disabled']))
@@ -593,6 +594,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function getPasswordPolicies($user=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getStaffPasswordPolicy())) {
@@ -623,6 +625,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function login($staff, $bk) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!$bk || !($staff instanceof Staff))
@@ -683,6 +686,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
      */
 
     static function signOut($staff) {
+        /** @var osTicket $ost */
         global $ost;
 
         $_SESSION['_auth']['staff'] = array();
@@ -699,6 +703,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
     }
 
     // Called to get authenticated user (if any)
+    /** @return Staff|null */
     static function getUser() {
 
         if (!isset($_SESSION['_auth']['staff'])
@@ -805,6 +810,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function getPasswordPolicies($user=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getClientPasswordPolicy())) {
@@ -834,6 +840,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function login($user, $bk) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!$user || !$bk
@@ -898,6 +905,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     static function signOut($user) {
+        /** @var osTicket $ost */
         global $ost;
 
         $_SESSION['_auth']['user'] = array();
@@ -915,6 +923,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         return  $user->getId();
     }
 
+    /** @return ClientSession|null */
     static function getUser() {
 
         if (!isset($_SESSION['_auth']['user'])
@@ -1043,7 +1052,13 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
         return null;
     }
 
-    //Provides audit facility for logins attempts
+    /**
+     * Provides audit facility for logins attempts
+     *
+     * @param object $result
+     * @param array $credentials
+     * @return void|null
+     */
     function audit($result, $credentials) {
 
         //Count failed login attempts as a strike.
@@ -1062,7 +1077,11 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
 class StaffAuthStrikeBackend extends  AuthStrikeBackend {
     static $id = "authstrike.staff";
 
+    /**
+     * @return AccessDenied|void
+     */
     static function authTimeout() {
+        /** @var osTicket $ost */
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -1084,6 +1103,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
     }
 
     static function authstrike($credentials) {
+        /** @var osTicket $ost */
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -1133,6 +1153,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
     static $id = "authstrike.user";
 
     static function authTimeout() {
+        /** @var osTicket $ost */
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -1154,6 +1175,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
     }
 
     static function authstrike($credentials) {
+        /** @var osTicket $ost */
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -1241,6 +1263,7 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     }
 
     function signOn($errors=array()) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!isset($_POST['userid']) || !isset($_POST['token']))
@@ -1286,6 +1309,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
 
     function signOn() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
 
@@ -1406,6 +1430,7 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
 
     // We are not actually logging in the user....
     function login($user, $bk) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$cfg->isClientEmailVerificationRequired()) {
@@ -1468,6 +1493,7 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
     }
 
     function signOn($errors=array()) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!isset($_POST['userid']) || !isset($_POST['token']))
@@ -1506,6 +1532,7 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
     }
 
     function signOn($errors=array()) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!isset($_GET['token']))
@@ -1609,6 +1636,7 @@ extends PasswordPolicy {
     static $name = /* @trans */ "Default Basic Policy";
 
     function onLogin($user, $password) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Check for possible password expiration

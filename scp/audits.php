@@ -14,6 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ */
 
 if (PluginManager::auditPlugin())
     require_once('phar://' . INCLUDE_DIR . '/plugins/audit.phar/class.audit.php');

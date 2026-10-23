@@ -110,7 +110,13 @@ img.avatar {
     </style>
 </head>
 <body>
-
+<?php
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
+?>
 <htmlpageheader name="def" style="display:none">
 <?php if ($logo = $cfg->getClientLogo()) { ?>
     <img src="cid:<?php echo $logo->getKey(); ?>" class="logo"/>

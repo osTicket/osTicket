@@ -201,6 +201,7 @@ class Validator {
     }
 
     static function is_valid_email($email, &$error='') {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         // Default to FALSE for installation
         return self::is_email($email, false, $cfg && $cfg->verifyEmailAddrs());
@@ -355,6 +356,7 @@ class Validator {
     }
 
     static function check_acl($backend) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $acl = $cfg->getACL();

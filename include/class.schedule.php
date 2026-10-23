@@ -97,6 +97,7 @@ class Schedule extends VerySimpleModel {
     }
 
     function getTimezone() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return $this->get('timezone') ?: $cfg->getTimezone();

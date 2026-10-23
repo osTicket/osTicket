@@ -14,6 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ */
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.csrf.php');
 

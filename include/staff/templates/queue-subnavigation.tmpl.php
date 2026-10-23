@@ -5,6 +5,7 @@
 $queue = $q;
 $hasChildren = $children && (count($children) > 0);
 $selected = $_REQUEST['queue'] == $q->getId();
+/** @var Staff $thisstaff */
 global $thisstaff;
 ?>
 <!-- SubQ class: only if top level Q has subQ -->

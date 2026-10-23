@@ -24,6 +24,7 @@ class Internationalization {
     var $langs = array('en_US');
 
     function __construct($language=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($cfg && ($lang = $cfg->getPrimaryLanguage()))
@@ -260,6 +261,7 @@ class Internationalization {
     }
 
     static function getConfiguredSystemLanguages() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         static $langs;
 
@@ -285,6 +287,7 @@ class Internationalization {
     // exists.
     // Algorithm borrowed from Drupal 7 (locale.inc)
     static function getDefaultLanguage() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         static $lang;
 
@@ -374,6 +377,8 @@ class Internationalization {
     }
 
     static function getCurrentLanguage($user=false) {
+        /** @var Staff $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient;
 
         $user = $user ?: $thisstaff ?: $thisclient;
@@ -393,6 +398,8 @@ class Internationalization {
     }
 
     static function getCurrentLocale($user=false) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         if ($user) {
@@ -536,6 +543,7 @@ class Internationalization {
     }
 
     static function sortKeyedList($list, $case=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // XXX: Use current language

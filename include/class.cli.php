@@ -255,6 +255,11 @@ class Module {
         die();
     }
 
+    /**
+     * @param string $action
+     * @param class-string $class
+     * @return void
+     */
     /* static */
     function register($action, $class) {
         global $registered_modules;

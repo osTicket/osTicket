@@ -4,6 +4,7 @@
 // $q - <CustomQueue> object for this navigation entry
 // $selected - <bool> true if this queue is currently active
 // $child_selected - <bool> true if the selected queue is a descendent
+/** @var OsticketConfig $cfg */
 global $cfg;
 $childs = $children;
 $this_queue = $q;

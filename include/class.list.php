@@ -1175,6 +1175,7 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function getReopenStatus() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $status = null;
@@ -1205,6 +1206,7 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function isDefault() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return ($cfg

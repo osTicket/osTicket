@@ -16,6 +16,9 @@
 if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('Kwaheri!');
 if(!file_exists('client.inc.php')) die('Fatal Error.');
 require_once('client.inc.php');
+/**
+ * @var ClientSession|null $thisclient
+ */
 
 //Client Login page: Ajax interface can pre-declare the function to trap logins.
 if(!function_exists('clientLoginPage')) {

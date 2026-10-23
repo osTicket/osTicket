@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 global $thisstaff, $cfg;
 $timeFormat = null;
 if ($thisstaff && !strcasecmp($thisstaff->datetime_format, 'relative')) {

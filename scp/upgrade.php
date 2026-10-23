@@ -14,6 +14,12 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once 'admin.inc.php';
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 require_once INCLUDE_DIR.'class.upgrader.php';
 
 //$_SESSION['ost_upgrader']=null;

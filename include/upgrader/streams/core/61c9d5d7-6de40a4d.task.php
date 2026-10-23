@@ -9,6 +9,8 @@ class CompanyFormLoader extends MigrationTask {
     var $description = "Loading initial company data";
 
     function run($max_time) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         $form = $ost->company->getForm();

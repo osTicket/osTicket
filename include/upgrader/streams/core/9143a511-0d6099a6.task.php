@@ -4,6 +4,7 @@ class StatusListCreater extends MigrationTask {
     var $description = "Add ticket statuses (if not already)";
 
     function run($max_time) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Moved here from core/8f99b8bf-03ff59bf.task.php

@@ -14,6 +14,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var StaffNav|null $nav
+ */
 
 require_once INCLUDE_DIR . 'class.report.php';
 

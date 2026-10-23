@@ -29,9 +29,12 @@
 
 Class CSRF {
 
+    /** @var string  */
     var $name;
+    /** @var int */
     var $timeout;
 
+    /** @var array<string,int|string> */
     var $csrf;
 
     function __construct($name='__CSRFToken__', $timeout=0) {
@@ -83,6 +86,7 @@ Class CSRF {
 
 /* global function to add hidden token input with to forms */
 function csrf_token() {
+    /** @var osTicket $ost */
     global $ost;
 
     if($ost && $ost->getCSRF())

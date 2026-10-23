@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 
 if(!defined('INCLUDE_DIR')) die('!');
 

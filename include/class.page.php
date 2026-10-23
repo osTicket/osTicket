@@ -105,6 +105,7 @@ class Page extends VerySimpleModel {
     }
 
     function isInUse() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return  ($this->getNumTopics()
@@ -289,6 +290,7 @@ class Page extends VerySimpleModel {
     }
 
     function saveTranslations($vars, &$errors) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $tag = $this->getTranslateTag('name:body');

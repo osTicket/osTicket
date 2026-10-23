@@ -173,6 +173,7 @@ class osTicketSession {
      * get registered backend if any
      */
     static function registered_backend() {
+        /** @var osTicket $ost */
         global $ost;
         if ($ost && isset($ost->session))
             return $ost->session->backend;
@@ -250,6 +251,7 @@ class osTicketSession {
     }
 
     static function renewCookie($baseTime=false, $window=false) {
+        /** @var osTicket $ost */
         global $ost;
 
         $ttl = $window ?: SESSION_TTL;
@@ -371,6 +373,7 @@ class DatabaseSessionRecord extends VerySimpleModel
     }
 
     public function save($refresh=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
         // See if we need to set the user id - should only be set once onlogin
         if (!$this->user_id && $thisstaff)

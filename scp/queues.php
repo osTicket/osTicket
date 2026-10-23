@@ -16,6 +16,9 @@
 **********************************************************************/
 
 require('admin.inc.php');
+/**
+ * @var OsticketConfig $cfg
+ */
 
 $nav->setTabActive('settings', 'settings.php?t='.urlencode($_GET['t']));
 $errors = array();

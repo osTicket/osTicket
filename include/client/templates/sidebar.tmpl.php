@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ */
 $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
 ?>
     <div class="sidebar pull-right">

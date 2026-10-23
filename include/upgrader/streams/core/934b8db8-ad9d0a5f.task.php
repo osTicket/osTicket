@@ -55,6 +55,7 @@ class QueueSortCreator extends MigrationTask {
         }
 
         // Set default queue to 'open'
+        /** @var OsticketConfig|null $cfg */
         global $cfg;
         if ($cfg)
             $cfg->set('default_ticket_queue', 1);

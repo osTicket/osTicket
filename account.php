@@ -17,6 +17,11 @@
     $Id: $
 **********************************************************************/
 require 'client.inc.php';
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var ClientSession|null $thisclient
+ */
 
 $inc = 'register.inc.php';
 

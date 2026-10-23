@@ -15,6 +15,10 @@
 **********************************************************************/
 
 require 'admin.inc.php';
+/**
+ * @var osTicket $ost
+ * @var StaffNav|null $nav
+ */
 include_once INCLUDE_DIR . 'class.user.php';
 include_once INCLUDE_DIR . 'class.organization.php';
 include_once INCLUDE_DIR . 'class.canned.php';

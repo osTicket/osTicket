@@ -316,6 +316,7 @@ class Format {
     }
 
     static function safe_html($html, $options=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $options = array_merge(array(
@@ -445,6 +446,7 @@ class Format {
 
     //Format text for display..
     static function display($text, $inline_images=true, $balance=true) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Exclude external images?
@@ -485,6 +487,7 @@ class Format {
     }
 
     static function stripExternalImages($input, $display=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Allowed Inline External Image Extensions
@@ -558,6 +561,7 @@ class Format {
 
     //make urls clickable. Mainly for display
     static function clickableurls($text, $target='_blank') {
+        /** @var osTicket $ost */
         global $ost;
 
         // Find all text between tags
@@ -703,6 +707,7 @@ class Format {
 
     static function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
             $strftimeFallback, $timezone, $user=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         static $cache;
 
@@ -743,6 +748,7 @@ class Format {
     // IntDateFormat
     // Format datetime to desired format in accorrding to desired locale
     static function IntDateFormat(DateTime $datetime, $format, $options=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$datetime instanceof DateTime)
@@ -838,6 +844,7 @@ class Format {
     }
 
     static function time($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -847,6 +854,7 @@ class Format {
     }
 
     static function date($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -856,6 +864,7 @@ class Format {
     }
 
     static function datetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -865,6 +874,7 @@ class Format {
     }
 
     static function daydatetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -1252,6 +1262,7 @@ extends FormattedLocalDate {
     }
 
     function __toString() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $timezone = new DatetimeZone($this->timezone ?:
@@ -1278,6 +1289,7 @@ extends FormattedLocalDate {
     }
 
     function getVar($what, $context=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($rv = parent::getVar($what, $context))

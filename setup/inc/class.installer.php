@@ -304,6 +304,7 @@ class Installer extends SetupWizard {
         @fclose($fp);
 
         /************* Make the system happy ***********************/
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $cfg = new OsticketConfig();
 

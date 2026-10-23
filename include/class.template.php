@@ -237,6 +237,7 @@ class EmailTemplateGroup {
     }
 
     function isInUse(){
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return ($this->ht['depts'] || ($cfg && $this->getId()==$cfg->getDefaultTemplateId()));
@@ -263,6 +264,7 @@ class EmailTemplateGroup {
     }
 
     function getMsgTemplate($name) {
+        /** @var osTicket $ost */
         global $ost;
 
         if ($tpl=EmailTemplate::lookupByName($this->getId(), $name, $this))
@@ -395,6 +397,7 @@ class EmailTemplateGroup {
     }
 
     function delete(){
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if($this->isInUse() || $cfg->getDefaultTemplateId()==$this->getId())

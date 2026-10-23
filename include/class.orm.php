@@ -555,6 +555,8 @@ class VerySimpleModel {
      * Retrieve a QuerySet for this model class which can be used to fetch
      * models from the connected database. Subclasses can override this
      * method to apply forced constraints on the QuerySet.
+     *
+     * @return QuerySet<static>
      */
     static function objects() {
         return new QuerySet(get_called_class());
@@ -586,6 +588,8 @@ class VerySimpleModel {
      * Returns:
      * (Object<Model>|null) a single instance of the sought model or null if
      * no such instance exists.
+     *
+     * @return static|null
      */
     static function lookup($criteria) {
         // Model::lookup(1), where >1< is the pk value
@@ -1128,7 +1132,13 @@ class SqlAggregate extends SqlFunction {
     }
 }
 
+/**
+ * @template T as class-string
+ * @implements ArrayAccess<int,T>
+ * @implements IteratorAggregate<int,T>
+ */
 class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countable {
+    /** @var T */
     var $model;
 
     var $constraints = array();
@@ -1170,6 +1180,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $count;
     var $total;
 
+    /** @param $model T */
     function __construct($model) {
         $this->model = $model;
     }

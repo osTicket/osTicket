@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ */
 $report = new OverviewReport($_POST['start'], $_POST['period']);
 $plots = $report->getPlotData();
 

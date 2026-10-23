@@ -22,6 +22,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once('../main.inc.php');
+/** @var osTicket $ost */
+/** @var OsticketConfig $cfg */
 if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 
 // Bootstrap gettext translations. Since no one is yet logged in, use the

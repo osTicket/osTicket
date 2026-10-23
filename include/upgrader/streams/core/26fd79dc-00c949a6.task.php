@@ -43,6 +43,7 @@ class EventEnumRemoval extends MigrationTask {
     }
 
     function queueEvents($limit=0){
+        /** @var osTicket $ost */
         global $cfg, $ost;
 
         # Since the queue is persistent - we want to make sure we get to empty
@@ -89,6 +90,7 @@ class EventEnumRemoval extends MigrationTask {
     }
 
     function error($what) {
+        /** @var osTicket $ost */
         global $ost;
 
         $this->errors++;

@@ -81,6 +81,7 @@ class Lock extends VerySimpleModel {
 
     //Renew existing lock.
     function renew($lockTime=0) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if(!$lockTime || !is_numeric($lockTime)) //XXX: test to  make it works.

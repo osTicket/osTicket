@@ -14,6 +14,11 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 include_once(INCLUDE_DIR.'class.template.php');
 
 $template=null;

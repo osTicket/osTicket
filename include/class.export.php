@@ -105,6 +105,7 @@ class Export {
 
     static  function saveTickets($sql, $fields, $filename, $how='csv',
             $options=array()) {
+       /** @var Staff $thisstaff */
        global $thisstaff;
 
        if (!$thisstaff)
@@ -528,6 +529,7 @@ abstract class  Exporter {
     }
 
     function email(Staff $staff) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!file_exists($this->getFile())
@@ -949,6 +951,7 @@ class TicketZipExporter {
     }
 
     function download($options = array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $notes = isset($options['notes']) ? $options['notes'] : false;

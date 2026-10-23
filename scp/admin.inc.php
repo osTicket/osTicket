@@ -14,6 +14,11 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once 'staff.inc.php';
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 //Make sure config is loaded and the staff is set and of admin type
 if(!$ost or !$thisstaff or !$thisstaff->isAdmin()){
     header('Location: index.php');

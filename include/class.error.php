@@ -22,6 +22,7 @@ class BaseError extends Exception {
     static $sendAlert = true;
 
     function __construct($message) {
+        /** @var osTicket $ost */
         global $ost;
 
         parent::__construct(__($message));

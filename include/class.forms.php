@@ -402,6 +402,8 @@ class SimpleForm extends Form {
 class CustomForm extends SimpleForm {
 
     function getFields() {
+        /** @var Staff $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient;
 
         $options = $this->options;
@@ -2120,6 +2122,7 @@ class ChoiceField extends FormField {
     }
 
     function applyQuickFilter($query, $qf_value, $name=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $field = new AssigneeChoiceField();
@@ -2241,6 +2244,7 @@ class DatetimeField extends FormField {
 
     // Get effective timezone for the field
     function getTimeZone() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = $this->getConfiguration();
@@ -2291,6 +2295,7 @@ class DatetimeField extends FormField {
     }
 
     function display($value) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$value || !($datetime = Format::parseDateTime($value)))
@@ -2351,6 +2356,7 @@ class DatetimeField extends FormField {
     }
 
     function asVar($value, $id=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$value)
@@ -2409,6 +2415,7 @@ class DatetimeField extends FormField {
     }
 
     function validateEntry($value) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = $this->getConfiguration();
@@ -2511,6 +2518,7 @@ class DatetimeField extends FormField {
     }
 
     function getSearchQ($method, $value, $name=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         static $intervals = array(
@@ -2745,6 +2753,7 @@ class TimeField extends FormField {
     var $end = null;
 
     function getTimeZone() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $config = $this->getConfiguration();
         return new DateTimeZone($config['timezone'] ?: $cfg->getTimezone());
@@ -2796,6 +2805,7 @@ class ThreadEntryField extends FormField {
     }
 
     function getConfiguration() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $config = parent::getConfiguration();
         $config['html'] = (bool) ($cfg && $cfg->isRichTextEnabled());
@@ -2803,6 +2813,7 @@ class ThreadEntryField extends FormField {
     }
 
     function getConfigurationOptions() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $attachments = new FileUploadField();
@@ -2850,6 +2861,7 @@ class TopicField extends ChoiceField {
     var $_choices;
 
     function getTopics() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!isset($this->topics))
@@ -2942,6 +2954,7 @@ class TopicField extends ChoiceField {
     }
 
     function getConfiguration() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = parent::getConfiguration();
@@ -3050,6 +3063,7 @@ class SLAField extends ChoiceField {
     }
 
     function getConfiguration() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = parent::getConfiguration();
@@ -3184,6 +3198,7 @@ class PriorityField extends ChoiceField {
     }
 
     function getConfiguration() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = parent::getConfiguration();
@@ -3221,6 +3236,7 @@ class TimezoneField extends ChoiceField {
     }
 
     function getChoices($verbose=false, $options=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $choices = array();
@@ -3268,6 +3284,8 @@ class DepartmentField extends ChoiceField {
     }
 
     function getChoices($verbose=false, $options=array()) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         $config = $this->getConfiguration();
@@ -3451,6 +3469,7 @@ class AssigneeField extends ChoiceField {
     }
 
     function getAssignees($options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $config = $this->getConfiguration();
@@ -3860,6 +3879,7 @@ class FileUploadField extends FormField {
             $types[$type] = $info['description'];
         }
 
+        /** @var OsticketConfig $cfg */
         global $cfg;
         return array(
             'size' => new ChoiceField(array(
@@ -4055,6 +4075,7 @@ class FileUploadField extends FormField {
     }
 
     function getConfiguration() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = parent::getConfiguration();
@@ -4987,6 +5008,7 @@ class CheckboxWidget extends Widget {
 class DatetimePickerWidget extends Widget {
 
     function render($options=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $config = $this->field->getConfiguration();
@@ -5083,6 +5105,7 @@ class DatetimePickerWidget extends Widget {
      * time value into a single date and time string value in DateTime::W3C
      */
     function getValue() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($value = parent::getValue()) {
@@ -5159,6 +5182,7 @@ class TimePickerWidget extends Widget {
      * Function: getValue
      */
     function getValue() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($value = parent::getValue()) {
@@ -5248,6 +5272,7 @@ class FileUploadWidget extends Widget {
     );
 
     function render($options=array()) {
+        /** @var osTicket $ost */
         global $ost;
 
         $config = $this->field->getConfiguration();
@@ -6209,6 +6234,7 @@ class TransferForm extends Form {
     }
 
     function hideDisabled() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if ($f = $this->getField('dept')) {

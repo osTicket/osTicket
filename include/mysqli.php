@@ -189,6 +189,7 @@ function db_create_database($database, $charset='utf8',
  *   UPDATE, or DELETE succeeds, false if the query fails.
  */
 function db_query($query, $logError=true, $buffered=true) {
+    /** @var osTicket $ost */
     global $ost, $__db;
 
     if ($__db->unbuffered_result) {
@@ -335,6 +336,7 @@ function db_field_type($res, $col=0) {
 }
 
 function db_prepare($stmt) {
+    /** @var osTicket $ost */
     global $ost, $__db;
 
     $tries = 2;

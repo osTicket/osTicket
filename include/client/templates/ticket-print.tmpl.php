@@ -100,6 +100,7 @@ div.hr {
 <body>
 
 <htmlpageheader name="def" style="display:none">
+<?php /** @var OsticketConfig $cfg */ ?>
 <?php if ($logo = $cfg->getClientLogo()) { ?>
     <img src="cid:<?php echo $logo->getKey(); ?>" class="logo"/>
 <?php } else { ?>
@@ -107,6 +108,7 @@ div.hr {
 <?php } ?>
     <div class="hr">&nbsp;</div>
     <table><tr>
+        <?php /** @var osTicket $ost */ ?>
         <td class="flush-left"><?php echo (string) $ost->company; ?></td>
         <td class="flush-right"><?php echo Format::daydatetime(Misc::gmtime()); ?></td>
     </tr></table>

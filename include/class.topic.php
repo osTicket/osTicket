@@ -228,6 +228,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getNewTicketNumber() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$this->hasFlag(self::FLAG_CUSTOM_NUMBERS))
@@ -261,6 +262,7 @@ implements TemplateVariable, Searchable {
     }
 
     function delete() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($this->getId() == $cfg->getDefaultTopicId())
@@ -320,6 +322,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array(), $allData=false) {
+      /** @var OsticketConfig $cfg */
       global $cfg;
       static $topics, $names = array();
 
@@ -423,6 +426,7 @@ implements TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $vars['topic'] = Format::striptags(trim($vars['topic']));

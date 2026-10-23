@@ -800,6 +800,7 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function getMyChildren() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
         if (!$thisstaff instanceof Staff)
             return array();
@@ -813,6 +814,7 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function export(CsvExporter $exporter, $options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$thisstaff
@@ -972,6 +974,7 @@ class CustomQueue extends VerySimpleModel {
 
             // Consider keyword searching
             if ($name === ':keywords') {
+                /** @var osTicket $ost */
                 global $ost;
                 $qs = $ost->searcher->find($value, $qs, false, ['boolean' => false]);
             }
@@ -1875,6 +1878,7 @@ extends QueueColumnAnnotation {
     static $desc = /* @trans */ 'Locked';
 
     static function annotate($query, $name=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         return $query

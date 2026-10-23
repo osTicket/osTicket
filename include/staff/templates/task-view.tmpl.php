@@ -1,9 +1,13 @@
 <?php
+/**
+ * @var Staff $thisstaff
+ */
 if (!defined('OSTSCPINC')
     || !$thisstaff || !$task
     || !($role = $thisstaff->getRole($task->getDept())))
     die('Invalid path');
 
+/** @var OsticketConfig $cfg */
 global $cfg;
 
 $id = $task->getId();
