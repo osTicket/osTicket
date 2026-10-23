@@ -98,6 +98,8 @@ class UserManager extends Module {
                 }
 
                 if ($options['send-mail']) {
+                    /** @var osTicket $ost */
+                    /** @var OsticketConfig $cfg */
                     global $ost, $cfg;
                     $ost = osTicket::start();
                     $cfg = $ost->getConfig();

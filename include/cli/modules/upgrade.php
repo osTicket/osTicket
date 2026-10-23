@@ -14,6 +14,7 @@ class CliUpgrader extends Module {
         Bootstrap::connect();
 
         // Pre-checks
+        /** @var osTicket $ost */
         global $ost;
         $ost = osTicket::start();
         $upgrader = $this->getUpgrader();
@@ -27,6 +28,7 @@ class CliUpgrader extends Module {
     }
 
     function getUpgrader() {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!$ost->isUpgradePending()) {
@@ -47,6 +49,8 @@ class CliUpgrader extends Module {
     }
 
     function upgrade($upgrader) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
         $cfg = $ost->getConfig();
 

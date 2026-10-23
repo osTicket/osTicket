@@ -14,6 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ */
 
 if($_POST){
     switch(strtolower($_POST['do'])){

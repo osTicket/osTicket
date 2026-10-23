@@ -14,6 +14,12 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('client.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var ClientSession|null $thisclient
+ * @var UserNav|null $nav
+ */
 define('SOURCE','Web'); //Ticket source.
 $ticket = null;
 $errors=array();

@@ -63,6 +63,7 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function getTicketLink($authtoken=true) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $ticket = $this->getTicket();
@@ -199,6 +200,7 @@ class TicketOwner extends  TicketUser {
 class EndUser extends BaseAuthenticatedUser {
 
     protected $user;
+    /** @var bool|ClientAccount|null */
     protected $_account = false;
     protected $_stats;
     protected $topic_stats;
@@ -328,6 +330,9 @@ class EndUser extends BaseAuthenticatedUser {
         return $this->getNumTickets(true, 'closed');
     }
 
+    /**
+     * @return ClientAccount|null
+     */
     function getAccount() {
         if ($this->_account === false)
             $this->_account =
@@ -349,6 +354,7 @@ class EndUser extends BaseAuthenticatedUser {
     }
 
     private function getStats() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
@@ -441,9 +447,12 @@ class ClientAccount extends UserAccount {
     }
 
     function update($vars, &$errors) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // FIXME: Updates by agents should go through UserAccount::update()
+        /** @var Staff $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient;
         if ($thisstaff)
             return parent::update($vars, $errors);

@@ -41,6 +41,7 @@
 
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+/** @var osTicket $ost */
 $count = count($ost->plugins->allInstalled());
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');

@@ -321,6 +321,7 @@ class ApiController extends Controller {
     }
 
     protected function log($title, $msg, $level = LOG_WARN) {
+        /** @var osTicket $ost */
         global $ost;
         switch ($level) {
             case LOG_WARN:
@@ -385,6 +386,7 @@ class ApiXmlDataParser extends XmlDataParser {
      * XML data types
      */
     function fixup($current) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (isset($current['ticket']))
@@ -492,6 +494,7 @@ class ApiEmailDataParser extends EmailDataParser {
     }
 
     function fixup($data) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$data) return $data;

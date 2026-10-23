@@ -48,6 +48,7 @@ class SetupWizard {
         load SQL schema - assumes MySQL && existing connection
         */
     function load_sql($schema, $prefix, $abort=true, $debug=false) {
+        /** @var osTicket $ost */
         global $ost;
 
         # Strip comments and remarks

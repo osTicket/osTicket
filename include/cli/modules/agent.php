@@ -39,9 +39,12 @@ class AgentManager extends Module {
         'team' => array('-T', '--team', 'help' => 'Search by membership in team name or id'),
     );
 
+    /** @var resource|null */
     var $stream;
 
     function run($args, $options) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         Bootstrap::connect();

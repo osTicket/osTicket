@@ -87,6 +87,8 @@ class Ticket2PDF extends mPDFWithLocalImages
     }
 
     function _print() {
+        /** @var Staff|null $thisstaff */
+        /** @var ClientSession|null $thisclient */
         global $thisstaff, $thisclient, $cfg, $ost;
 
         if(!($ticket=$this->getTicket()))
@@ -123,6 +125,7 @@ class Task2PDF extends mPDFWithLocalImages {
     }
 
     function _print() {
+        /** @var Staff $thisstaff */
         global $thisstaff, $cfg, $ost;
 
         if (!($task=$this->task) || !$thisstaff)

@@ -24,6 +24,7 @@ class TEA_ShowEmailRecipients extends ThreadEntryAction {
     static $icon = 'group';
 
     function isVisible() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if ($this->entry->getEmailHeader())
@@ -83,6 +84,7 @@ class TEA_ShowEmailHeaders extends ThreadEntryAction {
     static $icon = 'envelope';
 
     function isVisible() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$this->entry->getEmailHeader())
@@ -124,6 +126,7 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
     }
 
     function isEnabled() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $T = $this->entry->getThread()->getObject();
@@ -177,6 +180,8 @@ JS
     }
 
     protected function trigger__get() {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         $poster = $this->entry->getStaff();
@@ -185,6 +190,7 @@ JS
     }
 
     function updateEntry($guard=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $old = $this->entry;
@@ -266,6 +272,7 @@ JS
     }
 
     protected function trigger__post() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!($entry = $this->updateEntry()))
@@ -308,6 +315,7 @@ class TEA_OrigThreadEntry extends ThreadEntryAction {
     }
 
     private function trigger__get() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$this->entry->getParent())
@@ -350,6 +358,8 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
     }
 
     function resend($response) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if (!($object = $response->getThread()->getObject()))
@@ -423,6 +433,8 @@ class TEA_ResendThreadEntry extends TEA_EditAndResendThreadEntry {
     }
 
     protected function trigger__get() {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         $poster = $this->entry->getStaff();
@@ -448,6 +460,7 @@ class TEA_CreateTicket extends ThreadEntryAction {
     static $icon = 'plus';
 
     function isVisible() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         return $thisstaff && $thisstaff->hasPerm(Ticket::PERM_CREATE, false);
@@ -486,6 +499,7 @@ class TEA_CreateTask extends ThreadEntryAction {
     static $icon = 'plus';
 
     function isVisible() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         return $thisstaff && $thisstaff->hasPerm(Task::PERM_CREATE, false);

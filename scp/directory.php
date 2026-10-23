@@ -14,6 +14,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var StaffNav|null $nav
+ */
 $page='directory.inc.php';
 $nav->setTabActive('dashboard');
 $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.staff_directory" />',

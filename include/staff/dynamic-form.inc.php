@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ */
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {

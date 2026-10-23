@@ -5,6 +5,10 @@
 <form method="post" action="<?php echo $this->getAjaxUrl(true); ?>">
 
 <input type="text" style="width:100%;font-size:14px" placeholder="<?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
     echo __('Title'); ?>" name="title" value="<?php
     echo Format::htmlchars($this->entry->title); ?>"/>
 <hr style="height:0"/>

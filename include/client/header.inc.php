@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var ClientSession|null $thisclient
+ * @var UserNav|null $nav
+ */
 $title=($cfg && is_object($cfg) && $cfg->getTitle())
     ? $cfg->getTitle() : 'osTicket :: '.__('Support Ticket System');
 $signin_url = ROOT_PATH . "login.php"

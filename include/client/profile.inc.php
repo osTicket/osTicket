@@ -10,6 +10,7 @@
 foreach ($user->getForms() as $f) {
     $f->render(['staff' => false]);
 }
+/** @var ClientSession $thisclient */
 if ($acct = $thisclient->getAccount()) {
     $info=$acct->getInfo();
     $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -32,6 +33,7 @@ if ($acct = $thisclient->getAccount()) {
             <div class="error"><?php echo $errors['timezone']; ?></div>
         </td>
     </tr>
+<?php /** @var OsticketConfig $cfg */ ?>
 <?php if ($cfg->getSecondaryLanguages()) { ?>
     <tr>
         <td width="180">

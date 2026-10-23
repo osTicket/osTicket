@@ -3,9 +3,11 @@
 <?php if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
     <div id="footer">
         <?php echo __('Copyright &copy;') ?> 2006-<?php echo date('Y'); ?>&nbsp;<?php
+        /** @var osTicket $ost */
         echo Format::htmlchars((string) $ost->company ?: 'osTicket.com'); ?>&nbsp;<?php echo __('All Rights Reserved.'); ?>
     </div>
 <?php
+/** @var Staff $thisstaff */
 if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <div>
         <!-- Do not remove <img src="autocron.php" alt="" width="1" height="1" border="0" /> or your auto cron will cease to function -->

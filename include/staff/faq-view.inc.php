@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 if(!defined('OSTSTAFFINC') || !$faq || !$thisstaff) die('Access Denied');
 
 $category=$faq->getCategory();

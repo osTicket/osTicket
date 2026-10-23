@@ -18,6 +18,9 @@
 // Use Noop Session Handler
 define('NOOP_SESSION', true);
 require('client.inc.php');
+/**
+ * @var osTicket $ost
+ */
 $ttl = 86400; // max-age
 if (($logo = $ost->getConfig()->getClientLogo())) {
     $logo->display(false, $ttl);

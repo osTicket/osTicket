@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ */
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 //See if we need to switch the mode of upgrade...e.g from ajax (default) to manual

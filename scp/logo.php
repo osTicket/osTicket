@@ -18,6 +18,7 @@
 // Use Noop Session Handler
 define('NOOP_SESSION', true);
 require_once('../main.inc.php');
+/** @var osTicket $ost */
 $ttl = 86400; // max-age
 if (isset($_GET['backdrop'])) {
     if (($backdrop = $ost->getConfig()->getStaffLoginBackdrop())) {

@@ -27,6 +27,12 @@ use Symfony\Component\ClassLoader\UniversalClassLoader_osTicket;
 
 define('LOG_WARN',LOG_WARNING);
 
+/**
+ * Core osTicket application object.
+ *
+ * @property SearchInterface $searcher
+ */
+#[AllowDynamicProperties]
 class osTicket {
     var $loglevel=array(1=>'Error','Warning','Debug');
 
@@ -38,14 +44,22 @@ class osTicket {
     var $warning;
     var $message;
 
+    /** @var string|null */
     var $title; //Custom title. html > head > title.
+    /** @var array<string,string>|null */
     var $headers;
+    /** @var array<string,bool>|null */
     var $pjax_extra;
 
+    /** @var OsticketConfig */
     var $config;
+    /** @var osTicketSession */
     var $session;
+    /** @var CSRF */
     var $csrf;
+    /** @var Company */
     var $company;
+    /** @var PluginManager */
     var $plugins;
 
     function __construct() {
@@ -80,10 +94,12 @@ class osTicket {
 		return false;
     }
 
+    /** @return osTicketSession */
     function getSession() {
         return $this->session;
     }
 
+    /** @return OsticketConfig */
     function getConfig() {
         return $this->config;
     }
@@ -96,6 +112,7 @@ class osTicket {
         return THIS_VERSION;
     }
 
+    /** @return CSRF */
     function getCSRF(){
         return $this->csrf;
     }
@@ -166,10 +183,15 @@ class osTicket {
         return $this->pjax_extra;
     }
 
+    /**
+     * @param string $title
+     * @return void
+     */
     function setPageTitle($title) {
         $this->title = $title;
     }
 
+    /** @return string|null */
     function getPageTitle() {
         return $this->title;
     }
@@ -673,6 +695,7 @@ class osTicket {
         return $loader;
     }
 
+    /** @return osTicket */
     static function start() {
         // Prep basic translation support
         Internationalization::bootstrap();

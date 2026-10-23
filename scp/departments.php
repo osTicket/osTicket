@@ -14,6 +14,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ */
 
 $dept=null;
 if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))

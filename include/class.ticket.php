@@ -323,6 +323,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isCloseable() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($this->isClosed())
@@ -544,6 +545,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getSLADueDate($recompute=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$recompute && $this->est_duedate)
@@ -618,6 +620,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getPriorityId() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (($priority = $this->getPriority()))
@@ -658,6 +661,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getUpdateInfo() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return array(
@@ -676,6 +680,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function acquireLock($staffId, $lockTime=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!isset($lockTime))
@@ -720,6 +725,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getDept() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return $this->dept ?: $cfg->getDefaultDept();
@@ -998,6 +1004,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $prompt = $assignee = '';
@@ -1047,6 +1054,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getReferralForm($source=null, $options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $form = ReferralForm::instantiate($source, $options);
@@ -1080,6 +1088,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getClaimForm($source=null, $options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $id = sprintf('s%d', $thisstaff->getId());
@@ -1094,6 +1103,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getTransferForm($source=null) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$source)
@@ -1277,6 +1287,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     //XXX: Ugly for now
     function updateCollaborators($vars, &$errors) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$thisstaff) return;
@@ -1340,6 +1351,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function sendAccessLink($user) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!($email = $ost->getConfig()->getDefaultEmail())
@@ -1454,6 +1466,7 @@ implements RestrictedAccess, Threadable, Searchable {
      *          considered.
      */
     function selectSLAId($trump=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         # XXX Should the SLA be overridden if it was originally set via an
         #     email filter? This method doesn't consider such a case
@@ -1481,6 +1494,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Ticket Status helper.
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true, $force_close=false) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if ($thisstaff && !($role=$this->getRole($thisstaff)))
@@ -1629,6 +1644,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function reopen() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$this->isClosed())
@@ -1644,6 +1660,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function onNewTicket($message, $autorespond=true, $alertstaff=true) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         //Log stuff here...
@@ -1759,6 +1776,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function onOpenLimit($sendNotice=true) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         //Log the limit notice as a warning for admin.
@@ -1815,6 +1834,7 @@ implements RestrictedAccess, Threadable, Searchable {
      *
      */
     function notifyCollaborators($entry, $vars = array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$entry instanceof ThreadEntry
@@ -1887,6 +1907,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function onMessage($message, $autorespond=true, $reopen=true) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $this->isanswered = 0;
@@ -1956,6 +1977,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function onActivity($vars, $alert=true) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         //TODO: do some shit
@@ -2034,6 +2057,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function onAssign($assignee, $comments, $alert=true) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if ($this->isClosed())
@@ -2115,6 +2140,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
    function onOverdue($whine=true, $comments="") {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($whine && ($sla = $this->getSLA()) && !$sla->alertOnOverdue())
@@ -2183,6 +2209,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getVar($tag) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         switch(mb_strtolower($tag)) {
@@ -2284,6 +2311,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Searchable interface
     static function getSearchableFields() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $base = array(
@@ -2410,6 +2438,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     //Replace base variables.
     function replaceVars($input, $vars = array()) {
+        /** @var osTicket $ost */
         global $ost;
 
         $vars = array_merge($vars, array('ticket' => $this));
@@ -2425,6 +2454,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function markOverdue($whine=true) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Only open tickets can be marked overdue
@@ -2496,6 +2526,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     static function manageMerge($tickets) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $permission = ($tickets['title'] && $tickets['title'] == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
@@ -2653,6 +2684,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     //Dept Transfer...with alert.. done by staff
     function transfer(TransferForm $form, &$errors, $alert=true) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         // Check if staff can do the transfer
@@ -2773,6 +2806,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function claim(ClaimForm $form, &$errors) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $dept = $this->getDept();
@@ -2803,6 +2837,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onAssign($staff, $note, $alert);
 
+        /** @var Staff $thisstaff */
         global $thisstaff;
         $data = array();
         if ($thisstaff && $staff->getId() == $thisstaff->getId())
@@ -2845,6 +2880,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function assign(AssignmentForm $form, &$errors, $alert=true) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $evd = array();
@@ -2947,6 +2983,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function refer(ReferralForm $form, &$errors, $alert=true) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $evd = array();
@@ -3012,6 +3049,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function systemReferral($emails) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$thread = $this->getThread())
@@ -3046,6 +3084,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     //Change ownership
     function changeOwner($user) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$user
@@ -3079,6 +3118,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Insert message from client
     function postMessage($vars, $origin='', $alerts=true) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($origin)
@@ -3270,6 +3310,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function postCannedReply($canned, $message, $alert=true) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         if ((!is_object($canned) && !($canned=Canned::lookup($canned)))
@@ -3343,6 +3385,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     /* public */
     function postReply($vars, &$errors, $alert=true, $claim=true) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         if (!$vars['poster'] && $thisstaff)
@@ -3507,6 +3551,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function postNote($vars, &$errors, $poster=false, $alert=true) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system? or user?
@@ -3574,6 +3620,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Print ticket... export the ticket thread as PDF.
     function pdfExport($psize='Letter', $notes=false, $events=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         require_once(INCLUDE_DIR.'class.pdf.php');
@@ -3599,6 +3646,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function delete($comments='') {
+        /** @var osTicket $ost */
+        /** @var Staff $thisstaff */
         global $ost, $thisstaff;
 
         //delete just orphaned ticket thread & associated attachments.
@@ -3673,6 +3722,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function update($vars, &$errors) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if (!$cfg
@@ -3807,6 +3858,8 @@ implements RestrictedAccess, Threadable, Searchable {
    }
 
    function updateField($form, &$errors) {
+       /** @var Staff $thisstaff */
+       /** @var OsticketConfig $cfg */
        global $thisstaff, $cfg;
 
        if (!($field = $form->getField('field')))
@@ -3964,6 +4017,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     protected static function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Unset all the filter data field data in case things change
@@ -4054,6 +4108,9 @@ implements RestrictedAccess, Threadable, Searchable {
      */
     static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $ost, $cfg, $thisstaff;
 
         // Don't enforce form validation for email
@@ -4078,6 +4135,7 @@ implements RestrictedAccess, Threadable, Searchable {
         };
 
         $reject_ticket = function($message) use (&$errors) {
+            /** @var osTicket $ost */
             global $ost;
             $errors = array(
                 'errno' => 403,
@@ -4591,6 +4649,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     /* routine used by staff to open a new ticket */
     static function open($vars, &$errors) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         if (!$thisstaff)
@@ -4752,6 +4812,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     static function getLink($id) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         switch (true) {

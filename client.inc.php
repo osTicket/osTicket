@@ -33,6 +33,7 @@ define('OSTCLIENTINC',TRUE);
 define('ASSETS_PATH',ROOT_PATH.'assets/default/');
 
 //Check the status of the HelpDesk.
+/** @var osTicket $ost */
 if (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])), array('logo.php','file.php'))
         && !(is_object($ost) && $ost->isSystemOnline())) {
     include(ROOT_DIR.'offline.php');
@@ -49,6 +50,7 @@ $errors=array();
 $msg='';
 $nav=null;
 //Make sure the user is valid..before doing anything else.
+/** @var ClientSession|null $thisclient */
 $thisclient = UserAuthenticationBackend::getUser();
 
 if (isset($_GET['lang']) && $_GET['lang']) {
@@ -84,10 +86,12 @@ define('SESSION_MAXLIFE', $thisclient ? $thisclient->getMaxIdleTime() :
         SESSION_TTL);
 
 require(INCLUDE_DIR.'class.nav.php');
+/** @var UserNav $nav */
 $nav = new UserNav($thisclient, 'home');
 
 $exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php', 'upgrade.php'));
 
+/** @var ClientAccount|null $acct */
 if (!$exempt && $thisclient && ($acct = $thisclient->getAccount())
         && $acct->isPasswdResetForced()) {
     $warn = __('Password change required to continue');

@@ -10,6 +10,9 @@
     <input type="hidden" name="do" value="install"/>
 <table class="list" width="100%"><tbody>
 <?php
+/**
+ * @var osTicket $ost
+ */
 
 $installed = $ost->plugins->allInstalled();
 foreach ($ost->plugins->allInfos() as $info) {

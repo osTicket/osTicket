@@ -28,6 +28,7 @@ class Mailer {
     var $eol="\n";
 
     function __construct(?\Email $email=null, array $options=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Get all possible outgoing emails accounts (SMTP) to try
@@ -342,6 +343,7 @@ class Mailer {
     }
 
     function send($recipients, $subject, $body, $options=null) {
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         $messageId = $this->getMessageId($recipients, $options);
@@ -640,6 +642,7 @@ class Mailer {
     }
 
     function log($msg, $type='warning') {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!$ost || !$msg)

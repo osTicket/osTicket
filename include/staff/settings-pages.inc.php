@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ */
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 $pages = Page::getPages();
 ?>

@@ -11,6 +11,9 @@
         style="clear:none">
 
 <?php
+/**
+ * @var OsticketConfig $cfg
+ */
 if (count($langs) > 1) { ?>
     <ul class="tabs alt clean" id="content-trans">
     <li class="empty"><i class="icon-globe" title="<?php echo __('This content is translatable'); ?>"></i></li>

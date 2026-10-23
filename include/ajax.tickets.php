@@ -13,6 +13,12 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
+
 
 if(!defined('INCLUDE_DIR')) die('403');
 

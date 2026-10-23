@@ -46,6 +46,7 @@ implements TemplateVariable {
     // Add Grace Period to datetime
     function addGracePeriod(Datetime $date, BusinessHoursSchedule $schedule
             = null, &$timeline=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Requested schedule takes precedence, then local and lastly the
@@ -220,6 +221,7 @@ implements TemplateVariable {
     }
 
     function delete() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if(!$cfg || $cfg->getDefaultSLAId()==$this->getId())

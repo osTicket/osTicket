@@ -352,6 +352,7 @@ class Mail_Parse {
     }
 
     function getBody(){
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // When struct is not set then it might mean decode error - return
@@ -782,6 +783,7 @@ class EmailDataParser {
     }
 
     function parse($stream) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $contents ='';

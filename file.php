@@ -15,6 +15,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('client.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ */
 require_once(INCLUDE_DIR.'class.file.php');
 
 //Basic checks

@@ -182,6 +182,7 @@ class PluginManager {
 
     static private $verify_domain = 'updates.osticket.com';
     static private $plugin_info = array();
+    /** @var Plugin[] */
     static private $plugin_list = array();
 
     /**
@@ -215,11 +216,14 @@ class PluginManager {
      * Returns:
      * Array<Plugin> a cached list of instanciated plugins for all installed
      * and active plugins
+     *
+     * @return Plugin[]
      */
     static function allInstalled() {
         if (static::$plugin_list)
             return static::$plugin_list;
         foreach (Plugin::objects() as $p) {
+            /** @var Plugin $a */
             $a = $p->getImpl() ?: $p;
             static::$plugin_list[$p->getInstallPath()] = &$a;
             unset($a);
@@ -238,6 +242,7 @@ class PluginManager {
     }
 
     static function auditPlugin() {
+        /** @var osTicket $ost */
         global $ost;
         if (!$ost || $ost->isUpgradePending())
             return false;
@@ -539,7 +544,10 @@ class PluginManager {
     }
 }
 
-
+/**
+ * @template T as Plugin
+ * @method static QuerySet<Plugin>|iterable<Plugin> objects()
+ */
 class Plugin extends VerySimpleModel {
     static $meta = array(
         'table' => PLUGIN_TABLE,
@@ -688,9 +696,9 @@ class Plugin extends VerySimpleModel {
     }
 
     /*
-     * getImpl
-     *
      * Returns plugin subclass impl if any
+     *
+     * @return static|null
      */
     function getImpl() {
         if (!isset($this->_impl) && $this->info['plugin']) {

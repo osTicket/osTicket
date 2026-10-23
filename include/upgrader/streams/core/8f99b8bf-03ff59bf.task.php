@@ -8,6 +8,7 @@ class SequenceLoader extends MigrationTask {
     var $description = "Loading initial data for sequences";
 
     function run($max_time) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $i18n = new Internationalization($cfg->get('system_language', 'en_US'));

@@ -41,6 +41,7 @@ class CliExporter extends Module {
 
         Bootstrap::connect();
 
+        /** @var osTicket $ost */
         if (!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
             $this->fail('Unable to load config info!');
 

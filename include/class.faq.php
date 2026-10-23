@@ -143,6 +143,7 @@ class FAQ extends VerySimpleModel {
     }
 
     function printPdf() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
         require_once(INCLUDE_DIR.'class.pdf.php');
 
@@ -247,6 +248,7 @@ class FAQ extends VerySimpleModel {
     }
 
     function saveTranslations($vars) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         foreach ($this->getAllTranslations() as $t) {
@@ -366,6 +368,7 @@ class FAQ extends VerySimpleModel {
     }
 
     function update($vars, &$errors) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Cleanup.

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
 

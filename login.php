@@ -17,6 +17,11 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once('client.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var UserNav|null $nav
+ */
 if(!defined('INCLUDE_DIR')) die('Fatal Error');
 define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
 define('OSTCLIENTINC',TRUE); //make includes happy

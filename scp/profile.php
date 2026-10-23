@@ -15,6 +15,11 @@
 **********************************************************************/
 
 require_once('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
 $msg='';

@@ -2,6 +2,7 @@
     </div>
     <div id="footer">
         <p><?php echo __('Copyright &copy;'); ?> <?php echo date('Y'); ?> <?php
+        /** @var osTicket $ost */
         echo Format::htmlchars((string) $ost->company ?: 'osTicket.com'); ?> - <?php echo __('All rights reserved.'); ?></p>
         <a id="poweredBy" href="https://osticket.com" target="_blank"><?php echo __('Helpdesk software - powered by osTicket'); ?></a>
     </div>

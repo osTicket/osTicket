@@ -624,6 +624,7 @@ class FA_SendEmail extends TriggerAction {
     static $flags = TriggerAction::FLAG_MULTI_USE;
 
     function apply(&$ticket, array $info) {
+        /** @var osTicket $ost */
         global $ost;
 
         if (!$ticket['ticket'])
@@ -681,6 +682,7 @@ class FA_SendEmail extends TriggerAction {
     }
 
     function getConfigurationOptions() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $choices = Email::getAddresses();

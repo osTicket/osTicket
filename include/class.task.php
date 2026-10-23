@@ -481,6 +481,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $prompt = $assignee = '';
@@ -519,6 +520,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function getClaimForm($source=null, $options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $id = sprintf('s%d', $thisstaff->getId());
@@ -568,6 +570,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function setStatus($status, $comments='', &$errors=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $ecb = null;
@@ -696,6 +699,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function claim(ClaimForm $form, &$errors) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $dept = $this->getDept();
@@ -734,6 +738,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $this->onAssignment($staff, $note, $alert);
 
+        /** @var Staff $thisstaff */
         global $thisstaff;
         $data = array();
         if ($thisstaff && $staff->getId() == $thisstaff->getId())
@@ -748,6 +753,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
 
     function assign(AssignmentForm $form, &$errors, $alert=true) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         $evd = array();
@@ -805,6 +811,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function onAssignment($assignee, $comments='', $alert=true) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         if (!is_object($assignee))
@@ -882,6 +890,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function transfer(TransferForm $form, &$errors, $alert=true) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         $cdept = $this->getDept();
@@ -1002,6 +1012,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
     /* public */
     function postReply($vars, &$errors, $alert = true) {
+        /** @var Staff $thisstaff */
         global $thisstaff, $cfg;
 
 
@@ -1060,6 +1071,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function pdfExport($options=array()) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         require_once(INCLUDE_DIR.'class.pdf.php');
@@ -1082,6 +1094,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
     /* util routines */
     function replaceVars($input, $vars = array()) {
+        /** @var osTicket $ost */
         global $ost;
 
         return $ost->replaceTemplateVariables($input,
@@ -1093,6 +1106,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function getVar($tag) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
@@ -1178,6 +1192,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function onActivity($vars, $alert=true) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if (!$alert // Check if alert is enabled
@@ -1266,6 +1282,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
      *
      */
     function  notifyCollaborators($entry, $vars = array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$entry instanceof ThreadEntry
@@ -1320,6 +1337,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function update($forms, $vars, &$errors) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$forms || !$this->checkStaffPerm($thisstaff, Task::PERM_EDIT))
@@ -1366,6 +1384,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function updateField($form, &$errors) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         if (!($field = $form->getField('field')))
@@ -1456,6 +1476,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     static function create($vars=false) {
+        /** @var Staff $thisstaff */
+        /** @var OsticketConfig $cfg */
         global $thisstaff, $cfg;
 
         if (!is_array($vars)
@@ -1519,6 +1541,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function onNewTask($vars=array()) {
+        /** @var OsticketConfig $cfg */
+        /** @var Staff $thisstaff */
         global $cfg, $thisstaff;
 
         if (!$cfg->alertONNewTask() // Check if alert is enabled
@@ -1582,6 +1606,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function delete($comments='') {
+        /** @var osTicket $ost */
+        /** @var Staff $thisstaff */
         global $ost, $thisstaff;
 
         $thread = $this->getThread();

@@ -1,4 +1,5 @@
 <?php if ($content) {
+    /** @var osTicket $ost */
     list($title, $body) = $ost->replaceTemplateVariables(
         array($content->getName(), $content->getBody())); ?>
 <h1><?php echo Format::display($title); ?></h1>

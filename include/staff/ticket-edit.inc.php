@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 if (!defined('OSTSCPINC')
         || !$ticket
         || !($ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT)))

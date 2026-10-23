@@ -232,6 +232,7 @@ class AttachmentFile extends VerySimpleModel
     // Generates full download URL for external sources.
     // e.g. https://domain.tld/file.php?args=123
     function getExternalDownloadUrl($options=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $download = $this->getDownloadUrl($options);
@@ -625,6 +626,7 @@ class AttachmentFile extends VerySimpleModel
      * received.
      */
     static function getBackendForFile($file) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $char = null;
@@ -664,6 +666,7 @@ class AttachmentFile extends VerySimpleModel
       Method formats http based $_FILE uploads - plus basic validation.
      */
     static function format($files) {
+        /** @var osTicket $ost */
         global $ost;
 
         if(!$files || !is_array($files))

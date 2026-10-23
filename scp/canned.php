@@ -14,6 +14,12 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 include_once(INCLUDE_DIR.'class.canned.php');
 
 if ($thisstaff && $roles = $thisstaff->getRoles()) {

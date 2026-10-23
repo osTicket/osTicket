@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
+?>
 <html>
 
 <head>

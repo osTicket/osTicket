@@ -17,6 +17,7 @@ class TaskLoader extends MigrationTask {
     );
 
     function run($max_time) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Load task form

@@ -15,6 +15,12 @@
 **********************************************************************/
 
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ * @var StaffNav|null $nav
+ */
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.filter.php');

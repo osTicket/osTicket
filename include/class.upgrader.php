@@ -19,6 +19,7 @@ require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader {
     function __construct($prefix, $basedir) {
+        /** @var osTicket $ost */
         global $ost;
 
         $this->streams = array();
@@ -86,6 +87,7 @@ class Upgrader {
     }
 
     function createUpgradedTicket() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $i18n = new Internationalization();
@@ -184,6 +186,8 @@ class StreamUpgrader extends SetupWizard {
         return (parent::check_prereq() && $this->check_mysql_version());
     }
     function onError($error) {
+        /** @var osTicket $ost */
+        /** @var Staff $thisstaff */
         global $ost, $thisstaff;
 
         $subject = '['.$this->name.']: '._S('Upgrader Error');
@@ -310,6 +314,7 @@ class StreamUpgrader extends SetupWizard {
     }
 
     function getTask() {
+        /** @var osTicket $ost */
         global $ost;
 
         $task_file = $this->getSQLDir() . "{$this->phash}.task.php";
@@ -417,6 +422,7 @@ class StreamUpgrader extends SetupWizard {
     }
 
     function log($title, $message, $level=LOG_DEBUG) {
+        /** @var osTicket $ost */
         global $ost;
         // Never alert the admin, and force the write to the database
         $ost->log($level, $title, $message, false, true);

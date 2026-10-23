@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 // Ensure cdata

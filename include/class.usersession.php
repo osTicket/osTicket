@@ -210,6 +210,7 @@ class ClientSession extends EndUser {
     use UserSessionTrait;
 
     function __construct($user) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         parent::__construct($user);
         $this->class ='client';
@@ -232,6 +233,7 @@ class StaffSession extends Staff {
     use UserSessionTrait;
 
     static function lookup($var) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         if (($staff = parent::lookup($var))) {
             $staff->class = 'staff';

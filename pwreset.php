@@ -1,6 +1,10 @@
 <?php
 
 require_once('client.inc.php');
+/**
+ * @var osTicket $ost
+ * @var UserNav|null $nav
+ */
 if(!defined('INCLUDE_DIR')) die('Fatal Error');
 define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
 define('OSTCLIENTINC',TRUE); //make includes happy

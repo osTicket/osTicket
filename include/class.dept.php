@@ -191,6 +191,7 @@ implements TemplateVariable, Searchable {
      * Otherwise, the system alert email address is used.
      */
     function getAlertEmail() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($this->email)
@@ -200,6 +201,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getEmail() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if ($this->email)
@@ -351,6 +353,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getTemplate() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$this->template) {
@@ -498,6 +501,7 @@ implements TemplateVariable, Searchable {
     }
 
     function delete() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$cfg
@@ -640,6 +644,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function getDefaultDeptName() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return ($cfg
@@ -777,6 +782,7 @@ implements TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $id = $this->id;

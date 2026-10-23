@@ -188,6 +188,7 @@ class Fetcher {
     }
 
     private function log($msg, $level = LOG_WARN) {
+        /** @var osTicket $ost */
         global $ost;
         $subj = _S('Mail Fetcher');
         switch ($level) {
@@ -206,6 +207,7 @@ class Fetcher {
        Static function called to initiate email polling
      */
     static function run() {
+        /** @var osTicket $ost */
         global $ost;
 
         if(!$ost->getConfig()->isEmailPollingEnabled())

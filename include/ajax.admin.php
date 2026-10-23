@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ */
 
 require_once(INCLUDE_DIR . 'class.dept.php');
 require_once(INCLUDE_DIR . 'class.role.php');

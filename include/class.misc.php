@@ -65,6 +65,7 @@ class Misc {
     /* misc date helpers...this will go away once we move to php 5 */
     static function db2gmtime($var){
         static $dbtz;
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (!$var || !$cfg)
@@ -84,6 +85,7 @@ class Misc {
 
     // Take user's time and return GMT time.
     static function user2gmtime($timestamp=null, $user=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $tz = new DateTimeZone($cfg->getTimezone($user));
@@ -105,6 +107,7 @@ class Misc {
     //Take user time or gmtime and return db (mysql) time.
     static function dbtime($var=null){
         static $dbtz;
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         if (is_null($var) || !$var) {
@@ -125,6 +128,7 @@ class Misc {
 
     /*Helper get GM time based on timezone offset*/
     static function gmtime($time=false, $user=false) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');

@@ -123,6 +123,7 @@ class StaffNav {
     }
 
     function getTabs(){
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if(!isset($this->tabs)) {
@@ -147,6 +148,7 @@ class StaffNav {
     }
 
     function getSubMenus(){ //Private.
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $staff = $this->staff;
@@ -321,6 +323,7 @@ class UserNav {
     }
 
     function getNavLinks(){
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         //Paths are based on the root dir.

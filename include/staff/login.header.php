@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ */
 defined('OSTSCPINC') or die('Invalid path');
 header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes()."; script-src 'self' 'unsafe-inline'; object-src 'none'");
 ?>

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = array();
 if($dept && $_REQUEST['a']!='add') {

@@ -272,6 +272,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function setPassword($new, $current=false) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         // Allow the backend to update the password. This is the preferred
@@ -340,6 +341,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function getAvatar($size=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
         $source = $cfg->getStaffAvatarSource();
         $avatar = $source->getAvatar($this);
@@ -409,6 +411,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function force2faConfig() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $id = $this->get2FABackendId();
@@ -816,6 +819,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     //Staff profile update...unfortunately we have to separate it from admin update to avoid potential issues
     function updateProfile($vars, &$errors) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $vars['firstname']=Format::striptags($vars['firstname']);
@@ -933,6 +937,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function delete() {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (!$thisstaff || $this->getId() == $thisstaff->getId())
@@ -986,6 +991,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     static function getStaffMembers($criteria=array()) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $members = static::objects();
@@ -1045,6 +1051,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     static function getsortby($path='', $format=null) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         $format = $format ?: $cfg->getAgentNameFormat();
@@ -1096,6 +1103,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function sendResetEmail($template='pwreset-staff', $log=true) {
+        /** @var osTicket $ost */
+        /** @var OsticketConfig $cfg */
         global $ost, $cfg;
 
         $content = Page::lookupByType($template);
@@ -1623,6 +1632,7 @@ extends AbstractForm {
     }
 
     function validate($clean) {
+        /** @var Staff $thisstaff */
         global $thisstaff;
 
         if (isset($clean['current']) && !$thisstaff->cmp_passwd($clean['current']))
@@ -1731,6 +1741,7 @@ extends AbstractForm {
     static $layout = 'GridFormLayout';
 
     function buildFields() {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         return array(

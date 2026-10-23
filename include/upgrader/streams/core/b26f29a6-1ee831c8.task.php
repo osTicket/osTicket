@@ -42,6 +42,7 @@ class IntlMigrator extends MigrationTask {
     );
 
     function run($max_time) {
+        /** @var OsticketConfig $cfg */
         global $cfg;
 
         // Detect rough install date — rationale: the schema_signature is

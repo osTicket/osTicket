@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 global $cfg;
 
 $options = array('template' => 'simple', 'form_id' => $form->getId());

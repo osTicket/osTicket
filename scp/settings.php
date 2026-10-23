@@ -15,6 +15,10 @@
 **********************************************************************/
 
 require('admin.inc.php');
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ */
 $errors=array();
 $settingOptions=array(
     'system' =>

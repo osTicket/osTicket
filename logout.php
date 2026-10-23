@@ -15,6 +15,10 @@
 **********************************************************************/
 
 require('client.inc.php');
+/**
+ * @var osTicket $ost
+ * @var ClientSession|null $thisclient
+ */
 //Check token: Make sure the user actually clicked on the link to logout.
 if ($thisclient && $_GET['auth'] && $ost->validateLinkToken($_GET['auth']))
    $thisclient->logOut();

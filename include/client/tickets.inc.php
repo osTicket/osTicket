@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var ClientSession|null $thisclient
+ */
 if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Access Denied');
 
 $settings = &$_SESSION['client:Q'];

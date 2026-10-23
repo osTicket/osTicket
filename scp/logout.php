@@ -15,6 +15,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+/**
+ * @var osTicket $ost
+ * @var Staff $thisstaff
+ */
 
 //Check token: Make sure the user actually clicked on the link to logout.
 if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))

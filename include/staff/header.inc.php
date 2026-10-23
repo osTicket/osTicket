@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var osTicket $ost
+ * @var OsticketConfig $cfg
+ * @var Staff $thisstaff
+ */
 header("Content-Type: text/html; charset=UTF-8");
 header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes()."; script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none'");
 
