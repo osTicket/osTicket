@@ -51,5 +51,3 @@ if (isset($_GET['lang']) && $_GET['lang']) {
     Internationalization::setCurrentLanguage($_GET['lang']);
 }
 TextDomain::configureForUser();
-
-?>

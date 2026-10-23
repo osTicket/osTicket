@@ -258,4 +258,3 @@ class StaffSession extends Staff {
         return (!$this->is2FAPending() && $this->isValidSession());
     }
 }
-?>

@@ -195,4 +195,3 @@ class Net_DNS2_RR_DNSKEY extends Net_DNS2_RR
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

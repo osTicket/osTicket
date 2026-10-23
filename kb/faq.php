@@ -33,4 +33,3 @@ if($faq && $faq->isPublished()) {
 require_once(CLIENTINC_DIR.'header.inc.php');
 require_once(CLIENTINC_DIR.$inc);
 require_once(CLIENTINC_DIR.'footer.inc.php');
-?>

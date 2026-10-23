@@ -182,5 +182,3 @@ class Net_DNS2_RR_SRV extends Net_DNS2_RR
         return null;
     }
 }
-
-?>

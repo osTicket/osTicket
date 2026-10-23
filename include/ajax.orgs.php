@@ -358,4 +358,3 @@ class OrgsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
     }
 }
-?>

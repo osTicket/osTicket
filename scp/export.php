@@ -23,4 +23,3 @@ elseif (!$export->isReady())
      Http::response(416, __('Export is not ready yet'));
 
 $export->download();
-?>

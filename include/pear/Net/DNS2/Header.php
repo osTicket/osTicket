@@ -279,4 +279,3 @@ class Net_DNS2_Header
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

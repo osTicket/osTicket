@@ -319,5 +319,3 @@ extends VerySimpleModel {
     }
 }
 RolePermission::register( /* @trans */ 'Knowledgebase', Canned::getPermissions());
-
-?>

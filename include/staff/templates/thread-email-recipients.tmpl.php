@@ -27,4 +27,4 @@ if (!$_REQUEST['mode']) {?>
     </span>
 </p>
 <?php
-} ?>
+}

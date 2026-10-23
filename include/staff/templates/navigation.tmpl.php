@@ -25,4 +25,4 @@ if($nav && ($tabs=$nav->getTabs()) && is_array($tabs)){
         }
         echo "\n</li>\n";
     }
-} ?>
+}

@@ -191,5 +191,3 @@ class BusinessHours {
         return $this->timeline;
     }
 }
-
-?>

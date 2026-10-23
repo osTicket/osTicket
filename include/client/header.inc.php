@@ -171,4 +171,4 @@ if (($all_langs = Internationalization::getConfiguredSystemLanguages())
             <div id="msg_notice"><?php echo $msg; ?></div>
          <?php }elseif($warn) { ?>
             <div id="msg_warning"><?php echo $warn; ?></div>
-         <?php } ?>
+         <?php }

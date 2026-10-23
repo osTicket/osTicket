@@ -2023,4 +2023,3 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         return parent::getValue();
     }
 }
-?>

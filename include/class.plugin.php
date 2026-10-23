@@ -1184,4 +1184,3 @@ class DefunctPlugin extends Plugin {
         return false;
     }
 }
-?>

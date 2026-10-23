@@ -28,4 +28,3 @@ $dispatcher = patterns('',
     ))
 );
 print $dispatcher->resolve(Osticket::get_path_info());
-?>

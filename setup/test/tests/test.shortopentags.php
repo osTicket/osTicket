@@ -22,4 +22,3 @@ class ShortOpenTag extends Test {
     }
 }
 return 'ShortOpenTag';
-?>

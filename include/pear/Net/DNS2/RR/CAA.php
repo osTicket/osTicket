@@ -175,5 +175,3 @@ class Net_DNS2_RR_CAA extends Net_DNS2_RR
         return null;
     }
 }
-
-?>

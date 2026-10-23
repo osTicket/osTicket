@@ -22,4 +22,3 @@ if ($thisclient && $_GET['auth'] && $ost->validateLinkToken($_GET['auth']))
 osTicketSession::destroyCookie();
 session_destroy();
 Http::redirect('index.php');
-?>

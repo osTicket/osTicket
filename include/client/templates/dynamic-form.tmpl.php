@@ -71,4 +71,3 @@ $isCreate = (isset($options['mode']) && $options['mode'] == 'create');
         </tr>
         <?php
     }
-?>

@@ -22,4 +22,3 @@ if(!$cfg || !$cfg->isKnowledgebaseEnabled() || !FAQ::countPublishedFAQs()) {
 }
 
 $nav = new UserNav($thisclient, 'kb');
-?>

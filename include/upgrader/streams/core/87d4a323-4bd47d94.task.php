@@ -28,5 +28,3 @@ class PopulateThreadEntryMerge extends MigrationTask {
 }
 
 return 'PopulateThreadEntryMerge';
-
-?>

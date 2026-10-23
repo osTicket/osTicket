@@ -157,4 +157,3 @@ class Net_DNS2_RR_X25 extends Net_DNS2_RR
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

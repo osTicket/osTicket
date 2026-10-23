@@ -25,4 +25,3 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.audit_logs" 
 require(STAFFINC_DIR.'header.inc.php');
 require($page);
 include(STAFFINC_DIR.'footer.inc.php');
-?>

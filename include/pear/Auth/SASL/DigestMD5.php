@@ -194,4 +194,3 @@ class Auth_SASL_DigestMD5 extends Auth_SASL_Common
         }
     }
 }
-?>

@@ -302,5 +302,3 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
     }
 
 }
-
-?>

@@ -2073,4 +2073,3 @@ class TicketsAjaxAPI extends AjaxController {
 
     }
 }
-?>

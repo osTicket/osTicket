@@ -117,4 +117,3 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
     <button name="a" class="red button" value="delete"><?php echo __('Delete FAQ'); ?></button>
 </form>
 <?php }
-?>

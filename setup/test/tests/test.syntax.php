@@ -24,4 +24,3 @@ class SyntaxTest extends Test {
 }
 
 return 'SyntaxTest';
-?>

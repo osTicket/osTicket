@@ -33,4 +33,3 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search
 } else { //Category Listing.
     include CLIENTINC_DIR . 'kb-categories.inc.php';
 }
-?>

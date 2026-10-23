@@ -270,4 +270,3 @@ class Fetcher {
         } //end foreach.
     }
 }
-?>

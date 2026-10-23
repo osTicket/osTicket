@@ -176,4 +176,3 @@ define('SESSION_SESSID', 'OSTSESSID');
 #
 # define('SESSION_BACKEND', 'memcache');
 # define('MEMCACHE_SERVERS', 'server1:11211,server2:11211');
-?>

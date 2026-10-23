@@ -29,4 +29,3 @@ class CronManager extends Module {
 }
 
 Module::register('cron', 'CronManager');
-?>

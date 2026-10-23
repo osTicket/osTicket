@@ -121,5 +121,3 @@ class Auth_SASL
         return $obj;
     }
 }
-
-?>

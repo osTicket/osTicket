@@ -41,4 +41,3 @@ class ConfigMigrater extends MigrationTask {
     }
 }
 return 'ConfigMigrater';
-?>

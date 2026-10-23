@@ -1797,4 +1797,3 @@ class OsticketConfig extends Config {
         return db_result(db_query($sql));
     }
 }
-?>

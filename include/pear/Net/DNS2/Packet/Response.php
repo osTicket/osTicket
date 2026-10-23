@@ -186,4 +186,3 @@ class Net_DNS2_Packet_Response extends Net_DNS2_Packet
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

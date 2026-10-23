@@ -58,5 +58,3 @@ function raise_error($message, $class=false) {
 class IOException extends BaseError {
     static $title = 'Unable to read resource content';
 }
-
-?>

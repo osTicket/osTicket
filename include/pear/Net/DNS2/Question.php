@@ -241,4 +241,3 @@ class Net_DNS2_Question
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

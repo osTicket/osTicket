@@ -282,4 +282,3 @@ class MailBoxStorageTrait {
     function moveMessage() {}
     function removeMessage() {}
 }
-?>

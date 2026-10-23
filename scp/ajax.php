@@ -331,4 +331,3 @@ if (is_string($rv) && $rv[0] == '{')
     Http::response(200, $rv, 'application/json');
 
 print $rv;
-?>

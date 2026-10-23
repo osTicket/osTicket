@@ -374,4 +374,3 @@ function db_errno() {
     global $__db;
     return $__db->errno;
 }
-?>

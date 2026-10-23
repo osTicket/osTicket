@@ -123,4 +123,3 @@ switch(strtolower($_SESSION['ost_installer']['s'])) {
 require(INC_DIR.'header.inc.php');
 require(INC_DIR.$inc);
 require(INC_DIR.'footer.inc.php');
-?>

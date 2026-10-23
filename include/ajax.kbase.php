@@ -90,4 +90,3 @@ class KbaseAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
 }
-?>

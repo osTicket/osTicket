@@ -37,4 +37,3 @@ class MailBouncing extends Test {
 }
 
 return 'MailBouncing';
-?>

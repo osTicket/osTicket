@@ -928,4 +928,3 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/task-view.tmpl.php';
     }
 }
-?>

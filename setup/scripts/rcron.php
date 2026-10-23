@@ -49,4 +49,3 @@ if(preg_match('/HTTP\/.* ([0-9]+) .*/', $result, $status) && $status[1] == 200)
 
 echo $result;
 exit(1);
-?>

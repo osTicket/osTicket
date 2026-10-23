@@ -27,4 +27,3 @@ class MigrateGroupDeptAccess extends MigrationTask {
 }
 
 return 'MigrateGroupDeptAccess';
-?>

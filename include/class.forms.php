@@ -6225,4 +6225,3 @@ class TransferForm extends Form {
  * saved in the database (it wasn't changed in the request)
  */
 class FieldUnchanged extends Exception {}
-?>

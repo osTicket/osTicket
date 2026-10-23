@@ -82,4 +82,3 @@ class ListManager extends Module {
     }
 }
 Module::register('list', 'ListManager');
-?>

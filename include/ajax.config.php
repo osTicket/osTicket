@@ -131,4 +131,3 @@ class ConfigAjaxAPI extends AjaxController {
         ));
     }
 }
-?>

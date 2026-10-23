@@ -69,4 +69,3 @@ class TestValidation extends Test {
     }
 }
 return 'TestValidation';
-?>

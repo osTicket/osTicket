@@ -22,4 +22,3 @@ class APIKeyMigrater extends MigrationTask {
 }
 
 return 'APIKeyMigrater';
-?>

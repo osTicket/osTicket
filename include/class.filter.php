@@ -1034,4 +1034,3 @@ function iendsWith($haystack, $needle)
 function pregMatchB($subject, $pattern) {
     return preg_match($pattern, $subject);
 }
-?>

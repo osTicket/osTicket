@@ -50,5 +50,3 @@ class Captcha {
         $_SESSION['captcha'] = md5($this->hash);
     }
 }
-
-?>

@@ -3446,5 +3446,3 @@ class ThreadActivity implements TemplateVariable {
         );
     }
 }
-
-?>

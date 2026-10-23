@@ -102,4 +102,3 @@ class Auth_SASL_Common
          return $digest;
      }
 }
-?>

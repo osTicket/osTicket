@@ -24,4 +24,4 @@ if ($item->hasProperties()) { ?>
     </table>
 </div>
 <?php
-} ?>
+}

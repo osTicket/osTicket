@@ -56,4 +56,3 @@ $nav->setTabActive('settings', ('settings.php?t='.$target));
 require_once(STAFFINC_DIR.'header.inc.php');
 include_once(STAFFINC_DIR."settings-$target.inc.php");
 include_once(STAFFINC_DIR.'footer.inc.php');
-?>

@@ -117,5 +117,3 @@ class Base32 {
         return $outString;
     }
 }
-
-?>

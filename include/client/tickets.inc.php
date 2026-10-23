@@ -273,4 +273,3 @@ if ($closedTickets) {?>
 if ($total) {
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 }
-?>

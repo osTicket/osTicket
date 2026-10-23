@@ -66,4 +66,3 @@ $data = array('autocron'=>true);
 Signal::send('cron', null, $data);
 
 ob_end_clean();
-?>

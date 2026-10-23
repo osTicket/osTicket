@@ -860,4 +860,3 @@ class EmailDataParser {
         return end($this->getErrors());
     }
 }
-?>

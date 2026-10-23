@@ -51,4 +51,3 @@ EOF;
     }
 }
 return 'TestMailParsing';
-?>

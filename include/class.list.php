@@ -1509,4 +1509,3 @@ implements CustomListItem, TemplateVariable, Searchable {
         include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
     }
 }
-?>

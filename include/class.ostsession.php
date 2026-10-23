@@ -681,4 +681,3 @@ implements osTicket\Session\SessionRecordInterface {
         return new self($vars);
     }
 }
-?>

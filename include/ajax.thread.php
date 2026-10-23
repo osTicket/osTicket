@@ -274,4 +274,3 @@ class ThreadAjaxAPI extends AjaxController {
         $thread->triggerAction($action);
     }
 }
-?>

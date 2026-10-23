@@ -229,4 +229,3 @@ class ContentAjaxAPI extends AjaxController {
         return $this->encode($items);
     }
 }
-?>

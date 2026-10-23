@@ -20,5 +20,3 @@ class FileImport extends MigrationTask {
 }
 
 return 'FileImport';
-
-?>

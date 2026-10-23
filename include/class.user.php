@@ -1487,5 +1487,3 @@ class UserList extends MailingList {
         return parent::add($user);
     }
 }
-
-?>

@@ -62,4 +62,3 @@ class Auth_SASL_Login extends Auth_SASL_Common
         return sprintf('LOGIN %s %s', $user, $pass);
     }
 }
-?>

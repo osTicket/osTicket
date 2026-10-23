@@ -34,4 +34,3 @@ if ($errors['error']) { ?>
 </form>
 <?php
 echo $form->emitJavascript();
-?>

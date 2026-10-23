@@ -65,4 +65,3 @@ class Auth_SASL_CramMD5 extends Auth_SASL_Common
         return $user . ' ' . $this->_HMAC_MD5($pass, $challenge);
     }
 }
-?>

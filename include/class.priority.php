@@ -78,4 +78,3 @@ implements TemplateVariable {
         return self::getPriorities(true);
     }
 }
-?>

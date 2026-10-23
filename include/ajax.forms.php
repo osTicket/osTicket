@@ -431,4 +431,3 @@ class DynamicFormsAjaxAPI extends AjaxController {
         ));
     }
 }
-?>

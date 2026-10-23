@@ -251,4 +251,3 @@ class Net_DNS2_BitMap
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

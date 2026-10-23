@@ -19,4 +19,4 @@
         ?><div class="error"><?php echo $E; ?></div><?php
     } ?>
 </fieldset>
-<?php } ?>
+<?php }

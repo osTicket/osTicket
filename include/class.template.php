@@ -728,4 +728,3 @@ class EmailTemplate {
         return false;
     }
 }
-?>

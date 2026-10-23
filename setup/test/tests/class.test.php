@@ -158,4 +158,3 @@ if (!function_exists('get_osticket_root_path')) {
         return realpath($start);
     }
 }
-?>

@@ -317,4 +317,3 @@ class Importer_B extends Importer {
 }
 
 Module::register('import', 'Importer');
-?>

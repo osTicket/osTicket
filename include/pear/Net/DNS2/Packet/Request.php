@@ -218,4 +218,3 @@ class Net_DNS2_Packet_Request extends Net_DNS2_Packet
  * c-hanging-comment-ender-p: nil
  * End:
  */
-?>

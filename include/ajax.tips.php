@@ -49,5 +49,3 @@ class HelpTipAjaxAPI extends AjaxController {
         return $this->getTipsJson($namespace, $lang);
     }
 }
-
-?>

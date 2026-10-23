@@ -134,4 +134,3 @@ elseif ($thisstaff && $thisstaff->isValid()) {
 
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');
-?>

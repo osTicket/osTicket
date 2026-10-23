@@ -58,5 +58,3 @@ class DynamicFormLoader extends MigrationTask {
 }
 
 return 'DynamicFormLoader';
-
-?>

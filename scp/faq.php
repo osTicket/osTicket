@@ -170,4 +170,3 @@ require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 print $faq_form->getMedia();
 require_once(STAFFINC_DIR.'footer.inc.php');
-?>

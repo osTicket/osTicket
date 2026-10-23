@@ -1168,5 +1168,3 @@ class FileObject extends SplFileObject
         return strcasecmp(self::mime_type($filepath), $mime) !== 0;
     }
 }
-
-?>

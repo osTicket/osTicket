@@ -345,4 +345,3 @@ class SourceAnalyzer extends Test {
         }
     }
 }
-?>

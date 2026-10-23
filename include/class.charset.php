@@ -106,4 +106,3 @@ class transcode_filter extends php_user_filter {
   }
 }
 stream_filter_register('transcode.*', 'transcode_filter');
-?>

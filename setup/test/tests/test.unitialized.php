@@ -28,4 +28,3 @@ class UnitializedVars extends Test {
 }
 
 return 'UnitializedVars';
-?>
