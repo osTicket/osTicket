@@ -76,6 +76,7 @@ if ($_POST) {
 
                 // Attach inline attachments from the editor
                 $images = Draft::getAttachmentIds($_POST['response']);
+                $images = array_column($images, 'name', 'id');
                 $canned->attachments->keepOnlyFileIds($images, true);
 
                 // XXX: Handle nicely notifying a user that the draft was
