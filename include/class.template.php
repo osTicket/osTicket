@@ -618,8 +618,8 @@ class EmailTemplate {
 
         // Inline images (attached to the draft)
         $keepers = Draft::getAttachmentIds($this->getBody());
-        // Just keep the IDs only
-        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        // Index by file ID for keepOnlyFileIds()
+        $keepers = array_column($keepers, 'name', 'id');
         $this->attachments->keepOnlyFileIds($keepers, true);
 
         return true;
