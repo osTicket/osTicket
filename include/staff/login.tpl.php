@@ -4,7 +4,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 
 
 if ($thisstaff && $thisstaff->is2FAPending())
-    $msg = "2FA Pending";
+    $msg = __('2FA Pending');
 
 ?>
 <div id="brickwall"></div>
