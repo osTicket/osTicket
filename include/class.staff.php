@@ -1640,7 +1640,10 @@ extends AbstractForm {
             foreach ($perms as $k => $v) {
                 if (!$v['primary'])
                     continue;
-                $permissions[$g][$k] = "{$v['title']} — {$v['desc']}";
+                $permissions[__($g)][$k] = sprintf('%s — %s',
+					__($v['title']),
+					__($v['desc'])
+				);
             }
         }
         return array(

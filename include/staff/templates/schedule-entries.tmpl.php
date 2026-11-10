@@ -5,7 +5,7 @@ $entries = $schedule->getEntries()
 ?>
 <div style="margin: 5px 0">
 <div class="pull-left" valign="bottom"><?php
-    echo sprintf('All times are in %s timezone',
+    echo sprintf(__('All times are in %s timezone'),
         $schedule->getTimezone()); ?></div>
 <div class="pull-right">
     <a class="green button action-button entry-action"

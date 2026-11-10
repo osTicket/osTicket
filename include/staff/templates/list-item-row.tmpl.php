@@ -39,7 +39,7 @@
 if ($prop_fields) {
     foreach ($prop_fields as $F) { ?>
         <td style="max-width: 20%"><span class="truncate"><?php
-        echo $F->display($props[$F->get('id')]);
+        echo Format::htmlchars(__($F->display($props[$F->get('id')])));
         ?></span></td>
 <?php }
 } ?>

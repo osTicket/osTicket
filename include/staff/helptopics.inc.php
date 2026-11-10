@@ -150,10 +150,13 @@ $order_by = 'sort';
                     echo Topic::getTopicName($id); ?></a>&nbsp;
                 </td>
                 <td><?php
-                  if($topic->getStatus() == __('Active'))
-                    echo $topic->getStatus();
-                  else
-                    echo '<b>'.$topic->getStatus();
+                  $status = $topic->getStatus();
+				  $translatedStatus = __($status);
+					if ($status == 'Active') {
+						echo $translatedStatus;
+					} else {
+						echo '<b>' . $translatedStatus . '</b>';
+					}
                   ?>
                 </td>
                 <td><?php echo $topic->ispublic ? __('Public') : '<b>'.__('Private').'</b>'; ?></td>

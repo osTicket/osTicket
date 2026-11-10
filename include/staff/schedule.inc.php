@@ -110,7 +110,7 @@ $(function() {
         });
         if (!ids.length)
             alert('<?php echo __('Please select at least one entry.');?>');
-        if (ids.length && confirm(__('Are you sure?'))) {
+        if (ids.length && confirm('<?php echo __('Are you sure?');?>')) {
             $.ajax({
               url: 'ajax.php/' + $(this).attr('href').substr(1),
               type: 'POST',

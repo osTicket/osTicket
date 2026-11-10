@@ -11,7 +11,7 @@
     }
     $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
 ?>
-<h3 class="drag-handle"><i class="<?php echo $title == 'link' ? 'icon-link' : 'icon-code-fork' ?>"></i> <?php echo sprintf(__('%s Tickets'), ucfirst($title)); ?></i></h3>
+<h3 class="drag-handle"><i class="<?php echo $title == 'link' ? 'icon-link' : 'icon-code-fork' ?>"></i> <?php $translatedTitle = ($title == 'link') ? __('link') : __('merge'); echo sprintf(__('%s Tickets'), $translatedTitle); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo sprintf(__(
 'Choose which Tickets to %s. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
@@ -199,7 +199,7 @@ foreach ($tickets as $t) {
     <label class="inline checkbox">
         <?php echo __('Parent Status');?>
         <select id="parentStatusId" name="parentStatusId">
-        <option value="">— Select —</option>
+        <option value="">&mdash; <?php echo __('Select'); ?> &mdash;</option>
         <?php
         $states = array('open', 'closed');
         foreach (TicketStatusList::getStatuses(
@@ -219,7 +219,7 @@ foreach ($tickets as $t) {
 
 <div>
     <hr>
-    <?php echo ($title == 'merge') ? __('Merge Type: ') : ''; ?>
+    <?php echo ($title == 'merge') ? __('Merge Type:') . ' ' : ''; ?>
     <?php echo ($title == 'merge') ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : ''; ?><br>
     <input <?php echo ($title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="1"
            <?php echo ($ticket->getMergeType() == 'combine' || ($title == 'merge' && !$parent))?'checked="checked"':''; ?>>

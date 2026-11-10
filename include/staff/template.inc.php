@@ -85,8 +85,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 $current_group = $i['group']; ?>
         <tr>
             <th colspan="2">
-            <em><strong><?php echo isset($_groups[$current_group])
-            ? $_groups[$current_group] : $current_group; ?></strong>
+            <em><strong><?php if (isset($_groups[$current_group])) {echo __($_groups[$current_group]); }
+					else { echo __($current_group); } ?></strong>
             :: <?php echo __('Click on the title to edit.'); ?></em>
             </th>
         </tr>

@@ -1694,8 +1694,8 @@ class TicketsAjaxAPI extends AjaxController {
 
                 // Add success messages and log activity
                 $_SESSION['::sysmsgs']['msg'] = sprintf(__('Ticket marked as %s successfully'), $action);
-                $msg = sprintf(__('Ticket flagged as %s by %s'), $action, $thisstaff->getName());
-                $ticket->logActivity(sprintf(__('Ticket Marked %s'), ucfirst($action)), $msg);
+                $msg = sprintf(__('Ticket flagged as %s by %s'), __($action), $thisstaff->getName());
+                $ticket->logActivity(sprintf(__('Ticket Marked %s'), ucfirst(__($action))), $msg);
                 Http::response(201, $ticket->getId());
             }
         }

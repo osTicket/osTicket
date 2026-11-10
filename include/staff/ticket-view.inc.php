@@ -240,7 +240,7 @@ if($ticket->isOverdue())
                 <li>
 
                     <?php
-                    $recipients = __(' Manage Collaborators');
+                    $recipients = __('Manage Collaborators');
 
                     echo sprintf('<a class="collaborators manage-collaborators"
                             href="#thread/%d/collaborators/1"><i class="icon-group"></i>%s</a>',

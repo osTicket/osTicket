@@ -2352,14 +2352,14 @@ implements RestrictedAccess, Threadable, Searchable {
                 'label' => __('Overdue'),
                 'descsearchmethods' => array(
                     'set' => '%s',
-                    'nset' => 'Not %s'
+                    'nset' => __('Not %s')
                     ),
             )),
             'isanswered' => new BooleanField(array(
                 'label' => __('Answered'),
                 'descsearchmethods' => array(
                     'set' => '%s',
-                    'nset' => 'Not %s'
+                    'nset' => __('Not %s')
                     ),
             )),
             'isassigned' => new AssignedField(array(

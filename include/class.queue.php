@@ -164,7 +164,7 @@ class CustomQueue extends VerySimpleModel {
             list($label, $field) = $all[$path];
             $items[] = $field->describeSearch($method, $value, $label);
         }
-        return implode("\nAND ", $items);
+        return implode("\n".__('AND')." ", $items);
     }
 
     /**

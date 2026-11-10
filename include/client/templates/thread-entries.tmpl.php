@@ -39,7 +39,7 @@ if (count($entries)) {
 
         // Emit all events prior to this entry
         while ($event && $event->timestamp < $entry->created) {
-            $event->render(ThreadEvent::MODE_CLIENT);
+            $event->render(ThreadEvent::MODE_STAFF);
             $events->next();
             $event = $events->current();
         }
@@ -51,7 +51,7 @@ if (count($entries)) {
 
 // Emit all other events
 while ($event) {
-    $event->render(ThreadEvent::MODE_CLIENT);
+    $event->render(ThreadEvent::MODE_STAFF);
     $events->next();
     $event = $events->current();
 }
