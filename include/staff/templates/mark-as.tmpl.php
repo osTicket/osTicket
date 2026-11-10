@@ -28,7 +28,7 @@ if ($info['error']) {
                 <p>
                 <?php echo sprintf(
                             __('Are you sure you want to mark ticket as <b>%s</b>?'),
-                            $action); ?>
+                            __($action));
                 </p>
                 <p>
                 <?php echo __('Please confirm to continue.'); ?>
