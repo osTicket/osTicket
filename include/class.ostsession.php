@@ -199,14 +199,28 @@ class osTicketSession {
         // hardcoded session calls to get name & id
         // FIXME: Maybe bae...
         self::renewCookie(time(), $ttl);
-        // Regenerate the session
-        // TODO: use session_create_id() instead of session_regenerate_id -
-        // but PHP (even 8) is still bugy and inconsistent when it comes to
-        // using SessionIdInterface::create_sid depening on session settings.
-        session_regenerate_id(false);
-        // get a new session id and force commit
-        // Expire old session now + ttl
-        session_write_close();
+        // API sessions are stateless: the backend drops *new* session
+        // records for them. The regenerated session is not new, it's the
+        // continuation of an existing session (e.g. an External
+        // Authentication callback signing a user in via /api/auth/*), so
+        // tell the backend to keep it while we commit it.
+        $backend = self::registered_backend();
+        $flag = ($backend && method_exists($backend, 'setRegenerating'));
+        try {
+            if ($flag)
+                $backend->setRegenerating(true);
+            // Regenerate the session
+            // TODO: use session_create_id() instead of session_regenerate_id -
+            // but PHP (even 8) is still bugy and inconsistent when it comes to
+            // using SessionIdInterface::create_sid depening on session settings.
+            session_regenerate_id(false);
+            // get a new session id and force commit
+            // Expire old session now + ttl
+            session_write_close();
+        } finally {
+            if ($flag)
+                $backend->setRegenerating(false);
+        }
         // Expire old session now + ttl
         // ::expire() is not a standard session routine so we have to commit
         // the current "new" session first

@@ -132,6 +132,7 @@ namespace osTicket\Session {
         // Flags
         private $isnew = false;
         private $isapi = false;
+        private $isregenerating = false;
         // maxlife & ttl
         private $ttl;
         private $maxlife;
@@ -200,6 +201,23 @@ namespace osTicket\Session {
         }
 
         /*
+         * A session is being regenerated
+         *
+         * Set by osTicketSession::regenerate() while the session is handed
+         * over to a new session id. The new record is the continuation of
+         * an existing session (not a new, stateless, API session), so it
+         * has to be kept - see pre_save().
+         *
+         */
+        public function setRegenerating(bool $flag = true) {
+            $this->isregenerating = $flag;
+        }
+
+        protected function isRegenerating() {
+            return ($this->isregenerating);
+        }
+
+        /*
          * onEvent
          *
          * Storage Backends that's interested in monitoring / reporting on
@@ -234,7 +252,13 @@ namespace osTicket\Session {
             // We're NOT creating new API Sessions since API is stateless.
             // However existing sessions are updated, allowing for External
             // Authentication / Authorization to be processed via API endpoints.
-            if ($record->isNew() && $this->isApiSession())
+            // A regenerated session (new id, existing session) is not a new
+            // API session and has to be kept, otherwise a user signed in by
+            // an API endpoint (e.g External Authentication) would lose the
+            // session as soon as its id is rotated.
+            if ($record->isNew()
+                    && $this->isApiSession()
+                    && !$this->isRegenerating())
                 return false;
 
             return true;
