@@ -633,6 +633,15 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             || !($authkey=$bk->getAuthKey($staff)))
             return false;
 
+        // The credentials are verified. Give the session a new id *before*
+        // any authentication state is stored in it, so that a session id
+        // known to someone else before login (session fixation) can never
+        // become an authenticated session. The old id is retired shortly
+        // (see regenerateSession) and never carried any authentication.
+        // If the id cannot be rotated here the TIME_BOMB below is the
+        // fallback.
+        $staff->regenerateSession();
+
         //Log debug info.
         $ost->logDebug(_S('Agent Login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
@@ -849,6 +858,15 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             elseif ($acct->isLocked())
                 throw new AccessDenied(__('Account is administratively locked'));
         }
+
+        // The credentials are verified. Give the session a new id *before*
+        // any authentication state is stored in it, so that a session id
+        // known to someone else before login (session fixation) can never
+        // become an authenticated session. The old id is retired shortly
+        // (see regenerateSession) and never carried any authentication.
+        // If the id cannot be rotated here the TIME_BOMB below is the
+        // fallback.
+        $user->regenerateSession();
 
         // Tag the user and associated ticket in the SESSION
         $this->setAuthKey($user, $bk, $authkey);
