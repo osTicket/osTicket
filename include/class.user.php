@@ -294,7 +294,7 @@ implements TemplateVariable, Searchable {
 
         if (!isset($this->_email))
             $this->_email = new EmailAddress(sprintf('"%s" <%s>',
-                    addcslashes($this->getName(), '"'),
+                    addcslashes($this->getName(), '\\"'),
                     $this->default_email->address));
 
         return $this->_email;
