@@ -2677,8 +2677,8 @@ class MergedEvent extends ThreadEvent {
     static $state = 'merged';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
-                '<a href="tickets.php?id=', '">', '</a>');
+        return $this->template(sprintf(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'),
+                '<a href="tickets.php?id=', '">', '</a>'), $mode);
     }
 }
 
@@ -2687,8 +2687,8 @@ class LinkedEvent extends ThreadEvent {
     static $state = 'linked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
-                '<a href="tickets.php?id=', '">', '</a>');
+        return $this->template(sprintf(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'),
+                '<a href="tickets.php?id=', '">', '</a>'), $mode);
     }
 }
 
@@ -2697,8 +2697,8 @@ class UnlinkEvent extends ThreadEvent {
     static $state = 'unlinked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
-                '<a href="tickets.php?id=', '">', '</a>');
+        return $this->template(sprintf(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'),
+                '<a href="tickets.php?id=', '">', '</a>'), $mode);
     }
 }
 
