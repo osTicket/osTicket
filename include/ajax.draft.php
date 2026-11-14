@@ -397,6 +397,18 @@ class DraftAjaxAPI extends AjaxController {
             }
         }
 
+        // Autosave of a translation posts trans[lang][field] without `name`
+        if (isset($vars['trans']) && is_array($vars['trans'])) {
+            foreach ($vars['trans'] as $fields) {
+                if (!is_array($fields))
+                    continue;
+                foreach ($fields as $value) {
+                    if (is_string($value))
+                        return $value;
+                }
+            }
+        }
+
         // Get ThreadEntry field name.
         $tform = TicketForm::objects()->one()->getForm();
         $tfield = $tform->getField('message')->getFormName();
