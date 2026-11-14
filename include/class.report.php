@@ -73,7 +73,8 @@ class OverviewReport {
             $now = time();
             $stop = $start + (strtotime($stop, $now)-$now);
         } else {
-            $stop = Misc::dbtime($stop);
+            // Up to today: include the rest of the current day
+            $stop = strtotime('tomorrow', Misc::dbtime($stop)) - 1;
         }
 
         $start = 'FROM_UNIXTIME('.$start.')';
