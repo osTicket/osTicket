@@ -68,12 +68,14 @@
             if ($.datepicker === undefined)
                 return;
             clearInterval(qq);
-            $('tspan', $('#line-chart-here')).each(function(e) {
-                var text = this.firstChild.textContent;
-                if (parseInt(text) > 10000)
-                    this.firstChild.textContent =
-                        $.datepicker.formatDate('mm-dd-yy',
-                        new Date(parseInt(text) * 86400000));
+            getConfig().then(function(c) {
+                $('tspan', $('#line-chart-here')).each(function(e) {
+                    var text = this.firstChild.textContent;
+                    if (parseInt(text) > 10000)
+                        this.firstChild.textContent =
+                            $.datepicker.formatDate(c.date_format || 'mm-dd-yy',
+                            new Date(parseInt(text) * 86400000));
+                });
             });
         }, 50);
         $('span.label').each(function(i, e) {
