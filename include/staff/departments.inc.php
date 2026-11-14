@@ -162,7 +162,7 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                     echo Format::htmlchars($email); ?></a></span></td>
                 <td><a href="staff.php?id=<?php echo $dept->manager_id; ?>"><?php
                     echo $dept->manager_id ? $dept->manager : ''; ?>&nbsp;</a></td>
-                <td><?php echo $dept->created; ?></td>
+                <td><?php echo Format::date($dept->created); ?></td>
             </tr>
             <?php
             } //end of foreach.
