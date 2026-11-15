@@ -60,8 +60,11 @@ class Format {
                 $str.= Charset::transcode($part->text, $part->charset, $encoding);
 
             $text = $str;
-        } elseif($text[0] == '=' && function_exists('iconv_mime_decode')) {
-            $text = iconv_mime_decode($text, 0, $encoding);
+        } elseif(preg_match('/=\?[^?\s]+\?[BbQq]\?[^?\s]*\?=/', $text)
+                && function_exists('iconv_mime_decode')) {
+            // Also decode encoded words that follow plain text, e.g. "Re: =?utf-8?...?="
+            if (($decoded = iconv_mime_decode($text, 0, $encoding)) !== false)
+                $text = $decoded;
         } elseif(!strcasecmp($encoding, 'utf-8')
                 && function_exists('imap_utf8')) {
             $text = imap_utf8($text);
