@@ -66,7 +66,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
         <td align="center"><i class="<?php echo $forms[$form->get('type')]; ?>"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
                 <?php echo $form->get('title'); ?></a>
-            <td><?php echo $form->get('updated'); ?></td>
+            <td><?php echo Format::datetime($form->get('updated')); ?></td>
         </tr>
     <?php } ?>
     </tbody>
@@ -91,7 +91,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
                     <?php echo $sel?'checked="checked"':''; ?>>
             <?php } ?></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>"><?php echo $form->get('title'); ?></a></td>
-            <td><?php echo $form->get('updated'); ?></td>
+            <td><?php echo Format::datetime($form->get('updated')); ?></td>
         </tr>
     <?php }
     ?>
