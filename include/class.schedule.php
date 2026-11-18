@@ -1060,24 +1060,14 @@ class ScheduleEntry extends VerySimpleModel {
         return $translated;
     }
 
+    // Translated copies: the tables themselves stay English, because
+    // getIntervalSpec() builds DateTime::modify() strings from them.
     static function getWeeks() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$weeks as $k=>$v)
-                static::$weeks[$k] = __($v);
-        }
-
-        return static::$weeks;
+        return array_map('__', static::$weeks);
     }
 
     static function getMonths() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$months as $k=>$v)
-                static::$months[$k] = __($v);
-        }
-
-        return static::$months;
+        return array_map('__', static::$months);
     }
     static function create($ht=false) {
         $inst = new static($ht);
