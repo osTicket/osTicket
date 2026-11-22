@@ -1250,15 +1250,15 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
 
         $staff = StaffSession::lookup($_POST['userid']);
         if (!$staff || !$staff->getId())
-            $errors['msg'] = __('Invalid user-id given');
+            return new AccessDenied(__('Invalid user-id given'));
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != $staff->getId())
-            $errors['msg'] = __('Invalid reset token');
+            return new AccessDenied(__('Invalid reset token'));
         elseif (!($ts = $_config->lastModified($_POST['token']))
-                || ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
-            $errors['msg'] = __('Invalid reset token');
+                || ($ost->getConfig()->getPwResetWindow() < (Misc::gmtime() - Misc::db2gmtime($ts))))
+            return new AccessDenied(__('Invalid reset token'));
         elseif (!$staff->forcePasswdRest())
-            $errors['msg'] = __('Unable to reset password');
+            return new AccessDenied(__('Unable to reset password'));
         else
             return $staff;
     }
@@ -1477,15 +1477,15 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
         elseif (!($acct = ClientAccount::lookupByUsername($_POST['userid']))
                 || !$acct->getId()
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
-            $errors['msg'] = __('Invalid user-id given');
+            return new AccessDenied(__('Invalid user-id given'));
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != 'c'.$client->getId())
-            $errors['msg'] = __('Invalid reset token');
+            return new AccessDenied(__('Invalid reset token'));
         elseif (!($ts = $_config->lastModified($_POST['token']))
-                || ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
-            $errors['msg'] = __('Invalid reset token');
+                || ($ost->getConfig()->getPwResetWindow() < (Misc::gmtime() - Misc::db2gmtime($ts))))
+            return new AccessDenied(__('Invalid reset token'));
         elseif (!$acct->forcePasswdReset())
-            $errors['msg'] = __('Unable to reset password');
+            return new AccessDenied(__('Unable to reset password'));
         else
             return $client;
     }

@@ -69,6 +69,9 @@ if($_POST) {
                 $info = array('page' => 'index.php');
                 Http::redirect($info['page']);
             }
+            elseif (isset($errors['err'])) {
+                $msg = $errors['err'];
+            }
             elseif (isset($errors['msg'])) {
                 $msg = $errors['msg'];
             }

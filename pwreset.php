@@ -50,6 +50,9 @@ if($_POST) {
             if ($client = UserAuthenticationBackend::processSignOn($errors)) {
                 Http::redirect('index.php');
             }
+            elseif (isset($errors['err'])) {
+                $banner = $errors['err'];
+            }
             elseif (isset($errors['msg'])) {
                 $banner = $errors['msg'];
             }
