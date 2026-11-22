@@ -457,7 +457,7 @@ class ClientAccount extends UserAccount {
 				$errors['err'] =
 					__('Invalid reset token. Logout and try again');
 			elseif (!($ts = $_config->lastModified($rtoken))
-					&& ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+					|| ($cfg->getPwResetWindow() < (Misc::gmtime() - Misc::db2gmtime($ts))))
 				$errors['err'] =
 					__('Invalid reset token. Logout and try again');
 		} elseif ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
