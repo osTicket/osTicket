@@ -273,7 +273,7 @@ class Export {
                 array('modify' => function(&$record, $keys, $obj) use ($depts) {
 
                    if (($i = array_search('permissions', $keys)))
-                       $record[$i] = implode(",", array_keys($obj->getPermission()->getInfo()));
+                       $record[$i] = implode(",", array_keys($obj->getPermission()->getInfo() ?? []));
 
                     $roles = $obj->getRoles();
                     foreach ($depts as $k => $v) {
