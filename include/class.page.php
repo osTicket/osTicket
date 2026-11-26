@@ -302,10 +302,11 @@ class Page extends VerySimpleModel {
             // Content is not new and shouldn't be added below
             unset($vars['trans'][$t->lang]['title']);
             unset($vars['trans'][$t->lang]['body']);
-            $content = array('name' => $title, 'body' => Format::sanitize($body));
+            $current = $t->getComplex();
+            $content = array('name' => $title ?? $current['name'] ?? null, 'body' => Format::sanitize($body));
 
             // Don't update content which wasn't updated
-            if ($content == $t->getComplex())
+            if ($content == $current)
                 continue;
 
             $t->text = $content;
